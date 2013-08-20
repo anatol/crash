@@ -4428,17 +4428,26 @@ dump_variable_length_record_log(int msg_flags)
 {
 	uint32_t idx, log_first_idx, log_next_idx, log_buf_len;
 	ulong log_buf;
-	char *logptr, *logbuf;
+	char *logptr, *logbuf, *log_struct_name;
+
+	if (STRUCT_EXISTS("printk_log")) {
+		// In kernel 3.11 the log structure name was renamed
+		// log -> printk_log
+		// See 62e32ac3505a0cab
+		log_struct_name = "printk_log";
+	} else {
+		log_struct_name = "log";
+	}
 
 	if (INVALID_SIZE(log)) {
-		STRUCT_SIZE_INIT(log, "log");
-		MEMBER_OFFSET_INIT(log_ts_nsec, "log", "ts_nsec");
-		MEMBER_OFFSET_INIT(log_len, "log", "len");
-		MEMBER_OFFSET_INIT(log_text_len, "log", "text_len");
-		MEMBER_OFFSET_INIT(log_dict_len, "log", "dict_len");
-		MEMBER_OFFSET_INIT(log_level, "log", "level");
-		MEMBER_SIZE_INIT(log_level, "log", "level");
-		MEMBER_OFFSET_INIT(log_flags_level, "log", "flags_level");
+		STRUCT_SIZE_INIT(log, log_struct_name);
+		MEMBER_OFFSET_INIT(log_ts_nsec, log_struct_name, "ts_nsec");
+		MEMBER_OFFSET_INIT(log_len, log_struct_name, "len");
+		MEMBER_OFFSET_INIT(log_text_len, log_struct_name, "text_len");
+		MEMBER_OFFSET_INIT(log_dict_len, log_struct_name, "dict_len");
+		MEMBER_OFFSET_INIT(log_level, log_struct_name, "level");
+		MEMBER_SIZE_INIT(log_level, log_struct_name, "level");
+		MEMBER_OFFSET_INIT(log_flags_level, log_struct_name, "flags_level");
 			
 		/*
 		 * If things change, don't kill a dumpfile session 
