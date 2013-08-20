@@ -23,7 +23,7 @@ PROGRAM=crash
 # Supported targets: X86 ALPHA PPC IA64 PPC64
 # TARGET and GDB_CONF_FLAGS will be configured automatically by configure
 #
-TARGET=
+TARGET=X86_64
 GDB_CONF_FLAGS=
 
 ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
@@ -36,7 +36,7 @@ endif
 #
 GDB=gdb-7.6
 GDB_FILES=${GDB_7.6_FILES}
-GDB_OFILES=
+GDB_OFILES=${GDB_7.6_OFILES}
 GDB_PATCH_FILES=gdb-7.6.patch
 
 #
@@ -178,7 +178,7 @@ GDB_7.6_OFILES=${GDB}/gdb/symtab.o
 # 
 # GDB_FLAGS is passed up from the gdb Makefile.
 #
-GDB_FLAGS=
+GDB_FLAGS=-DGDB_7_6
 
 #
 # WARNING_OPTIONS and WARNING_ERROR are both applied on a per-file basis. 
