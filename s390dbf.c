@@ -140,7 +140,7 @@ static inline void* K_PTR(void* addr, char* struct_name, char* member_name)
 }
 
 static inline unsigned long KL_ULONG(void* ptr, char* struct_name, char*
-				     member_name)
+						 member_name)
 {
 	return ULONG(ptr+MEMBER_OFFSET(struct_name,member_name));
 }
@@ -271,12 +271,12 @@ typedef struct debug_info_s {
 /* functions to generate dbf output
  */
 typedef int (debug_header_proc_t) (debug_info_t* id, debug_view_t* view,
-				   int area, debug_entry_t* entry,
-				   char* out_buf);
+					 int area, debug_entry_t* entry,
+					 char* out_buf);
 typedef int (debug_format_proc_t) (debug_info_t* id, debug_view_t* view,
-				   char* out_buf, const char* in_buf);
+					 char* out_buf, const char* in_buf);
 typedef int (debug_prolog_proc_t) (debug_info_t* id, debug_view_t* view,
-				   char* out_buf);
+					 char* out_buf);
 
 struct debug_view_s {
 	char name[DEBUG_MAX_PROCF_LEN];
@@ -309,7 +309,7 @@ EBCASC(char *inout, size_t len)
  */
 static int
 dflt_header_fn(debug_info_t * id, debug_view_t *view,
-	       int area, debug_entry_t * entry, char *out_buf)
+				 int area, debug_entry_t * entry, char *out_buf)
 {
 	struct timeval time_val;
 	unsigned long long time;
@@ -351,16 +351,16 @@ dflt_header_fn(debug_info_t * id, debug_view_t *view,
 
 	if(KL_ARCH == KL_ARCH_S390X){
 		rc += sprintf(out_buf,
-			      "%02i %011lu:%06lu %1u %1s %02i <%20s+%04i>  ",
-			      area, time_val.tv_sec, time_val.tv_usec, level,
-			      except_str, entry->id.fields.cpuid, caller_name,
-			      offset);
+						"%02i %011lu:%06lu %1u %1s %02i <%20s+%04i>  ",
+						area, time_val.tv_sec, time_val.tv_usec, level,
+						except_str, entry->id.fields.cpuid, caller_name,
+						offset);
 	} else {
 		rc += sprintf(out_buf,
-			      "%02i %011lu:%06lu %1u %1s %02i <%-20s+%04i>  ",
-			      area, time_val.tv_sec, time_val.tv_usec, level,
-			      except_str, lentry.id.fields.cpuid, caller_name,
-			      offset);
+						"%02i %011lu:%06lu %1u %1s %02i <%-20s+%04i>  ",
+						area, time_val.tv_sec, time_val.tv_usec, level,
+						except_str, lentry.id.fields.cpuid, caller_name,
+						offset);
 	}
 	return rc;
 }
@@ -370,7 +370,7 @@ dflt_header_fn(debug_info_t * id, debug_view_t *view,
  */
 static int
 raw_header_fn(debug_info_t * id, debug_view_t *view,
-	      int area, debug_entry_t * entry, char *out_buf)
+				int area, debug_entry_t * entry, char *out_buf)
 {
 	int rc;
 
@@ -378,7 +378,7 @@ raw_header_fn(debug_info_t * id, debug_view_t *view,
 	if (out_buf == NULL)
 		goto out;
 	memcpy(out_buf,entry,sizeof(debug_entry_t));
-      out:
+			out:
 	return rc;
 }
 
@@ -387,7 +387,7 @@ raw_header_fn(debug_info_t * id, debug_view_t *view,
  */
 static int
 raw_format_fn(debug_info_t * id, debug_view_t *view,
-	      char *out_buf, const char *in_buf)
+				char *out_buf, const char *in_buf)
 {
 	int rc;
 
@@ -395,7 +395,7 @@ raw_format_fn(debug_info_t * id, debug_view_t *view,
 	if (out_buf == NULL || in_buf == NULL)
 		goto out;
 	memcpy(out_buf, in_buf, id->buf_size);
-      out:
+			out:
 	return rc;
 }
 
@@ -404,7 +404,7 @@ raw_format_fn(debug_info_t * id, debug_view_t *view,
  */
 static int
 hex_ascii_format_fn(debug_info_t * id, debug_view_t *view,
-		    char *out_buf, const char *in_buf)
+				char *out_buf, const char *in_buf)
 {
 	int i, rc = 0;
 
@@ -414,7 +414,7 @@ hex_ascii_format_fn(debug_info_t * id, debug_view_t *view,
 	}
 	for (i = 0; i < id->buf_size; i++) {
 		rc += sprintf(out_buf + rc, "%02x ",
-			      ((unsigned char *) in_buf)[i]);
+						((unsigned char *) in_buf)[i]);
 	}
 	rc += sprintf(out_buf + rc, "| ");
 	for (i = 0; i < id->buf_size; i++) {
@@ -425,7 +425,7 @@ hex_ascii_format_fn(debug_info_t * id, debug_view_t *view,
 			rc += sprintf(out_buf + rc, ".");
 	}
 	rc += sprintf(out_buf + rc, "\n");
-      out:
+			out:
 	return rc;
 }
 
@@ -434,7 +434,7 @@ hex_ascii_format_fn(debug_info_t * id, debug_view_t *view,
  */
 static int
 sprintf_format_fn(debug_info_t * id, debug_view_t *view,
-		  char *out_buf, const char *in_buf)
+			char *out_buf, const char *in_buf)
 {
 #define _BUFSIZE 1024
 	char buf[_BUFSIZE];
@@ -451,8 +451,8 @@ sprintf_format_fn(debug_info_t * id, debug_view_t *view,
 	memset(to_dealloc, 0, sizeof(to_dealloc));
 
 	if (out_buf == NULL || in_buf == NULL) {
-	      rc = id->buf_size * 4 + 3;
-	      goto out;
+				rc = id->buf_size * 4 + 3;
+				goto out;
 	}
 
 	/* get the format string into buf */
@@ -480,7 +480,7 @@ sprintf_format_fn(debug_info_t * id, debug_view_t *view,
 			to_dealloc[num_strings++] = inbuf_cpy[k];
 			addr = KL_GET_PTR((void*) in_buf + ((k + 1)* KL_NBPW));
 			GET_BLOCK(addr, _BUFSIZE,
-				  (void*)(uaddr_t)(inbuf_cpy[k]));
+					(void*)(uaddr_t)(inbuf_cpy[k]));
 		}
 		k++;
 	}
@@ -498,11 +498,11 @@ sprintf_format_fn(debug_info_t * id, debug_view_t *view,
 	num_used_args = MIN(DEBUG_SPRINTF_MAX_ARGS, (num_longs - 1));
 
 	rc = sprintf(out_buf + rc, buf, (uaddr_t)(inbuf_cpy[0]),
-		     (uaddr_t)(inbuf_cpy[1]), (uaddr_t)(inbuf_cpy[2]),
-		     (uaddr_t)(inbuf_cpy[3]), (uaddr_t)(inbuf_cpy[4]),
-		     (uaddr_t)(inbuf_cpy[5]), (uaddr_t)(inbuf_cpy[6]),
-		     (uaddr_t)(inbuf_cpy[7]), (uaddr_t)(inbuf_cpy[8]),
-		     (uaddr_t)(inbuf_cpy[9]));
+				 (uaddr_t)(inbuf_cpy[1]), (uaddr_t)(inbuf_cpy[2]),
+				 (uaddr_t)(inbuf_cpy[3]), (uaddr_t)(inbuf_cpy[4]),
+				 (uaddr_t)(inbuf_cpy[5]), (uaddr_t)(inbuf_cpy[6]),
+				 (uaddr_t)(inbuf_cpy[7]), (uaddr_t)(inbuf_cpy[8]),
+				 (uaddr_t)(inbuf_cpy[9]));
  out:
 	while (num_strings--){
 		free((char*)(to_dealloc[num_strings]));
@@ -529,7 +529,7 @@ prolog_level_fn(debug_info_t * id,
 		goto out;
 	}
 	rc = sprintf(out_buf, "%i\n", id->level);
-      out:
+			out:
 	return rc;
 }
 
@@ -547,7 +547,7 @@ prolog_pages_fn(debug_info_t * id,
 		goto out;
 	}
 	rc = sprintf(out_buf, "%i\n", id->pages_per_area_v2);
-      out:
+			out:
 	return rc;
 }
 
@@ -556,13 +556,13 @@ prolog_pages_fn(debug_info_t * id,
  */
 static int
 prolog_fn(debug_info_t * id,
-	  debug_view_t *view, char *out_buf)
+		debug_view_t *view, char *out_buf)
 {
 	int rc = 0;
 
 	rc = sprintf(out_buf, "AREA TIME LEVEL EXCEPTION CP CALLING FUNCTION"
-		     "   + OFFSET  DATA\n==================================="
-		     "=======================================\n");
+				 "   + OFFSET  DATA\n==================================="
+				 "=======================================\n");
 	return rc;
 }
 
@@ -571,13 +571,13 @@ prolog_fn(debug_info_t * id,
  */
 static int
 hex_format_fn(debug_info_t * id, debug_view_t *view,
-	      char *out_buf, const char *in_buf)
+				char *out_buf, const char *in_buf)
 {
 	int i, rc = 0;
 
 	for (i = 0; i < id->buf_size; i++) {
 		rc += sprintf(out_buf + rc, "%02x ",
-			      ((unsigned char *) in_buf)[i]);
+						((unsigned char *) in_buf)[i]);
 	}
 	rc += sprintf(out_buf + rc, "\n");
 	return rc;
@@ -604,7 +604,7 @@ ascii_format_fn(debug_info_t * id, debug_view_t *view,
 			rc += sprintf(out_buf + rc, "%c", c);
 	}
 	rc += sprintf(out_buf + rc, "\n");
-      out:
+			out:
 	return rc;
 }
 
@@ -630,7 +630,7 @@ ebcdic_format_fn(debug_info_t * id, debug_view_t *view,
 			rc += sprintf(out_buf + rc, "%c", c);
 	}
 	rc += sprintf(out_buf + rc, "\n");
-      out:
+			out:
 	return rc;
 }
 
@@ -746,35 +746,35 @@ debug_format_output_v1(debug_info_t * debug_area, debug_view_t *view,
 	nr_of_entries = (PAGE_SIZE << debug_area->page_order) / debug_area->entry_size;
 	for (i = 0; i < debug_area->nr_areas; i++) {
 		act_entry = debug_find_oldest_entry(debug_area->areas[i],
-						    nr_of_entries,
-						    debug_area->entry_size);
+								nr_of_entries,
+								debug_area->entry_size);
 		last_entry = (debug_entry_t *) ((char *) debug_area->areas[i] +
-			     (PAGE_SIZE << debug_area->page_order) -
-			     debug_area->entry_size);
+					 (PAGE_SIZE << debug_area->page_order) -
+					 debug_area->entry_size);
 		for (j = 0; j < nr_of_entries; j++) {
 			act_entry_data = (char*)act_entry + dbe_size;
 			if (act_entry->id.stck == 0)
 				break;	/* empty entry */
 			if (view->header_proc) {
 				len = view->header_proc(debug_area, view, i,
-						  act_entry, buf);
+							act_entry, buf);
 				items = fwrite(buf,len, 1, ofp);
 				memset(buf, 0, 2048);
 			}
 			if (view->format_proc) {
 				len = view->format_proc(debug_area, view,
-						  buf, act_entry_data);
+							buf, act_entry_data);
 				items = fwrite(buf,len, 1, ofp);
 				memset(buf, 0, 2048);
 			}
 			act_entry =
-			    (debug_entry_t *) (((char *) act_entry) +
-					       debug_area->entry_size);
+					(debug_entry_t *) (((char *) act_entry) +
+								 debug_area->entry_size);
 			if (act_entry > last_entry)
 				act_entry = debug_area->areas[i];
 		}
 	}
-      out:
+			out:
 	return 1;
 }
 
@@ -784,7 +784,7 @@ debug_format_output_v1(debug_info_t * debug_area, debug_view_t *view,
  */
 static int
 debug_format_output_v2(debug_info_t * debug_area,
-		    debug_view_t *view, FILE * ofp)
+				debug_view_t *view, FILE * ofp)
 {
 	int i, j, k, len;
 	debug_entry_t *act_entry;
@@ -898,17 +898,17 @@ debug_get_areas_v1(debug_info_t* db_info, void* k_dbi)
 	kaddr_t dbe_addr;
 	int area_size, i;
 
-       	/* get areas */
+			 	/* get areas */
 	/* place to hold ptrs to debug areas in lcrash */
 	area_size = PAGE_SIZE << db_info->page_order;
-       	db_info->areas = (void**)malloc(db_info->nr_areas * sizeof(void *));
+			 	db_info->areas = (void**)malloc(db_info->nr_areas * sizeof(void *));
 	memset(db_info->areas, 0, db_info->nr_areas * sizeof(void *));
-       	mem_pos = KL_ULONG(k_dbi,"debug_info","areas");
-       	for (i = 0; i < db_info->nr_areas; i++) {
+			 	mem_pos = KL_ULONG(k_dbi,"debug_info","areas");
+			 	for (i = 0; i < db_info->nr_areas; i++) {
 		dbe_addr = KL_VREAD_PTR(mem_pos);
-	       	db_info->areas[i] = (debug_entry_t *) malloc(area_size);
+				 	db_info->areas[i] = (debug_entry_t *) malloc(area_size);
 		/* read raw data for debug area */
-	       	GET_BLOCK(dbe_addr, area_size, db_info->areas[i]);
+				 	GET_BLOCK(dbe_addr, area_size, db_info->areas[i]);
 		mem_pos += KL_NBPW;
 	}
 }
@@ -920,9 +920,9 @@ debug_get_areas_v2(debug_info_t* db_info, void* k_dbi)
 	kaddr_t page_array_ptr;
 	kaddr_t page_ptr;
 	int i,j;
-       	db_info->areas_v2=(void***)malloc(db_info->nr_areas * sizeof(void **));
-       	area_ptr = KL_ULONG(k_dbi,"debug_info","areas");
-       	for (i = 0; i < db_info->nr_areas; i++) {
+			 	db_info->areas_v2=(void***)malloc(db_info->nr_areas * sizeof(void **));
+			 	area_ptr = KL_ULONG(k_dbi,"debug_info","areas");
+			 	for (i = 0; i < db_info->nr_areas; i++) {
 		db_info->areas_v2[i] = (void**)malloc(db_info->pages_per_area_v2
 							* sizeof(void*));
 		page_array_ptr = KL_VREAD_PTR(area_ptr);
@@ -930,7 +930,7 @@ debug_get_areas_v2(debug_info_t* db_info, void* k_dbi)
 			page_ptr = KL_VREAD_PTR(page_array_ptr);
 			db_info->areas_v2[i][j] = (void*)malloc(PAGE_SIZE);
 			/* read raw data for debug area */
-	       		GET_BLOCK(page_ptr, PAGE_SIZE, db_info->areas_v2[i][j]);
+				 		GET_BLOCK(page_ptr, PAGE_SIZE, db_info->areas_v2[i][j]);
 			page_array_ptr += KL_NBPW;
 		}
 		area_ptr += KL_NBPW;
@@ -1232,7 +1232,7 @@ load_debug_view(const char *path, command_t * cmd)
 
 static int
 save_one_view(const char *dbf_dir_name, const char *area_name,
-	      const char *view_name, command_t *cmd)
+				const char *view_name, command_t *cmd)
 {
 	char path_view[PATH_MAX];
 	debug_info_t *db_info;
@@ -1287,7 +1287,7 @@ save_one_area(const char *dbf_dir_name, const char *area_name, command_t *cmd)
 		if (!find_lcrash_debug_view(db_info->views[i]->name))
 			continue;
 		save_one_view(dbf_dir_name, area_name, db_info->views[i]->name,
-			      cmd);
+						cmd);
 	}
 	return 0;
 }

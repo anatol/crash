@@ -52,10 +52,10 @@ xen_hyper_cmd_help(void)
 
 	oflag = 0;
 
-        while ((c = getopt(argcnt, args,
-	        "aBbcDgHhM:mnOopszX:")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args,
+					"aBbcDgHhM:mnOopszX:")) != EOF) {
+								switch(c)
+								{
 		case 'a':
 			dump_alias_data();
 			return;
@@ -165,14 +165,14 @@ xen_hyper_cmd_help(void)
 			fprintf(fp, " -X siz - size table data\n");
 			fprintf(fp, " -X ofs - offset table data\n");
 			return;
-                default:
+								default:
 			argerrs++;
-                        break;
-                }
-        }
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, COMPLETE_HELP);
+				if (argerrs)
+								cmd_usage(pc->curcmd, COMPLETE_HELP);
 
 	if (!args[optind]) {
 		if (oflag)
@@ -182,13 +182,13 @@ xen_hyper_cmd_help(void)
 		return;
 	}
 
-        do {
+				do {
 		if (oflag)
 			dump_offset_table(args[optind], FALSE);
 		else
-        		cmd_usage(args[optind], COMPLETE_HELP);
+						cmd_usage(args[optind], COMPLETE_HELP);
 		optind++;
-        } while (args[optind]);
+				} while (args[optind]);
 }
 
 /*

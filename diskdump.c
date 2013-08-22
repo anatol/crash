@@ -31,8 +31,8 @@
 struct diskdump_data {
 	char *filename;
 	ulong flags;       /* DISKDUMP_LOCAL, plus anything else... */
-        int dfd;           /* dumpfile file descriptor */
-        FILE *ofp;         /* fprintf(dd->ofp, "xxx"); */
+				int dfd;           /* dumpfile file descriptor */
+				FILE *ofp;         /* fprintf(dd->ofp, "xxx"); */
 	int machine_type;  /* machine type identifier */
 
 	/* header */
@@ -102,7 +102,7 @@ map_cpus_to_prstatus_kdump_cmprs(void)
 
 	if (CRASHDEBUG(1))
 		error(INFO,
-		    "cpus: %d online: %d NT_PRSTATUS notes: %d (remapping)\n",
+				"cpus: %d online: %d NT_PRSTATUS notes: %d (remapping)\n",
 			kt->cpus, online, dd->num_prstatus_notes);
 
 	size = NR_CPUS * sizeof(void *);
@@ -141,16 +141,16 @@ add_diskdump_data(char* name)
 	} else {
 		for (i = 0; i < num_dumpfiles; i++) {
 			ddp = dd_list[i];
-                	if (same_file(ddp->filename, name))
+									if (same_file(ddp->filename, name))
 				error(FATAL,
-				    "split dumpfiles are identical:\n"
-				    "  %s\n  %s\n",
+						"split dumpfiles are identical:\n"
+						"  %s\n  %s\n",
 					ddp->filename, name);
 			if (memcmp(ddp->header, dd->header,
-			    sizeof(struct disk_dump_header)))
+					sizeof(struct disk_dump_header)))
 				error(FATAL,
-				    "split dumpfiles derived from different vmcores:\n"
-				    "  %s\n  %s\n",
+						"split dumpfiles derived from different vmcores:\n"
+						"  %s\n  %s\n",
 					ddp->filename, name);
 		}
 	}
@@ -214,7 +214,7 @@ static inline int
 dump_is_partial(const struct disk_dump_header *header)
 {
 	return header->bitmap_blocks >=
-	    divideup(divideup(header->max_mapnr, 8), dd->block_size) * 2;
+			divideup(divideup(header->max_mapnr, 8), dd->block_size) * 2;
 }
 
 static int
@@ -343,20 +343,20 @@ x86_process_elf_notes(void *note_ptr, unsigned long size_note)
  */
 
 struct kdump_sub_header_ARM_target {
-        unsigned long   phys_base;
-        int             dump_level;         /* header_version 1 and later */
-        int             split;              /* header_version 2 and later */
-        unsigned long   start_pfn;          /* header_version 2 and later */
-        unsigned long   end_pfn;            /* header_version 2 and later */
+				unsigned long   phys_base;
+				int             dump_level;         /* header_version 1 and later */
+				int             split;              /* header_version 2 and later */
+				unsigned long   start_pfn;          /* header_version 2 and later */
+				unsigned long   end_pfn;            /* header_version 2 and later */
 	int		pad1;
-        off_t           offset_vmcoreinfo;  /* header_version 3 and later */
-        unsigned long   size_vmcoreinfo;    /* header_version 3 and later */
+				off_t           offset_vmcoreinfo;  /* header_version 3 and later */
+				unsigned long   size_vmcoreinfo;    /* header_version 3 and later */
 	int 		pad2;
-        off_t           offset_note;        /* header_version 4 and later */
-        unsigned long   size_note;          /* header_version 4 and later */
+				off_t           offset_note;        /* header_version 4 and later */
+				unsigned long   size_note;          /* header_version 4 and later */
 	int 		pad3;
-        off_t           offset_eraseinfo;   /* header_version 5 and later */
-        unsigned long   size_eraseinfo;     /* header_version 5 and later */
+				off_t           offset_eraseinfo;   /* header_version 5 and later */
+				unsigned long   size_eraseinfo;     /* header_version 5 and later */
 };
 
 static void
@@ -435,7 +435,7 @@ restart:
 	} else {
 		if (CRASHDEBUG(1))
 			error(INFO,
-			    "diskdump / compressed kdump: dump does not have panic dump header\n");
+					"diskdump / compressed kdump: dump does not have panic dump header\n");
 		goto err;
 	}
 
@@ -445,35 +445,35 @@ restart:
 			header->utsname.machine);
 
 	if (STRNEQ(header->utsname.machine, "i686") &&
-	    machine_type_mismatch(file, "X86", NULL, 0))
+			machine_type_mismatch(file, "X86", NULL, 0))
 		goto err;
 	else if (STRNEQ(header->utsname.machine, "x86_64") &&
-	    machine_type_mismatch(file, "X86_64", NULL, 0))
+			machine_type_mismatch(file, "X86_64", NULL, 0))
 		goto err;
 	else if (STRNEQ(header->utsname.machine, "ia64") &&
-	    machine_type_mismatch(file, "IA64", NULL, 0))
+			machine_type_mismatch(file, "IA64", NULL, 0))
 		goto err;
 	else if (STREQ(header->utsname.machine, "ppc") &&
-	    machine_type_mismatch(file, "PPC", NULL, 0))
+			machine_type_mismatch(file, "PPC", NULL, 0))
 		goto err;
 	else if (STREQ(header->utsname.machine, "ppc64") &&
-	    machine_type_mismatch(file, "PPC64", NULL, 0))
+			machine_type_mismatch(file, "PPC64", NULL, 0))
 		goto err;
 	else if (STRNEQ(header->utsname.machine, "arm") &&
-	    machine_type_mismatch(file, "ARM", NULL, 0))
+			machine_type_mismatch(file, "ARM", NULL, 0))
 		goto err;
 	else if (STRNEQ(header->utsname.machine, "s390x") &&
-	    machine_type_mismatch(file, "S390X", NULL, 0))
+			machine_type_mismatch(file, "S390X", NULL, 0))
 		goto err;
 	else if (STRNEQ(header->utsname.machine, "aarch64") &&
-	    machine_type_mismatch(file, "ARM64", NULL, 0))
+			machine_type_mismatch(file, "ARM64", NULL, 0))
 		goto err;
 
 	if (header->block_size != block_size) {
 		block_size = header->block_size;
 		if (CRASHDEBUG(1))
 			fprintf(fp,
-			    "retrying with different block/page size: %d\n",
+					"retrying with different block/page size: %d\n",
 				header->block_size);
 		goto restart;
 	}
@@ -481,17 +481,17 @@ restart:
 	dd->block_shift = ffs(header->block_size) - 1;
 
 	if ((DISKDUMP_VALID() &&
-             (sizeof(*header) + sizeof(void *) * header->nr_cpus > block_size)) ||
-             header->nr_cpus <= 0) {
-                error(WARNING, "%s: invalid nr_cpus value: %d\n",
-                        DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
-                        header->nr_cpus);
+						 (sizeof(*header) + sizeof(void *) * header->nr_cpus > block_size)) ||
+						 header->nr_cpus <= 0) {
+								error(WARNING, "%s: invalid nr_cpus value: %d\n",
+												DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
+												header->nr_cpus);
 		if (!machine_type("S390") && !machine_type("S390X") &&
-		    !machine_type("X86") && !machine_type("X86_64")) {
+				!machine_type("X86") && !machine_type("X86_64")) {
 			if (DISKDUMP_VALID())
 				goto err;
 		}
-        }
+				}
 
 	/* read sub header */
 	offset = (off_t)block_size;
@@ -580,7 +580,7 @@ restart:
 
 	if (dump_is_partial(header))
 		memcpy(dd->dumpable_bitmap, dd->bitmap + bitmap_len/2,
-		       bitmap_len/2);
+					 bitmap_len/2);
 	else
 		memcpy(dd->dumpable_bitmap, dd->bitmap, bitmap_len);
 
@@ -664,10 +664,10 @@ restart:
 	/* For split dumpfile */
 	if (KDUMP_CMPRS_VALID()) {
 		is_split = ((dd->header->header_version >= 2) &&
-		            (sub_header_kdump->split));
+								(sub_header_kdump->split));
 
 		if ((is_split && (num_dumpfiles != 0) && (dd_list == NULL))||
-		    (!is_split && (num_dumpfiles != 0))) {
+				(!is_split && (num_dumpfiles != 0))) {
 			clean_diskdump_data();
 			goto err;
 		}
@@ -698,7 +698,7 @@ restart:
 				dd->valid_pages[i]++;
 	}
 
-        return TRUE;
+				return TRUE;
 
 err:
 	free(header);
@@ -950,9 +950,9 @@ cache_page(physaddr_t paddr)
 	if (pd.flags & DUMP_DH_COMPRESSED_ZLIB) {
 		retlen = block_size;
 		ret = uncompress((unsigned char *)dd->page_cache_hdr[i].pg_bufptr,
-		                 &retlen,
-		                 (unsigned char *)dd->compressed_page,
-		                 pd.size);
+										 &retlen,
+										 (unsigned char *)dd->compressed_page,
+										 pd.size);
 		if ((ret != Z_OK) || (retlen != block_size)) {
 			error(INFO, "%s: uncompress failed: %d\n",
 				DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
@@ -963,17 +963,17 @@ cache_page(physaddr_t paddr)
 
 		if (!(dd->flags & LZO_SUPPORTED)) {
 			error(INFO, "%s: uncompress failed: no lzo compression support\n",
-			      DISKDUMP_VALID() ? "diskdump" : "compressed kdump");
+						DISKDUMP_VALID() ? "diskdump" : "compressed kdump");
 			return READ_ERROR;
 		}
 
 #ifdef LZO
 		retlen = block_size;
 		ret = lzo1x_decompress_safe((unsigned char *)dd->compressed_page,
-					    pd.size,
-					    (unsigned char *)dd->page_cache_hdr[i].pg_bufptr,
-					    &retlen,
-					    LZO1X_MEM_DECOMPRESS);
+							pd.size,
+							(unsigned char *)dd->page_cache_hdr[i].pg_bufptr,
+							&retlen,
+							LZO1X_MEM_DECOMPRESS);
 		if ((ret != LZO_E_OK) || (retlen != block_size)) {
 			error(INFO, "%s: uncompress failed: %d\n",
 				DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
@@ -985,7 +985,7 @@ cache_page(physaddr_t paddr)
 
 		if (!(dd->flags & SNAPPY_SUPPORTED)) {
 			error(INFO, "%s: uncompress failed: no snappy compression support\n",
-			      DISKDUMP_VALID() ? "diskdump" : "compressed kdump");
+						DISKDUMP_VALID() ? "diskdump" : "compressed kdump");
 			return READ_ERROR;
 		}
 
@@ -994,8 +994,8 @@ cache_page(physaddr_t paddr)
 						 pd.size, &retlen);
 		if (ret != SNAPPY_OK) {
 			error(INFO, "%s: uncompress failed: %d\n",
-			      DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
-			      ret);
+						DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
+						ret);
 			return READ_ERROR;
 		}
 
@@ -1004,14 +1004,14 @@ cache_page(physaddr_t paddr)
 					&retlen);
 		if ((ret != SNAPPY_OK) || (retlen != block_size)) {
 			error(INFO, "%s: uncompress failed: %d\n",
-			      DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
-			      ret);
+						DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
+						ret);
 			return READ_ERROR;
 		}
 #endif
 	} else
 		memcpy(dd->page_cache_hdr[i].pg_bufptr,
-		       dd->compressed_page, block_size);
+					 dd->compressed_page, block_size);
 
 	dd->page_cache_hdr[i].pg_flags |= PAGE_VALID;
 	dd->curbufptr = dd->page_cache_hdr[i].pg_bufptr;
@@ -1049,7 +1049,7 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 		if (i == num_dumpfiles) {
 			if (CRASHDEBUG(8))
 				fprintf(fp, "read_diskdump: SEEK_ERROR: "
-				    "paddr/pfn %llx/%lx beyond last dumpfile\n",
+						"paddr/pfn %llx/%lx beyond last dumpfile\n",
 					(ulonglong)paddr, pfn);
 			return SEEK_ERROR;
 		}
@@ -1061,7 +1061,7 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 	if ((pfn >= dd->header->max_mapnr) || !page_is_ram(pfn)) {
 		if (CRASHDEBUG(8)) {
 			fprintf(fp, "read_diskdump: SEEK_ERROR: "
-			    "paddr/pfn: %llx/%lx ",
+					"paddr/pfn: %llx/%lx ",
 				(ulonglong)paddr, pfn);
 			if (pfn >= dd->header->max_mapnr)
 				fprintf(fp, "max_mapnr: %x\n",
@@ -1075,16 +1075,16 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 
 	if (!page_is_dumpable(pfn)) {
 		if ((dd->flags & (ZERO_EXCLUDED|ERROR_EXCLUDED)) ==
-		    ERROR_EXCLUDED) {
+				ERROR_EXCLUDED) {
 			if (CRASHDEBUG(8))
 				fprintf(fp, "read_diskdump: PAGE_EXCLUDED: "
-			    	    "paddr/pfn: %llx/%lx\n",
+								"paddr/pfn: %llx/%lx\n",
 					(ulonglong)paddr, pfn);
 			return PAGE_EXCLUDED;
 		}
 		if (CRASHDEBUG(8))
 			fprintf(fp, "read_diskdump: zero-fill: "
-		    	    "paddr/pfn: %llx/%lx\n",
+							"paddr/pfn: %llx/%lx\n",
 				(ulonglong)paddr, pfn);
 		memset(bufptr, 0, cnt);
 		return cnt;
@@ -1093,13 +1093,13 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 	if (!page_is_cached(curpaddr)) {
 		if (CRASHDEBUG(8))
 			fprintf(fp, "read_diskdump: paddr/pfn: %llx/%lx"
-			    " -> cache physical page: %llx\n",
+					" -> cache physical page: %llx\n",
 				(ulonglong)paddr, pfn, (ulonglong)curpaddr);
 
 		if ((ret = cache_page(curpaddr)) < 0) {
 			if (CRASHDEBUG(8))
 				fprintf(fp, "read_diskdump: "
-				    "%s: cannot cache page: %llx\n",
+						"%s: cannot cache page: %llx\n",
 					ret == SEEK_ERROR ?
 					"SEEK_ERROR" : "READ_ERROR",
 					(ulonglong)curpaddr);
@@ -1107,7 +1107,7 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 		}
 	} else if (CRASHDEBUG(8))
 		fprintf(fp, "read_diskdump: paddr/pfn: %llx/%lx"
-		    " -> physical page is cached: %llx\n",
+				" -> physical page is cached: %llx\n",
 			(ulonglong)paddr, pfn, (ulonglong)curpaddr);
 
 	memcpy(bufptr, dd->curbufptr + page_offset, cnt);
@@ -1129,7 +1129,7 @@ get_diskdump_panic_task(void)
 	int i;
 
 	if ((!DISKDUMP_VALID() && !KDUMP_CMPRS_VALID())
-	    || !get_active_set())
+			|| !get_active_set())
 		return NO_TASK;
 
 	if (DISKDUMP_VALID())
@@ -1137,12 +1137,12 @@ get_diskdump_panic_task(void)
 
 	if (KDUMP_CMPRS_VALID()) {
 		if (kernel_symbol_exists("crashing_cpu") &&
-		    cpu_map_addr("online")) {
+				cpu_map_addr("online")) {
 			get_symbol_data("crashing_cpu", sizeof(int), &i);
 			if ((i >= 0) && in_cpu_map(ONLINE, i)) {
 				if (CRASHDEBUG(1))
 					error(INFO, "get_diskdump_panic_task: "
-					    "active_set[%d]: %lx\n",
+							"active_set[%d]: %lx\n",
 						i, tt->active_set[i]);
 				return (tt->active_set[i]);
 			}
@@ -1170,8 +1170,8 @@ get_diskdump_regs_ppc(struct bt_info *bt, ulong *eip, ulong *esp)
 		note  = (Elf32_Nhdr*) dd->nt_prstatus_percpu[bt->tc->processor];
 		if (!note)
 			error(FATAL,
-				    "cannot determine NT_PRSTATUS ELF note "
-				    "for %s task: %lx\n",
+						"cannot determine NT_PRSTATUS ELF note "
+						"for %s task: %lx\n",
 					(bt->task == tt->panic_task) ?
 					"panic" : "active", bt->task);
 		len = sizeof(Elf32_Nhdr);
@@ -1222,7 +1222,7 @@ get_diskdump_regs(struct bt_info *bt, ulong *eip, ulong *esp)
 		break;
 
 	case EM_IA_64:
-	       /* For normal backtraces, this information will be obtained
+				 /* For normal backtraces, this information will be obtained
 		* from the switch_stack structure, which is pointed to by
 		* the thread.ksp field of the task_struct. But it's still
 		* needed by the "bt -t" option.
@@ -1276,13 +1276,13 @@ diskdump_page_size(void)
 int
 diskdump_free_memory(void)
 {
-        return 0;
+				return 0;
 }
 
 int
 diskdump_memory_used(void)
 {
-        return 0;
+				return 0;
 }
 
 static void
@@ -1385,16 +1385,16 @@ dump_nt_prstatus_offset(FILE *fp)
 	int cnt;
 
 	if (KDUMP_CMPRS_VALID() && !(dd->flags & NO_ELF_NOTES) &&
-	    (dd->header->header_version >= 4) &&
-	    (sub_header_kdump->offset_note) &&
-	    (sub_header_kdump->size_note) && (machdep->process_elf_notes)) {
+			(dd->header->header_version >= 4) &&
+			(sub_header_kdump->offset_note) &&
+			(sub_header_kdump->size_note) && (machdep->process_elf_notes)) {
 		size = sub_header_kdump->size_note;
 		offset = sub_header_kdump->offset_note;
 
 		fprintf(fp, "  NT_PRSTATUS_offset: ");
 		for (tot = cnt = 0; tot < size; tot += len) {
 			if (machine_type("X86_64") || machine_type("S390X") ||
-			    machine_type("ARM64")) {
+					machine_type("ARM64")) {
 				note64 = (void *)dd->notes_buf + tot;
 				len = sizeof(Elf64_Nhdr);
 				len = roundup(len + note64->n_namesz, 4);
@@ -1443,28 +1443,28 @@ __diskdump_memory_dump(FILE *fp)
 	if (FLAT_FORMAT())
 		dump_flat_header(fp);
 
-        fprintf(fp, "diskdump_data: \n");
+				fprintf(fp, "diskdump_data: \n");
 	fprintf(fp, "          filename: %s\n", dd->filename);
-        fprintf(fp, "             flags: %lx (", dd->flags);
-        others = 0;
-        if (dd->flags & DISKDUMP_LOCAL)
-                fprintf(fp, "%sDISKDUMP_LOCAL", others++ ? "|" : "");
-        if (dd->flags & KDUMP_CMPRS_LOCAL)
-                fprintf(fp, "%sKDUMP_CMPRS_LOCAL", others++ ? "|" : "");
-        if (dd->flags & ERROR_EXCLUDED)
-                fprintf(fp, "%sERROR_EXCLUDED", others++ ? "|" : "");
-        if (dd->flags & ZERO_EXCLUDED)
-                fprintf(fp, "%sZERO_EXCLUDED", others++ ? "|" : "");
+				fprintf(fp, "             flags: %lx (", dd->flags);
+				others = 0;
+				if (dd->flags & DISKDUMP_LOCAL)
+								fprintf(fp, "%sDISKDUMP_LOCAL", others++ ? "|" : "");
+				if (dd->flags & KDUMP_CMPRS_LOCAL)
+								fprintf(fp, "%sKDUMP_CMPRS_LOCAL", others++ ? "|" : "");
+				if (dd->flags & ERROR_EXCLUDED)
+								fprintf(fp, "%sERROR_EXCLUDED", others++ ? "|" : "");
+				if (dd->flags & ZERO_EXCLUDED)
+								fprintf(fp, "%sZERO_EXCLUDED", others++ ? "|" : "");
 	if (dd->flags & NO_ELF_NOTES)
 		fprintf(fp, "%sNO_ELF_NOTES", others++ ? "|" : "");
 	if (dd->flags & LZO_SUPPORTED)
 		fprintf(fp, "%sLZO_SUPPORTED", others++ ? "|" : "");
 	if (dd->flags & SNAPPY_SUPPORTED)
 		fprintf(fp, "%sSNAPPY_SUPPORTED", others++ ? "|" : "");
-        fprintf(fp, ") %s\n", FLAT_FORMAT() ? "[FLAT]" : "");
-        fprintf(fp, "               dfd: %d\n", dd->dfd);
-        fprintf(fp, "               ofp: %lx\n", (ulong)dd->ofp);
-        fprintf(fp, "      machine_type: %d ", dd->machine_type);
+				fprintf(fp, ") %s\n", FLAT_FORMAT() ? "[FLAT]" : "");
+				fprintf(fp, "               dfd: %d\n", dd->dfd);
+				fprintf(fp, "               ofp: %lx\n", (ulong)dd->ofp);
+				fprintf(fp, "      machine_type: %d ", dd->machine_type);
 	switch (dd->machine_type)
 	{
 	case EM_ARM:
@@ -1487,7 +1487,7 @@ __diskdump_memory_dump(FILE *fp)
 		fprintf(fp, "(unknown)\n"); break;
 	}
 
-        fprintf(fp, "\n            header: %lx\n", (ulong)dd->header);
+				fprintf(fp, "\n            header: %lx\n", (ulong)dd->header);
 	dh = dd->header;
 	fprintf(fp, "           signature: \"");
 	for (i = 0; i < SIG_LEN; i++)
@@ -1506,13 +1506,13 @@ __diskdump_memory_dump(FILE *fp)
 	fprintf(fp, "                tv_sec: %lx\n", dh->timestamp.tv_sec);
 	fprintf(fp, "               tv_usec: %lx\n", dh->timestamp.tv_usec);
 	fprintf(fp, "              status: %x (", dh->status);
-        others = 0;
-        if (dh->status & DUMP_HEADER_COMPLETED)
-                fprintf(fp, "%sDUMP_HEADER_COMPLETED", others++ ? "|" : "");
-        if (dh->status & DUMP_HEADER_INCOMPLETED)
-                fprintf(fp, "%sDUMP_HEADER_INCOMPLETED", others++ ? "|" : "");
-        if (dh->status & DUMP_HEADER_COMPRESSED)
-                fprintf(fp, "%sDUMP_HEADER_COMPRESSED", others++ ? "|" : "");
+				others = 0;
+				if (dh->status & DUMP_HEADER_COMPLETED)
+								fprintf(fp, "%sDUMP_HEADER_COMPLETED", others++ ? "|" : "");
+				if (dh->status & DUMP_HEADER_INCOMPLETED)
+								fprintf(fp, "%sDUMP_HEADER_INCOMPLETED", others++ ? "|" : "");
+				if (dh->status & DUMP_HEADER_COMPRESSED)
+								fprintf(fp, "%sDUMP_HEADER_COMPRESSED", others++ ? "|" : "");
 	fprintf(fp, ")\n");
 	fprintf(fp, "          block_size: %d\n", dh->block_size);
 	fprintf(fp, "        sub_hdr_size: %d\n", dh->sub_hdr_size);
@@ -1529,14 +1529,14 @@ __diskdump_memory_dump(FILE *fp)
 		fprintf(fp, "                      %lx\n", *tasks);
 		tasks++;
 	}
-        fprintf(fp, "\n");
+				fprintf(fp, "\n");
 	fprintf(fp, "        sub_header: %lx ", (ulong)dd->sub_header);
 	if ((dsh = dd->sub_header)) {
 		fprintf(fp, "\n            elf_regs: %lx\n",
 			(ulong)&dsh->elf_regs);
 		fprintf(fp, "          dump_level: ");
 		if ((pc->flags & RUNTIME) &&
-		    ((dump_level = get_dump_level()) >= 0)) {
+				((dump_level = get_dump_level()) >= 0)) {
 			fprintf(fp, "%d (0x%x) %s", dump_level, dump_level,
 				dump_level ? "(" : "");
 
@@ -1546,21 +1546,21 @@ __diskdump_memory_dump(FILE *fp)
 #define DUMP_EXCLUDE_ANON  0x00000008   /* Exclude Anon pages */
 #define DUMP_SAVE_PRIVATE  0x00000010   /* Save private pages */
 
-		        others = 0;
-        		if (dump_level & DUMP_EXCLUDE_CACHE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
+						others = 0;
+						if (dump_level & DUMP_EXCLUDE_CACHE)
+										fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
 					others++ ? "|" : "");
-        		if (dump_level & DUMP_EXCLUDE_CLEAN)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CLEAN",
+						if (dump_level & DUMP_EXCLUDE_CLEAN)
+										fprintf(fp, "%sDUMP_EXCLUDE_CLEAN",
 					others++ ? "|" : "");
-        		if (dump_level & DUMP_EXCLUDE_FREE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_FREE",
+						if (dump_level & DUMP_EXCLUDE_FREE)
+										fprintf(fp, "%sDUMP_EXCLUDE_FREE",
 					others++ ? "|" : "");
-        		if (dump_level & DUMP_EXCLUDE_ANON)
-                		fprintf(fp, "%sDUMP_EXCLUDE_ANON",
+						if (dump_level & DUMP_EXCLUDE_ANON)
+										fprintf(fp, "%sDUMP_EXCLUDE_ANON",
 					others++ ? "|" : "");
-        		if (dump_level & DUMP_SAVE_PRIVATE)
-                		fprintf(fp, "%sDUMP_SAVE_PRIVATE",
+						if (dump_level & DUMP_SAVE_PRIVATE)
+										fprintf(fp, "%sDUMP_SAVE_PRIVATE",
 					others++ ? "|" : "");
 			fprintf(fp, "%s\n\n", dump_level ? ")" : "");
 		} else
@@ -1568,7 +1568,7 @@ __diskdump_memory_dump(FILE *fp)
 				"(unknown)" : "(undetermined)");
 
 	} else
-        	fprintf(fp, "(n/a)\n\n");
+					fprintf(fp, "(n/a)\n\n");
 
 	fprintf(fp, "  sub_header_kdump: %lx ", (ulong)dd->sub_header_kdump);
 	if ((kdsh = dd->sub_header_kdump)) {
@@ -1585,20 +1585,20 @@ __diskdump_memory_dump(FILE *fp)
 #define DL_EXCLUDE_USER_DATA    (0x008) /* Exclude UserProcessData Pages */
 #define DL_EXCLUDE_FREE         (0x010) /* Exclude Free Pages */
 
-        		if (dump_level & DL_EXCLUDE_ZERO)
-                		fprintf(fp, "%sDUMP_EXCLUDE_ZERO",
+						if (dump_level & DL_EXCLUDE_ZERO)
+										fprintf(fp, "%sDUMP_EXCLUDE_ZERO",
 					others++ ? "|" : "");
-        		if (dump_level & DL_EXCLUDE_CACHE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
+						if (dump_level & DL_EXCLUDE_CACHE)
+										fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
 					others++ ? "|" : "");
-        		if (dump_level & DL_EXCLUDE_CACHE_PRI)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE_PRI",
+						if (dump_level & DL_EXCLUDE_CACHE_PRI)
+										fprintf(fp, "%sDUMP_EXCLUDE_CACHE_PRI",
 					others++ ? "|" : "");
-        		if (dump_level & DL_EXCLUDE_USER_DATA)
-                		fprintf(fp, "%sDUMP_EXCLUDE_USER_DATA",
+						if (dump_level & DL_EXCLUDE_USER_DATA)
+										fprintf(fp, "%sDUMP_EXCLUDE_USER_DATA",
 					others++ ? "|" : "");
-        		if (dump_level & DL_EXCLUDE_FREE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_FREE",
+						if (dump_level & DL_EXCLUDE_FREE)
+										fprintf(fp, "%sDUMP_EXCLUDE_FREE",
 					others++ ? "|" : "");
 			others = 0;
 
@@ -1664,7 +1664,7 @@ __diskdump_memory_dump(FILE *fp)
 		}
 		fprintf(fp, "\n");
 	} else
-        	fprintf(fp, "(n/a)\n\n");
+					fprintf(fp, "(n/a)\n\n");
 
 	fprintf(fp, "       data_offset: %lx\n", (ulong)dd->data_offset);
 	fprintf(fp, "        block_size: %d\n", dd->block_size);
@@ -1682,7 +1682,7 @@ __diskdump_memory_dump(FILE *fp)
 		fprintf(fp, "            pg_flags: %x (", dd->page_cache_hdr[i].pg_flags);
 		others = 0;
 		if (dd->page_cache_hdr[i].pg_flags & PAGE_VALID)
-                	fprintf(fp, "%sPAGE_VALID", others++ ? "|" : "");
+									fprintf(fp, "%sPAGE_VALID", others++ ? "|" : "");
 		fprintf(fp, ")\n");
 		fprintf(fp, "             pg_addr: %llx\n", (ulonglong)dd->page_cache_hdr[i].pg_addr);
 		fprintf(fp, "           pg_bufptr: %lx\n", (ulong)dd->page_cache_hdr[i].pg_bufptr);
@@ -1746,9 +1746,9 @@ get_dump_level(void)
 
 	if (DISKDUMP_VALID()) {
 		if (symbol_exists("dump_level") &&
-		    readmem(symbol_value("dump_level"), KVADDR, &dump_level,
-		    sizeof(dump_level), "dump_level", QUIET|RETURN_ON_ERROR))
-                 	return dump_level;
+				readmem(symbol_value("dump_level"), KVADDR, &dump_level,
+				sizeof(dump_level), "dump_level", QUIET|RETURN_ON_ERROR))
+								 	return dump_level;
 	} else if (KDUMP_CMPRS_VALID()) {
 		if (dd->header->header_version >= 1)
 			return dd->sub_header_kdump->dump_level;
@@ -1776,8 +1776,8 @@ show_split_dumpfiles(void)
 	int i;
 	struct diskdump_data *ddp;
 
-        for (i = 0; i < num_dumpfiles; i++) {
-        	ddp = dd_list[i];
+				for (i = 0; i < num_dumpfiles; i++) {
+					ddp = dd_list[i];
 		fprintf(fp, "%s%s %s",
 			i ? "              " : "",
 			ddp->filename,
@@ -1819,7 +1819,7 @@ vmcoreinfo_read_string(const char *key)
 
 	if ((buf = malloc(size_vmcoreinfo+1)) == NULL) {
 		error(INFO, "compressed kdump: cannot malloc vmcoreinfo"
-			    " buffer\n");
+					" buffer\n");
 		goto err;
 	}
 
@@ -1889,33 +1889,33 @@ diskdump_display_regs(int cpu, FILE *ofp)
 		len = roundup(len + note64->n_descsz, 4);
 		user_regs = (char *)note64 + len - SIZE(user_regs_struct) - sizeof(long);
 		fprintf(ofp,
-		    "    RIP: %016llx  RSP: %016llx  RFLAGS: %08llx\n"
-		    "    RAX: %016llx  RBX: %016llx  RCX: %016llx\n"
-		    "    RDX: %016llx  RSI: %016llx  RDI: %016llx\n"
-		    "    RBP: %016llx   R8: %016llx   R9: %016llx\n"
-		    "    R10: %016llx  R11: %016llx  R12: %016llx\n"
-		    "    R13: %016llx  R14: %016llx  R15: %016llx\n"
-		    "    CS: %04x  SS: %04x\n",
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rip)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rsp)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_eflags)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rax)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rbx)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rcx)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rdx)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rsi)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rdi)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_rbp)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r8)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r9)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r10)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r11)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r12)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r13)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r14)),
-		    ULONGLONG(user_regs + OFFSET(user_regs_struct_r15)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_cs)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_ss))
+				"    RIP: %016llx  RSP: %016llx  RFLAGS: %08llx\n"
+				"    RAX: %016llx  RBX: %016llx  RCX: %016llx\n"
+				"    RDX: %016llx  RSI: %016llx  RDI: %016llx\n"
+				"    RBP: %016llx   R8: %016llx   R9: %016llx\n"
+				"    R10: %016llx  R11: %016llx  R12: %016llx\n"
+				"    R13: %016llx  R14: %016llx  R15: %016llx\n"
+				"    CS: %04x  SS: %04x\n",
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rip)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rsp)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_eflags)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rax)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rbx)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rcx)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rdx)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rsi)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rdi)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_rbp)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r8)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r9)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r10)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r11)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r12)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r13)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r14)),
+				ULONGLONG(user_regs + OFFSET(user_regs_struct_r15)),
+				USHORT(user_regs + OFFSET(user_regs_struct_cs)),
+				USHORT(user_regs + OFFSET(user_regs_struct_ss))
 		);
 	}
 
@@ -1935,27 +1935,27 @@ diskdump_display_regs(int cpu, FILE *ofp)
 		len = roundup(len + note32->n_descsz, 4);
 		user_regs = (char *)note32 + len - SIZE(user_regs_struct) - sizeof(int);
 		fprintf(ofp,
-		    "    EAX: %08x  EBX: %08x  ECX: %08x  EDX: %08x\n"
-		    "    ESP: %08x  EIP: %08x  ESI: %08x  EDI: %08x\n"
-		    "    CS: %04x       DS: %04x       ES: %04x       FS: %04x\n"
-		    "    GS: %04x       SS: %04x\n"
-		    "    EBP: %08x  EFLAGS: %08x\n",
-		    UINT(user_regs + OFFSET(user_regs_struct_eax)),
-		    UINT(user_regs + OFFSET(user_regs_struct_ebx)),
-		    UINT(user_regs + OFFSET(user_regs_struct_ecx)),
-		    UINT(user_regs + OFFSET(user_regs_struct_edx)),
-		    UINT(user_regs + OFFSET(user_regs_struct_esp)),
-		    UINT(user_regs + OFFSET(user_regs_struct_eip)),
-		    UINT(user_regs + OFFSET(user_regs_struct_esi)),
-		    UINT(user_regs + OFFSET(user_regs_struct_edi)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_cs)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_ds)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_es)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_fs)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_gs)),
-		    USHORT(user_regs + OFFSET(user_regs_struct_ss)),
-		    UINT(user_regs + OFFSET(user_regs_struct_ebp)),
-		    UINT(user_regs + OFFSET(user_regs_struct_eflags))
+				"    EAX: %08x  EBX: %08x  ECX: %08x  EDX: %08x\n"
+				"    ESP: %08x  EIP: %08x  ESI: %08x  EDI: %08x\n"
+				"    CS: %04x       DS: %04x       ES: %04x       FS: %04x\n"
+				"    GS: %04x       SS: %04x\n"
+				"    EBP: %08x  EFLAGS: %08x\n",
+				UINT(user_regs + OFFSET(user_regs_struct_eax)),
+				UINT(user_regs + OFFSET(user_regs_struct_ebx)),
+				UINT(user_regs + OFFSET(user_regs_struct_ecx)),
+				UINT(user_regs + OFFSET(user_regs_struct_edx)),
+				UINT(user_regs + OFFSET(user_regs_struct_esp)),
+				UINT(user_regs + OFFSET(user_regs_struct_eip)),
+				UINT(user_regs + OFFSET(user_regs_struct_esi)),
+				UINT(user_regs + OFFSET(user_regs_struct_edi)),
+				USHORT(user_regs + OFFSET(user_regs_struct_cs)),
+				USHORT(user_regs + OFFSET(user_regs_struct_ds)),
+				USHORT(user_regs + OFFSET(user_regs_struct_es)),
+				USHORT(user_regs + OFFSET(user_regs_struct_fs)),
+				USHORT(user_regs + OFFSET(user_regs_struct_gs)),
+				USHORT(user_regs + OFFSET(user_regs_struct_ss)),
+				UINT(user_regs + OFFSET(user_regs_struct_ebp)),
+				UINT(user_regs + OFFSET(user_regs_struct_eflags))
 		);
 	}
 }

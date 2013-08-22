@@ -240,13 +240,13 @@ cmd_ipcs(void)
 				break;
 			case 'n':
 				switch (str_to_context(optarg, &value, &tc)) {
-		        	case STR_PID:
-                        	case STR_TASK:
-                               		break;
-                        	case STR_INVALID:
-                               		error(FATAL, "invalid task or pid value: %s\n",
-                                        	optarg);
-                               		break;
+							case STR_PID:
+													case STR_TASK:
+															 		break;
+													case STR_INVALID:
+															 		error(FATAL, "invalid task or pid value: %s\n",
+																					optarg);
+															 		break;
 				}
 				break;
 			default:
@@ -883,7 +883,7 @@ get_shm_info(struct shm_info *shm_info, ulong shp, int id)
 	shm_info->swap = 0;
 
 	add_rss_swap(inodep, is_file_hugepages(filep), &shm_info->rss,
-                 &shm_info->swap);
+								 &shm_info->swap);
 
 	shm_info->deleted = UINT(buf + OFFSET(shmid_kernel_shm_perm) +
 				OFFSET(kern_ipc_perm_deleted));
@@ -1047,7 +1047,7 @@ add_rss_swap(ulong inode_p, int hugepage, ulong *rss, ulong *swap)
 			&swapped, sizeof(ulong), "shmem_inode_info.swapped",
 			FAULT_ON_ERROR);
 		*swap += swapped;
-    }
+		}
 }
 
 static int

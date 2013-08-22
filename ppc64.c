@@ -127,44 +127,44 @@ ppc64_init(int when)
 			return;
 		machdep->stacksize = PPC64_STACK_SIZE;
 		machdep->last_pgd_read = 0;
-                machdep->last_pmd_read = 0;
-                machdep->last_ptbl_read = 0;
-                machdep->machspec->last_level4_read = 0;
+								machdep->last_pmd_read = 0;
+								machdep->last_ptbl_read = 0;
+								machdep->machspec->last_level4_read = 0;
 		machdep->verify_paddr = generic_verify_paddr;
 		machdep->ptrs_per_pgd = PTRS_PER_PGD;
 		machdep->flags |= MACHDEP_BT_TEXT;
-                if (machdep->cmdline_args[0])
-                        parse_cmdline_args();
+								if (machdep->cmdline_args[0])
+												parse_cmdline_args();
 		 machdep->clear_machdep_cache = ppc64_clear_machdep_cache;
 		break;
 
 	case PRE_GDB:
 		/*
-                * Recently there were changes made to kexec tools
-                * to support 64K page size. With those changes
-                * vmcore file obtained from a kernel which supports
-                * 64K page size cannot be analyzed using crash on a
-                * machine running with kernel supporting 4K page size
-                *
-                * The following modifications are required in crash
-                * tool to be in sync with kexec tools.
-                *
-                * Look if the following symbol exists. If yes then
-                * the dump was taken with a kernel supporting 64k
-                * page size. So change the page size accordingly.
-                *
-                * Also moved the following code block from
-                * PRE_SYMTAB case here.
-                */
+								* Recently there were changes made to kexec tools
+								* to support 64K page size. With those changes
+								* vmcore file obtained from a kernel which supports
+								* 64K page size cannot be analyzed using crash on a
+								* machine running with kernel supporting 4K page size
+								*
+								* The following modifications are required in crash
+								* tool to be in sync with kexec tools.
+								*
+								* Look if the following symbol exists. If yes then
+								* the dump was taken with a kernel supporting 64k
+								* page size. So change the page size accordingly.
+								*
+								* Also moved the following code block from
+								* PRE_SYMTAB case here.
+								*/
 		if (symbol_exists("interrupt_base_book3e")) {
 			machdep->machspec = &book3e_machine_specific;
 			machdep->flags |= BOOK3E;
 			machdep->kvbase = BOOK3E_VMBASE;
 		} else
 			machdep->kvbase = symbol_value("_stext");
-                if (symbol_exists("__hash_page_64K"))
-                        machdep->pagesize = PPC64_64K_PAGE_SIZE;
-                else
+								if (symbol_exists("__hash_page_64K"))
+												machdep->pagesize = PPC64_64K_PAGE_SIZE;
+								else
 			machdep->pagesize = memory_page_size();
 		machdep->pageshift = ffs(machdep->pagesize) - 1;
 		machdep->pageoffset = machdep->pagesize - 1;
@@ -179,14 +179,14 @@ ppc64_init(int when)
 			error(FATAL, "cannot malloc level4 space.");
 
 		machdep->identity_map_base = symbol_value("_stext");
-                machdep->is_kvaddr = machdep->machspec->is_kvaddr;
-                machdep->is_uvaddr = generic_is_uvaddr;
-	        machdep->eframe_search = ppc64_eframe_search;
-	        machdep->back_trace = ppc64_back_trace_cmd;
-	        machdep->processor_speed = ppc64_processor_speed;
-	        machdep->uvtop = ppc64_uvtop;
-	        machdep->kvtop = ppc64_kvtop;
-	        machdep->get_task_pgd = ppc64_get_task_pgd;
+								machdep->is_kvaddr = machdep->machspec->is_kvaddr;
+								machdep->is_uvaddr = generic_is_uvaddr;
+					machdep->eframe_search = ppc64_eframe_search;
+					machdep->back_trace = ppc64_back_trace_cmd;
+					machdep->processor_speed = ppc64_processor_speed;
+					machdep->uvtop = ppc64_uvtop;
+					machdep->kvtop = ppc64_kvtop;
+					machdep->get_task_pgd = ppc64_get_task_pgd;
 		machdep->get_stack_frame = ppc64_get_stack_frame;
 		machdep->get_stackbase = ppc64_get_stackbase;
 		machdep->get_stacktop = ppc64_get_stacktop;
@@ -395,10 +395,10 @@ ppc64_get_stacktop(ulong task)
 void
 ppc64_dump_machdep_table(ulong arg)
 {
-        int i, c, others;
+				int i, c, others;
 
-        others = 0;
-        fprintf(fp, "              flags: %lx (", machdep->flags);
+				others = 0;
+				fprintf(fp, "              flags: %lx (", machdep->flags);
 	if (machdep->flags & KSYMS_START)
 		fprintf(fp, "%sKSYMS_START", others++ ? "|" : "");
 	if (machdep->flags & MACHDEP_BT_TEXT)
@@ -411,32 +411,32 @@ ppc64_dump_machdep_table(ulong arg)
 		fprintf(fp, "%sVMEMMAP", others++ ? "|" : "");
 	if (machdep->flags & VMEMMAP_AWARE)
 		fprintf(fp, "%sVMEMMAP_AWARE", others++ ? "|" : "");
-        fprintf(fp, ")\n");
+				fprintf(fp, ")\n");
 
 	fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
 	fprintf(fp, "  identity_map_base: %lx\n", machdep->identity_map_base);
-        fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
-        fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
-        fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
-        fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
+				fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
+				fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
+				fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
+				fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
-        fprintf(fp, "                 hz: %d\n", machdep->hz);
-        fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-        fprintf(fp, "            memsize: %ld (0x%lx)\n",
+				fprintf(fp, "                 hz: %d\n", machdep->hz);
+				fprintf(fp, "                mhz: %ld\n", machdep->mhz);
+				fprintf(fp, "            memsize: %ld (0x%lx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
-        fprintf(fp, "      eframe_search: ppc64_eframe_search()\n");
-        fprintf(fp, "         back_trace: ppc64_back_trace_cmd()\n");
-        fprintf(fp, "    processor_speed: ppc64_processor_speed()\n");
-        fprintf(fp, "              uvtop: ppc64_uvtop()\n");
-        fprintf(fp, "              kvtop: ppc64_kvtop()\n");
-        fprintf(fp, "       get_task_pgd: ppc64_get_task_pgd()\n");
+				fprintf(fp, "      eframe_search: ppc64_eframe_search()\n");
+				fprintf(fp, "         back_trace: ppc64_back_trace_cmd()\n");
+				fprintf(fp, "    processor_speed: ppc64_processor_speed()\n");
+				fprintf(fp, "              uvtop: ppc64_uvtop()\n");
+				fprintf(fp, "              kvtop: ppc64_kvtop()\n");
+				fprintf(fp, "       get_task_pgd: ppc64_get_task_pgd()\n");
 	fprintf(fp, "           dump_irq: ppc64_dump_irq()\n");
-        fprintf(fp, "    get_stack_frame: ppc64_get_stack_frame()\n");
-        fprintf(fp, "      get_stackbase: ppc64_get_stackbase()\n");
-        fprintf(fp, "       get_stacktop: ppc64_get_stacktop()\n");
-        fprintf(fp, "      translate_pte: ppc64_translate_pte()\n");
+				fprintf(fp, "    get_stack_frame: ppc64_get_stack_frame()\n");
+				fprintf(fp, "      get_stackbase: ppc64_get_stackbase()\n");
+				fprintf(fp, "       get_stacktop: ppc64_get_stacktop()\n");
+				fprintf(fp, "      translate_pte: ppc64_translate_pte()\n");
 	fprintf(fp, "        memory_size: generic_memory_size()\n");
 	fprintf(fp, "      vmalloc_start: ppc64_vmalloc_start()\n");
 	fprintf(fp, "       is_task_addr: ppc64_is_task_addr()\n");
@@ -444,33 +444,33 @@ ppc64_dump_machdep_table(ulong arg)
 	fprintf(fp, "         dis_filter: ppc64_dis_filter()\n");
 	fprintf(fp, "           cmd_mach: ppc64_cmd_mach()\n");
 	fprintf(fp, "       get_smp_cpus: ppc64_get_smp_cpus()\n");
-        fprintf(fp, "          is_kvaddr: %s\n",
+				fprintf(fp, "          is_kvaddr: %s\n",
 		machdep->is_kvaddr == book3e_is_kvaddr ?
 		"book3e_is_kvaddr()" : "generic_is_kvaddr()");
-        fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
-        fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
-        fprintf(fp, "  get_kvaddr_ranges: ppc64_get_kvaddr_ranges()\n");
+				fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
+				fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
+				fprintf(fp, "  get_kvaddr_ranges: ppc64_get_kvaddr_ranges()\n");
 	fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
 	fprintf(fp, "    show_interrupts: generic_show_interrupts()\n");
 	fprintf(fp, " xendump_p2m_create: NULL\n");
 	fprintf(fp, "xen_kdump_p2m_create: NULL\n");
-        fprintf(fp, "  line_number_hooks: ppc64_line_number_hooks\n");
-        fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
-        fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
-        fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
-        fprintf(fp, "clear_machdep_cache: ppc64_clear_machdep_cache()\n");
-        fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
-        fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
-        fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
+				fprintf(fp, "  line_number_hooks: ppc64_line_number_hooks\n");
+				fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
+				fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
+				fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
+				fprintf(fp, "clear_machdep_cache: ppc64_clear_machdep_cache()\n");
+				fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
+				fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
+				fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
 	fprintf(fp, "       ptrs_per_pgd: %d\n", machdep->ptrs_per_pgd);
 	fprintf(fp, "  section_size_bits: %ld\n", machdep->section_size_bits);
-        fprintf(fp, "   max_physmem_bits: %ld\n", machdep->max_physmem_bits);
-        fprintf(fp, "  sections_per_root: %ld\n", machdep->sections_per_root);
-        for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
-                fprintf(fp, "    cmdline_args[%d]: %s\n",
-                        i, machdep->cmdline_args[i] ?
-                        machdep->cmdline_args[i] : "(unused)");
-        }
+				fprintf(fp, "   max_physmem_bits: %ld\n", machdep->max_physmem_bits);
+				fprintf(fp, "  sections_per_root: %ld\n", machdep->sections_per_root);
+				for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
+								fprintf(fp, "    cmdline_args[%d]: %s\n",
+												i, machdep->cmdline_args[i] ?
+												machdep->cmdline_args[i] : "(unused)");
+				}
 	fprintf(fp, "           machspec: %lx\n", (ulong)machdep->machspec);
 	fprintf(fp, "            is_kvaddr: %s\n",
 		machdep->machspec->is_kvaddr == book3e_is_kvaddr ?
@@ -479,14 +479,14 @@ ppc64_dump_machdep_table(ulong arg)
 		machdep->machspec->is_vmaddr == book3e_is_vmaddr ?
 		"book3e_is_vmaddr()" : "ppc64_is_vmaddr()");
 	fprintf(fp, "    hwintrstack[%d]: ", NR_CPUS);
-       	for (c = 0; c < NR_CPUS; c++) {
+			 	for (c = 0; c < NR_CPUS; c++) {
 		for (others = 0, i = c; i < NR_CPUS; i++) {
 			if (machdep->machspec->hwintrstack[i])
 				others++;
 		}
 		if (!others) {
 			fprintf(fp, "%s%s",
-			        c && ((c % 4) == 0) ? "\n  " : "",
+							c && ((c % 4) == 0) ? "\n  " : "",
 				c ? "(remainder unused)" : "(unused)");
 			break;
 		}
@@ -525,7 +525,7 @@ ppc64_dump_machdep_table(ulong arg)
 			machdep->machspec->vmemmap_psize);
 		for (i = 0; i < machdep->machspec->vmemmap_cnt; i++) {
 			fprintf(fp,
-			    "      vmemmap_list[%d]: virt: %lx  phys: %lx\n", i,
+					"      vmemmap_list[%d]: virt: %lx  phys: %lx\n", i,
 				machdep->machspec->vmemmap_list[i].virt,
 				machdep->machspec->vmemmap_list[i].phys);
 		}
@@ -716,10 +716,10 @@ ppc64_uvtop(struct task_context *tc, ulong vaddr,
 	ulong mm, active_mm;
 	ulong *pgd;
 
-        if (!tc)
+				if (!tc)
 		error(FATAL, "current context invalid\n");
 
-        *paddr = 0;
+				*paddr = 0;
 
 	if (is_kernel_thread(tc->task) && IS_KVADDR(vaddr)) {
 		if (VALID_MEMBER(thread_struct_pg_tables))
@@ -734,7 +734,7 @@ ppc64_uvtop(struct task_context *tc, ulong vaddr,
 
 			if (!active_mm)
 				error(FATAL,
-				     "no active_mm for this kernel thread\n");
+						 "no active_mm for this kernel thread\n");
 
 			readmem(active_mm + OFFSET(mm_struct_pgd),
 				KVADDR, &pgd, sizeof(long),
@@ -765,11 +765,11 @@ static int
 ppc64_kvtop(struct task_context *tc, ulong kvaddr,
 	physaddr_t *paddr, int verbose)
 {
-        if (!IS_KVADDR(kvaddr))
-                return FALSE;
+				if (!IS_KVADDR(kvaddr))
+								return FALSE;
 
 	if ((machdep->flags & VMEMMAP) &&
-	    (kvaddr >= machdep->machspec->vmemmap_base))
+			(kvaddr >= machdep->machspec->vmemmap_base))
 		return ppc64_vmemmap_to_phys(kvaddr, paddr, verbose);
 
 	if (!vt->vmalloc_start) {
@@ -804,14 +804,14 @@ void ppc64_vmemmap_init(void)
 	struct machine_specific *ms;
 
 	if (!(kernel_symbol_exists("vmemmap_list")) ||
-	    !(kernel_symbol_exists("mmu_psize_defs")) ||
-	    !(kernel_symbol_exists("mmu_vmemmap_psize")) ||
-	    !STRUCT_EXISTS("vmemmap_backing") ||
-	    !STRUCT_EXISTS("mmu_psize_def") ||
-	    !MEMBER_EXISTS("mmu_psize_def", "shift") ||
-	    !MEMBER_EXISTS("vmemmap_backing", "phys") ||
-	    !MEMBER_EXISTS("vmemmap_backing", "virt_addr") ||
-	    !MEMBER_EXISTS("vmemmap_backing", "list"))
+			!(kernel_symbol_exists("mmu_psize_defs")) ||
+			!(kernel_symbol_exists("mmu_vmemmap_psize")) ||
+			!STRUCT_EXISTS("vmemmap_backing") ||
+			!STRUCT_EXISTS("mmu_psize_def") ||
+			!MEMBER_EXISTS("mmu_psize_def", "shift") ||
+			!MEMBER_EXISTS("vmemmap_backing", "phys") ||
+			!MEMBER_EXISTS("vmemmap_backing", "virt_addr") ||
+			!MEMBER_EXISTS("vmemmap_backing", "list"))
 		return;
 
 	ms = machdep->machspec;
@@ -822,41 +822,41 @@ void ppc64_vmemmap_init(void)
 	list_offset = MEMBER_OFFSET("vmemmap_backing", "list");
 
 	if (!readmem(symbol_value("mmu_vmemmap_psize"),
-	    KVADDR, &psize, sizeof(int), "mmu_vmemmap_psize",
-	    RETURN_ON_ERROR))
+			KVADDR, &psize, sizeof(int), "mmu_vmemmap_psize",
+			RETURN_ON_ERROR))
 		return;
 	if (!readmem(symbol_value("mmu_psize_defs") +
-	    (STRUCT_SIZE("mmu_psize_def") * psize) +
-	    MEMBER_OFFSET("mmu_psize_def", "shift"),
-	    KVADDR, &shift, sizeof(int), "mmu_psize_def shift",
-	    RETURN_ON_ERROR))
+			(STRUCT_SIZE("mmu_psize_def") * psize) +
+			MEMBER_OFFSET("mmu_psize_def", "shift"),
+			KVADDR, &shift, sizeof(int), "mmu_psize_def shift",
+			RETURN_ON_ERROR))
 		return;
 
 	ms->vmemmap_psize = 1 << shift;
 
-        ld =  &list_data;
-        BZERO(ld, sizeof(struct list_data));
+				ld =  &list_data;
+				BZERO(ld, sizeof(struct list_data));
 	if (!readmem(symbol_value("vmemmap_list"),
-	    KVADDR, &ld->start, sizeof(void *), "vmemmap_list",
-	    RETURN_ON_ERROR))
+			KVADDR, &ld->start, sizeof(void *), "vmemmap_list",
+			RETURN_ON_ERROR))
 		return;
-        ld->end = symbol_value("vmemmap_list");
-        ld->list_head_offset = list_offset;
+				ld->end = symbol_value("vmemmap_list");
+				ld->list_head_offset = list_offset;
 
-        hq_open();
+				hq_open();
 	cnt = do_list(ld);
-        vmemmap_list = (ulong *)GETBUF(cnt * sizeof(ulong));
-        cnt = retrieve_list(vmemmap_list, cnt);
+				vmemmap_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+				cnt = retrieve_list(vmemmap_list, cnt);
 	hq_close();
 
 	if ((ms->vmemmap_list = (struct ppc64_vmemmap *)malloc(cnt *
-	    sizeof(struct ppc64_vmemmap))) == NULL)
+			sizeof(struct ppc64_vmemmap))) == NULL)
 		error(FATAL, "cannot malloc vmemmap list space");
 
-        vmemmap_buf = GETBUF(backing_size);
+				vmemmap_buf = GETBUF(backing_size);
 	for (i = 0; i < cnt; i++) {
 		if (!readmem(vmemmap_list[i], KVADDR, vmemmap_buf,
-		   backing_size, "vmemmap_backing", RETURN_ON_ERROR)) {
+			 backing_size, "vmemmap_backing", RETURN_ON_ERROR)) {
 			free(ms->vmemmap_list);
 			goto out;
 		}
@@ -900,9 +900,9 @@ ppc64_vmemmap_to_phys(ulong kvaddr, physaddr_t *paddr, int verbose)
 		 *  During vm_init() initialization, print a warning message.
 		 */
 		error(WARNING,
-		    "cannot translate vmemmap kernel virtual addresses:\n"
-		    "         commands requiring page structure contents"
-		    " will fail\n\n");
+				"cannot translate vmemmap kernel virtual addresses:\n"
+				"         commands requiring page structure contents"
+				" will fail\n\n");
 
 		return FALSE;
 	}
@@ -911,7 +911,7 @@ ppc64_vmemmap_to_phys(ulong kvaddr, physaddr_t *paddr, int verbose)
 
 	for (i = 0; i < ms->vmemmap_cnt; i++) {
 		if ((kvaddr >= ms->vmemmap_list[i].virt) &&
-		    (kvaddr < (ms->vmemmap_list[i].virt + ms->vmemmap_psize))) {
+				(kvaddr < (ms->vmemmap_list[i].virt + ms->vmemmap_psize))) {
 			offset = kvaddr - ms->vmemmap_list[i].virt;
 			*paddr = ms->vmemmap_list[i].phys + offset;
 			return TRUE;
@@ -957,15 +957,15 @@ ppc64_is_task_addr(ulong task)
 static ulong
 ppc64_processor_speed(void)
 {
-        ulong res, value, ppc_md, md_setup_res;
-        ulong prep_setup_res;
-        ulong node, type, name, properties;
+				ulong res, value, ppc_md, md_setup_res;
+				ulong prep_setup_res;
+				ulong node, type, name, properties;
 	char str_buf[32];
 	uint len;
 	ulong mhz = 0;
 
-        if (machdep->mhz)
-                return(machdep->mhz);
+				if (machdep->mhz)
+								return(machdep->mhz);
 
 	if (symbol_exists("ppc_proc_freq")) {
 		get_symbol_data("ppc_proc_freq", sizeof(ulong), &mhz);
@@ -973,132 +973,132 @@ ppc64_processor_speed(void)
 		return (machdep->mhz = mhz);
 	}
 
-        if(symbol_exists("allnodes")) {
-                get_symbol_data("allnodes", sizeof(void *), &node);
-                while(node) {
-                        readmem(node+OFFSET(device_node_type),
-                                KVADDR, &type, sizeof(ulong), "node type",
-                                FAULT_ON_ERROR);
-                        if(type != 0) {
-                                len = read_string(type, str_buf,
-                                        sizeof(str_buf));
+				if(symbol_exists("allnodes")) {
+								get_symbol_data("allnodes", sizeof(void *), &node);
+								while(node) {
+												readmem(node+OFFSET(device_node_type),
+																KVADDR, &type, sizeof(ulong), "node type",
+																FAULT_ON_ERROR);
+												if(type != 0) {
+																len = read_string(type, str_buf,
+																				sizeof(str_buf));
 
-                                if(len && (strcasecmp(str_buf, "cpu") == 0))
-                                        break;
-                        }
+																if(len && (strcasecmp(str_buf, "cpu") == 0))
+																				break;
+												}
 
-                        readmem(node+OFFSET(device_node_allnext),
-                                KVADDR, &node, sizeof(ulong), "node allnext",
-                                FAULT_ON_ERROR);
-                }
+												readmem(node+OFFSET(device_node_allnext),
+																KVADDR, &node, sizeof(ulong), "node allnext",
+																FAULT_ON_ERROR);
+								}
 
-                /* now, if we found a CPU node, get the speed property */
-                if(node) {
-                        readmem(node+OFFSET(device_node_properties),
-                                KVADDR, &properties, sizeof(ulong),
-                                "node properties", FAULT_ON_ERROR);
+								/* now, if we found a CPU node, get the speed property */
+								if(node) {
+												readmem(node+OFFSET(device_node_properties),
+																KVADDR, &properties, sizeof(ulong),
+																"node properties", FAULT_ON_ERROR);
 
-                        while(properties) {
-                                readmem(properties+OFFSET(property_name),
-                                        KVADDR, &name,
-                                        sizeof(ulong), "property name",
-                                        FAULT_ON_ERROR);
+												while(properties) {
+																readmem(properties+OFFSET(property_name),
+																				KVADDR, &name,
+																				sizeof(ulong), "property name",
+																				FAULT_ON_ERROR);
 
-                                len = read_string(name, str_buf,
-                                        sizeof(str_buf));
+																len = read_string(name, str_buf,
+																				sizeof(str_buf));
 
-                                if (len && (strcasecmp(str_buf,
-                                    "clock-frequency") == 0)) {
-                                        /* found the right cpu property */
+																if (len && (strcasecmp(str_buf,
+																		"clock-frequency") == 0)) {
+																				/* found the right cpu property */
 
-                                        readmem(properties+
-                                           OFFSET(property_value),
-                                            KVADDR, &value, sizeof(ulong),
-                                            "clock freqency pointer",
-                                            FAULT_ON_ERROR);
-                                        readmem(value, KVADDR, &mhz,
-                                            sizeof(int),
-                                            "clock frequency value",
-                                            FAULT_ON_ERROR);
-                                        mhz /= 1000000;
-                                        break;
-                                }
+																				readmem(properties+
+																					 OFFSET(property_value),
+																						KVADDR, &value, sizeof(ulong),
+																						"clock freqency pointer",
+																						FAULT_ON_ERROR);
+																				readmem(value, KVADDR, &mhz,
+																						sizeof(int),
+																						"clock frequency value",
+																						FAULT_ON_ERROR);
+																				mhz /= 1000000;
+																				break;
+																}
 				else if(len && (strcasecmp(str_buf,
-				    "ibm,extended-clock-frequency") == 0)){
+						"ibm,extended-clock-frequency") == 0)){
 					/* found the right cpu property */
 
 					readmem(properties+
-					    OFFSET(property_value),
-					    KVADDR, &value, sizeof(ulong),
-					    "clock freqency pointer",
-					    FAULT_ON_ERROR);
+							OFFSET(property_value),
+							KVADDR, &value, sizeof(ulong),
+							"clock freqency pointer",
+							FAULT_ON_ERROR);
 					readmem(value, KVADDR, &mhz,
-					    sizeof(ulong),
-					    "clock frequency value",
-					    FAULT_ON_ERROR);
+							sizeof(ulong),
+							"clock frequency value",
+							FAULT_ON_ERROR);
 					mhz /= 1000000;
 					break;
-                                }
+																}
 
-                                /* keep looking */
+																/* keep looking */
 
-                                readmem(properties+
-                                    OFFSET(property_next),
-                                    KVADDR, &properties, sizeof(ulong),
-                                    "property next", FAULT_ON_ERROR);
-                        }
-                        if(!properties) {
-                                /* didn't find the cpu speed for some reason */
+																readmem(properties+
+																		OFFSET(property_next),
+																		KVADDR, &properties, sizeof(ulong),
+																		"property next", FAULT_ON_ERROR);
+												}
+												if(!properties) {
+																/* didn't find the cpu speed for some reason */
 				return (machdep->mhz = 0);
-                        }
-                }
+												}
+								}
 	}
 
 	/* for machines w/o OF */
-        /* untested, but in theory this should work on prep machines */
+				/* untested, but in theory this should work on prep machines */
 
-        if (symbol_exists("res") && !mhz) {
-        	get_symbol_data("res", sizeof(void *), &res);
+				if (symbol_exists("res") && !mhz) {
+					get_symbol_data("res", sizeof(void *), &res);
 
-                if (symbol_exists("prep_setup_residual")) {
-                	get_symbol_data("prep_setup_residual",
-                        	sizeof(void *), &prep_setup_res);
-                        get_symbol_data("ppc_md", sizeof(void *),
-                        	&ppc_md);
-                        readmem(ppc_md +
-                        	OFFSET(machdep_calls_setup_residual),
-                                KVADDR, &md_setup_res,
-                                sizeof(ulong), "ppc_md setup_residual",
-                                FAULT_ON_ERROR);
+								if (symbol_exists("prep_setup_residual")) {
+									get_symbol_data("prep_setup_residual",
+													sizeof(void *), &prep_setup_res);
+												get_symbol_data("ppc_md", sizeof(void *),
+													&ppc_md);
+												readmem(ppc_md +
+													OFFSET(machdep_calls_setup_residual),
+																KVADDR, &md_setup_res,
+																sizeof(ulong), "ppc_md setup_residual",
+																FAULT_ON_ERROR);
 
 			if(prep_setup_res == md_setup_res) {
-                        	/* PREP machine */
-                                readmem(res+
-                                	OFFSET(RESIDUAL_VitalProductData)+
-                                        OFFSET(VPD_ProcessorHz),
-                                        KVADDR, &mhz, sizeof(ulong),
-                                        "res VitalProductData",
-                                        FAULT_ON_ERROR);
+													/* PREP machine */
+																readmem(res+
+																	OFFSET(RESIDUAL_VitalProductData)+
+																				OFFSET(VPD_ProcessorHz),
+																				KVADDR, &mhz, sizeof(ulong),
+																				"res VitalProductData",
+																				FAULT_ON_ERROR);
 
-                        	mhz = (mhz > 1024) ? mhz >> 20 : mhz;
-                	}
+													mhz = (mhz > 1024) ? mhz >> 20 : mhz;
+									}
 		}
 
 		if(!mhz) {
-                        /* everything else seems to do this the same way... */
-                        readmem(res +
-                        	OFFSET(bd_info_bi_intfreq),
-                                KVADDR, &mhz, sizeof(ulong),
-                                "bd_info bi_intfreq", FAULT_ON_ERROR);
+												/* everything else seems to do this the same way... */
+												readmem(res +
+													OFFSET(bd_info_bi_intfreq),
+																KVADDR, &mhz, sizeof(ulong),
+																"bd_info bi_intfreq", FAULT_ON_ERROR);
 
-                	mhz /= 1000000;
-        	}
+									mhz /= 1000000;
+					}
 	}
-        /* else...well, we don't have OF, or a residual structure, so
-         * just print unknown MHz
-         */
+				/* else...well, we don't have OF, or a residual structure, so
+				 * just print unknown MHz
+				 */
 
-        return (machdep->mhz = (ulong)mhz);
+				return (machdep->mhz = (ulong)mhz);
 }
 
 
@@ -1108,14 +1108,14 @@ ppc64_processor_speed(void)
 static int
 ppc64_verify_symbol(const char *name, ulong value, char type)
 {
-        if (CRASHDEBUG(8) && name && strlen(name))
-                fprintf(fp, "%08lx %s\n", value, name);
+				if (CRASHDEBUG(8) && name && strlen(name))
+								fprintf(fp, "%08lx %s\n", value, name);
 
-        if (STREQ(name, "_start") || STREQ(name, "_stext"))
-                machdep->flags |= KSYMS_START;
+				if (STREQ(name, "_start") || STREQ(name, "_stext"))
+								machdep->flags |= KSYMS_START;
 
-        return (name && strlen(name) && (machdep->flags & KSYMS_START) &&
-                !STREQ(name, "Letext") && !STRNEQ(name, "__func__."));
+				return (name && strlen(name) && (machdep->flags & KSYMS_START) &&
+								!STREQ(name, "Letext") && !STRNEQ(name, "__func__."));
 }
 
 
@@ -1125,21 +1125,21 @@ ppc64_verify_symbol(const char *name, ulong value, char type)
 static ulong
 ppc64_get_task_pgd(ulong task)
 {
-        long offset;
-        ulong pg_tables;
+				long offset;
+				ulong pg_tables;
 
-        offset = VALID_MEMBER(task_struct_thread) ?
-                OFFSET(task_struct_thread) : OFFSET(task_struct_tss);
+				offset = VALID_MEMBER(task_struct_thread) ?
+								OFFSET(task_struct_thread) : OFFSET(task_struct_tss);
 
-        if (INVALID_MEMBER(thread_struct_pg_tables))
-                error(FATAL,
-                   "pg_tables does not exist in this kernel's thread_struct\n");
-        offset += OFFSET(thread_struct_pg_tables);
+				if (INVALID_MEMBER(thread_struct_pg_tables))
+								error(FATAL,
+									 "pg_tables does not exist in this kernel's thread_struct\n");
+				offset += OFFSET(thread_struct_pg_tables);
 
-        readmem(task + offset, KVADDR, &pg_tables,
-                sizeof(ulong), "task thread pg_tables", FAULT_ON_ERROR);
+				readmem(task + offset, KVADDR, &pg_tables,
+								sizeof(ulong), "task thread pg_tables", FAULT_ON_ERROR);
 
-        return(pg_tables);
+				return(pg_tables);
 }
 
 
@@ -1150,86 +1150,86 @@ ppc64_get_task_pgd(ulong task)
 static int
 ppc64_translate_pte(ulong pte, void *physaddr, ulonglong pte_shift)
 {
-        int c, len1, len2, len3, others, page_present;
-        char buf[BUFSIZE];
-        char buf2[BUFSIZE];
-        char buf3[BUFSIZE];
-        char ptebuf[BUFSIZE];
-        char physbuf[BUFSIZE];
-        char *arglist[MAXARGS];
-        ulong paddr;
+				int c, len1, len2, len3, others, page_present;
+				char buf[BUFSIZE];
+				char buf2[BUFSIZE];
+				char buf3[BUFSIZE];
+				char ptebuf[BUFSIZE];
+				char physbuf[BUFSIZE];
+				char *arglist[MAXARGS];
+				ulong paddr;
 
-        paddr =  PTOB(pte >> pte_shift);
-        page_present = (pte & _PAGE_PRESENT);
+				paddr =  PTOB(pte >> pte_shift);
+				page_present = (pte & _PAGE_PRESENT);
 
-        if (physaddr) {
-                *((ulong *)physaddr) = paddr;
-                return page_present;
-        }
+				if (physaddr) {
+								*((ulong *)physaddr) = paddr;
+								return page_present;
+				}
 
-        sprintf(ptebuf, "%lx", pte);
-        len1 = MAX(strlen(ptebuf), strlen("PTE"));
-        fprintf(fp, "%s  ", mkstring(buf, len1, CENTER|LJUST, "PTE"));
+				sprintf(ptebuf, "%lx", pte);
+				len1 = MAX(strlen(ptebuf), strlen("PTE"));
+				fprintf(fp, "%s  ", mkstring(buf, len1, CENTER|LJUST, "PTE"));
 
-        if (!page_present && pte) {
-                swap_location(pte, buf);
-                if ((c = parse_line(buf, arglist)) != 3)
-                        error(FATAL, "cannot determine swap location\n");
+				if (!page_present && pte) {
+								swap_location(pte, buf);
+								if ((c = parse_line(buf, arglist)) != 3)
+												error(FATAL, "cannot determine swap location\n");
 
-                len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
-                len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
+								len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
+								len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
 
-                fprintf(fp, "%s  %s\n",
-                        mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
-                        mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
+								fprintf(fp, "%s  %s\n",
+												mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
+												mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
 
-                strcpy(buf2, arglist[0]);
-                strcpy(buf3, arglist[2]);
-                fprintf(fp, "%s  %s  %s\n",
-                        mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-                        mkstring(buf2, len2, CENTER|RJUST, NULL),
-                        mkstring(buf3, len3, CENTER|RJUST, NULL));
+								strcpy(buf2, arglist[0]);
+								strcpy(buf3, arglist[2]);
+								fprintf(fp, "%s  %s  %s\n",
+												mkstring(ptebuf, len1, CENTER|RJUST, NULL),
+												mkstring(buf2, len2, CENTER|RJUST, NULL),
+												mkstring(buf3, len3, CENTER|RJUST, NULL));
 
-                return page_present;
-        }
+								return page_present;
+				}
 
-        sprintf(physbuf, "%lx", paddr);
-        len2 = MAX(strlen(physbuf), strlen("PHYSICAL"));
-        fprintf(fp, "%s  ", mkstring(buf, len2, CENTER|LJUST, "PHYSICAL"));
+				sprintf(physbuf, "%lx", paddr);
+				len2 = MAX(strlen(physbuf), strlen("PHYSICAL"));
+				fprintf(fp, "%s  ", mkstring(buf, len2, CENTER|LJUST, "PHYSICAL"));
 
-        fprintf(fp, "FLAGS\n");
+				fprintf(fp, "FLAGS\n");
 
-        fprintf(fp, "%s  %s  ",
-                mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-                mkstring(physbuf, len2, CENTER|RJUST, NULL));
-        fprintf(fp, "(");
-        others = 0;
+				fprintf(fp, "%s  %s  ",
+								mkstring(ptebuf, len1, CENTER|RJUST, NULL),
+								mkstring(physbuf, len2, CENTER|RJUST, NULL));
+				fprintf(fp, "(");
+				others = 0;
 
-        if (pte) {
-                if (pte & _PAGE_PRESENT)
-                        fprintf(fp, "%sPRESENT", others++ ? "|" : "");
-                if (pte & _PAGE_USER)
-                        fprintf(fp, "%sUSER", others++ ? "|" : "");
-                if (pte & _PAGE_RW)
-                        fprintf(fp, "%sRW", others++ ? "|" : "");
-                if (pte & _PAGE_GUARDED)
-                        fprintf(fp, "%sGUARDED", others++ ? "|" : "");
-                if (pte & _PAGE_COHERENT)
-                        fprintf(fp, "%sCOHERENT", others++ ? "|" : "");
-                if (pte & _PAGE_NO_CACHE)
-                        fprintf(fp, "%sNO_CACHE", others++ ? "|" : "");
-                if (pte & _PAGE_WRITETHRU)
-                        fprintf(fp, "%sWRITETHRU", others++ ? "|" : "");
-                if (pte & _PAGE_DIRTY)
-                        fprintf(fp, "%sDIRTY", others++ ? "|" : "");
-                if (pte & _PAGE_ACCESSED)
-                        fprintf(fp, "%sACCESSED", others++ ? "|" : "");
-        } else
-                fprintf(fp, "no mapping");
+				if (pte) {
+								if (pte & _PAGE_PRESENT)
+												fprintf(fp, "%sPRESENT", others++ ? "|" : "");
+								if (pte & _PAGE_USER)
+												fprintf(fp, "%sUSER", others++ ? "|" : "");
+								if (pte & _PAGE_RW)
+												fprintf(fp, "%sRW", others++ ? "|" : "");
+								if (pte & _PAGE_GUARDED)
+												fprintf(fp, "%sGUARDED", others++ ? "|" : "");
+								if (pte & _PAGE_COHERENT)
+												fprintf(fp, "%sCOHERENT", others++ ? "|" : "");
+								if (pte & _PAGE_NO_CACHE)
+												fprintf(fp, "%sNO_CACHE", others++ ? "|" : "");
+								if (pte & _PAGE_WRITETHRU)
+												fprintf(fp, "%sWRITETHRU", others++ ? "|" : "");
+								if (pte & _PAGE_DIRTY)
+												fprintf(fp, "%sDIRTY", others++ ? "|" : "");
+								if (pte & _PAGE_ACCESSED)
+												fprintf(fp, "%sACCESSED", others++ ? "|" : "");
+				} else
+								fprintf(fp, "no mapping");
 
-        fprintf(fp, ")\n");
+				fprintf(fp, ")\n");
 
-        return page_present;
+				return page_present;
 }
 
 /*
@@ -1275,7 +1275,7 @@ ppc64_eframe_search(struct bt_info *bt_in)
 	struct bt_info bt_local, *bt;
 	ulong *stack, *first, *last;
 	ulong irqstack;
-        char *mode;
+				char *mode;
 	ulong eframe_addr;
 	int c, cnt;
 	struct ppc64_pt_regs *regs;
@@ -1292,8 +1292,8 @@ ppc64_eframe_search(struct bt_info *bt_in)
 		bt = &bt_local;
 		bt->flags &= ~(ulonglong)BT_EFRAME_SEARCH2;
 
-        	for (c = 0; c < NR_CPUS; c++) {
-                	if (tt->hardirq_ctx[c]) {
+					for (c = 0; c < NR_CPUS; c++) {
+									if (tt->hardirq_ctx[c]) {
 				bt->hp->esp = tt->hardirq_ctx[c];
 				fprintf(fp, "CPU %d HARD IRQ STACK:\n", c);
 				if ((cnt = ppc64_eframe_search(bt)))
@@ -1302,7 +1302,7 @@ ppc64_eframe_search(struct bt_info *bt_in)
 					fprintf(fp, "(none found)\n\n");
 			}
 		}
-        	for (c = 0; c < NR_CPUS; c++) {
+					for (c = 0; c < NR_CPUS; c++) {
 			if (tt->softirq_ctx[c]) {
 				bt->hp->esp = tt->softirq_ctx[c];
 				fprintf(fp, "CPU %d SOFT IRQ STACK:\n", c);
@@ -1412,16 +1412,16 @@ ppc64_in_irqstack(ulong addr)
 		return 0;
 
 	for (c = 0; c < NR_CPUS; c++) {
-                if (tt->hardirq_ctx[c]) {
+								if (tt->hardirq_ctx[c]) {
 			if ((addr >= tt->hardirq_ctx[c]) &&
-			    (addr < (tt->hardirq_ctx[c] + SIZE(irq_ctx))))
+					(addr < (tt->hardirq_ctx[c] + SIZE(irq_ctx))))
 				return(tt->hardirq_ctx[c]);
 
-                }
-                if (tt->softirq_ctx[c]) {
-                       if ((addr >= tt->softirq_ctx[c]) &&
-                           (addr < (tt->softirq_ctx[c] + SIZE(irq_ctx))))
-                                return(tt->softirq_ctx[c]);
+								}
+								if (tt->softirq_ctx[c]) {
+											 if ((addr >= tt->softirq_ctx[c]) &&
+													 (addr < (tt->softirq_ctx[c] + SIZE(irq_ctx))))
+																return(tt->softirq_ctx[c]);
 		}
 	}
 
@@ -1438,22 +1438,22 @@ ppc64_back_trace_cmd(struct bt_info *bt)
 	struct gnu_request *req;
 	extern void print_stack_text_syms(struct bt_info *, ulong, ulong);
 
-        bt->flags |= BT_EXCEPTION_FRAME;
+				bt->flags |= BT_EXCEPTION_FRAME;
 
-        if (CRASHDEBUG(1) || bt->debug)
-                fprintf(fp, " => PC: %lx (%s) FP: %lx \n",
-                        bt->instptr, value_to_symstr(bt->instptr, buf, 0),
-                        bt->stkptr);
+				if (CRASHDEBUG(1) || bt->debug)
+								fprintf(fp, " => PC: %lx (%s) FP: %lx \n",
+												bt->instptr, value_to_symstr(bt->instptr, buf, 0),
+												bt->stkptr);
 
-        req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
-        req->command = GNU_STACK_TRACE;
-        req->flags = GNU_RETURN_ON_ERROR;
-        req->buf = GETBUF(BUFSIZE);
-        req->debug = bt->debug;
-        req->task = bt->task;
+				req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
+				req->command = GNU_STACK_TRACE;
+				req->flags = GNU_RETURN_ON_ERROR;
+				req->buf = GETBUF(BUFSIZE);
+				req->debug = bt->debug;
+				req->task = bt->task;
 
-        req->pc = bt->instptr;
-        req->sp = bt->stkptr;
+				req->pc = bt->instptr;
+				req->sp = bt->stkptr;
 
 	if (bt->flags &
 	(BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT)) {
@@ -1467,16 +1467,16 @@ ppc64_back_trace_cmd(struct bt_info *bt)
 		print_stack_text_syms(bt, req->sp, req->pc);
 	} else {
 
-        	if (bt->flags & BT_USE_GDB) {
-                	strcpy(req->buf, "backtrace");
-                	gdb_interface(req);
-        	}
-        	else
-                	ppc64_back_trace(req, bt);
+					if (bt->flags & BT_USE_GDB) {
+									strcpy(req->buf, "backtrace");
+									gdb_interface(req);
+					}
+					else
+									ppc64_back_trace(req, bt);
 	}
 
-        FREEBUF(req->buf);
-        FREEBUF(req);
+				FREEBUF(req->buf);
+				FREEBUF(req);
 }
 
 
@@ -1503,8 +1503,8 @@ ppc64_back_trace_cmd(struct bt_info *bt)
  *   no functions have been called from the current function.
  */
  /* HACK: put an initial lr in this var for find_trace().  It will be
-  * cleared during the trace.
-  */
+	* cleared during the trace.
+	*/
 static void
 ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 {
@@ -1561,13 +1561,13 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 				newsp =
 				*(ulong *)&bt->stackbuf[newsp - bt->stackbase];
 			if (!INSTACK(newsp, bt)) {
-                        	/*
-                         	* Switch HW interrupt stack to process's stack.
-                         	*/
-                        	bt->stackbase = GET_STACKBASE(bt->task);
-                        	bt->stacktop = GET_STACKTOP(bt->task);
-                        	alter_stackbuf(bt);
-                	}
+													/*
+												 	* Switch HW interrupt stack to process's stack.
+												 	*/
+													bt->stackbase = GET_STACKBASE(bt->task);
+													bt->stacktop = GET_STACKTOP(bt->task);
+													alter_stackbuf(bt);
+									}
 			if (IS_KVADDR(newsp) && INSTACK(newsp, bt))
 				newpc = *(ulong *)&bt->stackbuf[newsp + 16 -
 						bt->stackbase];
@@ -1592,7 +1592,7 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 				sizeof(struct ppc64_pt_regs)) {
 			 readmem(req->sp+0x60, KVADDR, &marker,
 				sizeof(ulong), "stack frame", FAULT_ON_ERROR);
-		        if (marker == EXCP_FRAME_MARKER)
+						if (marker == EXCP_FRAME_MARKER)
 				eframe_found = TRUE;
 		}
 		if (eframe_found) {
@@ -1629,27 +1629,27 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 static void
 ppc64_display_full_frame(struct bt_info *bt, ulong nextsp, FILE *ofp)
 {
-        int i, u_idx;
-        ulong *nip;
-        ulong words, addr;
+				int i, u_idx;
+				ulong *nip;
+				ulong words, addr;
 	char buf[BUFSIZE];
 
 	if (!INSTACK(nextsp, bt))
 		nextsp =  bt->stacktop;
 
-        words = (nextsp - bt->frameptr) / sizeof(ulong);
+				words = (nextsp - bt->frameptr) / sizeof(ulong);
 
-        addr = bt->frameptr;
-        u_idx = (bt->frameptr - bt->stackbase)/sizeof(ulong);
-        for (i = 0; i < words; i++, u_idx++) {
-              if (!(i & 1))
-                        fprintf(ofp, "%s    %lx: ", i ? "\n" : "", addr);
+				addr = bt->frameptr;
+				u_idx = (bt->frameptr - bt->stackbase)/sizeof(ulong);
+				for (i = 0; i < words; i++, u_idx++) {
+							if (!(i & 1))
+												fprintf(ofp, "%s    %lx: ", i ? "\n" : "", addr);
 
-                nip = (ulong *)(&bt->stackbuf[u_idx*sizeof(ulong)]);
-                fprintf(ofp, "%s ", format_stack_entry(bt, buf, *nip, 0));
-                addr += sizeof(ulong);
-        }
-        fprintf(ofp, "\n");
+								nip = (ulong *)(&bt->stackbuf[u_idx*sizeof(ulong)]);
+								fprintf(ofp, "%s ", format_stack_entry(bt, buf, *nip, 0));
+								addr += sizeof(ulong);
+				}
+				fprintf(ofp, "\n");
 }
 
 /*
@@ -1657,10 +1657,10 @@ ppc64_display_full_frame(struct bt_info *bt, ulong nextsp, FILE *ofp)
  */
 static void
 ppc64_print_stack_entry(int frame,
-		      struct gnu_request *req,
-		      ulong newsp,
-		      ulong lr,
-		      struct bt_info *bt)
+					struct gnu_request *req,
+					ulong newsp,
+					ulong lr,
+					struct bt_info *bt)
 {
 	struct load_module *lm;
 	char *lrname = NULL;
@@ -1800,13 +1800,13 @@ ppc64_print_regs(struct ppc64_pt_regs *regs)
 {
 	int i;
 
-        /* print out the gprs... */
-        for(i=0; i<32; i++) {
-                if(!(i % 3))
-                        fprintf(fp, "\n");
+				/* print out the gprs... */
+				for(i=0; i<32; i++) {
+								if(!(i % 3))
+												fprintf(fp, "\n");
 
-                fprintf(fp, " R%d:%s %016lx   ", i,
-                        ((i < 10) ? " " : ""), regs->gpr[i]);
+								fprintf(fp, " R%d:%s %016lx   ", i,
+												((i < 10) ? " " : ""), regs->gpr[i]);
 		/*
 		 * In 2.6, some stack frame contains only partial regs set.
 		 * For the partial set, only 14 regs will be saved and trap
@@ -1814,23 +1814,23 @@ ppc64_print_regs(struct ppc64_pt_regs *regs)
 		 */
 		if ((i == 13) && (regs->trap & 1))
 			break;
-        }
+				}
 
-        fprintf(fp, "\n");
+				fprintf(fp, "\n");
 
-        /* print out the rest of the registers */
-        fprintf(fp, " NIP: %016lx   ", regs->nip);
-        fprintf(fp, " MSR: %016lx    ", regs->msr);
-        fprintf(fp, "OR3: %016lx\n", regs->orig_gpr3);
-        fprintf(fp, " CTR: %016lx   ", regs->ctr);
+				/* print out the rest of the registers */
+				fprintf(fp, " NIP: %016lx   ", regs->nip);
+				fprintf(fp, " MSR: %016lx    ", regs->msr);
+				fprintf(fp, "OR3: %016lx\n", regs->orig_gpr3);
+				fprintf(fp, " CTR: %016lx   ", regs->ctr);
 
-        fprintf(fp, " LR:  %016lx    ", regs->link);
-        fprintf(fp, "XER: %016lx\n", regs->xer);
-        fprintf(fp, " CCR: %016lx   ", regs->ccr);
-        fprintf(fp, " MQ:  %016lx    ", regs->mq);
-        fprintf(fp, "DAR: %016lx\n", regs->dar);
-        fprintf(fp, " DSISR: %016lx ", regs->dsisr);
-        fprintf(fp, "    Syscall Result: %016lx\n", regs->result);
+				fprintf(fp, " LR:  %016lx    ", regs->link);
+				fprintf(fp, "XER: %016lx\n", regs->xer);
+				fprintf(fp, " CCR: %016lx   ", regs->ccr);
+				fprintf(fp, " MQ:  %016lx    ", regs->mq);
+				fprintf(fp, "DAR: %016lx\n", regs->dar);
+				fprintf(fp, " DSISR: %016lx ", regs->dsisr);
+				fprintf(fp, "    Syscall Result: %016lx\n", regs->result);
 }
 
 /*
@@ -1916,8 +1916,8 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 	ulong *up;
 	struct bt_info bt_local, *bt;
 	struct machine_specific *ms;
-        ulong ur_nip = 0;
-        ulong ur_ksp = 0;
+				ulong ur_nip = 0;
+				ulong ur_ksp = 0;
 	int check_hardirq, check_softirq;
 	int check_intrstack = TRUE;
 	struct ppc64_pt_regs *pt_regs;
@@ -1928,10 +1928,10 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 	if (pc->flags & KDUMP)
 		return ppc64_kdump_stack_frame(bt_in, nip, ksp);
 
-        bt = &bt_local;
-        BCOPY(bt_in, bt, sizeof(struct bt_info));
-        ms = machdep->machspec;
-        ur_nip = ur_ksp = 0;
+				bt = &bt_local;
+				BCOPY(bt_in, bt, sizeof(struct bt_info));
+				ms = machdep->machspec;
+				ur_nip = ur_ksp = 0;
 
 	panic_task = tt->panic_task == bt->task ? TRUE : FALSE;
 
@@ -2008,21 +2008,21 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 	 */
 retry:
 
-        for (i = 0, up = (ulong *)bt->stackbuf;
-	     i < (bt->stacktop - bt->stackbase)/sizeof(ulong); i++, up++) {
-                sym = closest_symbol(*up);
+				for (i = 0, up = (ulong *)bt->stackbuf;
+			 i < (bt->stacktop - bt->stackbase)/sizeof(ulong); i++, up++) {
+								sym = closest_symbol(*up);
 
-                if (STREQ(sym, ".netconsole_netdump") ||
+								if (STREQ(sym, ".netconsole_netdump") ||
 			STREQ(sym, ".netpoll_start_netdump") ||
 		 	STREQ(sym, ".start_disk_dump") ||
 		 	STREQ(sym, ".crash_kexec") ||
 			STREQ(sym, ".crash_fadump") ||
 			STREQ(sym, ".disk_dump")) {
-                        *nip = *up;
-                        *ksp = bt->stackbase +
+												*nip = *up;
+												*ksp = bt->stackbase +
 				((char *)(up) - 16 - bt->stackbuf);
-                        return TRUE;
-                }
+												return TRUE;
+								}
 	}
 
 	if (panic)
@@ -2031,7 +2031,7 @@ retry:
 	bt->flags &= ~(BT_HARDIRQ|BT_SOFTIRQ);
 
 	if (check_hardirq &&
-	    (tt->hardirq_tasks[bt->tc->processor] == bt->tc->task)) {
+			(tt->hardirq_tasks[bt->tc->processor] == bt->tc->task)) {
 		bt->stackbase = tt->hardirq_ctx[bt->tc->processor];
 		bt->stacktop = bt->stackbase + STACKSIZE();
 		alter_stackbuf(bt);
@@ -2065,12 +2065,12 @@ retry:
 	 *  passed in the ELF header.
 	 */
 	if (ur_nip && ur_ksp) {
-        	*nip = ur_nip;
+					*nip = ur_nip;
 		*ksp = ur_ksp;
 		return TRUE;
 	}
 
-        console("ppc64_get_dumpfile_stack_frame: cannot find SP for panic task\n");
+				console("ppc64_get_dumpfile_stack_frame: cannot find SP for panic task\n");
 	return FALSE;
 }
 
@@ -2107,13 +2107,13 @@ ppc64_get_sp(ulong task)
 		readmem(task + OFFSET(task_struct_thread_ksp), KVADDR,
 			&sp, sizeof(void *),
 			"thread_struct ksp", FAULT_ON_ERROR);
-        else {
+				else {
 		ulong offset;
 		offset = OFFSET_OPTION(task_struct_thread_ksp,
 			task_struct_tss_ksp);
 		readmem(task + offset, KVADDR, &sp, sizeof(void *),
 			"task_struct ksp", FAULT_ON_ERROR);
-        }
+				}
 	return sp;
 }
 
@@ -2169,172 +2169,172 @@ out:
 static void
 ppc64_dump_irq(int irq)
 {
-        ulong irq_desc_addr, addr;
-        int level, others;
-        ulong action, ctl, value;
-        char typename[32];
+				ulong irq_desc_addr, addr;
+				int level, others;
+				ulong action, ctl, value;
+				char typename[32];
 
-        irq_desc_addr = symbol_value("irq_desc") + (SIZE(irqdesc) * irq);
+				irq_desc_addr = symbol_value("irq_desc") + (SIZE(irqdesc) * irq);
 
-        readmem(irq_desc_addr + OFFSET(irqdesc_level), KVADDR, &level,
-                sizeof(int), "irq_desc entry", FAULT_ON_ERROR);
-        readmem(irq_desc_addr + OFFSET(irqdesc_action), KVADDR, &action,
-                sizeof(long), "irq_desc entry", FAULT_ON_ERROR);
-        readmem(irq_desc_addr + OFFSET(irqdesc_ctl), KVADDR, &ctl,
-                sizeof(long), "irq_desc entry", FAULT_ON_ERROR);
+				readmem(irq_desc_addr + OFFSET(irqdesc_level), KVADDR, &level,
+								sizeof(int), "irq_desc entry", FAULT_ON_ERROR);
+				readmem(irq_desc_addr + OFFSET(irqdesc_action), KVADDR, &action,
+								sizeof(long), "irq_desc entry", FAULT_ON_ERROR);
+				readmem(irq_desc_addr + OFFSET(irqdesc_ctl), KVADDR, &ctl,
+								sizeof(long), "irq_desc entry", FAULT_ON_ERROR);
 
-        fprintf(fp, "    IRQ: %d\n", irq);
-        fprintf(fp, " STATUS: 0\n");
-        fprintf(fp, "HANDLER: ");
+				fprintf(fp, "    IRQ: %d\n", irq);
+				fprintf(fp, " STATUS: 0\n");
+				fprintf(fp, "HANDLER: ");
 
-        if (value_symbol(ctl)) {
-                fprintf(fp, "%lx  ", ctl);
-                pad_line(fp, VADDR_PRLEN == 8 ?
-                        VADDR_PRLEN+2 : VADDR_PRLEN-6, ' ');
-                fprintf(fp, "<%s>\n", value_symbol(ctl));
-        } else
-                fprintf(fp, "%lx\n", ctl);
+				if (value_symbol(ctl)) {
+								fprintf(fp, "%lx  ", ctl);
+								pad_line(fp, VADDR_PRLEN == 8 ?
+												VADDR_PRLEN+2 : VADDR_PRLEN-6, ' ');
+								fprintf(fp, "<%s>\n", value_symbol(ctl));
+				} else
+								fprintf(fp, "%lx\n", ctl);
 
-        if(ctl) {
-                /* typename */
-                readmem(ctl + OFFSET(hw_interrupt_type_typename), KVADDR, &addr,
-                        sizeof(ulong), "typename pointer", FAULT_ON_ERROR);
+				if(ctl) {
+								/* typename */
+								readmem(ctl + OFFSET(hw_interrupt_type_typename), KVADDR, &addr,
+												sizeof(ulong), "typename pointer", FAULT_ON_ERROR);
 
 		fprintf(fp, "         typename: %08lx  ", addr);
-                if (read_string(addr, typename, 32))
-                        fprintf(fp, "\"%s\"\n", typename);
+								if (read_string(addr, typename, 32))
+												fprintf(fp, "\"%s\"\n", typename);
 		else
 			fprintf(fp, "\n");
 
-                /* startup...I think this is always 0 */
-                readmem(ctl + OFFSET(hw_interrupt_type_startup), KVADDR, &addr,
-                        sizeof(ulong), "interrupt startup", FAULT_ON_ERROR);
-                fprintf(fp, "          startup: ");
-                if(value_symbol(addr)) {
-                        fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
-                } else
-                        fprintf(fp, "%lx\n", addr);
+								/* startup...I think this is always 0 */
+								readmem(ctl + OFFSET(hw_interrupt_type_startup), KVADDR, &addr,
+												sizeof(ulong), "interrupt startup", FAULT_ON_ERROR);
+								fprintf(fp, "          startup: ");
+								if(value_symbol(addr)) {
+												fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
+								} else
+												fprintf(fp, "%lx\n", addr);
 
-               /* shutdown...I think this is always 0 */
-                readmem(ctl + OFFSET(hw_interrupt_type_shutdown), KVADDR, &addr,
-                        sizeof(ulong), "interrupt shutdown", FAULT_ON_ERROR);
-                fprintf(fp, "         shutdown: ");
-                if(value_symbol(addr)) {
-                        fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
-                } else
-                        fprintf(fp, "%lx\n", addr);
+							 /* shutdown...I think this is always 0 */
+								readmem(ctl + OFFSET(hw_interrupt_type_shutdown), KVADDR, &addr,
+												sizeof(ulong), "interrupt shutdown", FAULT_ON_ERROR);
+								fprintf(fp, "         shutdown: ");
+								if(value_symbol(addr)) {
+												fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
+								} else
+												fprintf(fp, "%lx\n", addr);
 
-                if (VALID_MEMBER(hw_interrupt_type_handle)) {
-                        /* handle */
-                        readmem(ctl + OFFSET(hw_interrupt_type_handle),
-                                KVADDR, &addr, sizeof(ulong),
-                                "interrupt handle", FAULT_ON_ERROR);
-                        fprintf(fp, "           handle: ");
-                        if(value_symbol(addr)) {
-                                fprintf(fp, "%08lx  <%s>\n", addr,
-                                        value_symbol(addr));
-                        } else
-                                fprintf(fp, "%lx\n", addr);
-                }
+								if (VALID_MEMBER(hw_interrupt_type_handle)) {
+												/* handle */
+												readmem(ctl + OFFSET(hw_interrupt_type_handle),
+																KVADDR, &addr, sizeof(ulong),
+																"interrupt handle", FAULT_ON_ERROR);
+												fprintf(fp, "           handle: ");
+												if(value_symbol(addr)) {
+																fprintf(fp, "%08lx  <%s>\n", addr,
+																				value_symbol(addr));
+												} else
+																fprintf(fp, "%lx\n", addr);
+								}
 
-                /* enable/disable */
-                readmem(ctl + OFFSET(hw_interrupt_type_enable), KVADDR, &addr,
-                        sizeof(ulong), "interrupt enable", FAULT_ON_ERROR);
-                fprintf(fp, "           enable: ");
-                if(value_symbol(addr)) {
-                        fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
-                } else
-                        fprintf(fp, "%lx\n", addr);
+								/* enable/disable */
+								readmem(ctl + OFFSET(hw_interrupt_type_enable), KVADDR, &addr,
+												sizeof(ulong), "interrupt enable", FAULT_ON_ERROR);
+								fprintf(fp, "           enable: ");
+								if(value_symbol(addr)) {
+												fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
+								} else
+												fprintf(fp, "%lx\n", addr);
 
-                readmem(ctl + OFFSET(hw_interrupt_type_disable), KVADDR, &addr,
-                        sizeof(ulong), "interrupt disable", FAULT_ON_ERROR);
-                fprintf(fp, "          disable: ");
-                if(value_symbol(addr)) {
-                        fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
-                } else
-                        fprintf(fp, "0\n");
-        }
+								readmem(ctl + OFFSET(hw_interrupt_type_disable), KVADDR, &addr,
+												sizeof(ulong), "interrupt disable", FAULT_ON_ERROR);
+								fprintf(fp, "          disable: ");
+								if(value_symbol(addr)) {
+												fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
+								} else
+												fprintf(fp, "0\n");
+				}
 
-        /* next, the action... and its submembers */
-        if(!action)
-                fprintf(fp, " ACTION: (none)\n");
+				/* next, the action... and its submembers */
+				if(!action)
+								fprintf(fp, " ACTION: (none)\n");
 
-        while(action) {
-                fprintf(fp, " ACTION: %08lx\n", action);
-               /* handler */
-                readmem(action + OFFSET(irqaction_handler), KVADDR, &addr,
-                        sizeof(ulong), "action handler", FAULT_ON_ERROR);
-                fprintf(fp, "          handler: ");
-                if(value_symbol(addr)) {
-                        fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
-                } else
-                        fprintf(fp, "0\n");
+				while(action) {
+								fprintf(fp, " ACTION: %08lx\n", action);
+							 /* handler */
+								readmem(action + OFFSET(irqaction_handler), KVADDR, &addr,
+												sizeof(ulong), "action handler", FAULT_ON_ERROR);
+								fprintf(fp, "          handler: ");
+								if(value_symbol(addr)) {
+												fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
+								} else
+												fprintf(fp, "0\n");
 
-                /* flags */
-                readmem(action + OFFSET(irqaction_flags), KVADDR, &value,
-                        sizeof(ulong), "action flags", FAULT_ON_ERROR);
-                fprintf(fp, "            flags: %lx  ", value);
+								/* flags */
+								readmem(action + OFFSET(irqaction_flags), KVADDR, &value,
+												sizeof(ulong), "action flags", FAULT_ON_ERROR);
+								fprintf(fp, "            flags: %lx  ", value);
 
-                if (value) {
-                        others = 0;
-                        fprintf(fp, "(");
+								if (value) {
+												others = 0;
+												fprintf(fp, "(");
 
-                        if (value & SA_INTERRUPT)
-                                fprintf(fp,
-                                        "%sSA_INTERRUPT",
-                                        others++ ? "|" : "");
-                        if (value & SA_PROBE)
-                                fprintf(fp,
-                                        "%sSA_PROBE",
-                                        others++ ? "|" : "");
-                        if (value & SA_SAMPLE_RANDOM)
-                                fprintf(fp,
-                                        "%sSA_SAMPLE_RANDOM",
-                                        others++ ? "|" : "");
-                        if (value & SA_SHIRQ)
-                                fprintf(fp,
-                                        "%sSA_SHIRQ",
-                                        others++ ? "|" : "");
-                        fprintf(fp, ")");
-                        if (value & ~ACTION_FLAGS) {
-                                fprintf(fp,
-                                        "  (bits %lx not translated)",
-                                        value & ~ACTION_FLAGS);
-                        }
-                }
+												if (value & SA_INTERRUPT)
+																fprintf(fp,
+																				"%sSA_INTERRUPT",
+																				others++ ? "|" : "");
+												if (value & SA_PROBE)
+																fprintf(fp,
+																				"%sSA_PROBE",
+																				others++ ? "|" : "");
+												if (value & SA_SAMPLE_RANDOM)
+																fprintf(fp,
+																				"%sSA_SAMPLE_RANDOM",
+																				others++ ? "|" : "");
+												if (value & SA_SHIRQ)
+																fprintf(fp,
+																				"%sSA_SHIRQ",
+																				others++ ? "|" : "");
+												fprintf(fp, ")");
+												if (value & ~ACTION_FLAGS) {
+																fprintf(fp,
+																				"  (bits %lx not translated)",
+																				value & ~ACTION_FLAGS);
+												}
+								}
 
-                fprintf(fp, "\n");
+								fprintf(fp, "\n");
 
-                /* mask */
-                readmem(action + OFFSET(irqaction_mask), KVADDR, &value,
-                        sizeof(ulong), "action mask", FAULT_ON_ERROR);
-                fprintf(fp, "             mask: %lx\n", value);
+								/* mask */
+								readmem(action + OFFSET(irqaction_mask), KVADDR, &value,
+												sizeof(ulong), "action mask", FAULT_ON_ERROR);
+								fprintf(fp, "             mask: %lx\n", value);
 
-                /* name */
-                readmem(action + OFFSET(irqaction_name), KVADDR, &addr,
-                        sizeof(ulong), "action name", FAULT_ON_ERROR);
+								/* name */
+								readmem(action + OFFSET(irqaction_name), KVADDR, &addr,
+												sizeof(ulong), "action name", FAULT_ON_ERROR);
 
 		fprintf(fp, "             name: %08lx  ", addr);
 		if (read_string(addr, typename, 32))
-                        fprintf(fp, "\"%s\"\n", typename);
+												fprintf(fp, "\"%s\"\n", typename);
 		else
 			fprintf(fp, "\n");
 
-                /* dev_id */
-                readmem(action + OFFSET(irqaction_dev_id), KVADDR, &value,
-                        sizeof(ulong), "action dev_id", FAULT_ON_ERROR);
-                fprintf(fp, "           dev_id: %08lx\n", value);
+								/* dev_id */
+								readmem(action + OFFSET(irqaction_dev_id), KVADDR, &value,
+												sizeof(ulong), "action dev_id", FAULT_ON_ERROR);
+								fprintf(fp, "           dev_id: %08lx\n", value);
 
-                /* next */
-                readmem(action + OFFSET(irqaction_next), KVADDR, &value,
-                        sizeof(ulong), "action next", FAULT_ON_ERROR);
-                fprintf(fp, "             next: %lx\n", value);
+								/* next */
+								readmem(action + OFFSET(irqaction_next), KVADDR, &value,
+												sizeof(ulong), "action next", FAULT_ON_ERROR);
+								fprintf(fp, "             next: %lx\n", value);
 
-                /* keep going if there are chained interrupts */
-                action = value;
-        }
+								/* keep going if there are chained interrupts */
+								action = value;
+				}
 
-        fprintf(fp, "  DEPTH: %x\n\n", level);
+				fprintf(fp, "  DEPTH: %x\n\n", level);
 }
 
 /*
@@ -2343,12 +2343,12 @@ ppc64_dump_irq(int irq)
 static int
 ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
-        char buf1[BUFSIZE];
-        char buf2[BUFSIZE];
-        char *colon, *p1;
-        int argc;
-        char *argv[MAXARGS];
-        ulong value;
+				char buf1[BUFSIZE];
+				char buf2[BUFSIZE];
+				char *colon, *p1;
+				int argc;
+				char *argv[MAXARGS];
+				ulong value;
 
 	if (!inbuf)
 		return TRUE;
@@ -2372,7 +2372,7 @@ ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	argc = parse_line(buf1, argv);
 
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-	    (LASTCHAR(argv[argc-1]) == '>')) {
+			(LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
@@ -2411,26 +2411,26 @@ ppc64_get_smp_cpus(void)
 void
 ppc64_cmd_mach(void)
 {
-        int c;
+				int c;
 
-        while ((c = getopt(argcnt, args, "cm")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args, "cm")) != EOF) {
+								switch(c)
+								{
 		case 'c':
 		case 'm':
 			fprintf(fp, "PPC64: '-%c' option is not supported\n",
 				c);
 			break;
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
-        ppc64_display_machine_stats();
+				ppc64_display_machine_stats();
 }
 
 /*
@@ -2440,26 +2440,26 @@ static void
 ppc64_display_machine_stats(void)
 {
 	int c;
-        struct new_utsname *uts;
-        char buf[BUFSIZE];
-        ulong mhz;
+				struct new_utsname *uts;
+				char buf[BUFSIZE];
+				ulong mhz;
 
-        uts = &kt->utsname;
+				uts = &kt->utsname;
 
-        fprintf(fp, "       MACHINE TYPE: %s\n", uts->machine);
-        fprintf(fp, "        MEMORY SIZE: %s\n", get_memory_size(buf));
+				fprintf(fp, "       MACHINE TYPE: %s\n", uts->machine);
+				fprintf(fp, "        MEMORY SIZE: %s\n", get_memory_size(buf));
 	fprintf(fp, "               CPUS: %d\n", get_cpus_to_display());
-        fprintf(fp, "    PROCESSOR SPEED: ");
-        if ((mhz = machdep->processor_speed()))
-                fprintf(fp, "%ld Mhz\n", mhz);
-        else
-                fprintf(fp, "(unknown)\n");
-        fprintf(fp, "                 HZ: %d\n", machdep->hz);
-        fprintf(fp, "          PAGE SIZE: %d\n", PAGESIZE());
+				fprintf(fp, "    PROCESSOR SPEED: ");
+				if ((mhz = machdep->processor_speed()))
+								fprintf(fp, "%ld Mhz\n", mhz);
+				else
+								fprintf(fp, "(unknown)\n");
+				fprintf(fp, "                 HZ: %d\n", machdep->hz);
+				fprintf(fp, "          PAGE SIZE: %d\n", PAGESIZE());
 //      fprintf(fp, "      L1 CACHE SIZE: %d\n", l1_cache_size());
-        fprintf(fp, "KERNEL VIRTUAL BASE: %lx\n", machdep->kvbase);
-        fprintf(fp, "KERNEL VMALLOC BASE: %lx\n", vt->vmalloc_start);
-        fprintf(fp, "  KERNEL STACK SIZE: %ld\n", STACKSIZE());
+				fprintf(fp, "KERNEL VIRTUAL BASE: %lx\n", machdep->kvbase);
+				fprintf(fp, "KERNEL VMALLOC BASE: %lx\n", vt->vmalloc_start);
+				fprintf(fp, "  KERNEL STACK SIZE: %ld\n", STACKSIZE());
 
 	if (tt->flags & IRQSTACKS) {
 		fprintf(fp, "HARD IRQ STACK SIZE: %ld\n", STACKSIZE());
@@ -2484,9 +2484,9 @@ ppc64_display_machine_stats(void)
 }
 
 static const char *hook_files[] = {
-        "arch/ppc64/kernel/entry.S",
-        "arch/ppc64/kernel/head.S",
-        "arch/ppc64/kernel/semaphore.c"
+				"arch/ppc64/kernel/entry.S",
+				"arch/ppc64/kernel/head.S",
+				"arch/ppc64/kernel/semaphore.c"
 };
 
 #define ENTRY_S      ((char **)&hook_files[0])
@@ -2513,111 +2513,111 @@ static struct line_number_hook ppc64_line_number_hooks[] = {
 	{"__start", HEAD_S},
 	{"__secondary_hold", HEAD_S},
 
-        {"DataAccessCont", HEAD_S},
-        {"DataAccess", HEAD_S},
-        {"i0x300", HEAD_S},
-        {"DataSegmentCont", HEAD_S},
-        {"InstructionAccessCont", HEAD_S},
-        {"InstructionAccess", HEAD_S},
-        {"i0x400", HEAD_S},
-        {"InstructionSegmentCont", HEAD_S},
-        {"HardwareInterrupt", HEAD_S},
-        {"do_IRQ_intercept", HEAD_S},
-        {"i0x600", HEAD_S},
-        {"ProgramCheck", HEAD_S},
-        {"i0x700", HEAD_S},
-        {"FPUnavailable", HEAD_S},
-        {"i0x800", HEAD_S},
-        {"Decrementer", HEAD_S},
-        {"timer_interrupt_intercept", HEAD_S},
-        {"SystemCall", HEAD_S},
-        {"trap_0f_cont", HEAD_S},
-        {"Trap_0f", HEAD_S},
-        {"InstructionTLBMiss", HEAD_S},
-        {"InstructionAddressInvalid", HEAD_S},
-        {"DataLoadTLBMiss", HEAD_S},
-        {"DataAddressInvalid", HEAD_S},
-        {"DataStoreTLBMiss", HEAD_S},
-        {"AltiVecUnavailable", HEAD_S},
-        {"DataAccess", HEAD_S},
-        {"InstructionAccess", HEAD_S},
-        {"DataSegment", HEAD_S},
-        {"InstructionSegment", HEAD_S},
-        {"transfer_to_handler", HEAD_S},
-        {"stack_ovf", HEAD_S},
-        {"load_up_fpu", HEAD_S},
-        {"KernelFP", HEAD_S},
-        {"load_up_altivec", HEAD_S},
-        {"KernelAltiVec", HEAD_S},
-        {"giveup_altivec", HEAD_S},
-        {"giveup_fpu", HEAD_S},
-        {"relocate_kernel", HEAD_S},
-        {"copy_and_flush", HEAD_S},
-        {"fix_mem_constants", HEAD_S},
-        {"apus_interrupt_entry", HEAD_S},
-        {"__secondary_start_gemini", HEAD_S},
-        {"__secondary_start_psurge", HEAD_S},
-        {"__secondary_start_psurge2", HEAD_S},
-        {"__secondary_start_psurge3", HEAD_S},
-        {"__secondary_start_psurge99", HEAD_S},
-        {"__secondary_start", HEAD_S},
-        {"setup_common_caches", HEAD_S},
-        {"setup_604_hid0", HEAD_S},
-        {"setup_750_7400_hid0", HEAD_S},
-        {"load_up_mmu", HEAD_S},
-        {"start_here", HEAD_S},
-        {"clear_bats", HEAD_S},
-        {"flush_tlbs", HEAD_S},
-        {"mmu_off", HEAD_S},
-        {"initial_bats", HEAD_S},
-        {"setup_disp_bat", HEAD_S},
-        {"m8260_gorom", HEAD_S},
-        {"sdata", HEAD_S},
-        {"empty_zero_page", HEAD_S},
-        {"swapper_pg_dir", HEAD_S},
-        {"cmd_line", HEAD_S},
-        {"intercept_table", HEAD_S},
-        {"set_context", HEAD_S},
+				{"DataAccessCont", HEAD_S},
+				{"DataAccess", HEAD_S},
+				{"i0x300", HEAD_S},
+				{"DataSegmentCont", HEAD_S},
+				{"InstructionAccessCont", HEAD_S},
+				{"InstructionAccess", HEAD_S},
+				{"i0x400", HEAD_S},
+				{"InstructionSegmentCont", HEAD_S},
+				{"HardwareInterrupt", HEAD_S},
+				{"do_IRQ_intercept", HEAD_S},
+				{"i0x600", HEAD_S},
+				{"ProgramCheck", HEAD_S},
+				{"i0x700", HEAD_S},
+				{"FPUnavailable", HEAD_S},
+				{"i0x800", HEAD_S},
+				{"Decrementer", HEAD_S},
+				{"timer_interrupt_intercept", HEAD_S},
+				{"SystemCall", HEAD_S},
+				{"trap_0f_cont", HEAD_S},
+				{"Trap_0f", HEAD_S},
+				{"InstructionTLBMiss", HEAD_S},
+				{"InstructionAddressInvalid", HEAD_S},
+				{"DataLoadTLBMiss", HEAD_S},
+				{"DataAddressInvalid", HEAD_S},
+				{"DataStoreTLBMiss", HEAD_S},
+				{"AltiVecUnavailable", HEAD_S},
+				{"DataAccess", HEAD_S},
+				{"InstructionAccess", HEAD_S},
+				{"DataSegment", HEAD_S},
+				{"InstructionSegment", HEAD_S},
+				{"transfer_to_handler", HEAD_S},
+				{"stack_ovf", HEAD_S},
+				{"load_up_fpu", HEAD_S},
+				{"KernelFP", HEAD_S},
+				{"load_up_altivec", HEAD_S},
+				{"KernelAltiVec", HEAD_S},
+				{"giveup_altivec", HEAD_S},
+				{"giveup_fpu", HEAD_S},
+				{"relocate_kernel", HEAD_S},
+				{"copy_and_flush", HEAD_S},
+				{"fix_mem_constants", HEAD_S},
+				{"apus_interrupt_entry", HEAD_S},
+				{"__secondary_start_gemini", HEAD_S},
+				{"__secondary_start_psurge", HEAD_S},
+				{"__secondary_start_psurge2", HEAD_S},
+				{"__secondary_start_psurge3", HEAD_S},
+				{"__secondary_start_psurge99", HEAD_S},
+				{"__secondary_start", HEAD_S},
+				{"setup_common_caches", HEAD_S},
+				{"setup_604_hid0", HEAD_S},
+				{"setup_750_7400_hid0", HEAD_S},
+				{"load_up_mmu", HEAD_S},
+				{"start_here", HEAD_S},
+				{"clear_bats", HEAD_S},
+				{"flush_tlbs", HEAD_S},
+				{"mmu_off", HEAD_S},
+				{"initial_bats", HEAD_S},
+				{"setup_disp_bat", HEAD_S},
+				{"m8260_gorom", HEAD_S},
+				{"sdata", HEAD_S},
+				{"empty_zero_page", HEAD_S},
+				{"swapper_pg_dir", HEAD_S},
+				{"cmd_line", HEAD_S},
+				{"intercept_table", HEAD_S},
+				{"set_context", HEAD_S},
 
-       {NULL, NULL}    /* list must be NULL-terminated */
+			 {NULL, NULL}    /* list must be NULL-terminated */
 };
 
 static void
 ppc64_dump_line_number(ulong callpc)
 {
-        int retries;
-        char buf[BUFSIZE], *p;
+				int retries;
+				char buf[BUFSIZE], *p;
 
-        retries = 0;
+				retries = 0;
 
 try_closest:
-        get_line_number(callpc, buf, FALSE);
+				get_line_number(callpc, buf, FALSE);
 
-        if (strlen(buf)) {
-                if (retries) {
-                        p = strstr(buf, ": ");
+				if (strlen(buf)) {
+								if (retries) {
+												p = strstr(buf, ": ");
 			if (p)
-                        	*p = NULLCHAR;
-                }
-                fprintf(fp, "    %s\n", buf);
-        } else {
-                if (retries)
-                        fprintf(fp, GDB_PATCHED() ?
-                          "" : "    (cannot determine file and line number)\n");
-                else {
-                        retries++;
-                        callpc = closest_symbol_value(callpc);
-                        goto try_closest;
-                }
-        }
+													*p = NULLCHAR;
+								}
+								fprintf(fp, "    %s\n", buf);
+				} else {
+								if (retries)
+												fprintf(fp, GDB_PATCHED() ?
+													"" : "    (cannot determine file and line number)\n");
+								else {
+												retries++;
+												callpc = closest_symbol_value(callpc);
+												goto try_closest;
+								}
+				}
 }
 
 void
 ppc64_compiler_warning_stub(void)
 {
-        struct line_number_hook *lhp;
+				struct line_number_hook *lhp;
 
-        lhp = &ppc64_line_number_hooks[0]; lhp++;
+				lhp = &ppc64_line_number_hooks[0]; lhp++;
 	ppc64_back_trace(NULL, NULL);
 	ppc64_dump_line_number(0);
 }
@@ -2647,7 +2647,7 @@ parse_cmdline_args(void)
 			error(WARNING, "ignoring --machdep option: %s\n\n",
 				machdep->cmdline_args[index]);
 			continue;
-	        }
+					}
 
 		strcpy(buf, machdep->cmdline_args[index]);
 
@@ -2754,7 +2754,7 @@ ppc64_paca_init(int map)
 			continue;
 
 		readmem(paca + (i * SIZE(ppc64_paca)),
-             		KVADDR, cpu_paca_buf, SIZE(ppc64_paca),
+						 		KVADDR, cpu_paca_buf, SIZE(ppc64_paca),
 			"paca entry", FAULT_ON_ERROR);
 
 		kt->__per_cpu_offset[i] = ULONG(cpu_paca_buf + data_offset);
@@ -2840,7 +2840,7 @@ void
 ppc64_clear_machdep_cache(void)
 {
 	if (machdep->machspec->last_level4_read != vt->kernel_pgd[0])
-        	machdep->machspec->last_level4_read = 0;
+					machdep->machspec->last_level4_read = 0;
 }
 
 static int
@@ -2864,7 +2864,7 @@ ppc64_get_kvaddr_ranges(struct vaddr_range *vrp)
  		phys1 = (physaddr_t)(0);
 		phys2 = (physaddr_t)VTOP((vt->high_memory - PAGESIZE()));
 		if (phys_to_page(phys1, &pp1) &&
-	    	    phys_to_page(phys2, &pp2)) {
+						phys_to_page(phys2, &pp2)) {
 			vrp[cnt].type = KVADDR_VMEMMAP;
 			vrp[cnt].start = pp1;
 			vrp[cnt++].end = pp2;

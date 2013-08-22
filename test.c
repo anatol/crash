@@ -20,7 +20,7 @@
 
 static struct option test_long_options[] = {
 	{"no", no_argument, 0, 0},
-        {"req", required_argument, 0, 0},
+				{"req", required_argument, 0, 0},
 	{0, 0, 0, 0}
 };
 
@@ -34,30 +34,30 @@ cmd_test(void)
 	int c;
 	int option_index;
 
-        while ((c = getopt_long(argcnt, args, "",
+				while ((c = getopt_long(argcnt, args, "",
 		test_long_options, &option_index)) != EOF) {
-                switch(c)
-                {
-                case 0:
-                        if (STREQ(test_long_options[option_index].name, "no"))
-                                fprintf(fp, "no argument\n");
-                        if (STREQ(test_long_options[option_index].name, "req"))
-                                fprintf(fp, "required argument: %s\n", optarg);
+								switch(c)
+								{
+								case 0:
+												if (STREQ(test_long_options[option_index].name, "no"))
+																fprintf(fp, "no argument\n");
+												if (STREQ(test_long_options[option_index].name, "req"))
+																fprintf(fp, "required argument: %s\n", optarg);
 			break;
 
-                default:
-                        argerrs++;
-                        break;
+								default:
+												argerrs++;
+												break;
 		}
 	}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
-        while (args[optind]) {
-                ;
-                optind++;
-        }
+				while (args[optind]) {
+								;
+								optind++;
+				}
 }
 
 /*
@@ -77,19 +77,19 @@ foreach_test(ulong task, ulong flags)
 void
 cmd_template(void)
 {
-        int c;
+				int c;
 
-        while ((c = getopt(argcnt, args, "")) != EOF) {
-                switch(c)
-                {
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+				while ((c = getopt(argcnt, args, "")) != EOF) {
+								switch(c)
+								{
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	while (args[optind]) {
 		;

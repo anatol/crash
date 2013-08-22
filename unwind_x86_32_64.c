@@ -29,12 +29,12 @@
 #define MAX_STACK_DEPTH 8
 
 static struct local_unwind_table {
-        struct {
-                unsigned long pc;
-                unsigned long range;
-        } core, init;
-        void *address;
-        unsigned long size;
+				struct {
+								unsigned long pc;
+								unsigned long range;
+				} core, init;
+				void *address;
+				unsigned long size;
 } *local_unwind_tables, default_unwind_table;
 
 static int gather_in_memory_unwind_tables(void);
@@ -104,16 +104,16 @@ static const struct {
 #define DW_EH_PE_omit     0xff
 
 #define min(x,y) ({ \
-        typeof(x) _x = (x);     \
-        typeof(y) _y = (y);     \
-        (void) (&_x == &_y);            \
-        _x < _y ? _x : _y; })
+				typeof(x) _x = (x);     \
+				typeof(y) _y = (y);     \
+				(void) (&_x == &_y);            \
+				_x < _y ? _x : _y; })
 
 #define max(x,y) ({ \
-        typeof(x) _x = (x);     \
-        typeof(y) _y = (y);     \
-        (void) (&_x == &_y);            \
-        _x > _y ? _x : _y; })
+				typeof(x) _x = (x);     \
+				typeof(y) _y = (y);     \
+				(void) (&_x == &_y);            \
+				_x > _y ? _x : _y; })
 #define STACK_LIMIT(ptr)     (((ptr) - 1) & ~(THREAD_SIZE - 1))
 
 typedef unsigned long uleb128_t;
@@ -154,7 +154,7 @@ static uleb128_t get_uleb128(const u8 **pcur, const u8 *end)
 
 	for (shift = 0, value = 0; cur < end; shift += 7) {
 		if (shift + 7 > 8 * sizeof(value)
-		    && (*cur & 0x7fU) >= (1U << (8 * sizeof(value) - shift))) {
+				&& (*cur & 0x7fU) >= (1U << (8 * sizeof(value) - shift))) {
 			cur = end + 1;
 			break;
 		}
@@ -175,7 +175,7 @@ static sleb128_t get_sleb128(const u8 **pcur, const u8 *end)
 
 	for (shift = 0, value = 0; cur < end; shift += 7) {
 		if (shift + 7 > 8 * sizeof(value)
-		    && (*cur & 0x7fU) >= (1U << (8 * sizeof(value) - shift))) {
+				&& (*cur & 0x7fU) >= (1U << (8 * sizeof(value) - shift))) {
 			cur = end + 1;
 			break;
 		}
@@ -191,8 +191,8 @@ static sleb128_t get_sleb128(const u8 **pcur, const u8 *end)
 }
 
 static unsigned long read_pointer(const u8 **pLoc,
-                                  const void *end,
-                                  signed ptrType)
+																	const void *end,
+																	signed ptrType)
 {
 	unsigned long value = 0;
 	union {
@@ -238,8 +238,8 @@ static unsigned long read_pointer(const u8 **pLoc,
 	case DW_EH_PE_leb128:
 		BUILD_BUG_ON(sizeof(uleb128_t) > sizeof(value));
 		value = ptrType & DW_EH_PE_signed
-		        ? get_sleb128(&ptr.p8, end)
-		        : get_uleb128(&ptr.p8, end);
+						? get_sleb128(&ptr.p8, end)
+						: get_uleb128(&ptr.p8, end);
 		if ((const void *)ptr.p8 > end)
 			return 0;
 		break;
@@ -258,7 +258,7 @@ static unsigned long read_pointer(const u8 **pLoc,
 
 /*	TBD
 	if ((ptrType & DW_EH_PE_indirect)
-	    && __get_user(value, (unsigned long *)value))
+			&& __get_user(value, (unsigned long *)value))
 		return 0;
 */
 	*pLoc = ptr.p8;
@@ -325,9 +325,9 @@ static int advance_loc(unsigned long delta, struct unwind_state *state)
 }
 
 static void set_rule(uleb128_t reg,
-                     enum item_location where,
-                     uleb128_t value,
-                     struct unwind_state *state)
+										 enum item_location where,
+										 uleb128_t value,
+										 struct unwind_state *state)
 {
 	if (reg < ARRAY_SIZE(state->regs)) {
 		state->regs[reg].where = where;
@@ -336,10 +336,10 @@ static void set_rule(uleb128_t reg,
 }
 
 static int processCFI(const u8 *start,
-                      const u8 *end,
-                      unsigned long targetLoc,
-                      signed ptrType,
-                      struct unwind_state *state)
+											const u8 *end,
+											unsigned long targetLoc,
+											signed ptrType,
+											struct unwind_state *state)
 {
 	union {
 		const u8 *p8;
@@ -372,11 +372,11 @@ static int processCFI(const u8 *start,
 				break;
 			case DW_CFA_advance_loc2:
 				result = ptr.p8 <= end + 2
-				         && advance_loc(*ptr.p16++, state);
+								 && advance_loc(*ptr.p16++, state);
 				break;
 			case DW_CFA_advance_loc4:
 				result = ptr.p8 <= end + 4
-				         && advance_loc(*ptr.p32++, state);
+								 && advance_loc(*ptr.p32++, state);
 				break;
 			case DW_CFA_offset_extended:
 				value = get_uleb128(&ptr.p8, end);
@@ -406,7 +406,7 @@ static int processCFI(const u8 *start,
 			case DW_CFA_register:
 				value = get_uleb128(&ptr.p8, end);
 				set_rule(value, Register,
-				         get_uleb128(&ptr.p8, end), state);
+								 get_uleb128(&ptr.p8, end), state);
 				break;
 			case DW_CFA_remember_state:
 				if (ptr.p8 == state->label) {
@@ -443,7 +443,7 @@ static int processCFI(const u8 *start,
 				/*nobreak*/
 			case DW_CFA_def_cfa_offset_sf:
 				state->cfa.offs = get_sleb128(&ptr.p8, end)
-				                  * state->dataAlign;
+													* state->dataAlign;
 				break;
 			case DW_CFA_def_cfa_register:
 				state->cfa.reg = get_uleb128(&ptr.p8, end);
@@ -457,7 +457,7 @@ static int processCFI(const u8 *start,
 			case DW_CFA_GNU_negative_offset_extended:
 				value = get_uleb128(&ptr.p8, end);
 				set_rule(value, Memory, (uleb128_t)0 -
-				         get_uleb128(&ptr.p8, end), state);
+								 get_uleb128(&ptr.p8, end), state);
 				break;
 			case DW_CFA_GNU_window_save:
 			default:
@@ -484,12 +484,12 @@ static int processCFI(const u8 *start,
 	}
 
 	return result
-	   && ptr.p8 == end
-	   && (targetLoc == 0
-	    || (/*todo While in theory this should apply, gcc in practice omits
-	          everything past the function prolog, and hence the location
-	          never reaches the end of the function.
-	        targetLoc < state->loc &&*/ state->label == NULL));
+		 && ptr.p8 == end
+		 && (targetLoc == 0
+			|| (/*todo While in theory this should apply, gcc in practice omits
+						everything past the function prolog, and hence the location
+						never reaches the end of the function.
+					targetLoc < state->loc &&*/ state->label == NULL));
 }
 
 
@@ -522,9 +522,9 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 		unwind_table = table->address;
 
 		for (fde = unwind_table;
-		     tableSize > sizeof(*fde) && tableSize - sizeof(*fde) >= *fde;
-		     tableSize -= sizeof(*fde) + *fde,
-		     fde += 1 + *fde / sizeof(*fde)) {
+				 tableSize > sizeof(*fde) && tableSize - sizeof(*fde) >= *fde;
+				 tableSize -= sizeof(*fde) + *fde,
+				 fde += 1 + *fde / sizeof(*fde)) {
 			if (!*fde || (*fde & (sizeof(*fde) - 1)))
 				break;
 			if (is_ehframe && !fde[1])
@@ -532,31 +532,31 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 			else if (fde[1] == 0xffffffff)
 				continue; /* this is a CIE */
 			if ((fde[1] & (sizeof(*fde) - 1))
-			    || fde[1] > (unsigned long)(fde + 1)
-			                - (unsigned long)unwind_table)
+					|| fde[1] > (unsigned long)(fde + 1)
+											- (unsigned long)unwind_table)
 				continue; /* this is not a valid FDE */
 			if (is_ehframe)
 				cie = fde + 1 - fde[1] / sizeof(*fde);
 			else
 				cie = unwind_table + fde[1];
 			if (*cie <= sizeof(*cie) + 4
-			    || *cie >= fde[1] - sizeof(*fde)
-			    || (*cie & (sizeof(*cie) - 1))
-			    || (cie[1] != 0xffffffff && cie[1])
-			    || (ptrType = fde_pointer_type(cie)) < 0) {
+					|| *cie >= fde[1] - sizeof(*fde)
+					|| (*cie & (sizeof(*cie) - 1))
+					|| (cie[1] != 0xffffffff && cie[1])
+					|| (ptrType = fde_pointer_type(cie)) < 0) {
 				cie = NULL; /* this is not a (valid) CIE */
 				continue;
 			}
 			ptr = (const u8 *)(fde + 2);
 			startLoc = read_pointer(&ptr,
-			                        (const u8 *)(fde + 1) + *fde,
-			                        ptrType);
+															(const u8 *)(fde + 1) + *fde,
+															ptrType);
 			endLoc = startLoc
-			         + read_pointer(&ptr,
-			                        (const u8 *)(fde + 1) + *fde,
-			                        ptrType & DW_EH_PE_indirect
-			                        ? ptrType
-			                        : ptrType & (DW_EH_PE_FORM|DW_EH_PE_signed));
+							 + read_pointer(&ptr,
+															(const u8 *)(fde + 1) + *fde,
+															ptrType & DW_EH_PE_indirect
+															? ptrType
+															: ptrType & (DW_EH_PE_FORM|DW_EH_PE_signed));
 			if (UNW_PC(frame) >= startLoc && UNW_PC(frame) < endLoc)
 				break;
 			cie = NULL;
@@ -596,9 +596,9 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 			if (((const char *)(cie + 2))[1] == 'z')
 				ptr += get_uleb128(&ptr, end);
 			if (ptr > end
-			   || retAddrReg >= ARRAY_SIZE(reg_info)
-			   || REG_INVALID(retAddrReg)
-			   || reg_info[retAddrReg].width != sizeof(unsigned long))
+				 || retAddrReg >= ARRAY_SIZE(reg_info)
+				 || REG_INVALID(retAddrReg)
+				 || reg_info[retAddrReg].width != sizeof(unsigned long))
 				cie = NULL;
 		}
 	}
@@ -622,11 +622,11 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 	memcpy(&state.cfa, &badCFA, sizeof(state.cfa));
 	/* process instructions */
 	if (!processCFI(ptr, end, UNW_PC(frame), ptrType, &state)
-	   || state.loc > endLoc
-	   || state.regs[retAddrReg].where == Nowhere
-	   || state.cfa.reg >= ARRAY_SIZE(reg_info)
-	   || reg_info[state.cfa.reg].width != sizeof(unsigned long)
-	   || state.cfa.offs % sizeof(unsigned long)) {
+		 || state.loc > endLoc
+		 || state.regs[retAddrReg].where == Nowhere
+		 || state.cfa.reg >= ARRAY_SIZE(reg_info)
+		 || reg_info[state.cfa.reg].width != sizeof(unsigned long)
+		 || state.cfa.offs % sizeof(unsigned long)) {
 		return -EIO;
 		}
 	/* update frame */
@@ -653,15 +653,15 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 			break;
 		case Register:
 			if (state.regs[i].value >= ARRAY_SIZE(reg_info)
-			   || REG_INVALID(state.regs[i].value)
-			   || reg_info[i].width > reg_info[state.regs[i].value].width){
+				 || REG_INVALID(state.regs[i].value)
+				 || reg_info[i].width > reg_info[state.regs[i].value].width){
 				return -EIO;
 	}
 			switch(reg_info[state.regs[i].value].width) {
 #define CASE(n) \
 			case sizeof(u##n): \
 				state.regs[i].value = FRAME_REG(state.regs[i].value, \
-				                                const u##n); \
+																				const u##n); \
 				break
 			CASES;
 #undef CASE
@@ -677,8 +677,8 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 		switch(state.regs[i].where) {
 		case Nowhere:
 			if (reg_info[i].width != sizeof(UNW_SP(frame))
-			   || &FRAME_REG(i, __typeof__(UNW_SP(frame)))
-			      != &UNW_SP(frame))
+				 || &FRAME_REG(i, __typeof__(UNW_SP(frame)))
+						!= &UNW_SP(frame))
 				continue;
 			UNW_SP(frame) = cfa;
 			break;
@@ -697,16 +697,16 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
 			if (reg_info[i].width != sizeof(unsigned long)){
 				return -EIO;}
 			FRAME_REG(i, unsigned long) = cfa + state.regs[i].value
-			                                    * state.dataAlign;
+																					* state.dataAlign;
 			break;
 		case Memory: {
 				unsigned long addr = cfa + state.regs[i].value
-				                           * state.dataAlign;
+																	 * state.dataAlign;
 				if ((state.regs[i].value * state.dataAlign)
-				    % sizeof(unsigned long)
-				    || addr < startLoc
-				    || addr + sizeof(unsigned long) < addr
-				    || addr + sizeof(unsigned long) > endLoc){
+						% sizeof(unsigned long)
+						|| addr < startLoc
+						|| addr + sizeof(unsigned long) < addr
+						|| addr + sizeof(unsigned long) > endLoc){
 					return -EIO;}
 				switch(reg_info[i].width) {
 #define CASE(n)     case sizeof(u##n): \
@@ -743,21 +743,21 @@ init_unwind_table(void)
 	kt->flags &= ~DWARF_UNWIND;
 
 	if (gather_in_memory_unwind_tables()) {
-                if (CRASHDEBUG(1))
-                        fprintf(fp, "init_unwind_table: DWARF_UNWIND_MEMORY (%d tables)\n",
+								if (CRASHDEBUG(1))
+												fprintf(fp, "init_unwind_table: DWARF_UNWIND_MEMORY (%d tables)\n",
 				unwind_tables_cnt);
 
-                kt->flags |= DWARF_UNWIND_MEMORY;
+								kt->flags |= DWARF_UNWIND_MEMORY;
 		if (unwind_tables_cnt > 1)
-                	kt->flags |= DWARF_UNWIND_MODULES;
-                if (!(kt->flags & NO_DWARF_UNWIND))
-                        kt->flags |= DWARF_UNWIND;
+									kt->flags |= DWARF_UNWIND_MODULES;
+								if (!(kt->flags & NO_DWARF_UNWIND))
+												kt->flags |= DWARF_UNWIND;
 
 		return;
 	}
 
 	if (symbol_exists("__start_unwind") &&
-	    symbol_exists("__end_unwind")) {
+			symbol_exists("__end_unwind")) {
 		unwind_table_size = symbol_value("__end_unwind") -
 			symbol_value("__start_unwind");
 
@@ -767,7 +767,7 @@ init_unwind_table(void)
 		}
 
 		if (!readmem(symbol_value("__start_unwind"), KVADDR, unwind_table,
-            	    unwind_table_size, "unwind table", RETURN_ON_ERROR)) {
+									unwind_table_size, "unwind table", RETURN_ON_ERROR)) {
 			error(WARNING, "cannot read unwind table data\n");
 			free(unwind_table);
 			goto try_eh_frame;
@@ -791,7 +791,7 @@ try_eh_frame:
 	if (st->dwarf_eh_frame_size || st->dwarf_debug_frame_size) {
 		int fd;
 		int is_ehframe = (!st->dwarf_debug_frame_size &&
-				   st->dwarf_eh_frame_size);
+					 st->dwarf_eh_frame_size);
 
 		unwind_table_size = is_ehframe ? st->dwarf_eh_frame_size :
 						 st->dwarf_debug_frame_size;
@@ -814,10 +814,10 @@ try_eh_frame:
 			lseek(fd, st->dwarf_debug_frame_file_offset, SEEK_SET);
 
 		if (read(fd, unwind_table, unwind_table_size) !=
-		    unwind_table_size) {
+				unwind_table_size) {
 			if (CRASHDEBUG(1))
 				error(WARNING, "cannot read %s data from %s\n",
-			        	is_ehframe ? ".eh_frame" : ".debug_frame", pc->namelist);
+								is_ehframe ? ".eh_frame" : ".debug_frame", pc->namelist);
 			free(unwind_table);
 			return;
 		}
@@ -860,15 +860,15 @@ gather_in_memory_unwind_tables(void)
 	MEMBER_OFFSET_INIT(unwind_table_name, "unwind_table", "name");
 
 	if (INVALID_SIZE(unwind_table) ||
-	    INVALID_MEMBER(unwind_table_core) ||
-	    INVALID_MEMBER(unwind_table_init) ||
-	    INVALID_MEMBER(unwind_table_address) ||
-	    INVALID_MEMBER(unwind_table_size) ||
-	    INVALID_MEMBER(unwind_table_link) ||
-	    INVALID_MEMBER(unwind_table_name)) {
+			INVALID_MEMBER(unwind_table_core) ||
+			INVALID_MEMBER(unwind_table_init) ||
+			INVALID_MEMBER(unwind_table_address) ||
+			INVALID_MEMBER(unwind_table_size) ||
+			INVALID_MEMBER(unwind_table_link) ||
+			INVALID_MEMBER(unwind_table_name)) {
 		if (CRASHDEBUG(1))
 			error(NOTE,
-	    "unwind_table structure has changed, or does not exist in this kernel\n");
+			"unwind_table structure has changed, or does not exist in this kernel\n");
 		return 0;
 	}
 
@@ -882,13 +882,13 @@ gather_in_memory_unwind_tables(void)
 	for (i = found = 0; i < cnt; i++) {
 		sp = root_tables[i];
 		if (!readmem(sp->value, KVADDR, root_table_buf,
-                    SIZE(unwind_table), "root unwind_table",
-		    RETURN_ON_ERROR|QUIET))
+										SIZE(unwind_table), "root unwind_table",
+				RETURN_ON_ERROR|QUIET))
 			goto gather_failed;
 
 		name = ULONG(root_table_buf + OFFSET(unwind_table_name));
 		if (read_string(name, buf, strlen("kernel")+1) &&
-		    STREQ("kernel", buf)) {
+				STREQ("kernel", buf)) {
 			found++;
 			if (CRASHDEBUG(1))
 				fprintf(fp, "root_table name: %lx [%s]\n",
@@ -924,26 +924,26 @@ populate_local_tables(ulong root, char *buf)
 	ulong vaddr;
 	struct local_unwind_table *tp;
 
-        ld = &list_data;
-        BZERO(ld, sizeof(struct list_data));
-        ld->start = root;
-        ld->member_offset = OFFSET(unwind_table_link);
+				ld = &list_data;
+				BZERO(ld, sizeof(struct list_data));
+				ld->start = root;
+				ld->member_offset = OFFSET(unwind_table_link);
 	ld->flags = RETURN_ON_LIST_ERROR;
 	if (CRASHDEBUG(1))
-        	ld->flags |= VERBOSE;
+					ld->flags |= VERBOSE;
 
 	hq_open();
-        cnt = do_list(ld);
+				cnt = do_list(ld);
 	if (cnt == -1) {
 		error(WARNING, "UNWIND: failed to gather unwind_table list");
 		return 0;
 	}
-        table_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+				table_list = (ulong *)GETBUF(cnt * sizeof(ulong));
 	cnt = retrieve_list(table_list, cnt);
 	hq_close();
 
 	if (!(local_unwind_tables =
-	    malloc(sizeof(struct local_unwind_table) * cnt))) {
+			malloc(sizeof(struct local_unwind_table) * cnt))) {
 		error(WARNING, "cannot malloc unwind_table space (%d tables)\n",
 			cnt);
 		FREEBUF(table_list);
@@ -952,9 +952,9 @@ populate_local_tables(ulong root, char *buf)
 
 	for (i = 0; i < cnt; i++, tp++) {
 
-                if (!readmem(table_list[i], KVADDR, buf,
-                    SIZE(unwind_table), "unwind_table",
-                    RETURN_ON_ERROR|QUIET)) {
+								if (!readmem(table_list[i], KVADDR, buf,
+										SIZE(unwind_table), "unwind_table",
+										RETURN_ON_ERROR|QUIET)) {
 			error(WARNING, "cannot read unwind_table\n");
 			goto failed;
 		}
@@ -964,12 +964,12 @@ populate_local_tables(ulong root, char *buf)
 		/*
 		 *  Copy the required table info for find_table().
 		 */
-        	BCOPY(buf + OFFSET(unwind_table_core),
-                	(char *)&tp->core.pc, sizeof(ulong)*2);
-        	BCOPY(buf + OFFSET(unwind_table_init),
-                	(char *)&tp->init.pc, sizeof(ulong)*2);
-        	BCOPY(buf + OFFSET(unwind_table_size),
-                	(char *)&tp->size, sizeof(ulong));
+					BCOPY(buf + OFFSET(unwind_table_core),
+									(char *)&tp->core.pc, sizeof(ulong)*2);
+					BCOPY(buf + OFFSET(unwind_table_init),
+									(char *)&tp->init.pc, sizeof(ulong)*2);
+					BCOPY(buf + OFFSET(unwind_table_size),
+									(char *)&tp->size, sizeof(ulong));
 
 		/*
 		 *  Then read the DWARF CFI data.
@@ -981,8 +981,8 @@ populate_local_tables(ulong root, char *buf)
 			goto failed;
 			break;
 		}
-                if (!readmem(vaddr, KVADDR, tp->address,
-                    tp->size, "DWARF CFI data", RETURN_ON_ERROR|QUIET)) {
+								if (!readmem(vaddr, KVADDR, tp->address,
+										tp->size, "DWARF CFI data", RETURN_ON_ERROR|QUIET)) {
 			error(WARNING, "cannot read unwind_table data\n");
 			goto failed;
 		}
@@ -1010,18 +1010,18 @@ find_table(unsigned long pc)
 
 	table = &default_unwind_table;
 
-        for (i = 0; i < unwind_tables_cnt; i++, tp++) {
+				for (i = 0; i < unwind_tables_cnt; i++, tp++) {
 		tp = &local_unwind_tables[i];
-                if ((pc >= tp->core.pc
-                    && pc < tp->core.pc + tp->core.range)
-                    || (pc >= tp->init.pc
-                    && pc < tp->init.pc + tp->init.range)) {
+								if ((pc >= tp->core.pc
+										&& pc < tp->core.pc + tp->core.range)
+										|| (pc >= tp->init.pc
+										&& pc < tp->init.pc + tp->init.range)) {
 			table = tp;
-                        break;
+												break;
 		}
 	}
 
-        return table;
+				return table;
 }
 
 static void
@@ -1032,16 +1032,16 @@ dump_local_unwind_tables(void)
 
 	others = 0;
 	fprintf(fp, "DWARF flags: (");
-        if (kt->flags & DWARF_UNWIND)
-                fprintf(fp, "%sDWARF_UNWIND", others++ ? "|" : "");
-        if (kt->flags & NO_DWARF_UNWIND)
-                fprintf(fp, "%sNO_DWARF_UNWIND", others++ ? "|" : "");
-        if (kt->flags & DWARF_UNWIND_MEMORY)
-                fprintf(fp, "%sDWARF_UNWIND_MEMORY", others++ ? "|" : "");
-        if (kt->flags & DWARF_UNWIND_EH_FRAME)
-                fprintf(fp, "%sDWARF_UNWIND_EH_FRAME", others++ ? "|" : "");
-        if (kt->flags & DWARF_UNWIND_MODULES)
-                fprintf(fp, "%sDWARF_UNWIND_MODULES", others++ ? "|" : "");
+				if (kt->flags & DWARF_UNWIND)
+								fprintf(fp, "%sDWARF_UNWIND", others++ ? "|" : "");
+				if (kt->flags & NO_DWARF_UNWIND)
+								fprintf(fp, "%sNO_DWARF_UNWIND", others++ ? "|" : "");
+				if (kt->flags & DWARF_UNWIND_MEMORY)
+								fprintf(fp, "%sDWARF_UNWIND_MEMORY", others++ ? "|" : "");
+				if (kt->flags & DWARF_UNWIND_EH_FRAME)
+								fprintf(fp, "%sDWARF_UNWIND_EH_FRAME", others++ ? "|" : "");
+				if (kt->flags & DWARF_UNWIND_MODULES)
+								fprintf(fp, "%sDWARF_UNWIND_MODULES", others++ ? "|" : "");
 	fprintf(fp, ")\n\n");
 
 	fprintf(fp, "default_unwind_table:\n");
@@ -1051,7 +1051,7 @@ dump_local_unwind_tables(void)
 		(ulong)default_unwind_table.size);
 
 	fprintf(fp, "local_unwind_tables[%d]:\n", unwind_tables_cnt);
-        for (i = 0; i < unwind_tables_cnt; i++, tp++) {
+				for (i = 0; i < unwind_tables_cnt; i++, tp++) {
 		tp = &local_unwind_tables[i];
 		fprintf(fp, "[%d]\n", i);
 		fprintf(fp, "         core: pc: %lx\n", tp->core.pc);
@@ -1083,14 +1083,14 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 	if (!(bt->flags & BT_DUMPFILE_SEARCH) && !bt->bptr) {
 //		readmem(frame->regs.rsp, KVADDR, &bp,
 		readmem(UNW_SP(frame), KVADDR, &bp,
-	                sizeof(unsigned long), "reading bp", FAULT_ON_ERROR);
+									sizeof(unsigned long), "reading bp", FAULT_ON_ERROR);
 		frame->regs.rbp = bp;  /* fixme for x86 */
 	}
 
 	sp = value_search(UNW_PC(frame), &offset);
 	if (!sp) {
 		if (CRASHDEBUG(1))
-		    fprintf(fp, "unwind: cannot find symbol for PC: %lx\n",
+				fprintf(fp, "unwind: cannot find symbol for PC: %lx\n",
 			UNW_PC(frame));
 		goto bailout;
 	}
@@ -1104,7 +1104,7 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 		if (!sp) {
 			if (CRASHDEBUG(1))
 				fprintf(fp,
-				    "unwind: cannot find symbol for PC: %lx\n",
+						"unwind: cannot find symbol for PC: %lx\n",
 					UNW_PC(frame)-1);
 			goto bailout;
 		}
@@ -1112,26 +1112,26 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 
 
 
-        name = sp->name;
+				name = sp->name;
 	fprintf(fp, " #%d [%016lx] %s at %016lx \n", level, UNW_SP(frame), name, UNW_PC(frame));
 
 	if (CRASHDEBUG(2))
 		fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame),
 			UNW_PC(frame), frame->regs.rbp);
 
-       	while ((UNW_SP(frame) < stacktop)
+			 	while ((UNW_SP(frame) < stacktop)
 				&& !unwind(frame, is_ehframe) && UNW_PC(frame)) {
 		/* To prevent rip pushed on IRQ stack being reported both
 		 * both on the IRQ and process stacks
 		 */
 		if ((bt->flags & BT_IRQSTACK) && (UNW_SP(frame) >= stacktop - 16))
 			break;
-               	level++;
+							 	level++;
 		sp = value_search(UNW_PC(frame), &offset);
 		if (!sp) {
 			if (CRASHDEBUG(1))
 				fprintf(fp,
-				    "unwind: cannot find symbol for PC: %lx\n",
+						"unwind: cannot find symbol for PC: %lx\n",
 					UNW_PC(frame));
 			break;
 		}
@@ -1145,19 +1145,19 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 			if (!sp) {
 				if (CRASHDEBUG(1))
 					fprintf(fp,
-					    "unwind: cannot find symbol for PC: %lx\n",
+							"unwind: cannot find symbol for PC: %lx\n",
 						UNW_PC(frame)-1);
 				goto bailout;
 			}
 		}
-	        name = sp->name;
+					name = sp->name;
 		fprintf(fp, "%s#%d [%016lx] %s at %016lx \n", level < 10 ? " " : "",
 			level, UNW_SP(frame), name, UNW_PC(frame));
 
 		if (CRASHDEBUG(2))
 			fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame),
 				UNW_PC(frame), frame->regs.rbp);
-       	}
+			 	}
 
 bailout:
 	FREEBUF(frame);
@@ -1179,7 +1179,7 @@ dwarf_print_stack_entry(struct bt_info *bt, int level)
 	sp = value_search(UNW_PC(frame), &offset);
 	if (!sp) {
 		if (CRASHDEBUG(1))
-		    fprintf(fp, "unwind: cannot find symbol for PC: %lx\n",
+				fprintf(fp, "unwind: cannot find symbol for PC: %lx\n",
 			UNW_PC(frame));
 		goto bailout;
 	}
@@ -1193,12 +1193,12 @@ dwarf_print_stack_entry(struct bt_info *bt, int level)
 		if (!sp) {
 			if (CRASHDEBUG(1))
 				fprintf(fp,
-				    "unwind: cannot find symbol for PC: %lx\n",
+						"unwind: cannot find symbol for PC: %lx\n",
 					UNW_PC(frame)-1);
 			goto bailout;
 		}
 	}
-        name = sp->name;
+				name = sp->name;
 	fprintf(fp, " #%d [%016lx] %s at %016lx \n", level, UNW_SP(frame), name, UNW_PC(frame));
 
 bailout:
@@ -1223,21 +1223,21 @@ dwarf_debug(struct bt_info *bt)
 		return;
 	}
 
-        frame = (struct unwind_frame_info *)GETBUF(sizeof(struct unwind_frame_info));
+				frame = (struct unwind_frame_info *)GETBUF(sizeof(struct unwind_frame_info));
 
 	/*
 	 *  XXX: This only works for the first PC/SP pair seen in a normal
 	 *  backtrace, so it's not particularly helpful.  Ideally it should
-         *  be capable to take any PC/SP pair in a stack, but it appears to
+				 *  be capable to take any PC/SP pair in a stack, but it appears to
 	 *  related to the rbp value.
 	 */
 
 	UNW_PC(frame) = bt->hp->eip;
 	UNW_SP(frame) = bt->hp->esp;
 
-        readmem(UNW_SP(frame), KVADDR, &bp,
+				readmem(UNW_SP(frame), KVADDR, &bp,
  		sizeof(unsigned long), "reading bp", FAULT_ON_ERROR);
-        frame->regs.rbp = bp;  /* fixme for x86 */
+				frame->regs.rbp = bp;  /* fixme for x86 */
 
 	unwind(frame, is_ehframe);
 

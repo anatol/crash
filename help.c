@@ -44,305 +44,305 @@ static int GPL_version = GPLv3;
 
 static
 char *program_usage_info[] = {
-    "",
-    "USAGE:",
-    "",
-    "  crash [OPTION]... NAMELIST MEMORY-IMAGE  (dumpfile form)",
-    "  crash [OPTION]... [NAMELIST]             (live system form)",
-    "",
-    "OPTIONS:",
-    "",
-    "  NAMELIST",
-    "    This is a pathname to an uncompressed kernel image (a vmlinux",
-    "    file), or a Xen hypervisor image (a xen-syms file) which has",
-    "    been compiled with the \"-g\" option.  If using the dumpfile form,",
-    "    a vmlinux file may be compressed in either gzip or bzip2 formats.",
-    "",
-    "  MEMORY-IMAGE",
-    "    A kernel core dump file created by the netdump, diskdump, LKCD",
-    "    kdump, xendump or kvmdump facilities.",
-    "",
-    "    If a MEMORY-IMAGE argument is not entered, the session will be",
-    "    invoked on the live system, which typically requires root privileges",
-    "    because of the device file used to access system RAM.  By default, ",
-    "    /dev/crash will be used if it exists.  If it does not exist, then ",
-    "    /dev/mem will be used; but if the kernel has been configured with ",
-    "    CONFIG_STRICT_DEVMEM, then /proc/kcore will be used.  It is permissible",
-    "    to explicitly enter /dev/crash, /dev/mem or /proc/kcore.",
-    "",
-    "  mapfile",
-    "    If the NAMELIST file is not the same kernel that is running",
-    "    (live system form), or the kernel that was running when the system",
-    "    crashed (dumpfile form), then the System.map file of the original ",
-    "    kernel should be entered on the command line.",
-    "",
-    "  -h [option]",
-    "  --help [option]",
-    "    Without an option argument, display a crash usage help message.",
-    "    If the option argument is a crash command name, the help page",
-    "    for that command is displayed.  If it is the string \"input\", a",
-    "    page describing the various crash command line input options is",
-    "    displayed.  If it is the string \"output\", a page describing command",
-    "    line output options is displayed.  If it is the string \"all\", then",
-    "    all of the possible help messages are displayed.  After the help",
-    "    message is displayed, crash exits.",
-    "",
-    "  -s     ",
-    "    Proceed directly to the \"crash>\" prompt without displaying any",
-    "    version, GPL, or crash initialization data during startup.",
-    "",
-    "  -i file",
-    "    Execute the command(s) contained in \"file\" prior to displaying ",
-    "    the \"crash>\" prompt for interactive user input.",
-    "",
-    "  -d num ",
-    "    Set the internal debug level.  The higher the number, the more",
-    "    debugging data will be printed when crash initializes and runs.",
-    "",
-    "  -S     ",
-    "    Use /boot/System.map as the mapfile.",
-    "",
-    "  -e  vi | emacs",
-    "    Set the readline(3) command  line editing mode to \"vi\" or \"emacs\".  ",
-    "    The default editing mode is \"vi\".",
-    "",
-    "  -f     ",
-    "    Force the usage of a compressed vmlinux file if its original",
-    "    name does not start with \"vmlinux\".",
-    "",
-    "  -k     ",
-    "    Indicate that the NAMELIST file is an LKCD \"Kerntypes\" debuginfo file.",
-    "",
-    "  -g [namelist]",
-    "    Determine if a vmlinux or xen-syms namelist file contains debugging data.",
-    "",
-    "  -t     ",
-    "    Display the system-crash timestamp and exit.",
-    "",
-    "  -L     ",
-    "    Attempt to lock all of its virtual address space into memory by",
-    "    calling mlockall(MCL_CURRENT|MCL_FUTURE) during initialization.",
-    "    If the system call fails, an error message will be displayed,",
-    "    but the session continues.",
-    "",
-    "  -c tty-device",
-    "    Open the tty-device as the console used for debug messages.",
-    "",
-    "  -p page-size",
-    "    If a processor's page size cannot be determined by the dumpfile, ",
-    "    and the processor default cannot be used, use page-size.",
-    "",
-    "  -m option=value",
-    "  --machdep option=value",
-    "    Pass an option and value pair to machine-dependent code.  These",
-    "    architecture-specific option/pairs should only be required in",
-    "    very rare circumstances:",
-    "",
-    "    X86_64:",
-    "      physbase=<physical-address>",
-    "      irq_eframe_link=<value>",
-    "      max_physmem_bits=<value>",
-    "      vm=orig       (pre-2.6.11 virtual memory address ranges)",
-    "      vm=2.6.11     (2.6.11 and later virtual memory address ranges)",
-    "      vm=xen        (Xen kernel virtual memory address ranges)",
-    "      vm=xen-rhel4  (RHEL4 Xen kernel virtual address ranges)",
-    "    PPC64:",
-    "      vm=orig",
-    "      vm=2.6.14     (4-level page tables)",
-    "    IA64:",
-    "      phys_start=<physical-address>",
-    "      init_stack_size=<size>",
-    "      vm=4l         (4-level page tables)",
-    "    ARM:",
-    "      physbase=<physical-address>",
-    "",
-    "  -x     ",
-    "    Automatically load extension modules from a particular directory.",
-    "    The directory is determined by the following order of precedence:",
-    "",
-    "    (1) the directory specified in the CRASH_EXTENSIONS shell ",
-    "        environment variable",
-    "    (2) /usr/lib64/crash/extensions  (64-bit  architectures)",
-    "    (3) /usr/lib/crash/extensions  (32-bit architectures)",
-    "    (4) the ./extensions subdirectory of the current directory",
-    "",
-    "  --active",
-    "    Track only the active task on each cpu.",
-    "",
-    "  --buildinfo",
-    "    Display the crash binary's build date, the user ID of the builder,",
-    "    the hostname of the machine where the build was done, the target",
-    "    architecture, the version number, and the compiler version.",
-    "",
-    "  --memory_module modname",
-    "    Use the modname as an alternative kernel module to the crash.ko",
-    "    module that creates the /dev/crash device.",
-    "",
-    "  --memory_device device",
-    "    Use device as an alternative device to the /dev/crash, /dev/mem",
-    "    or /proc/kcore devices.",
-    "",
-    "  --log dumpfile",
-    "    Dump the contents of the kernel log buffer.  A kernel namelist",
-    "    argument is not necessary, but the dumpfile must contain the",
-    "    VMCOREINFO data taken from the original /proc/vmcore ELF header.",
-    "",
-    "  --no_kallsyms",
-    "    Do not use kallsyms-generated symbol information contained within",
-    "    kernel module object files.",
-    "",
-    "  --no_modules",
-    "    Do not access or display any kernel module related information.",
-    "",
-    "  --no_ikconfig",
-    "    Do not attempt to read configuration data that was built into",
-    "    kernels configured with CONFIG_IKCONFIG.",
-    "",
-    "  --no_data_debug",
-    "    Do not verify the validity of all structure member offsets and",
-    "    structure sizes that it uses.",
-    "",
-    "  --no_kmem_cache",
-    "    Do not initialize the kernel's slab cache infrastructure, and",
-    "    commands that use kmem_cache-related data will not work.",
-    "",
-    "  --no_elf_notes",
-    "    Do not use the registers from the ELF NT_PRSTATUS notes saved",
-    "    in a compressed kdump header for backtraces.",
-    "",
-    "  --kmem_cache_delay",
-    "    Delay the initialization of the kernel's slab cache infrastructure",
-    "    until it is required by a run-time command.",
-    "",
-    "  --readnow",
-    "    Pass this flag to the embedded gdb module, which will override",
-    "    the two-stage strategy that it uses for reading symbol tables",
-    "    from the NAMELIST.  If module symbol tables are loaded during",
-    "    runtime with the \"mod\" command, the same override will occur.",
-    "",
-    "  --smp  ",
-    "    Specify that the system being analyzed is an SMP kernel.",
-    "",
-    "  -v",
-    "  --version",
-    "    Display the version of the crash utility, the version of the",
-    "    embedded gdb module, GPL information, and copyright notices.",
-    "",
-    "  --cpus number",
-    "    Specify the number of cpus in the SMP system being analyzed.",
-    "",
-    "  --osrelease dumpfile",
-    "    Display the OSRELEASE vmcoreinfo string from a kdump dumpfile",
-    "    header.",
-    "",
-    "  --hyper",
-    "    Force the session to be that of a Xen hypervisor.",
-    "",
-    "  --p2m_mfn pfn",
-    "    When a Xen Hypervisor or its dom0 kernel crashes, the dumpfile",
-    "    is typically analyzed with either the Xen hypervisor or the dom0",
-    "    kernel.  It is also possible to analyze any of the guest domU",
-    "    kernels if the pfn_to_mfn_list_list pfn value of the guest kernel",
-    "    is passed on the command line along with its NAMELIST and the ",
-    "    dumpfile.",
-    "",
-    "  --xen_phys_start physical-address",
-    "    Supply the base physical address of the Xen hypervisor's text",
-    "    and static data for older xendump dumpfiles that did not pass",
-    "    that information in the dumpfile header.",
-    "",
-    "  --zero_excluded",
-    "    If a kdump dumpfile has been filtered to exclude various types of",
-    "    non-essential  pages, any attempt to read them will fail.  With",
-    "    this flag, reads from any of those pages will return zero-filled",
-    "    memory.",
-    "",
-    "  --no_panic",
-    "    Do not attempt to find the task that was running when the kernel",
-    "    crashed.  Set the initial context to that of the \"swapper\"  task",
-    "    on cpu 0.",
-    "",
-    "  --more ",
-    "    Use /bin/more as the command output scroller, overriding the",
-    "    default of /usr/bin/less and any settings in either ./.crashrc",
-    "    or $HOME/.crashrc.",
-    "",
-    "  --less ",
-    "    Use /usr/bin/less as the command output scroller, overriding any",
-    "    settings in either ./.crashrc or $HOME/.crashrc.",
-    "",
-    "  --CRASHPAGER",
-    "    Use the output paging command defined in the CRASHPAGER shell",
-    "    environment variable, overriding any settings in either ./.crashrc ",
-    "    or $HOME/.crashrc.",
-    "",
-    "  --no_scroll",
-    "    Do not pass run-time command output to any scrolling command.",
-    "",
-    "  --no_strip",
-    "    Do not strip cloned kernel text symbol names.",
-    "",
-    "  --no_crashrc",
-    "    Do not execute the commands in either $HOME/.crashrc or ./.crashrc.",
-    "",
-    "  --mod directory",
-    "    When loading the debuginfo data of kernel modules with the \"mod -S\"",
-    "    command, search for their object files in directory instead of in ",
-    "    the standard location.",
-    "",
-    "  --reloc size",
-    "    When analyzing live x86 kernels configured with a CONFIG_PHYSICAL_START ",
-    "    value that is larger than its CONFIG_PHYSICAL_ALIGN value, then it will",
-    "    be necessary to enter a relocation size equal to the difference between",
-    "    the two values.",
-    "",
-    "  --minimal",
-    "    Bring up a session that is restricted to the log, dis, rd, sym,",
-    "    eval, set and exit commands.  This option may provide a way to",
-    "    extract some minimal/quick information from a corrupted or truncated",
-    "    dumpfile, or in situations where one of the several kernel subsystem ",
-    "    initialization routines would abort the crash session.",
-    "",
-    "  --kvmhost [32|64]",
-    "    When examining an x86 KVM guest dumpfile, this option specifies",
-    "    that the KVM host that created the dumpfile was an x86 (32-bit)",
-    "    or an x86_64 (64-bit) machine, overriding the automatically",
-    "    determined value.",
-    "",
-    "  --kvmio <size>",
-    "    override the automatically-calculated KVM guest I/O hole size.",
-    "",
-    "FILES:",
-    "",
-    "  .crashrc",
-    "    Initialization commands.  The file can be located in the user's",
-    "    HOME directory and/or the current directory.  Commands found in",
-    "    the .crashrc file in the HOME directory are executed before",
-    "    those in the current directory's .crashrc file.",
-    "",
-    "ENVIRONMENT VARIABLES:",
-    "",
-    "  EDITOR ",
-    "    Command input is read using readline(3).  If EDITOR is set to",
-    "    emacs or vi then suitable keybindings are used.  If EDITOR is",
-    "    not set, then vi is used.  This can be overridden by \"set vi\" or",
-    "    \"set emacs\" commands located in a .crashrc file, or by entering",
-    "    \"-e emacs\" on the crash command line.",
-    "",
-    "  CRASHPAGER",
-    "    If CRASHPAGER is set, its value is used as the name of the program",
-    "    to which command output will be sent.  If not, then command output",
-    "    output is sent to \"/usr/bin/less -E -X\" by default.",
-    "",
-    "  CRASH_MODULE_PATH",
-    "    Specifies an alternative directory tree to search for kernel",
-    "    module object files.",
-    "",
-    "  CRASH_EXTENSIONS",
-    "    Specifies a directory containing extension modules that will be",
-    "    loaded automatically if the -x command line option is used.",
-    "",
-    NULL
+		"",
+		"USAGE:",
+		"",
+		"  crash [OPTION]... NAMELIST MEMORY-IMAGE  (dumpfile form)",
+		"  crash [OPTION]... [NAMELIST]             (live system form)",
+		"",
+		"OPTIONS:",
+		"",
+		"  NAMELIST",
+		"    This is a pathname to an uncompressed kernel image (a vmlinux",
+		"    file), or a Xen hypervisor image (a xen-syms file) which has",
+		"    been compiled with the \"-g\" option.  If using the dumpfile form,",
+		"    a vmlinux file may be compressed in either gzip or bzip2 formats.",
+		"",
+		"  MEMORY-IMAGE",
+		"    A kernel core dump file created by the netdump, diskdump, LKCD",
+		"    kdump, xendump or kvmdump facilities.",
+		"",
+		"    If a MEMORY-IMAGE argument is not entered, the session will be",
+		"    invoked on the live system, which typically requires root privileges",
+		"    because of the device file used to access system RAM.  By default, ",
+		"    /dev/crash will be used if it exists.  If it does not exist, then ",
+		"    /dev/mem will be used; but if the kernel has been configured with ",
+		"    CONFIG_STRICT_DEVMEM, then /proc/kcore will be used.  It is permissible",
+		"    to explicitly enter /dev/crash, /dev/mem or /proc/kcore.",
+		"",
+		"  mapfile",
+		"    If the NAMELIST file is not the same kernel that is running",
+		"    (live system form), or the kernel that was running when the system",
+		"    crashed (dumpfile form), then the System.map file of the original ",
+		"    kernel should be entered on the command line.",
+		"",
+		"  -h [option]",
+		"  --help [option]",
+		"    Without an option argument, display a crash usage help message.",
+		"    If the option argument is a crash command name, the help page",
+		"    for that command is displayed.  If it is the string \"input\", a",
+		"    page describing the various crash command line input options is",
+		"    displayed.  If it is the string \"output\", a page describing command",
+		"    line output options is displayed.  If it is the string \"all\", then",
+		"    all of the possible help messages are displayed.  After the help",
+		"    message is displayed, crash exits.",
+		"",
+		"  -s     ",
+		"    Proceed directly to the \"crash>\" prompt without displaying any",
+		"    version, GPL, or crash initialization data during startup.",
+		"",
+		"  -i file",
+		"    Execute the command(s) contained in \"file\" prior to displaying ",
+		"    the \"crash>\" prompt for interactive user input.",
+		"",
+		"  -d num ",
+		"    Set the internal debug level.  The higher the number, the more",
+		"    debugging data will be printed when crash initializes and runs.",
+		"",
+		"  -S     ",
+		"    Use /boot/System.map as the mapfile.",
+		"",
+		"  -e  vi | emacs",
+		"    Set the readline(3) command  line editing mode to \"vi\" or \"emacs\".  ",
+		"    The default editing mode is \"vi\".",
+		"",
+		"  -f     ",
+		"    Force the usage of a compressed vmlinux file if its original",
+		"    name does not start with \"vmlinux\".",
+		"",
+		"  -k     ",
+		"    Indicate that the NAMELIST file is an LKCD \"Kerntypes\" debuginfo file.",
+		"",
+		"  -g [namelist]",
+		"    Determine if a vmlinux or xen-syms namelist file contains debugging data.",
+		"",
+		"  -t     ",
+		"    Display the system-crash timestamp and exit.",
+		"",
+		"  -L     ",
+		"    Attempt to lock all of its virtual address space into memory by",
+		"    calling mlockall(MCL_CURRENT|MCL_FUTURE) during initialization.",
+		"    If the system call fails, an error message will be displayed,",
+		"    but the session continues.",
+		"",
+		"  -c tty-device",
+		"    Open the tty-device as the console used for debug messages.",
+		"",
+		"  -p page-size",
+		"    If a processor's page size cannot be determined by the dumpfile, ",
+		"    and the processor default cannot be used, use page-size.",
+		"",
+		"  -m option=value",
+		"  --machdep option=value",
+		"    Pass an option and value pair to machine-dependent code.  These",
+		"    architecture-specific option/pairs should only be required in",
+		"    very rare circumstances:",
+		"",
+		"    X86_64:",
+		"      physbase=<physical-address>",
+		"      irq_eframe_link=<value>",
+		"      max_physmem_bits=<value>",
+		"      vm=orig       (pre-2.6.11 virtual memory address ranges)",
+		"      vm=2.6.11     (2.6.11 and later virtual memory address ranges)",
+		"      vm=xen        (Xen kernel virtual memory address ranges)",
+		"      vm=xen-rhel4  (RHEL4 Xen kernel virtual address ranges)",
+		"    PPC64:",
+		"      vm=orig",
+		"      vm=2.6.14     (4-level page tables)",
+		"    IA64:",
+		"      phys_start=<physical-address>",
+		"      init_stack_size=<size>",
+		"      vm=4l         (4-level page tables)",
+		"    ARM:",
+		"      physbase=<physical-address>",
+		"",
+		"  -x     ",
+		"    Automatically load extension modules from a particular directory.",
+		"    The directory is determined by the following order of precedence:",
+		"",
+		"    (1) the directory specified in the CRASH_EXTENSIONS shell ",
+		"        environment variable",
+		"    (2) /usr/lib64/crash/extensions  (64-bit  architectures)",
+		"    (3) /usr/lib/crash/extensions  (32-bit architectures)",
+		"    (4) the ./extensions subdirectory of the current directory",
+		"",
+		"  --active",
+		"    Track only the active task on each cpu.",
+		"",
+		"  --buildinfo",
+		"    Display the crash binary's build date, the user ID of the builder,",
+		"    the hostname of the machine where the build was done, the target",
+		"    architecture, the version number, and the compiler version.",
+		"",
+		"  --memory_module modname",
+		"    Use the modname as an alternative kernel module to the crash.ko",
+		"    module that creates the /dev/crash device.",
+		"",
+		"  --memory_device device",
+		"    Use device as an alternative device to the /dev/crash, /dev/mem",
+		"    or /proc/kcore devices.",
+		"",
+		"  --log dumpfile",
+		"    Dump the contents of the kernel log buffer.  A kernel namelist",
+		"    argument is not necessary, but the dumpfile must contain the",
+		"    VMCOREINFO data taken from the original /proc/vmcore ELF header.",
+		"",
+		"  --no_kallsyms",
+		"    Do not use kallsyms-generated symbol information contained within",
+		"    kernel module object files.",
+		"",
+		"  --no_modules",
+		"    Do not access or display any kernel module related information.",
+		"",
+		"  --no_ikconfig",
+		"    Do not attempt to read configuration data that was built into",
+		"    kernels configured with CONFIG_IKCONFIG.",
+		"",
+		"  --no_data_debug",
+		"    Do not verify the validity of all structure member offsets and",
+		"    structure sizes that it uses.",
+		"",
+		"  --no_kmem_cache",
+		"    Do not initialize the kernel's slab cache infrastructure, and",
+		"    commands that use kmem_cache-related data will not work.",
+		"",
+		"  --no_elf_notes",
+		"    Do not use the registers from the ELF NT_PRSTATUS notes saved",
+		"    in a compressed kdump header for backtraces.",
+		"",
+		"  --kmem_cache_delay",
+		"    Delay the initialization of the kernel's slab cache infrastructure",
+		"    until it is required by a run-time command.",
+		"",
+		"  --readnow",
+		"    Pass this flag to the embedded gdb module, which will override",
+		"    the two-stage strategy that it uses for reading symbol tables",
+		"    from the NAMELIST.  If module symbol tables are loaded during",
+		"    runtime with the \"mod\" command, the same override will occur.",
+		"",
+		"  --smp  ",
+		"    Specify that the system being analyzed is an SMP kernel.",
+		"",
+		"  -v",
+		"  --version",
+		"    Display the version of the crash utility, the version of the",
+		"    embedded gdb module, GPL information, and copyright notices.",
+		"",
+		"  --cpus number",
+		"    Specify the number of cpus in the SMP system being analyzed.",
+		"",
+		"  --osrelease dumpfile",
+		"    Display the OSRELEASE vmcoreinfo string from a kdump dumpfile",
+		"    header.",
+		"",
+		"  --hyper",
+		"    Force the session to be that of a Xen hypervisor.",
+		"",
+		"  --p2m_mfn pfn",
+		"    When a Xen Hypervisor or its dom0 kernel crashes, the dumpfile",
+		"    is typically analyzed with either the Xen hypervisor or the dom0",
+		"    kernel.  It is also possible to analyze any of the guest domU",
+		"    kernels if the pfn_to_mfn_list_list pfn value of the guest kernel",
+		"    is passed on the command line along with its NAMELIST and the ",
+		"    dumpfile.",
+		"",
+		"  --xen_phys_start physical-address",
+		"    Supply the base physical address of the Xen hypervisor's text",
+		"    and static data for older xendump dumpfiles that did not pass",
+		"    that information in the dumpfile header.",
+		"",
+		"  --zero_excluded",
+		"    If a kdump dumpfile has been filtered to exclude various types of",
+		"    non-essential  pages, any attempt to read them will fail.  With",
+		"    this flag, reads from any of those pages will return zero-filled",
+		"    memory.",
+		"",
+		"  --no_panic",
+		"    Do not attempt to find the task that was running when the kernel",
+		"    crashed.  Set the initial context to that of the \"swapper\"  task",
+		"    on cpu 0.",
+		"",
+		"  --more ",
+		"    Use /bin/more as the command output scroller, overriding the",
+		"    default of /usr/bin/less and any settings in either ./.crashrc",
+		"    or $HOME/.crashrc.",
+		"",
+		"  --less ",
+		"    Use /usr/bin/less as the command output scroller, overriding any",
+		"    settings in either ./.crashrc or $HOME/.crashrc.",
+		"",
+		"  --CRASHPAGER",
+		"    Use the output paging command defined in the CRASHPAGER shell",
+		"    environment variable, overriding any settings in either ./.crashrc ",
+		"    or $HOME/.crashrc.",
+		"",
+		"  --no_scroll",
+		"    Do not pass run-time command output to any scrolling command.",
+		"",
+		"  --no_strip",
+		"    Do not strip cloned kernel text symbol names.",
+		"",
+		"  --no_crashrc",
+		"    Do not execute the commands in either $HOME/.crashrc or ./.crashrc.",
+		"",
+		"  --mod directory",
+		"    When loading the debuginfo data of kernel modules with the \"mod -S\"",
+		"    command, search for their object files in directory instead of in ",
+		"    the standard location.",
+		"",
+		"  --reloc size",
+		"    When analyzing live x86 kernels configured with a CONFIG_PHYSICAL_START ",
+		"    value that is larger than its CONFIG_PHYSICAL_ALIGN value, then it will",
+		"    be necessary to enter a relocation size equal to the difference between",
+		"    the two values.",
+		"",
+		"  --minimal",
+		"    Bring up a session that is restricted to the log, dis, rd, sym,",
+		"    eval, set and exit commands.  This option may provide a way to",
+		"    extract some minimal/quick information from a corrupted or truncated",
+		"    dumpfile, or in situations where one of the several kernel subsystem ",
+		"    initialization routines would abort the crash session.",
+		"",
+		"  --kvmhost [32|64]",
+		"    When examining an x86 KVM guest dumpfile, this option specifies",
+		"    that the KVM host that created the dumpfile was an x86 (32-bit)",
+		"    or an x86_64 (64-bit) machine, overriding the automatically",
+		"    determined value.",
+		"",
+		"  --kvmio <size>",
+		"    override the automatically-calculated KVM guest I/O hole size.",
+		"",
+		"FILES:",
+		"",
+		"  .crashrc",
+		"    Initialization commands.  The file can be located in the user's",
+		"    HOME directory and/or the current directory.  Commands found in",
+		"    the .crashrc file in the HOME directory are executed before",
+		"    those in the current directory's .crashrc file.",
+		"",
+		"ENVIRONMENT VARIABLES:",
+		"",
+		"  EDITOR ",
+		"    Command input is read using readline(3).  If EDITOR is set to",
+		"    emacs or vi then suitable keybindings are used.  If EDITOR is",
+		"    not set, then vi is used.  This can be overridden by \"set vi\" or",
+		"    \"set emacs\" commands located in a .crashrc file, or by entering",
+		"    \"-e emacs\" on the crash command line.",
+		"",
+		"  CRASHPAGER",
+		"    If CRASHPAGER is set, its value is used as the name of the program",
+		"    to which command output will be sent.  If not, then command output",
+		"    output is sent to \"/usr/bin/less -E -X\" by default.",
+		"",
+		"  CRASH_MODULE_PATH",
+		"    Specifies an alternative directory tree to search for kernel",
+		"    module object files.",
+		"",
+		"  CRASH_EXTENSIONS",
+		"    Specifies a directory containing extension modules that will be",
+		"    loaded automatically if the -x command line option is used.",
+		"",
+		NULL
 };
 
 void
@@ -361,7 +361,7 @@ program_usage(int form)
 		char **p;
 
 		if ((scroll_command = setup_scroll_command()) &&
-		    (scroll = popen(scroll_command, "w")))
+				(scroll = popen(scroll_command, "w")))
 			fp = scroll;
 		else
 			scroll = NULL;
@@ -387,31 +387,31 @@ program_usage(int form)
 void
 help_init(void)
 {
-        struct command_table_entry *cp;
+				struct command_table_entry *cp;
 	struct extension_table *ext;
 
 	for (pc->ncmds = 0, cp = pc->cmd_table; cp->name; cp++) {
 		if (!(cp->flags & HIDDEN_COMMAND))
-                	pc->ncmds++;
+									pc->ncmds++;
 	}
 
-        for (ext = extension_table; ext; ext = ext->next) {
+				for (ext = extension_table; ext; ext = ext->next) {
 		for (cp = ext->command_table; cp->name; cp++) {
 			if (!(cp->flags & (CLEANUP|HIDDEN_COMMAND)))
 				pc->ncmds++;
 		}
 	}
 
-        if (!pc->cmdlist) {
+				if (!pc->cmdlist) {
 		pc->cmdlistsz = pc->ncmds;
-        	if ((pc->cmdlist = (char **)
-                	malloc(sizeof(char *) * pc->cmdlistsz)) == NULL)
-                        	error(FATAL,
-                                    	"cannot malloc command list space\n");
+					if ((pc->cmdlist = (char **)
+									malloc(sizeof(char *) * pc->cmdlistsz)) == NULL)
+													error(FATAL,
+																			"cannot malloc command list space\n");
 	} else if (pc->ncmds > pc->cmdlistsz) {
 		pc->cmdlistsz = pc->ncmds;
 		if ((pc->cmdlist = (char **)realloc(pc->cmdlist,
-                	sizeof(char *) * pc->cmdlistsz)) == NULL)
+									sizeof(char *) * pc->cmdlistsz)) == NULL)
 				error(FATAL,
 					"cannot realloc command list space\n");
 	}
@@ -427,29 +427,29 @@ static void
 reshuffle_cmdlist(void)
 {
 	int i, cnt;
-        struct command_table_entry *cp;
+				struct command_table_entry *cp;
 	struct extension_table *ext;
 
 	for (i = 0; i < pc->cmdlistsz; i++)
 		pc->cmdlist[i] = NULL;
 
-        for (cnt = 0, cp = pc->cmd_table; cp->name; cp++) {
+				for (cnt = 0, cp = pc->cmd_table; cp->name; cp++) {
 		if (!(cp->flags & HIDDEN_COMMAND))
-                	pc->cmdlist[cnt++] = cp->name;
+									pc->cmdlist[cnt++] = cp->name;
 	}
 
-        for (ext = extension_table; ext; ext = ext->next) {
-                for (cp = ext->command_table; cp->name; cp++) {
+				for (ext = extension_table; ext; ext = ext->next) {
+								for (cp = ext->command_table; cp->name; cp++) {
 			if (!(cp->flags & (CLEANUP|HIDDEN_COMMAND)))
 				pc->cmdlist[cnt++] = cp->name;
 		}
-        }
+				}
 
 	if (cnt > pc->cmdlistsz)
 		error(FATAL, "help table malfunction!\n");
 
-        qsort((void *)pc->cmdlist, (size_t)cnt,
-                sizeof(char *), sort_command_name);
+				qsort((void *)pc->cmdlist, (size_t)cnt,
+								sizeof(char *), sort_command_name);
 }
 
 
@@ -485,10 +485,10 @@ cmd_help(void)
 
 	oflag = 0;
 
-        while ((c = getopt(argcnt, args,
-	        "efNDdmM:ngcaBbHhkKsvVoptTzLxOr")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args,
+					"efNDdmM:ngcaBbHhkKsvVoptTzLxOr")) != EOF) {
+								switch(c)
+								{
 		case 'e':
 			dump_extension_table(VERBOSE);
 			return;
@@ -626,14 +626,14 @@ cmd_help(void)
 			dump_registers();
 			return;
 
-                default:
+								default:
 			argerrs++;
-                        break;
-                }
-        }
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, COMPLETE_HELP);
+				if (argerrs)
+								cmd_usage(pc->curcmd, COMPLETE_HELP);
 
 	if (!args[optind]) {
 		if (oflag)
@@ -643,13 +643,13 @@ cmd_help(void)
 		return;
 	}
 
-        do {
+				do {
 		if (oflag)
 			dump_offset_table(args[optind], FALSE);
 		else
-        		cmd_usage(args[optind], COMPLETE_HELP|MUST_HELP);
+						cmd_usage(args[optind], COMPLETE_HELP|MUST_HELP);
 		optind++;
-        } while (args[optind]);
+				} while (args[optind]);
 }
 
 static void
@@ -659,7 +659,7 @@ dump_registers(void)
 		dump_registers_for_qemu_mem_dump();
 	else
 		error(FATAL,
-		    "-r option not supported on %s\n",
+				"-r option not supported on %s\n",
 			ACTIVE() ? "a live system" : "this dumpfile type");
 }
 
@@ -670,27 +670,27 @@ dump_registers(void)
 void
 display_help_screen(char *indent)
 {
-        int i, j, rows;
+				int i, j, rows;
 	char **namep;
 
 	help_init();
 
 	fprintf(fp, "\n%s", indent);
 
-        rows = (pc->ncmds + (HELP_COLUMNS-1)) / HELP_COLUMNS;
+				rows = (pc->ncmds + (HELP_COLUMNS-1)) / HELP_COLUMNS;
 
-        for (i = 0; i < rows; i++) {
-                namep = &pc->cmdlist[i];
-                for (j = 0; j < HELP_COLUMNS; j++) {
-                        fprintf(fp,"%-15s", *namep);
-                        namep += rows;
-                        if ((namep - pc->cmdlist) >= pc->ncmds)
-                                break;
-                }
-                fprintf(fp,"\n%s", indent);
-        }
+				for (i = 0; i < rows; i++) {
+								namep = &pc->cmdlist[i];
+								for (j = 0; j < HELP_COLUMNS; j++) {
+												fprintf(fp,"%-15s", *namep);
+												namep += rows;
+												if ((namep - pc->cmdlist) >= pc->ncmds)
+																break;
+								}
+								fprintf(fp,"\n%s", indent);
+				}
 
-        fprintf(fp, "\n%s%s version: %-6s   gdb version: %s\n", indent,
+				fprintf(fp, "\n%s%s version: %-6s   gdb version: %s\n", indent,
 		pc->program_name, pc->program_version, pc->gdb_version);
 	fprintf(fp,
 		"%sFor help on any command above, enter \"help <command>\".\n",
@@ -701,7 +701,7 @@ display_help_screen(char *indent)
 		indent);
 #ifdef NO_LONGER_TRUE
 	fprintf(fp, "%sFor the most recent version: "
-		    "http://www.missioncriticallinux.com/download\n\n", indent);
+				"http://www.missioncriticallinux.com/download\n\n", indent);
 #else
 	fprintf(fp, "\n");
 #endif
@@ -715,23 +715,23 @@ display_help_screen(char *indent)
 static void
 display_commands(void)
 {
-        int i, j, rows;
+				int i, j, rows;
 	char **namep;
 
 	help_init();
-        rows = (pc->ncmds + (HELP_COLUMNS-1)) / HELP_COLUMNS;
+				rows = (pc->ncmds + (HELP_COLUMNS-1)) / HELP_COLUMNS;
 
-        for (i = 0; i < rows; i++) {
-                namep = &pc->cmdlist[i];
-                for (j = 0; j < HELP_COLUMNS; j++) {
-                        fprintf(fp,"%s\n", *namep);
-                        namep += rows;
-                        if ((namep - pc->cmdlist) >= pc->ncmds) {
-                                fprintf(fp, "BREAK\n");
-                                break;
-                        }
-                }
-        }
+				for (i = 0; i < rows; i++) {
+								namep = &pc->cmdlist[i];
+								for (j = 0; j < HELP_COLUMNS; j++) {
+												fprintf(fp,"%s\n", *namep);
+												namep += rows;
+												if ((namep - pc->cmdlist) >= pc->ncmds) {
+																fprintf(fp, "BREAK\n");
+																break;
+												}
+								}
+				}
 }
 
 
@@ -6365,10 +6365,10 @@ cmd_usage(char *cmd, int helpflag)
 
 	if (helpflag & PIPE_TO_SCROLL) {
 		if ((scroll_command = setup_scroll_command()) &&
-                    (scroll = popen(scroll_command, "w")))
+										(scroll = popen(scroll_command, "w")))
 			fp = scroll;
-                else
-                        scroll = NULL;
+								else
+												scroll = NULL;
 	} else {
 		scroll_command = NULL;
 		scroll = NULL;
@@ -6389,14 +6389,14 @@ cmd_usage(char *cmd, int helpflag)
 		goto done_usage;
 	}
 
-        if (STREQ(cmd, "output")) {
-                display_output_info();
-                goto done_usage;
-        }
+				if (STREQ(cmd, "output")) {
+								display_output_info();
+								goto done_usage;
+				}
 
 	if (STREQ(cmd, "all")) {
 		display_input_info();
-                display_output_info();
+								display_output_info();
 		help_init();
 		for (i = 0; i < pc->ncmds; i++)
 			cmd_usage(pc->cmdlist[i], COMPLETE_HELP);
@@ -6444,8 +6444,8 @@ cmd_usage(char *cmd, int helpflag)
 		if (helpflag & MUST_HELP) {
 			if (cp || !(pc->flags & GDB_INIT))
 				fprintf(fp,
-				    "No help data for the \"%s\" command"
-				    " is available.\n",
+						"No help data for the \"%s\" command"
+						" is available.\n",
 					cmd);
 			else if (!gdb_pass_through(concat_args(buf, 0, FALSE),
 				NULL, GNU_RETURN_ON_ERROR))
@@ -6454,38 +6454,38 @@ cmd_usage(char *cmd, int helpflag)
 					cmd);
 		}
 		goto done_usage;
-        }
+				}
 
 	p++;
 
-        if (helpflag & SYNOPSIS) {
-                p++;
-                fprintf(fp, "Usage:\n  %s ", cmd);
+				if (helpflag & SYNOPSIS) {
+								p++;
+								fprintf(fp, "Usage:\n  %s ", cmd);
 		fprintf(fp, *p, pc->program_name, pc->program_name);
 		fprintf(fp, "\nEnter \"help %s\" for details.\n", cmd);
-                RESTART();
-        }
+								RESTART();
+				}
 
-        fprintf(fp, "\nNAME\n  %s - ", cmd);
-        fprintf(fp, *p, pc->program_name);
+				fprintf(fp, "\nNAME\n  %s - ", cmd);
+				fprintf(fp, *p, pc->program_name);
 
-        fprintf(fp, "\n\nSYNOPSIS\n");
-        p++;
-        fprintf(fp, "  %s ", cmd);
-        fprintf(fp, *p, pc->program_name);
+				fprintf(fp, "\n\nSYNOPSIS\n");
+				p++;
+				fprintf(fp, "  %s ", cmd);
+				fprintf(fp, *p, pc->program_name);
 
-        fprintf(fp,"\n\nDESCRIPTION\n");
-        p++;
-        do {
+				fprintf(fp,"\n\nDESCRIPTION\n");
+				p++;
+				do {
 		if (strstr(*p, "%") && !strstr(*p, "%s"))
 			print_verbatim(fp, *p);
 		else
-                	fprintf(fp, *p, pc->program_name, pc->program_name);
+									fprintf(fp, *p, pc->program_name, pc->program_name);
 		fprintf(fp, "\n");
-                p++;
-        } while (*p);
+								p++;
+				} while (*p);
 
-        fprintf(fp, "\n");
+				fprintf(fp, "\n");
 
 done_usage:
 
@@ -6572,10 +6572,10 @@ display_input_info(void)
 {
 	int i;
 
-        for (i = 0; input_info[i]; i++) {
-                fprintf(fp, input_info[i],
-                        pc->program_name, pc->program_name);
-                fprintf(fp, "\n");
+				for (i = 0; input_info[i]; i++) {
+								fprintf(fp, input_info[i],
+												pc->program_name, pc->program_name);
+								fprintf(fp, "\n");
 	}
 }
 
@@ -6613,12 +6613,12 @@ NULL
 static void
 display_output_info(void)
 {
-        int i;
+				int i;
 
-        for (i = 0; output_info[i]; i++) {
-                fprintf(fp, output_info[i],
+				for (i = 0; output_info[i]; i++) {
+								fprintf(fp, output_info[i],
 			pc->program_name, pc->program_name);
-                fprintf(fp, "\n");
+								fprintf(fp, "\n");
 	}
 }
 
@@ -6635,10 +6635,10 @@ display_version(void)
 	if (pc->flags & SILENT)
 		return;
 
-        fprintf(fp, "\n%s %s\n", pc->program_name, pc->program_version);
+				fprintf(fp, "\n%s %s\n", pc->program_name, pc->program_version);
 
-        for (i = 0; version_info[i]; i++)
-                fprintf(fp, "%s\n", version_info[i]);
+				for (i = 0; version_info[i]; i++)
+								fprintf(fp, "%s\n", version_info[i]);
 }
 
 static
@@ -6677,7 +6677,7 @@ display_copying_info(void)
 
 	case GPLv3:
 		for (i = 0; !strstr(gnu_public_license_v3[i],
-		    "15. Disclaimer of Warranty."); i++)
+				"15. Disclaimer of Warranty."); i++)
 			fprintf(fp, "%s\n", gnu_public_license_v3[i]);
 		break;
 	}
@@ -6704,7 +6704,7 @@ display_warranty_info(void)
 
 	case GPLv3:
 		for (i = 0; !strstr(gnu_public_license_v3[i],
-		    "15. Disclaimer of Warranty."); i++)
+				"15. Disclaimer of Warranty."); i++)
 			;
 
 		while (!strstr(gnu_public_license_v3[i], "END OF TERMS"))
@@ -7633,30 +7633,30 @@ char *gnu_public_license_v3[] = {
 static void
 display_README(void)
 {
-        int i, j;
-    	time_t time_now;
+				int i, j;
+			time_t time_now;
 
-        for (i = 0; README[i]; i++) {
+				for (i = 0; README[i]; i++) {
 		if (STREQ(README[i], README_CRASH_VERSION)) {
 			fprintf(fp, "    crash %s\n", pc->program_version);
 		} else if (STREQ(README[i], README_GNU_GDB_VERSION)) {
 			fprintf(fp, "    GNU gdb %s\n", pc->gdb_version);
 		} else if (STREQ(README[i], README_DATE)) {
-    			time(&time_now);
-        		fprintf(fp, "            DATE: %s\n",
-                		strip_linefeeds(ctime(&time_now)));
+					time(&time_now);
+						fprintf(fp, "            DATE: %s\n",
+										strip_linefeeds(ctime(&time_now)));
 		} else if (STREQ(README[i], README_HELP_MENU)) {
 			display_help_screen("    ");
 		} else if (STREQ(README[i], README_GPL_INFO)) {
-        		for (j = 0; version_info[j]; j++)
-                		fprintf(fp, "    %s\n", version_info[j]);
-                } else if (STREQ(README[i], README_ENTER_DIRECTORY)) {
-                        fprintf(fp,
+						for (j = 0; version_info[j]; j++)
+										fprintf(fp, "    %s\n", version_info[j]);
+								} else if (STREQ(README[i], README_ENTER_DIRECTORY)) {
+												fprintf(fp,
  "  To build this utility, simply uncompress the tar file, enter the crash-%s\n",
-                                pc->program_version);
+																pc->program_version);
 		} else
 			fprintf(fp, "%s\n", README[i]);
-        }
+				}
 }
 
 static

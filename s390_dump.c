@@ -42,7 +42,7 @@ is_s390_dump(char *file)
 FILE*
 s390_dump_init(char *file)
 {
-        if ((s390_file = fopen(file, "r+")) == NULL) {
+				if ((s390_file = fopen(file, "r+")) == NULL) {
 		if ((s390_file = fopen(file, "r")) == NULL)
 			return NULL;
 	}
@@ -55,10 +55,10 @@ read_s390_dumpfile(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 {
 	paddr += S390_DUMP_HEADER_SIZE;
 
-        if (fseek(s390_file, (ulong)paddr, SEEK_SET) != 0)
+				if (fseek(s390_file, (ulong)paddr, SEEK_SET) != 0)
 		return SEEK_ERROR;
 
-        if (fread(bufptr, 1 , cnt, s390_file) != cnt)
+				if (fread(bufptr, 1 , cnt, s390_file) != cnt)
 		return READ_ERROR;
 
 	return 0;

@@ -66,14 +66,14 @@ typedef unsigned int u32;
  */
 typedef struct _dump_header_asm_s {
 
-        /* the dump magic number -- unique to verify dump is valid */
-        uint64_t             dha_magic_number;
+				/* the dump magic number -- unique to verify dump is valid */
+				uint64_t             dha_magic_number;
 
-        /* the version number of this dump */
-        uint32_t             dha_version;
+				/* the version number of this dump */
+				uint32_t             dha_version;
 
-        /* the size of this header (in case we can't read it) */
-        uint32_t             dha_header_size;
+				/* the size of this header (in case we can't read it) */
+				uint32_t             dha_header_size;
 
 	/* the esp for i386 systems */
 	uint32_t             dha_esp;
@@ -113,24 +113,24 @@ typedef unsigned int u32;
 
 typedef struct _dump_header_asm_s {
 
-        /* the dump magic number -- unique to verify dump is valid */
-        uint64_t             dha_magic_number;
+				/* the dump magic number -- unique to verify dump is valid */
+				uint64_t             dha_magic_number;
 
-        /* the version number of this dump */
-        uint32_t             dha_version;
+				/* the version number of this dump */
+				uint32_t             dha_version;
 
-        /* the size of this header (in case we can't read it) */
-        uint32_t             dha_header_size;
+				/* the size of this header (in case we can't read it) */
+				uint32_t             dha_header_size;
 
-        /* the esp for i386 systems */
-        uint32_t             dha_esp;
+				/* the esp for i386 systems */
+				uint32_t             dha_esp;
 
-        /* the eip for i386 systems */
-        uint32_t             dha_eip;
+				/* the eip for i386 systems */
+				uint32_t             dha_eip;
 
-        /* the dump registers */
+				/* the dump registers */
 #ifndef IA64
-        struct pt_regs       dha_regs;
+				struct pt_regs       dha_regs;
 #endif
 
 } dump_header_asm_t;

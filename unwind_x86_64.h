@@ -22,36 +22,36 @@ typedef unsigned int u32;
 typedef unsigned long long u64;
 
 struct pt_regs {
-        unsigned long r15;
-        unsigned long r14;
-        unsigned long r13;
-        unsigned long r12;
-        unsigned long rbp;
-        unsigned long rbx;
+				unsigned long r15;
+				unsigned long r14;
+				unsigned long r13;
+				unsigned long r12;
+				unsigned long rbp;
+				unsigned long rbx;
 /* arguments: non interrupts/non tracing syscalls only save up to here*/
-        unsigned long r11;
-        unsigned long r10;
-        unsigned long r9;
-        unsigned long r8;
-        unsigned long rax;
-        unsigned long rcx;
-        unsigned long rdx;
-        unsigned long rsi;
-        unsigned long rdi;
-        unsigned long orig_rax;
+				unsigned long r11;
+				unsigned long r10;
+				unsigned long r9;
+				unsigned long r8;
+				unsigned long rax;
+				unsigned long rcx;
+				unsigned long rdx;
+				unsigned long rsi;
+				unsigned long rdi;
+				unsigned long orig_rax;
 /* end of arguments */
 /* cpu exception frame or undefined */
-        unsigned long rip;
-        unsigned long cs;
-        unsigned long eflags;
-        unsigned long rsp;
-        unsigned long ss;
+				unsigned long rip;
+				unsigned long cs;
+				unsigned long eflags;
+				unsigned long rsp;
+				unsigned long ss;
 /* top of stack page */
 };
 
 struct unwind_frame_info
 {
-        struct pt_regs regs;
+				struct pt_regs regs;
 };
 
 extern int unwind(struct unwind_frame_info *, int);

@@ -24,15 +24,15 @@ void cmd_echo(void);     /* Declare the commands and their help data. */
 char *help_echo[];
 
 static struct command_table_entry command_table[] = {
-        { "echo", cmd_echo, help_echo, 0},          /* One or more commands, */
-        { NULL },                                     /* terminated by NULL, */
+				{ "echo", cmd_echo, help_echo, 0},          /* One or more commands, */
+				{ NULL },                                     /* terminated by NULL, */
 };
 
 
 void __attribute__((constructor))
 echo_init(void) /* Register the command set. */
 {
-        register_extension(command_table);
+				register_extension(command_table);
 }
 
 /*
@@ -52,24 +52,24 @@ echo_fini(void) { }
 void
 cmd_echo(void)
 {
-        int c;
+				int c;
 
-        while ((c = getopt(argcnt, args, "")) != EOF) {
-                switch(c)
-                {
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+				while ((c = getopt(argcnt, args, "")) != EOF) {
+								switch(c)
+								{
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
-        while (args[optind])
-                fprintf(fp, "%s ", args[optind++]);
+				while (args[optind])
+								fprintf(fp, "%s ", args[optind++]);
 
-        fprintf(fp, "\n");
+				fprintf(fp, "\n");
 }
 
 /*
@@ -95,16 +95,16 @@ cmd_echo(void)
  */
 
 char *help_echo[] = {
-        "echo",                        /* command name */
-        "echoes back its arguments",   /* short description */
-        "arg ...",                     /* argument synopsis, or " " if none */
+				"echo",                        /* command name */
+				"echoes back its arguments",   /* short description */
+				"arg ...",                     /* argument synopsis, or " " if none */
 
-        "  This command simply echoes back its arguments.",
-        "\nEXAMPLE",
-        "  Echo back all command arguments:\n",
-        "    crash> echo hello, world",
-        "    hello, world",
-        NULL
+				"  This command simply echoes back its arguments.",
+				"\nEXAMPLE",
+				"  Echo back all command arguments:\n",
+				"    crash> echo hello, world",
+				"    hello, world",
+				NULL
 };
 
 

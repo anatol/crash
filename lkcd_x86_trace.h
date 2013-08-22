@@ -465,8 +465,8 @@ typedef struct sframe_rec {
 
 /* flag field of sframe_t */
 #define EX_FRAME	0x1	/* this frame is an interrupt or exception
-				   frame, pt_regs field of sframe_t is valid
-				   in this case */
+					 frame, pt_regs field of sframe_t is valid
+					 in this case */
 #define INCOMPLETE_EX_FRAME  0x2
 #define SET_EX_FRAME_ADDR    0x4
 
@@ -505,18 +505,18 @@ typedef struct trace_rec {
 /* Stack frame updating macro
  */
 #define UPDATE_FRAME(FUNCNAME, PC, RA, SP, FP, ASP, SRCNAME, LINE_NO, SIZE, FLAG) \
-        curframe->funcname = FUNCNAME; \
-        curframe->pc = PC; \
-        curframe->sp = SP; \
-        curframe->ra = RA; \
-        curframe->fp = FP; \
-        curframe->asp = ASP; \
-        curframe->srcfile = SRCNAME; \
-        curframe->line_no = LINE_NO; \
-        curframe->frame_size = SIZE; \
-        curframe->ptr = curstkidx; \
-        kl_enqueue((element_t **)&trace->frame, (element_t *)curframe); \
-        trace->nframes++; \
+				curframe->funcname = FUNCNAME; \
+				curframe->pc = PC; \
+				curframe->sp = SP; \
+				curframe->ra = RA; \
+				curframe->fp = FP; \
+				curframe->asp = ASP; \
+				curframe->srcfile = SRCNAME; \
+				curframe->line_no = LINE_NO; \
+				curframe->frame_size = SIZE; \
+				curframe->ptr = curstkidx; \
+				kl_enqueue((element_t **)&trace->frame, (element_t *)curframe); \
+				trace->nframes++; \
 	curframe->flag |= FLAG; \
 
 #ifndef REDHAT

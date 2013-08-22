@@ -333,23 +333,23 @@ struct pt_regs {
  */
 typedef struct _dump_header_asm_s {
 
-        /* the dump magic number -- unique to verify dump is valid */
-        uint64_t             dha_magic_number;
+				/* the dump magic number -- unique to verify dump is valid */
+				uint64_t             dha_magic_number;
 
-        /* the version number of this dump */
-        uint32_t             dha_version;
+				/* the version number of this dump */
+				uint32_t             dha_version;
 
-        /* the size of this header (in case we can't read it) */
-        uint32_t             dha_header_size;
+				/* the size of this header (in case we can't read it) */
+				uint32_t             dha_header_size;
 
-        /* pointer to pt_regs, (OLD: (struct pt_regs *, NEW: (uint64_t)) */
+				/* pointer to pt_regs, (OLD: (struct pt_regs *, NEW: (uint64_t)) */
 	uint64_t             dha_pt_regs;
 
 	/* the dump registers */
 	struct pt_regs       dha_regs;
 
-        /* the rnat register saved after flushrs */
-        uint64_t             dha_rnat;
+				/* the rnat register saved after flushrs */
+				uint64_t             dha_rnat;
 
 	/* the pfs register saved after flushrs */
 	uint64_t             dha_pfs;
@@ -366,7 +366,7 @@ typedef struct _dump_header_asm_s {
 	uint64_t	     dha_stack_ptr[NR_CPUS];
 
 	/* load address of kernel */
-        uint64_t             dha_kernel_addr;
+				uint64_t             dha_kernel_addr;
 
 } __attribute__((packed)) dump_header_asm_t;
 
@@ -497,14 +497,14 @@ struct pt_regs {
  */
 typedef struct _dump_header_asm_s {
 
-        /* the dump magic number -- unique to verify dump is valid */
-        uint64_t             dha_magic_number;
+				/* the dump magic number -- unique to verify dump is valid */
+				uint64_t             dha_magic_number;
 
-        /* the version number of this dump */
-        uint32_t             dha_version;
+				/* the version number of this dump */
+				uint32_t             dha_version;
 
-        /* the size of this header (in case we can't read it) */
-        uint32_t             dha_header_size;
+				/* the size of this header (in case we can't read it) */
+				uint32_t             dha_header_size;
 
 	/* the dump registers */
 	struct pt_regs       dha_regs;

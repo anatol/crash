@@ -91,52 +91,52 @@ alpha_init(int when)
 	{
 	case PRE_SYMTAB:
 		machdep->verify_symbol = alpha_verify_symbol;
-                if (pc->flags & KERNEL_DEBUG_QUERY)
-                        return;
-                machdep->pagesize = memory_page_size();
-                machdep->pageshift = ffs(machdep->pagesize) - 1;
-                machdep->pageoffset = machdep->pagesize - 1;
-                machdep->pagemask = ~(machdep->pageoffset);
+								if (pc->flags & KERNEL_DEBUG_QUERY)
+												return;
+								machdep->pagesize = memory_page_size();
+								machdep->pageshift = ffs(machdep->pagesize) - 1;
+								machdep->pageoffset = machdep->pagesize - 1;
+								machdep->pagemask = ~(machdep->pageoffset);
 		machdep->stacksize = machdep->pagesize * 2;
-                if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pgd space.");
-                if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pmd space.");
-                if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc ptbl space.");
-                machdep->last_pgd_read = 0;
-                machdep->last_pmd_read = 0;
-                machdep->last_ptbl_read = 0;
+								if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pgd space.");
+								if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pmd space.");
+								if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc ptbl space.");
+								machdep->last_pgd_read = 0;
+								machdep->last_pmd_read = 0;
+								machdep->last_ptbl_read = 0;
 		machdep->verify_paddr = generic_verify_paddr;
 		machdep->ptrs_per_pgd = PTRS_PER_PGD;
 		break;
 
 	case PRE_GDB:
-	        switch (symbol_value("_stext") & KSEG_BASE)
-	        {
-	        case KSEG_BASE:
-	                machdep->kvbase = KSEG_BASE;
-	                break;
+					switch (symbol_value("_stext") & KSEG_BASE)
+					{
+					case KSEG_BASE:
+									machdep->kvbase = KSEG_BASE;
+									break;
 
-	        case KSEG_BASE_48_BIT:
-	                machdep->kvbase = KSEG_BASE_48_BIT;
-	                break;
+					case KSEG_BASE_48_BIT:
+									machdep->kvbase = KSEG_BASE_48_BIT;
+									break;
 
-	        default:
-	                error(FATAL,
-			    "cannot determine KSEG base from _stext: %lx\n",
-	                        symbol_value("_stext"));
-	        }
+					default:
+									error(FATAL,
+					"cannot determine KSEG base from _stext: %lx\n",
+													symbol_value("_stext"));
+					}
 
 		machdep->identity_map_base = machdep->kvbase;
 		machdep->is_kvaddr = generic_is_kvaddr;
-                machdep->is_uvaddr = generic_is_uvaddr;
-	        machdep->eframe_search = alpha_eframe_search;
-	        machdep->back_trace = alpha_back_trace_cmd;
-	        machdep->processor_speed = alpha_processor_speed;
-	        machdep->uvtop = alpha_uvtop;
-	        machdep->kvtop = alpha_kvtop;
-	        machdep->get_task_pgd = alpha_get_task_pgd;
+								machdep->is_uvaddr = generic_is_uvaddr;
+					machdep->eframe_search = alpha_eframe_search;
+					machdep->back_trace = alpha_back_trace_cmd;
+					machdep->processor_speed = alpha_processor_speed;
+					machdep->uvtop = alpha_uvtop;
+					machdep->kvtop = alpha_kvtop;
+					machdep->get_task_pgd = alpha_get_task_pgd;
 		if (symbol_exists("irq_desc"))
 			machdep->dump_irq = generic_dump_irq;
 		else
@@ -158,7 +158,7 @@ alpha_init(int when)
 		machdep->get_smp_cpus = alpha_get_smp_cpus;
 		machdep->line_number_hooks = alpha_line_number_hooks;
 		machdep->value_to_symbol = generic_machdep_value_to_symbol;
-                machdep->init_kernel_pgd = NULL;
+								machdep->init_kernel_pgd = NULL;
 		break;
 
 	case POST_GDB:
@@ -174,18 +174,18 @@ alpha_init(int when)
 			"percpu_struct", "halt_PC");
 		MEMBER_OFFSET_INIT(percpu_struct_halt_ra,
 			"percpu_struct", "halt_ra");
-                MEMBER_OFFSET_INIT(percpu_struct_halt_pv,
-                        "percpu_struct", "halt_pv");
+								MEMBER_OFFSET_INIT(percpu_struct_halt_pv,
+												"percpu_struct", "halt_pv");
 		MEMBER_OFFSET_INIT(switch_stack_r26,
 			"switch_stack", "r26");
-        	if (symbol_exists("irq_action"))
+					if (symbol_exists("irq_action"))
 			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_action,
 				"irq_action", NULL, 0);
-        	else if (symbol_exists("irq_desc"))
-                	ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
+					else if (symbol_exists("irq_desc"))
+									ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
 				"irq_desc", NULL, 0);
-        	else
-                	machdep->nr_irqs = 0;
+					else
+									machdep->nr_irqs = 0;
 		if (!machdep->hz)
 			machdep->hz = HZ;
 		break;
@@ -205,32 +205,32 @@ alpha_back_trace_cmd(struct bt_info *bt)
 	char buf[BUFSIZE];
 	struct gnu_request *req;
 
-        bt->flags |= BT_EXCEPTION_FRAME;
+				bt->flags |= BT_EXCEPTION_FRAME;
 
-        if (CRASHDEBUG(1) || bt->debug)
-                fprintf(fp, " => PC: %lx (%s) FP: %lx \n",
-                        bt->instptr, value_to_symstr(bt->instptr, buf, 0),
+				if (CRASHDEBUG(1) || bt->debug)
+								fprintf(fp, " => PC: %lx (%s) FP: %lx \n",
+												bt->instptr, value_to_symstr(bt->instptr, buf, 0),
 			bt->stkptr );
 
-        req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
-        req->command = GNU_STACK_TRACE;
-        req->flags = GNU_RETURN_ON_ERROR;
-        req->buf = GETBUF(BUFSIZE);
-        req->debug = bt->debug;
-        req->task = bt->task;
+				req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
+				req->command = GNU_STACK_TRACE;
+				req->flags = GNU_RETURN_ON_ERROR;
+				req->buf = GETBUF(BUFSIZE);
+				req->debug = bt->debug;
+				req->task = bt->task;
 
-        req->pc = bt->instptr;
-        req->sp = bt->stkptr;
+				req->pc = bt->instptr;
+				req->sp = bt->stkptr;
 
-        if (bt->flags & BT_USE_GDB) {
-                strcpy(req->buf, "backtrace");
-                gdb_interface(req);
-        }
-        else
-                alpha_back_trace(req, bt);
+				if (bt->flags & BT_USE_GDB) {
+								strcpy(req->buf, "backtrace");
+								gdb_interface(req);
+				}
+				else
+								alpha_back_trace(req, bt);
 
-        FREEBUF(req->buf);
-        FREEBUF(req);
+				FREEBUF(req->buf);
+				FREEBUF(req);
 }
 
 
@@ -240,32 +240,32 @@ alpha_back_trace_cmd(struct bt_info *bt)
 
 #define ALPHA_BACKTRACE_SPECULATE(X) 				        \
 {									\
-        speculate_location = X;				                \
-							                \
-        if (bt->flags & BT_SPECULATE)					\
-                return;							\
+				speculate_location = X;				                \
+															\
+				if (bt->flags & BT_SPECULATE)					\
+								return;							\
 									\
-        BZERO(btloc, sizeof(struct bt_info));                           \
+				BZERO(btloc, sizeof(struct bt_info));                           \
 	btloc->task = req->task;                                        \
 	btloc->tc = bt->tc;                                             \
 	btloc->stackbase = bt->stackbase;                               \
 	btloc->stacktop = bt->stacktop;                                 \
 	btloc->flags = BT_TEXT_SYMBOLS_NOPRINT;                         \
-        hook.eip = 0; 					                \
+				hook.eip = 0; 					                \
 	hook.esp = req->lastsp ? req->lastsp + sizeof(long) : 0;        \
 	btloc->hp = &hook;                                              \
 									\
-        back_trace(btloc);	                                        \
+				back_trace(btloc);	                                        \
 									\
-        if (hook.esp && hook.eip) {					\
-                req->hookp = &hook;					\
-                if (alpha_resync_speculate(req, bt->flags, bt)) {	\
-                        req->pc = hook.eip;				\
-                        req->sp = hook.esp;				\
-                        continue; 					\
-                }							\
+				if (hook.esp && hook.eip) {					\
+								req->hookp = &hook;					\
+								if (alpha_resync_speculate(req, bt->flags, bt)) {	\
+												req->pc = hook.eip;				\
+												req->sp = hook.esp;				\
+												continue; 					\
+								}							\
 		goto show_remaining_text;			        \
-        }								\
+				}								\
 	goto show_remaining_text;					\
 }
 
@@ -274,10 +274,10 @@ static void
 alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 {
 	char buf[BUFSIZE];
-        int frame;
+				int frame;
 	int done;
 	int status;
-        struct stack_hook hook;
+				struct stack_hook hook;
 	int eframe_same_pc_ra_function;
 	int speculate_location;
 	struct bt_info bt_info, *btloc;
@@ -297,22 +297,22 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 
 		fprintf(fp, "invalid pc: %lx\n", req->pc);
 
-        	alpha_exception_frame(USER_EFRAME_ADDR(req->task),
+					alpha_exception_frame(USER_EFRAME_ADDR(req->task),
 			BT_USER_EFRAME, req, bt);
 
 		return;
 	}
 
 
-        for (done = FALSE; !done && (frame < 100); frame++) {
+				for (done = FALSE; !done && (frame < 100); frame++) {
 
 		speculate_location = 0;
 
 		if ((req->name = closest_symbol(req->pc)) == NULL) {
 			req->ra = req->pc = 0;
-                        if (alpha_backtrace_resync(req,
-			    bt->flags | BT_FROM_CALLFRAME, bt))
-                       		continue;
+												if (alpha_backtrace_resync(req,
+					bt->flags | BT_FROM_CALLFRAME, bt))
+											 		continue;
 
 			if (BT_REFERENCE_FOUND(bt))
 				return;
@@ -320,8 +320,8 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			ALPHA_BACKTRACE_SPECULATE(1);
 		}
 
-                if (!INSTACK(req->sp, bt))
-                        break;
+								if (!INSTACK(req->sp, bt))
+												break;
 
 		if (!is_kernel_text(req->pc))
 			ALPHA_BACKTRACE_SPECULATE(2);
@@ -343,7 +343,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			req->prevpc = req->pc;
 			req->pc = GET_STACK_ULONG(req->sp);
 			req->prevsp = req->sp;
-                        req->sp += req->value;
+												req->sp += req->value;
 			break;
 
 		case ALPHA_END_OF_TRACE:
@@ -351,58 +351,58 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			break;
 
 		case ALPHA_STRACE:
-                        alpha_exception_frame(req->sp,
+												alpha_exception_frame(req->sp,
 				BT_USER_EFRAME|BT_STRACE, req, bt);
-                        done = TRUE;
+												done = TRUE;
 			break;
 
 		case ALPHA_RET_FROM_SMP_FORK:
-                        alpha_exception_frame(USER_EFRAME_ADDR(req->task),
+												alpha_exception_frame(USER_EFRAME_ADDR(req->task),
 				BT_USER_EFRAME|BT_RET_FROM_SMP_FORK, req, bt);
 			done = TRUE;
 			break;
 
-                case ALPHA_DOWN_FAILED:
-                        frame++;
-                        alpha_print_stack_entry(req,
-                                req->pc, closest_symbol(req->pc),
-                                bt->flags | BT_SAVE_LASTSP, bt);
+								case ALPHA_DOWN_FAILED:
+												frame++;
+												alpha_print_stack_entry(req,
+																req->pc, closest_symbol(req->pc),
+																bt->flags | BT_SAVE_LASTSP, bt);
 
 			if (BT_REFERENCE_FOUND(bt))
 				return;
 
-                        alpha_frame_offset(req, 0);
-                        if (!req->value) {
-                                done = TRUE;
-                                break;
-                        }
-                        req->prevpc = req->pc;
+												alpha_frame_offset(req, 0);
+												if (!req->value) {
+																done = TRUE;
+																break;
+												}
+												req->prevpc = req->pc;
 			req->pc = GET_STACK_ULONG(req->sp);
-                        req->prevsp = req->sp;
-                        req->sp += req->value;
-                        break;
+												req->prevsp = req->sp;
+												req->sp += req->value;
+												break;
 
-                case ALPHA_RESCHEDULE:
-                        alpha_exception_frame(USER_EFRAME_ADDR(req->task),
-                                BT_USER_EFRAME|BT_RESCHEDULE, req, bt);
-                        done = TRUE;
-                        break;
+								case ALPHA_RESCHEDULE:
+												alpha_exception_frame(USER_EFRAME_ADDR(req->task),
+																BT_USER_EFRAME|BT_RESCHEDULE, req, bt);
+												done = TRUE;
+												break;
 
 		case ALPHA_MM_FAULT:
-                        alpha_exception_frame(req->sp, bt->flags, req, bt);
+												alpha_exception_frame(req->sp, bt->flags, req, bt);
 
-                        if (!IS_KVADDR(req->pc)) {
+												if (!IS_KVADDR(req->pc)) {
 				done = TRUE;
-                                break;
+																break;
 			}
 
-                        alpha_frame_offset(req, 0);
-                        if (!req->value) {
-                                done = TRUE;
-                                break;
-                        }
+												alpha_frame_offset(req, 0);
+												if (!req->value) {
+																done = TRUE;
+																break;
+												}
 
-                        frame++;
+												frame++;
 			alpha_print_stack_entry(req,
 				req->pc, closest_symbol(req->pc),
 				bt->flags | BT_SAVE_LASTSP, bt);
@@ -410,22 +410,22 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			if (BT_REFERENCE_FOUND(bt))
 				return;
 
-                        if (!IS_KVADDR(req->pc)) {
-                                done = TRUE;
+												if (!IS_KVADDR(req->pc)) {
+																done = TRUE;
 				break;
 			}
 
 			req->prevpc = req->pc;
 			req->pc = GET_STACK_ULONG(req->sp);
 			req->prevsp = req->sp;
-                        req->sp += req->value;
-                        break;
+												req->sp += req->value;
+												break;
 
 		case ALPHA_SYSCALL_FRAME:
 			req->sp = verify_user_eframe(bt, req->task, req->sp) ?
 				req->sp : USER_EFRAME_ADDR(req->task);
 
-                        alpha_exception_frame(req->sp, bt->flags, req, bt);
+												alpha_exception_frame(req->sp, bt->flags, req, bt);
 
 			if (!IS_KVADDR(req->pc)) {
 				done = TRUE;
@@ -433,51 +433,51 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			}
 
 			alpha_frame_offset(req, 0);
-                        if (!req->value) {
-                                done = TRUE;
-                                break;
-                        }
+												if (!req->value) {
+																done = TRUE;
+																break;
+												}
 			req->prevpc = req->pc;
 			req->pc = GET_STACK_ULONG(req->sp);
 			req->prevsp = req->sp;
-                        req->sp += req->value;
-                        break;
+												req->sp += req->value;
+												break;
 
 		case ALPHA_SIGNAL_RETURN:
-                        alpha_exception_frame(USER_EFRAME_ADDR(req->task),
-                                bt->flags, req, bt);
+												alpha_exception_frame(USER_EFRAME_ADDR(req->task),
+																bt->flags, req, bt);
 			done = TRUE;
 			break;
 
 		case ALPHA_EXCEPTION_FRAME:
 			alpha_frame_offset(req, 0);
-                        if (!req->value) {
+												if (!req->value) {
 				fprintf(fp,
-                       "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
+											 "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
 					req->pc,
 					value_to_symstr(req->pc, buf, 0));
-                                done = TRUE;
-                                break;
-                        }
+																done = TRUE;
+																break;
+												}
 
 			alpha_exception_frame(req->sp + req->value,
 				bt->flags, req, bt);
 
 			if (!IS_KVADDR(req->pc)) {
-                                done = TRUE;
-                                break;
+																done = TRUE;
+																break;
 			}
 
 			alpha_frame_offset(req, 0);
 
-                        if (!req->value) {
-                                fprintf(fp,
-                       "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
-                                        req->pc,
+												if (!req->value) {
+																fprintf(fp,
+											 "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
+																				req->pc,
 					value_to_symstr(req->pc, buf, 0));
-                                done = TRUE;
-                                break;
-                        }
+																done = TRUE;
+																break;
+												}
 
 			eframe_same_pc_ra_function =
 				SAME_FUNCTION(req->pc, req->ra);
@@ -496,11 +496,11 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			}
 
 			if (STREQ(closest_symbol(req->pc),
-			    "ret_from_reschedule")) {
-                        	alpha_exception_frame(
-				    USER_EFRAME_ADDR(req->task),
-				    BT_USER_EFRAME|BT_RESCHEDULE, req, bt);
-                        	done = TRUE;
+					"ret_from_reschedule")) {
+													alpha_exception_frame(
+						USER_EFRAME_ADDR(req->task),
+						BT_USER_EFRAME|BT_RESCHEDULE, req, bt);
+													done = TRUE;
 				break;
 			}
 
@@ -509,7 +509,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 
 			if (!is_kernel_text(req->pc)) {
 				if (alpha_backtrace_resync(req,
-				    bt->flags | BT_FROM_EXCEPTION, bt))
+						bt->flags | BT_FROM_EXCEPTION, bt))
 					break;
 
 				if (BT_REFERENCE_FOUND(bt))
@@ -519,31 +519,31 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			}
 
 			if (!eframe_same_pc_ra_function &&
-			    (req->pc != req->ra)) {
+					(req->pc != req->ra)) {
 				req->pc = req->ra;
 				break;
 			}
 
 			req->prevsp = req->sp;
-                        req->sp += req->value;
+												req->sp += req->value;
 			break;
 
 		case ALPHA_INTERRUPT_PENDING:
 			alpha_frame_offset(req, 0);
-                        if (!req->value) {
+												if (!req->value) {
 				req->prevpc = req->pc;
-                                req->pc = req->addr;
+																req->pc = req->addr;
 				req->prevsp = req->sp;
 				req->sp = req->frame;
-                        } else {
+												} else {
 				req->prevpc = req->pc;
 				req->pc = GET_STACK_ULONG(req->sp);
 				req->prevsp = req->sp;
-                        	req->sp += req->value;
+													req->sp += req->value;
 			}
 			break;
 		}
-        }
+				}
 
 	return;
 
@@ -552,24 +552,24 @@ show_remaining_text:
 	if (BT_REFERENCE_CHECK(bt))
 		return;
 
-        BZERO(btloc, sizeof(struct bt_info));
-        btloc->task = req->task;
+				BZERO(btloc, sizeof(struct bt_info));
+				btloc->task = req->task;
 	btloc->tc = bt->tc;
 	btloc->stackbase = bt->stackbase;
 	btloc->stacktop = bt->stacktop;
-        btloc->flags = BT_TEXT_SYMBOLS_NOPRINT;
-        hook.esp = req->lastsp + sizeof(long);
-        btloc->hp = &hook;
-        back_trace(btloc);
+				btloc->flags = BT_TEXT_SYMBOLS_NOPRINT;
+				hook.esp = req->lastsp + sizeof(long);
+				btloc->hp = &hook;
+				back_trace(btloc);
 
-        if (hook.eip) {
-       		fprintf(fp,
+				if (hook.eip) {
+			 		fprintf(fp,
 "NOTE: cannot resolve trace from this point -- remaining text symbols on stack:\n");
 		btloc->flags = BT_TEXT_SYMBOLS_PRINT|BT_ERROR_MASK;
-        	hook.esp = req->lastsp + sizeof(long);
-        	back_trace(btloc);
+					hook.esp = req->lastsp + sizeof(long);
+					back_trace(btloc);
 	} else
-       		fprintf(fp,
+			 		fprintf(fp,
 "NOTE: cannot resolve trace from this point -- no remaining text symbols\n");
 
 	if (CRASHDEBUG(1))
@@ -592,12 +592,12 @@ alpha_print_stack_entry(struct gnu_request *req,
 	struct load_module *lm;
 
 	if (BT_REFERENCE_CHECK(bt)) {
-                switch (bt->ref->cmdflags & (BT_REF_SYMBOL|BT_REF_HEXVAL))
-                {
-                case BT_REF_SYMBOL:
+								switch (bt->ref->cmdflags & (BT_REF_SYMBOL|BT_REF_HEXVAL))
+								{
+								case BT_REF_SYMBOL:
 			if (STREQ(name, bt->ref->str) ||
-			    (STREQ(name, "strace") &&
-			    STREQ(bt->ref->str, "entSys"))) {
+					(STREQ(name, "strace") &&
+					STREQ(bt->ref->str, "entSys"))) {
 				bt->ref->cmdflags |= BT_REF_FOUND;
 			}
 			break;
@@ -609,7 +609,7 @@ alpha_print_stack_entry(struct gnu_request *req,
 		}
 	} else {
 		fprintf(fp, "%s#%d [%lx] %s at %lx",
-        		req->curframe < 10 ? " " : "", req->curframe, req->sp,
+						req->curframe < 10 ? " " : "", req->curframe, req->sp,
 			STREQ(name, "strace") ?  "strace (via entSys)" : name,
 			callpc);
 		if (module_symbol(callpc, NULL, &lm, NULL, 0))
@@ -631,10 +631,10 @@ alpha_print_stack_entry(struct gnu_request *req,
 }
 
 static const char *hook_files[] = {
-        "arch/alpha/kernel/entry.S",
-        "arch/alpha/kernel/head.S",
+				"arch/alpha/kernel/entry.S",
+				"arch/alpha/kernel/head.S",
 	"init/main.c",
-        "arch/alpha/kernel/smp.c",
+				"arch/alpha/kernel/smp.c",
 };
 
 #define ENTRY_S      ((char **)&hook_files[0])
@@ -688,14 +688,14 @@ static struct line_number_hook alpha_line_number_hooks[] = {
 
 	{"smp_callin", SMP_C},
 
-       {NULL, NULL}    /* list must be NULL-terminated */
+			 {NULL, NULL}    /* list must be NULL-terminated */
 };
 
 static void
 alpha_dump_line_number(char *name, ulong callpc)
 {
-        char buf[BUFSIZE], *p;
-        int retries;
+				char buf[BUFSIZE], *p;
+				int retries;
 
 	retries = 0;
 try_closest:
@@ -710,7 +710,7 @@ try_closest:
 	} else {
 		if (retries)
 			fprintf(fp, GDB_PATCHED() ?
-			  "" : "    (cannot determine file and line number)\n");
+				"" : "    (cannot determine file and line number)\n");
 		else {
 			retries++;
 			callpc = closest_symbol_value(callpc);
@@ -758,15 +758,15 @@ alpha_frame_offset(struct gnu_request *req, ulong alt_pc)
 
 	if (alt_pc && !is_kernel_text(alt_pc))
 		error(FATAL,
-		    "trying to get frame offset of non-text address: %lx\n",
+				"trying to get frame offset of non-text address: %lx\n",
 			alt_pc);
 	else if (!alt_pc && !is_kernel_text(req->pc))
-                error(FATAL,
-                    "trying to get frame offset of non-text address: %lx\n",
-                        req->pc);
+								error(FATAL,
+										"trying to get frame offset of non-text address: %lx\n",
+												req->pc);
 
 	ip = alt_pc ? (int *)closest_symbol_value(alt_pc) :
-		      (int *)closest_symbol_value(req->pc);
+					(int *)closest_symbol_value(req->pc);
 	if (!ip)
 		goto use_gdb;
 
@@ -777,8 +777,8 @@ alpha_frame_offset(struct gnu_request *req, ulong alt_pc)
 	 */
 	while (ival != 0xb75e0000) {
 		if (!text_value_cache((ulong)ip, 0, &ival)) {
-	        	readmem((ulong)ip, KVADDR, &ival,
-                		sizeof(uint), "uncached text value",
+						readmem((ulong)ip, KVADDR, &ival,
+										sizeof(uint), "uncached text value",
 				FAULT_ON_ERROR);
 			text_value_cache((ulong)ip, ival, NULL);
 		}
@@ -802,18 +802,18 @@ use_gdb:
 
 	if (gdb_frame_offset_warnings-- > 0)
 		error(WARNING,
-	        "GNU_ALPHA_FRAME_OFFSET functionality not ported to gdb\n");
+					"GNU_ALPHA_FRAME_OFFSET functionality not ported to gdb\n");
 }
 #endif
 	req->command = GNU_ALPHA_FRAME_OFFSET;
 	if (alt_pc) {
 		ulong pc_save;
-        	pc_save = req->pc;
-        	req->pc = alt_pc;
-        	gdb_interface(req);
-        	req->pc = pc_save;
+					pc_save = req->pc;
+					req->pc = alt_pc;
+					gdb_interface(req);
+					req->pc = pc_save;
 	} else
-        	gdb_interface(req);
+					gdb_interface(req);
 }
 
 /*
@@ -832,13 +832,13 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 	frame = req->sp;
 
 	if (STREQ(func, "start_kernel") ||
-	    STREQ(func, "smp_callin") ||
-	    STREQ(func, "kernel_thread") ||
-	    STREQ(func, "__kernel_thread"))
+			STREQ(func, "smp_callin") ||
+			STREQ(func, "kernel_thread") ||
+			STREQ(func, "__kernel_thread"))
 		return ALPHA_END_OF_TRACE;
 
 	if (STREQ(func, "ret_from_smp_fork") ||
-	    STREQ(func, "ret_from_smpfork"))
+			STREQ(func, "ret_from_smpfork"))
 		return ALPHA_RET_FROM_SMP_FORK;
 
 	if (STREQ(func, "entSys"))
@@ -853,19 +853,19 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 		return ALPHA_EXCEPTION_FRAME;
 
 	if (STREQ(func, "do_entArith"))
-                return ALPHA_EXCEPTION_FRAME;
+								return ALPHA_EXCEPTION_FRAME;
 
-        if (STREQ(func, "do_entIF"))
-                return ALPHA_EXCEPTION_FRAME;
+				if (STREQ(func, "do_entIF"))
+								return ALPHA_EXCEPTION_FRAME;
 
-        if (STREQ(func, "do_entDbg"))
-                return ALPHA_EXCEPTION_FRAME;
+				if (STREQ(func, "do_entDbg"))
+								return ALPHA_EXCEPTION_FRAME;
 
 	if (STREQ(func, "handle_bottom_half"))
-                return ALPHA_EXCEPTION_FRAME;
+								return ALPHA_EXCEPTION_FRAME;
 
 	if (STREQ(func, "handle_softirq"))
-                return ALPHA_EXCEPTION_FRAME;
+								return ALPHA_EXCEPTION_FRAME;
 
 	if (STREQ(func, "reschedule"))
 		return ALPHA_RESCHEDULE;
@@ -879,20 +879,20 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 	if (STREQ(func, "strace"))
 		return ALPHA_STRACE;
 
-        if (STREQ(func, "__down_failed") ||
-            STREQ(func, "__down_failed_interruptible")) {
+				if (STREQ(func, "__down_failed") ||
+						STREQ(func, "__down_failed_interruptible")) {
 		readmem(req->sp + 144, KVADDR, &req->pc, sizeof(ulong),
 			"__down_failed r26", FAULT_ON_ERROR);
 		req->sp += 160;
-                return ALPHA_DOWN_FAILED;
+								return ALPHA_DOWN_FAILED;
 	}
 
 	value = GET_STACK_ULONG(frame);
 
 	if (STREQ(closest_symbol(value), "do_entInt") ||
-	    STREQ(closest_symbol(value), "do_entArith") ||
-	    STREQ(closest_symbol(value), "do_entIF") ||
-	    STREQ(closest_symbol(value), "do_entDbg")) {
+			STREQ(closest_symbol(value), "do_entArith") ||
+			STREQ(closest_symbol(value), "do_entIF") ||
+			STREQ(closest_symbol(value), "do_entDbg")) {
 		req->addr = value;
 		req->frame = 0;
 
@@ -917,7 +917,7 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 enum regnames { _r0_, _r1_, _r2_, _r3_, _r4_, _r5_, _r6_, _r7_, _r8_,
 		_r19_, _r20_, _r21_, _r22_, _r23_, _r24_, _r25_, _r26_,
 		_r27_, _r28_, _hae_, _trap_a0_, _trap_a1_, _trap_a2_,
-        	_ps_, _pc_, _gp_, _r16_, _r17_, _r18_, NUMREGS};
+					_ps_, _pc_, _gp_, _r16_, _r17_, _r18_, NUMREGS};
 
 struct alpha_eframe {
 	char regs[30][30];
@@ -926,9 +926,9 @@ struct alpha_eframe {
 
 static void
 alpha_exception_frame(ulong addr,
-	              ulong flags,
-		      struct gnu_request *req,
-		      struct bt_info *bt)
+								ulong flags,
+					struct gnu_request *req,
+					struct bt_info *bt)
 {
 	int i, j;
 	char buf[BUFSIZE];
@@ -947,10 +947,10 @@ alpha_exception_frame(ulong addr,
 
 	BZERO(&eframe, sizeof(struct alpha_eframe));
 
-        open_tmpfile();
+				open_tmpfile();
 	dump_struct("pt_regs", addr, RADIX(16));
-        rewind(pc->tmpfile);
-        while (fgets(buf, BUFSIZE, pc->tmpfile)) {
+				rewind(pc->tmpfile);
+				while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 		strip_comma(clean_line(buf));
 		if (!strstr(buf, "0x"))
 			continue;
@@ -1079,7 +1079,7 @@ alpha_exception_frame(ulong addr,
 			eframe.value[_r18_] = value;
 		}
 	}
-        close_tmpfile();
+				close_tmpfile();
 
 	if ((flags & BT_EXCEPTION_FRAME) && !BT_REFERENCE_CHECK(bt)) {
 dump_eframe:
@@ -1092,9 +1092,9 @@ dump_eframe:
 			j = i+((NUMREGS+1)/2);
 			fprintf(fp, "%s", eframe.regs[j]);
 			if (((j == _pc_) || (j == _r26_)) &&
-			    is_kernel_text(eframe.value[j]))
+					is_kernel_text(eframe.value[j]))
 				fprintf(fp, "  <%s>",
-				    value_to_symstr(eframe.value[j], buf, 0));
+						value_to_symstr(eframe.value[j], buf, 0));
 			fprintf(fp, "\n");
 		}
 	}
@@ -1106,15 +1106,15 @@ dump_eframe:
 	if (flags & BT_USER_EFRAME) {
 		flags &= ~BT_USER_EFRAME;
 		if (!BT_REFERENCE_CHECK(bt) && (eframe.value[_ps_] == 8) &&
-		    (((uvtop(task_to_context(req->task), req->pc, &paddr, 0) ||
-	             (volatile ulong)paddr) &&
-		    (uvtop(task_to_context(req->task), req->ra, &paddr, 0) ||
-		     (volatile ulong)paddr)) ||
-		     (IS_ZOMBIE(req->task) || IS_EXITING(req->task)))) {
+				(((uvtop(task_to_context(req->task), req->pc, &paddr, 0) ||
+							 (volatile ulong)paddr) &&
+				(uvtop(task_to_context(req->task), req->ra, &paddr, 0) ||
+				 (volatile ulong)paddr)) ||
+				 (IS_ZOMBIE(req->task) || IS_EXITING(req->task)))) {
 			if (!(flags &
-			     (BT_RESCHEDULE|BT_RET_FROM_SMP_FORK|BT_STRACE)))
+					 (BT_RESCHEDULE|BT_RET_FROM_SMP_FORK|BT_STRACE)))
 				fprintf(fp,
-				    "NOTE: kernel-entry exception frame:\n");
+						"NOTE: kernel-entry exception frame:\n");
 			goto dump_eframe;
 		}
 	}
@@ -1130,7 +1130,7 @@ struct alpha_pt_regs {
 static int
 alpha_eframe_search(struct bt_info *bt)
 {
-        ulong *first, *last;
+				ulong *first, *last;
 	ulong eframe;
 	struct alpha_pt_regs *pt;
 	struct gnu_request *req;   /* needed for alpha_exception_frame */
@@ -1138,25 +1138,25 @@ alpha_eframe_search(struct bt_info *bt)
 	int cnt;
 
 	stack = (ulong *)bt->stackbuf;
-        req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
-        req->task = bt->task;
+				req = (struct gnu_request *)GETBUF(sizeof(struct gnu_request));
+				req->task = bt->task;
 
-        first = stack +
-           (roundup(SIZE(task_struct), sizeof(ulong)) / sizeof(ulong));
-        last = stack +
-           (((bt->stacktop - bt->stackbase) - SIZE(pt_regs)) / sizeof(ulong));
+				first = stack +
+					 (roundup(SIZE(task_struct), sizeof(ulong)) / sizeof(ulong));
+				last = stack +
+					 (((bt->stacktop - bt->stackbase) - SIZE(pt_regs)) / sizeof(ulong));
 
-        for (cnt = 0; first <= last; first++) {
+				for (cnt = 0; first <= last; first++) {
 		pt = (struct alpha_pt_regs *)first;
 
 		/* check for kernel exception frame */
 
 		if (!(pt->reg_value[_ps_] & 0xfffffffffffffff8) &&
-		    (is_kernel_text(pt->reg_value[_pc_]) ||
-		     IS_MODULE_VADDR(pt->reg_value[_pc_])) &&
-		    (is_kernel_text(pt->reg_value[_r26_]) ||
-		     IS_MODULE_VADDR(pt->reg_value[_r26_])) &&
-                    IS_KVADDR(pt->reg_value[_gp_])) {
+				(is_kernel_text(pt->reg_value[_pc_]) ||
+				 IS_MODULE_VADDR(pt->reg_value[_pc_])) &&
+				(is_kernel_text(pt->reg_value[_r26_]) ||
+				 IS_MODULE_VADDR(pt->reg_value[_r26_])) &&
+										IS_KVADDR(pt->reg_value[_gp_])) {
 			cnt++;
 			if (bt->flags & BT_EFRAME_COUNT)
 				continue;
@@ -1169,11 +1169,11 @@ alpha_eframe_search(struct bt_info *bt)
 
 		/* check for user exception frame */
 
-                if ((pt->reg_value[_ps_] == 0x8) &&
-		    ((IN_TASK_VMA(bt->task, pt->reg_value[_pc_]) &&
-                    IN_TASK_VMA(bt->task, pt->reg_value[_r26_]) &&
-                    IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
-		    ((first == last) &&
+								if ((pt->reg_value[_ps_] == 0x8) &&
+				((IN_TASK_VMA(bt->task, pt->reg_value[_pc_]) &&
+										IN_TASK_VMA(bt->task, pt->reg_value[_r26_]) &&
+										IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
+				((first == last) &&
 			(IS_ZOMBIE(bt->task) || IS_EXITING(bt->task))))) {
 			cnt++;
 			if (bt->flags & BT_EFRAME_COUNT)
@@ -1183,7 +1183,7 @@ alpha_eframe_search(struct bt_info *bt)
 			alpha_exception_frame(eframe, BT_EXCEPTION_FRAME,
 				req, bt);
 		}
-        }
+				}
 
 	FREEBUF(req);
 
@@ -1203,14 +1203,14 @@ verify_user_eframe(struct bt_info *bt, ulong task, ulong sp)
 
 	pt = &ptbuf;
 
-        if ((pt->reg_value[_ps_] == 0x8) &&
-            ((IN_TASK_VMA(task, pt->reg_value[_pc_]) &&
-            IN_TASK_VMA(task, pt->reg_value[_r26_]) &&
-            IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
-            ((pt == (struct alpha_pt_regs *)USER_EFRAME_ADDR(task)) &&
-	    (IS_ZOMBIE(task) || IS_EXITING(task))))) {
+				if ((pt->reg_value[_ps_] == 0x8) &&
+						((IN_TASK_VMA(task, pt->reg_value[_pc_]) &&
+						IN_TASK_VMA(task, pt->reg_value[_r26_]) &&
+						IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
+						((pt == (struct alpha_pt_regs *)USER_EFRAME_ADDR(task)) &&
+			(IS_ZOMBIE(task) || IS_EXITING(task))))) {
 		return TRUE;
-        }
+				}
 
 	return FALSE;
 }
@@ -1248,8 +1248,8 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 
 	if (CRASHDEBUG(1))
 		fprintf(fp,
-		    "RESYNC1: [%lx-%d] ra: %lx pc: %lx sp: %lx\n",
-                        flags, req->curframe, req->ra, req->pc, req->sp);
+				"RESYNC1: [%lx-%d] ra: %lx pc: %lx sp: %lx\n",
+												flags, req->curframe, req->ra, req->pc, req->sp);
 
 	if (!req->ra && !req->pc) {
 		req->ra = req->prevpc;
@@ -1264,15 +1264,15 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	sprintf(lookfor1, "<%s>", name);
 	sprintf(lookfor2, "<%s+", name);
 
-        if (CRASHDEBUG(1))
-                fprintf(fp, "RESYNC2: exception: %s lookfor: %s or %s\n",
-                        exception ? "TRUE" : "FALSE",
+				if (CRASHDEBUG(1))
+								fprintf(fp, "RESYNC2: exception: %s lookfor: %s or %s\n",
+												exception ? "TRUE" : "FALSE",
 			lookfor1, lookfor2);
 
 	/*
 	 *  This is common when a non-panicking active CPU is spinning
-         *  in debug_spin_lock().  The next pc is offset by 0x30 from
-         *  the top of the exception frame, and the next sp is equal
+				 *  in debug_spin_lock().  The next pc is offset by 0x30 from
+				 *  the top of the exception frame, and the next sp is equal
 	 *  to the frame offset of debug_spin_lock().  I can't explain it...
 	 */
 	if ((flags & BT_FROM_EXCEPTION) && STREQ(name, "debug_spin_lock")) {
@@ -1299,11 +1299,11 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	 *  find the next reference to entSys on the stack, and set the
 	 *  sp to that value.
 	 */
-        if (is_system_call(name, 0)) {
+				if (is_system_call(name, 0)) {
 		/* stkp = (ulong *)req->sp; */
 		stkp = (ulong *)req->prevsp;
 
-        	for (stkp++; INSTACK(stkp, bt); stkp++) {
+					for (stkp++; INSTACK(stkp, bt); stkp++) {
 			value = GET_STACK_ULONG(stkp);
 
 			if (IS_KVADDR(value) && is_kernel_text(value)) {
@@ -1319,17 +1319,17 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	/*
 	 *  Just find the next location containing text. (?)
 	 */
-        if (STREQ(name, "do_coredump")) {
-                stkp = (ulong *)(req->sp + sizeof(long));
-                for (stkp++; INSTACK(stkp, bt); stkp++) {
+				if (STREQ(name, "do_coredump")) {
+								stkp = (ulong *)(req->sp + sizeof(long));
+								for (stkp++; INSTACK(stkp, bt); stkp++) {
 			value = GET_STACK_ULONG(stkp);
 
-                        if (IS_KVADDR(value) && is_kernel_text(value)) {
-                                req->pc = req->ra;
-                                req->sp = (ulong)stkp;
-                                return TRUE;
-                        }
-                }
+												if (IS_KVADDR(value) && is_kernel_text(value)) {
+																req->pc = req->ra;
+																req->sp = (ulong)stkp;
+																return TRUE;
+												}
+								}
 	}
 
 	if (flags & BT_SPECULATE)
@@ -1377,7 +1377,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 				stkp_next = stkp;
 			if (CRASHDEBUG(2)) {
 				fprintf(fp,
-				    "RESYNC6: disassemble %lx (%s)\n",
+						"RESYNC6: disassemble %lx (%s)\n",
 					value - sizeof(uint),
 					value_to_symstr(value - sizeof(uint),
 					buf, 0));
@@ -1391,25 +1391,25 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 			rewind(pc->tmpfile);
 			while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 				clean_line(buf);
-                                if (STRNEQ(buf, "Dump of") ||
-                                    STRNEQ(buf, "End of"))
-                                        continue;
+																if (STRNEQ(buf, "Dump of") ||
+																		STRNEQ(buf, "End of"))
+																				continue;
 
-                                if (STRNEQ(buf, addr)) {
+																if (STRNEQ(buf, addr)) {
 					if (LASTCHAR(buf) == ':') {
 						fgets(buf, BUFSIZE,
 							pc->tmpfile);
 						clean_line(buf);
 					}
 					if (CRASHDEBUG(2) &&
-					    (strstr(buf, "jsr")
-					    || strstr(buf, "bsr")))
+							(strstr(buf, "jsr")
+							|| strstr(buf, "bsr")))
 						fprintf(pc->saved_fp, "%s\n",
 							buf);
 					if ((strstr(buf, "jsr") ||
-					     strstr(buf, "bsr")) &&
-					    (strstr(buf, lookfor1) ||
-					     strstr(buf, lookfor2))) {
+							 strstr(buf, "bsr")) &&
+							(strstr(buf, lookfor1) ||
+							 strstr(buf, lookfor2))) {
 						if (exception) {
 							req->pc = newpc;
 							req->sp = (ulong)stkp;
@@ -1449,7 +1449,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	ulong *stkp;
 	ulong value;
 	ulong found_sp, found_ra;
-        struct stack_hook hook;
+				struct stack_hook hook;
 	struct bt_info bt_info, *btloc;
 	char buf[BUFSIZE];
 	int kernel_thread;
@@ -1461,7 +1461,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	if (pc->tmpfile)
 		return FALSE;
 
-        found_ra = found_sp = 0;
+				found_ra = found_sp = 0;
 	kernel_thread = is_kernel_thread(req->task);
 
 	/*
@@ -1470,9 +1470,9 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	switch (flags & (BT_FROM_EXCEPTION|BT_FROM_CALLFRAME))
 	{
 	case BT_FROM_EXCEPTION:
-        	if (STREQ(closest_symbol(req->prevpc), "read_lock") ||
-                    STREQ(closest_symbol(req->ra), "do_select") ||
-                    STREQ(closest_symbol(req->ra), "schedule")) {
+					if (STREQ(closest_symbol(req->prevpc), "read_lock") ||
+										STREQ(closest_symbol(req->ra), "do_select") ||
+										STREQ(closest_symbol(req->ra), "schedule")) {
 			stkp = (ulong *)req->sp;
 			for (stkp++; INSTACK(stkp, bt); stkp++) {
 				value = GET_STACK_ULONG(stkp);
@@ -1492,64 +1492,64 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 		break;
 
 	case BT_FROM_CALLFRAME:
-                if (STREQ(closest_symbol(req->ra), "sys_read")) {
+								if (STREQ(closest_symbol(req->ra), "sys_read")) {
 			value = GET_STACK_ULONG(req->prevsp - 32);
-                        if (STREQ(closest_symbol(value), "entSys")) {
-                                found_ra = value;
-                                found_sp = req->prevsp - 32;
-                        }
-                } else if (STREQ(closest_symbol(req->ra), "exit_autofs4_fs")) {
-                        stkp = (ulong *)req->sp;
-                        for (stkp++; INSTACK(stkp, bt); stkp++) {
+												if (STREQ(closest_symbol(value), "entSys")) {
+																found_ra = value;
+																found_sp = req->prevsp - 32;
+												}
+								} else if (STREQ(closest_symbol(req->ra), "exit_autofs4_fs")) {
+												stkp = (ulong *)req->sp;
+												for (stkp++; INSTACK(stkp, bt); stkp++) {
 				value = GET_STACK_ULONG(stkp);
 
-                                if (found_ra && (value != found_ra)) {
-                                        if (is_kernel_text_offset(value)) {
-                                                found_sp = (ulong)stkp;
-                                                break;
-                                        }
-                                        continue;
-                                }
+																if (found_ra && (value != found_ra)) {
+																				if (is_kernel_text_offset(value)) {
+																								found_sp = (ulong)stkp;
+																								break;
+																				}
+																				continue;
+																}
 
 				if (is_kernel_text_offset(value))
 					found_ra = value;
-                        }
+												}
 		}
 
 		break;
 
 	default:
 		if (req->hookp &&
-		    STREQ(closest_symbol(req->prevpc), "filemap_nopage") &&
-	            !STREQ(closest_symbol(req->hookp->eip), "do_no_page")) {
+				STREQ(closest_symbol(req->prevpc), "filemap_nopage") &&
+							!STREQ(closest_symbol(req->hookp->eip), "do_no_page")) {
 			found_ra = found_sp = 0;
 			stkp = (ulong *)req->prevsp;
-                        for (stkp++; INSTACK(stkp, bt); stkp++) {
+												for (stkp++; INSTACK(stkp, bt); stkp++) {
 				value = GET_STACK_ULONG(stkp);
 
-                                if (found_ra && (value != found_ra)) {
-                                        if (is_kernel_text_offset(value)) {
-                                                found_sp = (ulong)stkp;
-                                                break;
-                                        }
-                                        continue;
-                                }
+																if (found_ra && (value != found_ra)) {
+																				if (is_kernel_text_offset(value)) {
+																								found_sp = (ulong)stkp;
+																								break;
+																				}
+																				continue;
+																}
 
-                                if (is_kernel_text_offset(value) &&
-				    STREQ(closest_symbol(value), "do_no_page"))
-                                        found_ra = value;
-                        }
+																if (is_kernel_text_offset(value) &&
+						STREQ(closest_symbol(value), "do_no_page"))
+																				found_ra = value;
+												}
 			if (found_ra && found_sp) {
-                        	req->hookp->eip = found_ra;
-                        	req->hookp->esp = found_sp;
+													req->hookp->eip = found_ra;
+													req->hookp->esp = found_sp;
 				return TRUE;
 			}
 		}
 
-                if (req->hookp) {
-                        found_ra = req->hookp->eip;
-                        found_sp = req->hookp->esp;
-                }
+								if (req->hookp) {
+												found_ra = req->hookp->eip;
+												found_sp = req->hookp->esp;
+								}
 
 		break;
 	}
@@ -1561,7 +1561,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 
 		if (CRASHDEBUG(1))
 			fprintf(pc->saved_fp,
-			    "----- RESYNC SPECULATE START -----\n");
+					"----- RESYNC SPECULATE START -----\n");
 
 		open_tmpfile();
 		btloc = &bt_info;
@@ -1572,16 +1572,16 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 		btloc->stacktop = bt->stacktop;
 		btloc->flags = BT_SPECULATE;
 		btloc->hp = &hook;
-        	back_trace(btloc);
-        	rewind(pc->tmpfile);
-        	while (fgets(buf, BUFSIZE, pc->tmpfile)) {
+					back_trace(btloc);
+					rewind(pc->tmpfile);
+					while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 			if (CRASHDEBUG(1))
 				fprintf(pc->saved_fp, "%s", buf);
 
-                        if (strstr(buf, "NOTE: cannot resolve")) {
-                                looks_good = FALSE;
-                                break;
-                        }
+												if (strstr(buf, "NOTE: cannot resolve")) {
+																looks_good = FALSE;
+																break;
+												}
 
 			if (strstr(buf, "ALPHA EXCEPTION FRAME")) {
 				looks_good = TRUE;
@@ -1590,9 +1590,9 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 
 			if (kernel_thread) {
 				if (strstr(buf, " kernel_thread ") ||
-				    strstr(buf, " __kernel_thread ") ||
-				    strstr(buf, " start_kernel ") ||
-				    strstr(buf, " smp_callin ")) {
+						strstr(buf, " __kernel_thread ") ||
+						strstr(buf, " start_kernel ") ||
+						strstr(buf, " smp_callin ")) {
 					looks_good = TRUE;
 					break;
 				}
@@ -1602,11 +1602,11 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 
 		if (CRASHDEBUG(1))
 			fprintf(pc->saved_fp,
-			    "----- RESYNC SPECULATE DONE ------\n");
+					"----- RESYNC SPECULATE DONE ------\n");
 
 		if (looks_good) {
-                	req->pc = found_ra;
-                	req->sp = found_sp;
+									req->pc = found_ra;
+									req->sp = found_sp;
 			return TRUE;
 		}
 	}
@@ -1636,20 +1636,20 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 	ulong pmd_pte;
 	ulong pte;
 
-        if (!tc)
-                error(FATAL, "current context invalid\n");
+				if (!tc)
+								error(FATAL, "current context invalid\n");
 
 	*paddr = 0;
 
-        if (is_kernel_thread(tc->task) && IS_KVADDR(vaddr)) {
+				if (is_kernel_thread(tc->task) && IS_KVADDR(vaddr)) {
 		pgd = (ulong *)machdep->get_task_pgd(tc->task);
 	} else {
 		if (!tc->mm_struct)
 			pgd = (ulong *)machdep->get_task_pgd(tc->task);
 		else {
-                	if ((mm = task_mm(tc->task, TRUE)))
-                        	pgd = ULONG_PTR(tt->mm_struct +
-                                	OFFSET(mm_struct_pgd));
+									if ((mm = task_mm(tc->task, TRUE)))
+													pgd = ULONG_PTR(tt->mm_struct +
+																	OFFSET(mm_struct_pgd));
 			else
 				readmem(tc->mm_struct + OFFSET(mm_struct_pgd),
 					KVADDR, &pgd, sizeof(long),
@@ -1673,7 +1673,7 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 
 	page_middle = (ulong *)
 		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
-	  	((vaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
+			((vaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
 
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
 	pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
@@ -1686,13 +1686,13 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 
 	page_table = (ulong *)
 		(PTOV((pmd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
-     		(BTOP(vaddr) & (PTRS_PER_PAGE - 1));
+		 		(BTOP(vaddr) & (PTRS_PER_PAGE - 1));
 
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
 
 	if (!(pte & (_PAGE_VALID))) {
 		*paddr = pte;
@@ -1705,8 +1705,8 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 
 	*paddr = ((pte & _PFN_MASK) >> (32-PAGESHIFT())) + PAGEOFFSET(vaddr);
 
-        if (verbose) {
-                fprintf(fp, " PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, " PAGE: %lx\n\n", PAGEBASE(*paddr));
 		alpha_translate_pte(pte, 0, 0);
 	}
 
@@ -1729,9 +1729,9 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 	ulong *page_dir;
 	ulong *page_middle;
 	ulong *page_table;
-        ulong pgd_pte;
-        ulong pmd_pte;
-        ulong pte;
+				ulong pgd_pte;
+				ulong pmd_pte;
+				ulong pte;
 
 	if (!IS_KVADDR(kvaddr))
 		return FALSE;
@@ -1753,8 +1753,8 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 
 	page_dir = pgd + ((kvaddr >> PGDIR_SHIFT) & (PTRS_PER_PAGE - 1));
 
-        FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
-        pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
+				FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
+				pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
 
 	if (verbose)
 		fprintf(fp, "  PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
@@ -1764,10 +1764,10 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 
 	page_middle = (ulong *)
 		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
-	  	((kvaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
+			((kvaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
 
-        FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
-        pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
+				FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
+				pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
 
 	if (verbose)
 		fprintf(fp, "  PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
@@ -1777,13 +1777,13 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 
 	page_table = (ulong *)
 		(PTOV((pmd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
-     		(BTOP(kvaddr) & (PTRS_PER_PAGE - 1));
+		 		(BTOP(kvaddr) & (PTRS_PER_PAGE - 1));
 
-        FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
-        pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
+				FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
+				pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
 
 	if (!(pte & (_PAGE_VALID))) {
 		if (pte && verbose) {
@@ -1795,8 +1795,8 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 
 	*paddr = ((pte & _PFN_MASK) >> (32-PAGESHIFT())) + PAGEOFFSET(kvaddr);
 
-        if (verbose) {
-                fprintf(fp, " PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, " PAGE: %lx\n\n", PAGEBASE(*paddr));
 		alpha_translate_pte(pte, 0, 0);
 	}
 
@@ -1820,8 +1820,8 @@ alpha_get_task_pgd(ulong task)
 
 	offset += OFFSET(thread_struct_ptbr);
 
-        readmem(task + offset, KVADDR, &ptbr,
-                sizeof(ulong), "task thread ptbr", FAULT_ON_ERROR);
+				readmem(task + offset, KVADDR, &ptbr,
+								sizeof(ulong), "task thread ptbr", FAULT_ON_ERROR);
 
 	return(PTOV(PTOB(ptbr)));
 }
@@ -1846,8 +1846,8 @@ alpha_processor_speed(void)
 	offset = OFFSET(hwrpb_struct_cycle_freq);
 
 	if (!hwrpb || (offset == -1) ||
-	    !readmem(hwrpb+offset, KVADDR, &cycle_freq,
-            sizeof(ulong), "hwrpb cycle_freq", RETURN_ON_ERROR))
+			!readmem(hwrpb+offset, KVADDR, &cycle_freq,
+						sizeof(ulong), "hwrpb cycle_freq", RETURN_ON_ERROR))
 		return (machdep->mhz = mhz);
 
 	mhz = cycle_freq/1000000;
@@ -1862,28 +1862,28 @@ alpha_dump_machdep_table(ulong arg)
 
 	others = 0;
 	fprintf(fp, "              flags: %lx (", machdep->flags);
-        if (machdep->flags & HWRESET)
-                fprintf(fp, "%sHWRESET", others++ ? "|" : "");
-        fprintf(fp, ")\n");
+				if (machdep->flags & HWRESET)
+								fprintf(fp, "%sHWRESET", others++ ? "|" : "");
+				fprintf(fp, ")\n");
 	fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
 	fprintf(fp, "  identity_map_base: %lx\n", machdep->identity_map_base);
-        fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
-        fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
-        fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
-        fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
+				fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
+				fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
+				fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
+				fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
 	fprintf(fp, "                 hz: %d\n", machdep->hz);
 	fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-        fprintf(fp, "            memsize: %ld (0x%lx)\n",
+				fprintf(fp, "            memsize: %ld (0x%lx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
-        fprintf(fp, "      eframe_search: alpha_eframe_search()\n");
-        fprintf(fp, "         back_trace: alpha_back_trace_cmd()\n");
-        fprintf(fp, "    processor_speed: alpha_processor_speed()\n");
-        fprintf(fp, "              uvtop: alpha_uvtop()\n");
-        fprintf(fp, "              kvtop: alpha_uvtop()\n");
-        fprintf(fp, "       get_task_pgd: alpha_get_task_pgd()\n");
+				fprintf(fp, "      eframe_search: alpha_eframe_search()\n");
+				fprintf(fp, "         back_trace: alpha_back_trace_cmd()\n");
+				fprintf(fp, "    processor_speed: alpha_processor_speed()\n");
+				fprintf(fp, "              uvtop: alpha_uvtop()\n");
+				fprintf(fp, "              kvtop: alpha_uvtop()\n");
+				fprintf(fp, "       get_task_pgd: alpha_get_task_pgd()\n");
 	if (machdep->dump_irq == generic_dump_irq)
 		fprintf(fp, "           dump_irq: generic_dump_irq()\n");
 	else
@@ -1891,7 +1891,7 @@ alpha_dump_machdep_table(ulong arg)
 	fprintf(fp, "    get_stack_frame: alpha_get_stack_frame()\n");
 	fprintf(fp, "      get_stackbase: generic_get_stackbase()\n");
 	fprintf(fp, "       get_stacktop: generic_get_stacktop()\n");
-        fprintf(fp, "      translate_pte: alpha_translate_pte()\n");
+				fprintf(fp, "      translate_pte: alpha_translate_pte()\n");
 	fprintf(fp, "        memory_size: alpha_get_memory_size()\n");
 	fprintf(fp, "      vmalloc_start: alpha_get_vmalloc_start()\n");
 	fprintf(fp, "       is_task_addr: alpha_is_task_addr()\n");
@@ -1899,20 +1899,20 @@ alpha_dump_machdep_table(ulong arg)
 	fprintf(fp, "         dis_filter: alpha_dis_filter()\n");
 	fprintf(fp, "           cmd_mach: alpha_cmd_mach()\n");
 	fprintf(fp, "       get_smp_cpus: alpha_get_smp_cpus()\n");
-        fprintf(fp, "          is_kvaddr: generic_is_kvaddr()\n");
-        fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
-        fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
+				fprintf(fp, "          is_kvaddr: generic_is_kvaddr()\n");
+				fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
+				fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
 	fprintf(fp, "    init_kernel_pgd: NULL\n");
 	fprintf(fp, "    value_to_symbol: generic_machdep_value_to_symbol()\n");
 	fprintf(fp, "  line_number_hooks: alpha_line_number_hooks\n");
-        fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
-        fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
-        fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
-        fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
-        fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
-        fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
+				fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
+				fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
+				fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
+				fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
+				fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
+				fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
 	fprintf(fp, "       ptrs_per_pgd: %d\n", machdep->ptrs_per_pgd);
-        fprintf(fp, "           machspec: %lx\n", (ulong)machdep->machspec);
+				fprintf(fp, "           machspec: %lx\n", (ulong)machdep->machspec);
 }
 
 /*
@@ -1972,7 +1972,7 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 			sizeof(uint) * 2, "two instructions", FAULT_ON_ERROR);
 
 		if (((id->inst[0] & OPCODE_OPERAND_MASK) == LDAH_GP_T12) &&
-		    ((id->inst[1] & OPCODE_OPERAND_MASK) == LDA_GP_GP)) {
+				((id->inst[1] & OPCODE_OPERAND_MASK) == LDA_GP_GP)) {
 			id->mem_disp[0] = (short)(id->inst[0] &
 				OPCODE_MEM_DISP_MASK);
 			id->mem_disp[1] = (short)(id->inst[1] &
@@ -1982,32 +1982,32 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 			id->curfunc = sp->name;
 
 			if (CRASHDEBUG(1))
-                            console("%s: ldah(%d) and lda(%d) gp: %lx\n",
-                                id->curfunc,
-                                id->mem_disp[0], id->mem_disp[1],
-                                id->gp);
+														console("%s: ldah(%d) and lda(%d) gp: %lx\n",
+																id->curfunc,
+																id->mem_disp[0], id->mem_disp[1],
+																id->gp);
 
 			return TRUE;
 		}
-                               /* send all lines through the generic */
+															 /* send all lines through the generic */
 		return TRUE;   /* dis_address_translation() filter */
 	}
 
 	dis_address_translation(vaddr, buf, output_radix);
 
 	if (!id->gp || !(sp = value_search(vaddr, NULL)) ||
-	    !STREQ(id->curfunc, sp->name)) {
+			!STREQ(id->curfunc, sp->name)) {
 		BZERO(id, sizeof(struct instruction_data));
 		return FALSE;
 	}
 
-        readmem(vaddr, KVADDR, &id->inst[0],
-        	sizeof(uint), "one instruction", FAULT_ON_ERROR);
+				readmem(vaddr, KVADDR, &id->inst[0],
+					sizeof(uint), "one instruction", FAULT_ON_ERROR);
 
 	if ((id->inst[0] & OPCODE_OPERAND_MASK) == JSR_RA_T12) {
 
 		if (!id->target || !strstr(buf, "jsr\tra,(t12)") ||
-		    !strstr(buf, "<"))
+				!strstr(buf, "<"))
 			return FALSE;
 
 		p1 = strstr(strstr(buf, "jsr"), "0x");
@@ -2020,8 +2020,8 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 
 	if ((id->inst[0] & OPCODE_OPERAND_MASK) == LDQ_T12_GP) {
 		id->mem_disp[0] = (short)(id->inst[0] & OPCODE_MEM_DISP_MASK);
-        	readmem(id->gp + id->mem_disp[0], KVADDR, &id->target,
-                	sizeof(ulong), "jsr target", FAULT_ON_ERROR);
+					readmem(id->gp + id->mem_disp[0], KVADDR, &id->target,
+									sizeof(ulong), "jsr target", FAULT_ON_ERROR);
 	} else
 		id->target = 0;
 
@@ -2058,7 +2058,7 @@ dis_address_translation(ulong vaddr, char *inbuf, unsigned int output_radix)
 	argc = parse_line(buf1, argv);
 
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-	    (LASTCHAR(argv[argc-1]) == '>')) {
+			(LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && (*p1 != ','))
 			p1--;
@@ -2089,7 +2089,7 @@ alpha_dump_irq(int irq)
 {
 	ulong action;
 	ulong value;
-        char *arglist[MAXARGS];
+				char *arglist[MAXARGS];
 	int argc, others;
 	char buf[BUFSIZE];
 
@@ -2100,8 +2100,8 @@ alpha_dump_irq(int irq)
 
 	action = symbol_value("irq_action") + (sizeof(void *) * irq);
 
-        readmem(action, KVADDR, &action,
-                sizeof(void *), "irq_action pointer", FAULT_ON_ERROR);
+				readmem(action, KVADDR, &action,
+								sizeof(void *), "irq_action pointer", FAULT_ON_ERROR);
 
 	if (!action) {
 		fprintf(fp, "    IRQ: %d\n", irq);
@@ -2114,31 +2114,31 @@ alpha_dump_irq(int irq)
 		return;
 	}
 
-        fprintf(fp, "    IRQ: %d\n", irq);
+				fprintf(fp, "    IRQ: %d\n", irq);
 
 	open_tmpfile();
 
 do_linked_action:
 	dump_struct("irqaction", action, RADIX(16));
 	action = 0;
-        rewind(pc->tmpfile);
-        while (fgets(buf, BUFSIZE, pc->tmpfile)) {
+				rewind(pc->tmpfile);
+				while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 		strip_comma(buf);
 		argc = parse_line(buf, arglist);
 		if (STREQ(arglist[0], "struct") || STREQ(buf, "};"))
 			continue;
 
-                if (STREQ(arglist[0], "handler")) {
-                        fprintf(pc->saved_fp, "handler: %s  ",
-                        	strip_hex(arglist[2]));
+								if (STREQ(arglist[0], "handler")) {
+												fprintf(pc->saved_fp, "handler: %s  ",
+													strip_hex(arglist[2]));
 			if (argc == 4)
-                        	fprintf(pc->saved_fp, "%s", arglist[3]);
+													fprintf(pc->saved_fp, "%s", arglist[3]);
 			fprintf(pc->saved_fp, "\n");
-                }
-                if (STREQ(arglist[0], "flags")) {
+								}
+								if (STREQ(arglist[0], "flags")) {
 			value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
-                        fprintf(pc->saved_fp,
+												fprintf(pc->saved_fp,
 				"  flags: %lx  ", value);
 
 			if (value) {
@@ -2147,24 +2147,24 @@ do_linked_action:
 
 				if (value & SA_INTERRUPT)
 					fprintf(pc->saved_fp,
-					    "%sSA_INTERRUPT",
+							"%sSA_INTERRUPT",
 						others++ ? "|" : "");
 				if (value & SA_PROBE)
-                                        fprintf(pc->saved_fp,
-                                            "%sSA_PROBE",
-                                                others++ ? "|" : "");
+																				fprintf(pc->saved_fp,
+																						"%sSA_PROBE",
+																								others++ ? "|" : "");
 				if (value & SA_SAMPLE_RANDOM)
-                                         fprintf(pc->saved_fp,
-                                             "%sSA_SAMPLE_RANDOM",
-                                                 others++ ? "|" : "");
+																				 fprintf(pc->saved_fp,
+																						 "%sSA_SAMPLE_RANDOM",
+																								 others++ ? "|" : "");
 				if (value & SA_SHIRQ)
-                                         fprintf(pc->saved_fp,
-                                             "%sSA_SHIRQ",
-                                                 others++ ? "|" : "");
+																				 fprintf(pc->saved_fp,
+																						 "%sSA_SHIRQ",
+																								 others++ ? "|" : "");
 				fprintf(pc->saved_fp, ")");
 				if (value & ~ACTION_FLAGS) {
 					fprintf(pc->saved_fp,
-					    "  (bits %lx not translated)",
+							"  (bits %lx not translated)",
 						value & ~ACTION_FLAGS);
 				}
 			}
@@ -2172,41 +2172,41 @@ do_linked_action:
 			fprintf(pc->saved_fp, "\n");
 
 		}
-                if (STREQ(arglist[0], "mask")) {
+								if (STREQ(arglist[0], "mask")) {
 			value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
-                        fprintf(pc->saved_fp,
-                        	"   mask: %lx\n", value);
+												fprintf(pc->saved_fp,
+													"   mask: %lx\n", value);
 		}
 		if (STREQ(arglist[0], "name")) {
-                        fprintf(pc->saved_fp, "   name: %s  ",
-                        	strip_hex(arglist[2]));
+												fprintf(pc->saved_fp, "   name: %s  ",
+													strip_hex(arglist[2]));
 			if (argc == 4)
 				fprintf(pc->saved_fp, "\"%s\"", arglist[3]);
-                        fprintf(pc->saved_fp, "\n");
-                }
+												fprintf(pc->saved_fp, "\n");
+								}
 		if (STREQ(arglist[0], "dev_id")) {
-                        value = htol(strip_comma(arglist[2]),
+												value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
-                        fprintf(pc->saved_fp,
-                                " dev_id: %lx\n", value);
-                }
+												fprintf(pc->saved_fp,
+																" dev_id: %lx\n", value);
+								}
 		if (STREQ(arglist[0], "next")) {
-                        value = htol(strip_comma(arglist[2]),
+												value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
-                        fprintf(pc->saved_fp,
-                                "   next: %s\n",
-                                	strip_hex(arglist[2]));
+												fprintf(pc->saved_fp,
+																"   next: %s\n",
+																	strip_hex(arglist[2]));
 			if (value)
 				action = value;
-                }
+								}
 	}
 	close_tmpfile();
 
 	fprintf(fp, "\n");
 
-        if (action)
-                goto do_linked_action;
+				if (action)
+								goto do_linked_action;
 }
 
 /*
@@ -2215,36 +2215,36 @@ do_linked_action:
 static void
 alpha_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 {
-        struct syment *sp;
-        ulong ksp;
+				struct syment *sp;
+				ulong ksp;
 	ulong ip;
 
 	if (pcp) {
-	        if (DUMPFILE() && is_panic_thread(bt->task)) {
+					if (DUMPFILE() && is_panic_thread(bt->task)) {
 			sp = next_symbol("crash_save_current_state", NULL);
 
-	                if (HWRESET_TASK(bt->task))
-	                        ip = get_percpu_data(0, GET_HALT_PC, 0);
+									if (HWRESET_TASK(bt->task))
+													ip = get_percpu_data(0, GET_HALT_PC, 0);
 			else if (sp)
-	                        ip = sp->value - 4;
+													ip = sp->value - 4;
 			else
-	                       	ip = symbol_value("crash_save_current_state")
+												 	ip = symbol_value("crash_save_current_state")
 					+ 16;
-	        } else
-	        	get_alpha_frame(bt, &ip, NULL);
+					} else
+						get_alpha_frame(bt, &ip, NULL);
 
-        	*pcp = ip;
+					*pcp = ip;
 	}
 
 	if (spp) {
 		ip = 0;
-       		if (!get_panic_ksp(bt, &ksp))
-                	get_alpha_frame(bt,
+			 		if (!get_panic_ksp(bt, &ksp))
+									get_alpha_frame(bt,
 				HWRESET_TASK(bt->task) ? &ip : NULL, &ksp);
 
-        	if (!INSTACK(ksp, bt))
-                	error(FATAL,
-			    "cannot determine starting stack address\n",
+					if (!INSTACK(ksp, bt))
+									error(FATAL,
+					"cannot determine starting stack address\n",
 				bt->task);
 
 		*spp = ksp;
@@ -2276,18 +2276,18 @@ get_alpha_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 
 	if (tt->flags & THREAD_INFO) { /* pcb.ksp is 1st word in thread_info */
 		readmem(bt->tc->thread_info, KVADDR, &ksp, sizeof(ulong),
-                	"thread_info pcb ksp", FAULT_ON_ERROR);
+									"thread_info pcb ksp", FAULT_ON_ERROR);
 		sp = ksp;
 	} else if (VALID_MEMBER(task_struct_tss_ksp))
-                ksp = sp = stack[OFFSET(task_struct_tss_ksp)/sizeof(long)];
+								ksp = sp = stack[OFFSET(task_struct_tss_ksp)/sizeof(long)];
 	else
-                ksp = sp = stack[OFFSET(task_struct_thread_ksp)/sizeof(long)];
+								ksp = sp = stack[OFFSET(task_struct_thread_ksp)/sizeof(long)];
 
 	ip = 0;
 	percpu_ra = percpu_pv = 0;
 	spp = &stack[(sp - task)/sizeof(long)];
 
-        if (DUMPFILE() && getsp) {
+				if (DUMPFILE() && getsp) {
 		if (HWRESET_TASK(task)) {
 			if (INSTACK(sp, bt)) {
 				*getsp = sp;
@@ -2301,12 +2301,12 @@ get_alpha_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 			}
 		}
 
-            	if (!percpu_ra && (STREQ(closest_symbol(*spp), "panic") ||
-                    STREQ(closest_symbol(*spp), "handle_ipi"))) {
-                	*getsp = sp;
-                	return;
+							if (!percpu_ra && (STREQ(closest_symbol(*spp), "panic") ||
+										STREQ(closest_symbol(*spp), "handle_ipi"))) {
+									*getsp = sp;
+									return;
 		}
-        }
+				}
 
 percpu_retry:
 
@@ -2318,26 +2318,26 @@ percpu_retry:
 	for (i = 0, spp++; spp < &stack[LONGS_PER_STACK]; spp++,i++) {
 
 		if (CRASHDEBUG(1) && (percpu_ra || percpu_pv) &&
-		    is_kernel_text(*spp)) {
+				is_kernel_text(*spp)) {
 			fprintf(fp, "%lx: %lx (%s)\n",
 				((ulong)spp - (ulong)stack) + task,
 				*spp, value_to_symstr(*spp, buf, 0));
 		}
 
-                if (percpu_ra) {
-                        if (*spp == percpu_ra) {
+								if (percpu_ra) {
+												if (*spp == percpu_ra) {
 				*getsp = ((ulong)spp - (ulong)stack) + task;
 				return;
 			}
-                        continue;
-                } else if (percpu_pv) {
-                        if (*spp == percpu_pv) {
-                                *getsp = ((ulong)spp - (ulong)stack) + task;
+												continue;
+								} else if (percpu_pv) {
+												if (*spp == percpu_pv) {
+																*getsp = ((ulong)spp - (ulong)stack) + task;
 				if (getpc)
 					*getpc = percpu_pv;
-                                return;
-                        }
-                        continue;
+																return;
+												}
+												continue;
 		}
 
 		if (!INSTACK(*spp, bt))
@@ -2354,14 +2354,14 @@ percpu_retry:
 		percpu_ra = 0;
 
 		error(INFO,
-            "cannot find return address (percpu_ra) in HARDWARE RESET stack\n");
+						"cannot find return address (percpu_ra) in HARDWARE RESET stack\n");
 		error(INFO,
-         "looking for procedure address (percpu_pv) in HARDWARE RESET stack\n");
+				 "looking for procedure address (percpu_pv) in HARDWARE RESET stack\n");
 
-        	if (CRASHDEBUG(1)) {
-                	fprintf(fp, "get_alpha_frame: look for %lx (%s)\n",
-                        	percpu_pv, value_to_symstr(percpu_pv, buf, 0));
-        	}
+					if (CRASHDEBUG(1)) {
+									fprintf(fp, "get_alpha_frame: look for %lx (%s)\n",
+													percpu_pv, value_to_symstr(percpu_pv, buf, 0));
+					}
 		spp = &stack[roundup(SIZE(task_struct),
 			sizeof(ulong)) / sizeof(ulong)];
 
@@ -2370,19 +2370,19 @@ percpu_retry:
 
 	if (percpu_pv) {
 		error(INFO,
-         "cannot find procedure address (percpu_pv) in HARDWARE RESET stack\n");
+				 "cannot find procedure address (percpu_pv) in HARDWARE RESET stack\n");
 	}
 
 	/*
 	 *  Check for a forked task that has not yet run in user space.
 	 */
 	if (!ip) {
-                if (INSTACK(ksp + OFFSET(switch_stack_r26), bt)) {
-                        readmem(ksp + OFFSET(switch_stack_r26), KVADDR,
+								if (INSTACK(ksp + OFFSET(switch_stack_r26), bt)) {
+												readmem(ksp + OFFSET(switch_stack_r26), KVADDR,
 				&r26, sizeof(ulong),
-                                "ret_from_smp_fork check", FAULT_ON_ERROR);
-                        if (STREQ(closest_symbol(r26), "ret_from_smp_fork") ||
-			    STREQ(closest_symbol(r26), "ret_from_smpfork")) {
+																"ret_from_smp_fork check", FAULT_ON_ERROR);
+												if (STREQ(closest_symbol(r26), "ret_from_smp_fork") ||
+					STREQ(closest_symbol(r26), "ret_from_smpfork")) {
 				ip = r26;
 				sp = ksp;
 			}
@@ -2405,33 +2405,33 @@ percpu_retry:
 static ulong
 get_percpu_data(int cpu, ulong flag, struct percpu_data *pd)
 {
-        ulong hwrpb, halt_ra, halt_PC, halt_pv;
-        unsigned long processor_offset, processor_size;
+				ulong hwrpb, halt_ra, halt_PC, halt_pv;
+				unsigned long processor_offset, processor_size;
 
-        get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
+				get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
 
-        readmem(hwrpb+OFFSET(hwrpb_struct_processor_offset), KVADDR,
-                &processor_offset, sizeof(ulong),
-                "hwrpb processor_offset", FAULT_ON_ERROR);
+				readmem(hwrpb+OFFSET(hwrpb_struct_processor_offset), KVADDR,
+								&processor_offset, sizeof(ulong),
+								"hwrpb processor_offset", FAULT_ON_ERROR);
 
-        readmem(hwrpb+OFFSET(hwrpb_struct_processor_size), KVADDR,
-                &processor_size, sizeof(ulong),
-                "hwrpb processor_size", FAULT_ON_ERROR);
+				readmem(hwrpb+OFFSET(hwrpb_struct_processor_size), KVADDR,
+								&processor_size, sizeof(ulong),
+								"hwrpb processor_size", FAULT_ON_ERROR);
 
-        readmem(hwrpb + processor_offset + (cpu * processor_size) +
-                OFFSET(percpu_struct_halt_PC),
-                KVADDR, &halt_PC, sizeof(ulong),
-                "percpu halt_PC", FAULT_ON_ERROR);
+				readmem(hwrpb + processor_offset + (cpu * processor_size) +
+								OFFSET(percpu_struct_halt_PC),
+								KVADDR, &halt_PC, sizeof(ulong),
+								"percpu halt_PC", FAULT_ON_ERROR);
 
-        readmem(hwrpb + processor_offset + (cpu * processor_size) +
-                OFFSET(percpu_struct_halt_ra),
-                KVADDR, &halt_ra, sizeof(ulong),
-                "percpu halt_ra", FAULT_ON_ERROR);
+				readmem(hwrpb + processor_offset + (cpu * processor_size) +
+								OFFSET(percpu_struct_halt_ra),
+								KVADDR, &halt_ra, sizeof(ulong),
+								"percpu halt_ra", FAULT_ON_ERROR);
 
-        readmem(hwrpb + processor_offset + (cpu * processor_size) +
-                OFFSET(percpu_struct_halt_pv),
-                KVADDR, &halt_pv, sizeof(ulong),
-                "percpu halt_pv", FAULT_ON_ERROR);
+				readmem(hwrpb + processor_offset + (cpu * processor_size) +
+								OFFSET(percpu_struct_halt_pv),
+								KVADDR, &halt_pv, sizeof(ulong),
+								"percpu halt_pv", FAULT_ON_ERROR);
 
 	if (pd) {
 		pd->halt_PC = halt_PC;
@@ -2465,14 +2465,14 @@ alpha_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 {
 	int c, len1, len2, len3, others, page_present;
 	char buf[BUFSIZE];
-        char buf2[BUFSIZE];
-        char buf3[BUFSIZE];
+				char buf2[BUFSIZE];
+				char buf3[BUFSIZE];
 	char ptebuf[BUFSIZE];
 	char physbuf[BUFSIZE];
-        char *arglist[MAXARGS];
+				char *arglist[MAXARGS];
 	physaddr_t paddr;
 
-        paddr = PTOB(pte >> 32);
+				paddr = PTOB(pte >> 32);
 	page_present = (pte & _PAGE_VALID);
 
 	if (physaddr) {
@@ -2484,27 +2484,27 @@ alpha_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 	len1 = MAX(strlen(ptebuf), strlen("PTE"));
 	fprintf(fp, "%s  ", mkstring(buf, len1, CENTER|LJUST, "PTE"));
 
-        if (!page_present && pte) {
-                swap_location(pte, buf);
-                if ((c = parse_line(buf, arglist)) != 3)
+				if (!page_present && pte) {
+								swap_location(pte, buf);
+								if ((c = parse_line(buf, arglist)) != 3)
 			error(FATAL, "cannot determine swap location\n");
 
-                len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
-                len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
+								len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
+								len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
 
-                fprintf(fp, "%s  %s\n",
-                        mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
-                        mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
+								fprintf(fp, "%s  %s\n",
+												mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
+												mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
 
-                strcpy(buf2, arglist[0]);
-                strcpy(buf3, arglist[2]);
-                fprintf(fp, "%s  %s  %s\n",
-                        mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-                        mkstring(buf2, len2, CENTER|RJUST, NULL),
-                        mkstring(buf3, len3, CENTER|RJUST, NULL));
+								strcpy(buf2, arglist[0]);
+								strcpy(buf3, arglist[2]);
+								fprintf(fp, "%s  %s  %s\n",
+												mkstring(ptebuf, len1, CENTER|RJUST, NULL),
+												mkstring(buf2, len2, CENTER|RJUST, NULL),
+												mkstring(buf3, len3, CENTER|RJUST, NULL));
 
-                return page_present;
-        }
+								return page_present;
+				}
 
 	sprintf(physbuf, "%llx", paddr);
 	len2 = MAX(strlen(physbuf), strlen("PHYSICAL"));
@@ -2576,7 +2576,7 @@ alpha_vmalloc_start(void)
 static int
 alpha_is_task_addr(ulong task)
 {
-        return (IS_KVADDR(task) && (ALIGNED_STACK_OFFSET(task) == 0));
+				return (IS_KVADDR(task) && (ALIGNED_STACK_OFFSET(task) == 0));
 }
 
 /*
@@ -2585,8 +2585,8 @@ alpha_is_task_addr(ulong task)
 int
 alpha_verify_symbol(const char *name, ulong value, char type)
 {
-        if (CRASHDEBUG(8) && name && strlen(name))
-                fprintf(fp, "%016lx %s\n", value, name);
+				if (CRASHDEBUG(8) && name && strlen(name))
+								fprintf(fp, "%016lx %s\n", value, name);
 
 	return (name && strlen(name) && (value > MIN_SYMBOL_VALUE));
 }
@@ -2599,10 +2599,10 @@ alpha_get_smp_cpus(void)
 {
 	int cpus;
 
-        if ((cpus = get_cpus_online()))
-                return cpus;
-        else
-        	return kt->cpus;
+				if ((cpus = get_cpus_online()))
+								return cpus;
+				else
+					return kt->cpus;
 }
 
 /*
@@ -2611,14 +2611,14 @@ alpha_get_smp_cpus(void)
 void
 alpha_cmd_mach(void)
 {
-        int c, cflag;
+				int c, cflag;
 	unsigned int radix;
 
 	cflag = radix = 0;
 
-        while ((c = getopt(argcnt, args, "cxd")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args, "cxd")) != EOF) {
+								switch(c)
+								{
 		case 'c':
 			cflag++;
 			break;
@@ -2637,14 +2637,14 @@ alpha_cmd_mach(void)
 			radix = 10;
 			break;
 
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	if (cflag)
 		display_hwrpb(radix);
@@ -2658,26 +2658,26 @@ alpha_cmd_mach(void)
 static void
 alpha_display_machine_stats(void)
 {
-        struct new_utsname *uts;
-        char buf[BUFSIZE];
-        ulong mhz;
+				struct new_utsname *uts;
+				char buf[BUFSIZE];
+				ulong mhz;
 
-        uts = &kt->utsname;
+				uts = &kt->utsname;
 
-        fprintf(fp, "       MACHINE TYPE: %s\n", uts->machine);
-        fprintf(fp, "        MEMORY SIZE: %s\n", get_memory_size(buf));
-        fprintf(fp, "               CPUS: %d\n", kt->cpus);
-        fprintf(fp, "    PROCESSOR SPEED: ");
-        if ((mhz = machdep->processor_speed()))
-                fprintf(fp, "%ld Mhz\n", mhz);
-        else
-                fprintf(fp, "(unknown)\n");
-        fprintf(fp, "                 HZ: %d\n", machdep->hz);
-        fprintf(fp, "          PAGE SIZE: %d\n", PAGESIZE());
-        fprintf(fp, "      L1 CACHE SIZE: %d\n", l1_cache_size());
-        fprintf(fp, "KERNEL VIRTUAL BASE: %lx\n", machdep->kvbase);
-        fprintf(fp, "KERNEL VMALLOC BASE: %lx\n", vt->vmalloc_start);
-        fprintf(fp, "  KERNEL STACK SIZE: %ld\n", STACKSIZE());
+				fprintf(fp, "       MACHINE TYPE: %s\n", uts->machine);
+				fprintf(fp, "        MEMORY SIZE: %s\n", get_memory_size(buf));
+				fprintf(fp, "               CPUS: %d\n", kt->cpus);
+				fprintf(fp, "    PROCESSOR SPEED: ");
+				if ((mhz = machdep->processor_speed()))
+								fprintf(fp, "%ld Mhz\n", mhz);
+				else
+								fprintf(fp, "(unknown)\n");
+				fprintf(fp, "                 HZ: %d\n", machdep->hz);
+				fprintf(fp, "          PAGE SIZE: %d\n", PAGESIZE());
+				fprintf(fp, "      L1 CACHE SIZE: %d\n", l1_cache_size());
+				fprintf(fp, "KERNEL VIRTUAL BASE: %lx\n", machdep->kvbase);
+				fprintf(fp, "KERNEL VMALLOC BASE: %lx\n", vt->vmalloc_start);
+				fprintf(fp, "  KERNEL STACK SIZE: %ld\n", STACKSIZE());
 }
 
 /*
@@ -2688,16 +2688,16 @@ display_hwrpb(unsigned int radix)
 {
 	int cpu;
 	ulong hwrpb, percpu;
-        ulong processor_offset, processor_size;
+				ulong processor_offset, processor_size;
 
-        get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
+				get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
 
-        readmem(hwrpb+OFFSET(hwrpb_struct_processor_offset), KVADDR,
-                &processor_offset, sizeof(ulong),
-                "hwrpb processor_offset", FAULT_ON_ERROR);
-        readmem(hwrpb+OFFSET(hwrpb_struct_processor_size), KVADDR,
-                &processor_size, sizeof(ulong),
-                "hwrpb processor_size", FAULT_ON_ERROR);
+				readmem(hwrpb+OFFSET(hwrpb_struct_processor_offset), KVADDR,
+								&processor_offset, sizeof(ulong),
+								"hwrpb processor_offset", FAULT_ON_ERROR);
+				readmem(hwrpb+OFFSET(hwrpb_struct_processor_size), KVADDR,
+								&processor_size, sizeof(ulong),
+								"hwrpb processor_size", FAULT_ON_ERROR);
 
 	fprintf(fp, "HWRPB:\n");
 	dump_struct("hwrpb_struct", hwrpb, radix);

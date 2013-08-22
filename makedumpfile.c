@@ -80,7 +80,7 @@ store_flat_data_array(char *file, struct flat_data **fda)
 			ptr = realloc(ptr, size_allocated);
 			if (ptr == NULL) {
 				error(INFO,
-				    "unable to realloc flat_data structures\n");
+						"unable to realloc flat_data structures\n");
 				break;
 			}
 		}
@@ -194,7 +194,7 @@ check_flattened_format(char *file)
 		fh.version = bswap_64(fh.version);
 	}
 	if ((strncmp(fh.signature, MAKEDUMPFILE_SIGNATURE, sizeof(MAKEDUMPFILE_SIGNATURE)) != 0) ||
-	    (fh.type != TYPE_FLAT_HEADER))
+			(fh.type != TYPE_FLAT_HEADER))
 		return;
 
 	if (!read_all_makedumpfile_data_header(file))
@@ -264,7 +264,7 @@ read_flattened_format(int fd, off_t offset, void *buf, size_t size)
 			break;
 
 		} else if ((index == index_start) &&
-			   (index_start + 1 == index_end)) {
+				 (index_start + 1 == index_end)) {
 			/*
 			 * Try to read not-written area. That is a common case,
 			 * because the area might be skipped by lseek().
@@ -303,7 +303,7 @@ is_flattened_format(char *file)
 void
 dump_flat_header(FILE *ofp)
 {
-        int i;
+				int i;
 
 	fprintf(ofp, "makedumpfile header:\n");
 	fprintf(ofp, "          signature: \"");

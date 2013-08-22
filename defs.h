@@ -72,8 +72,8 @@
 #endif
 
 #if !defined(X86) && !defined(X86_64) && !defined(ALPHA) && !defined(PPC) && \
-    !defined(IA64) && !defined(PPC64) && !defined(S390) && !defined(S390X) && \
-    !defined(ARM) && !defined(ARM64)
+		!defined(IA64) && !defined(PPC64) && !defined(S390) && !defined(S390X) && \
+		!defined(ARM) && !defined(ARM64)
 #ifdef __alpha__
 #define ALPHA
 #endif
@@ -149,7 +149,7 @@ static inline int string_exists(char *s) { return (s ? TRUE : FALSE); }
 #define STREQ(A, B)      (string_exists((char *)A) && string_exists((char *)B) && \
 	(strcmp((char *)(A), (char *)(B)) == 0))
 #define STRNEQ(A, B)     (string_exists((char *)A) && string_exists((char *)B) && \
-        (strncmp((char *)(A), (char *)(B), strlen((char *)(B))) == 0))
+				(strncmp((char *)(A), (char *)(B), strlen((char *)(B))) == 0))
 #define BZERO(S, N)      (memset(S, NULLCHAR, N))
 #define BCOPY(S, D, C)   (memcpy(D, S, C))
 #define BNEG(S, N)       (memset(S, 0xff, N))
@@ -171,8 +171,8 @@ typedef uint64_t physaddr_t;
 
 typedef unsigned long long int ulonglong;
 struct number_option {
-        ulong num;
-        ulonglong ll_num;
+				ulong num;
+				ulonglong ll_num;
 	ulong retflags;
 };
 
@@ -242,7 +242,7 @@ struct number_option {
 #define MINIMAL_MODE (0x1000000000000000ULL)
 #define CRASHBUILTIN (0x2000000000000000ULL)
 #define PRELOAD_EXTENSIONS \
-		     (0x4000000000000000ULL)
+				 (0x4000000000000000ULL)
 #define PROC_KCORE   (0x8000000000000000ULL)
 
 #define ACTIVE()            (pc->flags & LIVE_SYSTEM)
@@ -253,7 +253,7 @@ struct number_option {
 #define REMOTE()            (pc->flags2 & REMOTE_DAEMON)
 #define REMOTE_ACTIVE()     (pc->flags & REM_LIVE_SYSTEM)
 #define REMOTE_DUMPFILE() \
-	   (pc->flags & (REM_NETDUMP|REM_MCLXCD|REM_LKCD|REM_S390D))
+		 (pc->flags & (REM_NETDUMP|REM_MCLXCD|REM_LKCD|REM_S390D))
 #define REMOTE_MEMSRC()     (REMOTE_ACTIVE() || REMOTE_DUMPFILE())
 #define LKCD_DUMPFILE()     (pc->flags & (LKCD|REM_LKCD))
 #define NETDUMP_DUMPFILE()  (pc->flags & (NETDUMP|REM_NETDUMP))
@@ -280,12 +280,12 @@ struct number_option {
 #define KCORE_ELF32    (0x200)
 #define KCORE_ELF64    (0x400)
 #define QEMU_MEM_DUMP_KDUMP_BACKUP \
-                       (0x800)
+											 (0x800)
 #define KVMDUMP_LOCAL    (0x1)
 #define KVMDUMP_VALID()  (kvm->flags & (KVMDUMP_LOCAL))
 
 #define DUMPFILE_FORMAT(flags) ((flags) & \
-		        (NETDUMP_ELF32|NETDUMP_ELF64|KDUMP_ELF32|KDUMP_ELF64))
+						(NETDUMP_ELF32|NETDUMP_ELF64|KDUMP_ELF32|KDUMP_ELF64))
 
 #define DISKDUMP_LOCAL      (0x1)
 #define KDUMP_CMPRS_LOCAL   (0x2)
@@ -366,7 +366,7 @@ struct number_option {
 #define REDIRECT_MULTI_PIPE    (0x400)
 
 #define PIPE_OPTIONS (FROM_COMMAND_LINE | FROM_INPUT_FILE | REDIRECT_TO_PIPE | \
-                      REDIRECT_TO_STDPIPE | REDIRECT_TO_FILE)
+											REDIRECT_TO_STDPIPE | REDIRECT_TO_FILE)
 
 #define DEFAULT_REDHAT_DEBUG_LOCATION  "/usr/lib/debug/lib/modules"
 
@@ -417,7 +417,7 @@ struct program_context {
 	ulong debug;                    /* level of debug */
 	ulong debug_save;               /* saved level for debug-suspend */
 	char *console;                  /* current debug console device */
-        char *redhat_debug_loc;         /* location of matching debug objects */
+				char *redhat_debug_loc;         /* location of matching debug objects */
 	int pipefd[2];                  /* output pipe file descriptors */
 	FILE *nullfp;                   /* bitbucket */
 	FILE *stdpipe;                  /* standard pipe for output */
@@ -474,7 +474,7 @@ struct program_context {
 	struct sigaction gdb_sigaction; /* gdb's SIGINT sigaction. */
 	jmp_buf main_loop_env;          /* longjmp target default */
 	jmp_buf foreach_loop_env;       /* longjmp target within foreach */
-        jmp_buf gdb_interface_env;      /* longjmp target for gdb error catch */
+				jmp_buf gdb_interface_env;      /* longjmp target for gdb error catch */
 	struct termios termios_orig;    /* non-raw settings */
 	struct termios termios_raw;     /* while gathering command input */
 	int ncmds;                      /* number of commands in menu */
@@ -483,8 +483,8 @@ struct program_context {
 	unsigned output_radix;          /* current gdb output_radix */
 	void *sbrk;                     /* current sbrk value */
 	struct extension_table *curext; /* extension being loaded */
-        int (*readmem)(int, void *, int, ulong, physaddr_t); /* memory access */
-        int (*writemem)(int, void *, int, ulong, physaddr_t);/* memory access */
+				int (*readmem)(int, void *, int, ulong, physaddr_t); /* memory access */
+				int (*writemem)(int, void *, int, ulong, physaddr_t);/* memory access */
 	ulong ifile_in_progress;        /* original xxx_IFILE flags */
 	off_t ifile_offset;             /* current offset into input file */
 	char *runtime_ifile_cmd;        /* runtime command using input file */
@@ -507,7 +507,7 @@ struct program_context {
 	char *namelist_orig;
 	char *namelist_debug_orig;
 	FILE *args_ifile;		/* per-command args input file */
-        void (*cmd_cleanup)(void *);    /* per-command cleanup function */
+				void (*cmd_cleanup)(void *);    /* per-command cleanup function */
 	void *cmd_cleanup_arg;          /* optional cleanup function argument */
 	ulong scope;			/* optional text context address */
 };
@@ -555,12 +555,12 @@ struct extension_table {
 #define NO_MINIMAL_COMMANDS     (0x4)
 
 struct new_utsname {
-        char sysname[65];
-        char nodename[65];
-        char release[65];
-        char version[65];
-        char machine[65];
-        char domainname[65];
+				char sysname[65];
+				char nodename[65];
+				char release[65];
+				char version[65];
+				char machine[65];
+				char domainname[65];
 };
 
 #define NO_MODULE_ACCESS (0x1)
@@ -630,8 +630,8 @@ struct kernel_table {                   /* kernel data */
 	int cpus;
 	char *cpus_override;
 	void (*display_bh)(void);
-        ulong module_list;
-        ulong kernel_module;
+				ulong module_list;
+				ulong kernel_module;
 	int mods_installed;
 	struct timespec date;
 	char proc_version[BUFSIZE];
@@ -665,9 +665,9 @@ struct kernel_table {                   /* kernel data */
 		ulong end;
 	} p2m_mapping_cache[P2M_MAPPING_CACHE];
 #define P2M_MAPPING_PAGE_PFN(c) \
-   (PVOPS_XEN() ? kt->p2m_mapping_cache[c].pfn : \
-    (((kt->p2m_mapping_cache[c].mapping - kt->phys_to_machine_mapping)/PAGESIZE()) \
-    * XEN_PFNS_PER_PAGE))
+	 (PVOPS_XEN() ? kt->p2m_mapping_cache[c].pfn : \
+		(((kt->p2m_mapping_cache[c].mapping - kt->phys_to_machine_mapping)/PAGESIZE()) \
+		* XEN_PFNS_PER_PAGE))
 	ulong last_mapping_read;
 	ulong p2m_cache_index;
 	ulong p2m_pages_searched;
@@ -709,39 +709,39 @@ struct kernel_table {                   /* kernel data */
  */
 #define NEXT_MODULE(next_module, modbuf)                             \
 {                                                                    \
-        switch (kt->flags & (KMOD_V1|KMOD_V2))                       \
-        {                                                            \
-        case KMOD_V1:                                                \
-                next_module = ULONG(modbuf + OFFSET(module_next));   \
-                break;                                               \
-        case KMOD_V2:                                                \
-                next_module = ULONG(modbuf + OFFSET(module_list));   \
-                if (next_module != kt->kernel_module)                \
-                        next_module -= OFFSET(module_list);          \
-                break;                                               \
-        }                                                            \
+				switch (kt->flags & (KMOD_V1|KMOD_V2))                       \
+				{                                                            \
+				case KMOD_V1:                                                \
+								next_module = ULONG(modbuf + OFFSET(module_next));   \
+								break;                                               \
+				case KMOD_V2:                                                \
+								next_module = ULONG(modbuf + OFFSET(module_list));   \
+								if (next_module != kt->kernel_module)                \
+												next_module -= OFFSET(module_list);          \
+								break;                                               \
+				}                                                            \
 }
 
 #define THIS_KERNEL_VERSION ((kt->kernel_version[0] << 16) + \
-			     (kt->kernel_version[1] << 8) + \
-			     (kt->kernel_version[2]))
+					 (kt->kernel_version[1] << 8) + \
+					 (kt->kernel_version[2]))
 #define LINUX(x,y,z) (((uint)(x) << 16) + ((uint)(y) << 8) + (uint)(z))
 
 #define THIS_GCC_VERSION    ((kt->gcc_version[0] << 16) + \
-                             (kt->gcc_version[1] << 8) + \
-                             (kt->gcc_version[2]))
+														 (kt->gcc_version[1] << 8) + \
+														 (kt->gcc_version[2]))
 #define GCC(x,y,z) (((uint)(x) << 16) + ((uint)(y) << 8) + (uint)(z))
 
 #define IS_KERNEL_STATIC_TEXT(x) (((ulong)(x) >= kt->stext) && \
-		  	          ((ulong)(x) < kt->etext))
+									((ulong)(x) < kt->etext))
 
 #define TASK_COMM_LEN 16     /* task command name length including NULL */
 
 struct task_context {                     /* context stored for each task */
-        ulong task;
+				ulong task;
 	ulong thread_info;
-        ulong pid;
-        char comm[TASK_COMM_LEN+1];
+				ulong pid;
+				char comm[TASK_COMM_LEN+1];
 	int processor;
 	ulong ptask;
 	ulong mm_struct;
@@ -753,24 +753,24 @@ struct task_table {                      /* kernel/local task table data */
 	struct task_context *context_array;
 	void (*refresh_task_table)(void);
 	ulong flags;
-        ulong task_start;
+				ulong task_start;
 	ulong task_end;
 	void *task_local;
-        int max_tasks;
+				int max_tasks;
 	int nr_threads;
 	ulong running_tasks;
 	ulong retries;
-        ulong panicmsg;
-        int panic_processor;
-        ulong *idle_threads;
-        ulong *panic_threads;
+				ulong panicmsg;
+				int panic_processor;
+				ulong *idle_threads;
+				ulong *panic_threads;
 	ulong *active_set;
 	ulong *panic_ksp;
 	ulong *hardirq_ctx;
 	ulong *hardirq_tasks;
 	ulong *softirq_ctx;
 	ulong *softirq_tasks;
-        ulong panic_task;
+				ulong panic_task;
 	ulong this_task;
 	int pidhash_len;
 	ulong pidhash_addr;
@@ -823,7 +823,7 @@ struct task_table {                      /* kernel/local task table data */
 #define LONGS_PER_STACK    (machdep->stacksize/sizeof(ulong))
 
 #define INSTACK(X,BT) \
-        (((ulong)(X) >= (BT)->stackbase) && ((ulong)(X) < (BT)->stacktop))
+				(((ulong)(X) >= (BT)->stackbase) && ((ulong)(X) < (BT)->stacktop))
 
 #define ALIGNED_STACK_OFFSET(task)  ((ulong)(task) & (STACKSIZE()-1))
 
@@ -836,44 +836,44 @@ struct task_table {                      /* kernel/local task table data */
 #define PID_ALIVE(x) (kill(x, 0) == 0)
 
 struct kernel_list_head {
-        struct kernel_list_head *next, *prev;
+				struct kernel_list_head *next, *prev;
 };
 
 struct stack_hook {
-        ulong esp;
-        ulong eip;
+				ulong esp;
+				ulong eip;
 };
 
 struct bt_info {
-        ulong task;
-        ulonglong flags;
-        ulong instptr;
-        ulong stkptr;
+				ulong task;
+				ulonglong flags;
+				ulong instptr;
+				ulong stkptr;
 	ulong bptr;
 	ulong stackbase;
 	ulong stacktop;
 	char *stackbuf;
 	struct task_context *tc;
-        struct stack_hook *hp;
-        struct stack_hook *textlist;
-        struct reference *ref;
+				struct stack_hook *hp;
+				struct stack_hook *textlist;
+				struct reference *ref;
 	ulong frameptr;
 	char *call_target;
 	void *machdep;
-        ulong debug;
+				ulong debug;
 	ulong eframe_ip;
 	ulong radix;
 };
 
 #define STACK_OFFSET_TYPE(OFF) \
-  (((ulong)(OFF) > STACKSIZE()) ? \
-  (ulong)((ulong)(OFF) - (ulong)(bt->stackbase)) : (ulong)(OFF))
+	(((ulong)(OFF) > STACKSIZE()) ? \
+	(ulong)((ulong)(OFF) - (ulong)(bt->stackbase)) : (ulong)(OFF))
 
 #define GET_STACK_ULONG(OFF) \
  *((ulong *)((char *)(&bt->stackbuf[(ulong)(STACK_OFFSET_TYPE(OFF))])))
 
 #define GET_STACK_DATA(OFF, LOC, SZ) memcpy((void *)(LOC), \
-    (void *)(&bt->stackbuf[(ulong)STACK_OFFSET_TYPE(OFF)]), (size_t)(SZ))
+		(void *)(&bt->stackbuf[(ulong)STACK_OFFSET_TYPE(OFF)]), (size_t)(SZ))
 
 struct machine_specific;  /* uniquely defined below each machine's area */
 struct xendump_data;
@@ -907,12 +907,12 @@ struct machdep_table {
 	int bits;
 	int nr_irqs;
 	uint64_t memsize;
-        int (*eframe_search)(struct bt_info *);
-        void (*back_trace)(struct bt_info *);
-        ulong (*processor_speed)(void);
-        int (*uvtop)(struct task_context *, ulong, physaddr_t *, int);
-        int (*kvtop)(struct task_context *, ulong, physaddr_t *, int);
-        ulong (*get_task_pgd)(ulong);
+				int (*eframe_search)(struct bt_info *);
+				void (*back_trace)(struct bt_info *);
+				ulong (*processor_speed)(void);
+				int (*uvtop)(struct task_context *, ulong, physaddr_t *, int);
+				int (*kvtop)(struct task_context *, ulong, physaddr_t *, int);
+				ulong (*get_task_pgd)(ulong);
 	void (*dump_irq)(int);
 	void (*get_stack_frame)(struct bt_info *, ulong *, ulong *);
 	ulong (*get_stackbase)(ulong);
@@ -920,19 +920,19 @@ struct machdep_table {
 	int (*translate_pte)(ulong, void *, ulonglong);
 	uint64_t (*memory_size)(void);
 	ulong (*vmalloc_start)(void);
-        int (*is_task_addr)(ulong);
+				int (*is_task_addr)(ulong);
 	int (*verify_symbol)(const char *, ulong, char);
 	int (*dis_filter)(ulong, char *, unsigned int);
 	int (*get_smp_cpus)(void);
-        int (*is_kvaddr)(ulong);
-        int (*is_uvaddr)(ulong, struct task_context *);
+				int (*is_kvaddr)(ulong);
+				int (*is_uvaddr)(ulong, struct task_context *);
 	int (*verify_paddr)(uint64_t);
 	void (*cmd_mach)(void);
 	void (*init_kernel_pgd)(void);
 	struct syment *(*value_to_symbol)(ulong, ulong *);
  	struct line_number_hook {
-        	char *func;
-        	char **file;
+					char *func;
+					char **file;
 	} *line_number_hooks;
 	ulong last_pgd_read;
 	ulong last_pud_read;
@@ -957,9 +957,9 @@ struct machdep_table {
 	void (*dumpfile_init)(int, void *);
 	void (*process_elf_notes)(void *, unsigned long);
 	int (*get_kvaddr_ranges)(struct vaddr_range *);
-        int (*verify_line_number)(ulong, ulong, ulong);
-        void (*get_irq_affinity)(int);
-        void (*show_interrupts)(int, ulong *);
+				int (*verify_line_number)(ulong, ulong, ulong);
+				void (*get_irq_affinity)(int);
+				void (*show_interrupts)(int, ulong *);
 };
 
 /*
@@ -989,32 +989,32 @@ extern struct machdep_table *machdep;
 #define IS_LAST_PUD_READ(pud)     ((ulong)(pud) == machdep->last_pud_read)
 
 #define FILL_PGD(PGD, TYPE, SIZE) 					    \
-    if (!IS_LAST_PGD_READ(PGD)) {                                           \
-            readmem((ulonglong)((ulong)(PGD)), TYPE, machdep->pgd,          \
-                    SIZE, "pgd page", FAULT_ON_ERROR);                      \
-            machdep->last_pgd_read = (ulong)(PGD);                          \
-    }
+		if (!IS_LAST_PGD_READ(PGD)) {                                           \
+						readmem((ulonglong)((ulong)(PGD)), TYPE, machdep->pgd,          \
+										SIZE, "pgd page", FAULT_ON_ERROR);                      \
+						machdep->last_pgd_read = (ulong)(PGD);                          \
+		}
 
 #define FILL_PUD(PUD, TYPE, SIZE) 					    \
-    if (!IS_LAST_PUD_READ(PUD)) {                                           \
-            readmem((ulonglong)((ulong)(PUD)), TYPE, machdep->pud,          \
-                    SIZE, "pud page", FAULT_ON_ERROR);                      \
-            machdep->last_pud_read = (ulong)(PUD);                          \
-    }
+		if (!IS_LAST_PUD_READ(PUD)) {                                           \
+						readmem((ulonglong)((ulong)(PUD)), TYPE, machdep->pud,          \
+										SIZE, "pud page", FAULT_ON_ERROR);                      \
+						machdep->last_pud_read = (ulong)(PUD);                          \
+		}
 
 #define FILL_PMD(PMD, TYPE, SIZE)			                    \
-    if (!IS_LAST_PMD_READ(PMD)) {                                           \
-            readmem((ulonglong)(PMD), TYPE, machdep->pmd,                   \
-	            SIZE, "pmd page", FAULT_ON_ERROR);                      \
-            machdep->last_pmd_read = (ulong)(PMD);                          \
-    }
+		if (!IS_LAST_PMD_READ(PMD)) {                                           \
+						readmem((ulonglong)(PMD), TYPE, machdep->pmd,                   \
+							SIZE, "pmd page", FAULT_ON_ERROR);                      \
+						machdep->last_pmd_read = (ulong)(PMD);                          \
+		}
 
 #define FILL_PTBL(PTBL, TYPE, SIZE)			           	    \
-    if (!IS_LAST_PTBL_READ(PTBL)) {                                         \
-    	    readmem((ulonglong)(PTBL), TYPE, machdep->ptbl,                 \
-	            SIZE, "page table", FAULT_ON_ERROR);                    \
-            machdep->last_ptbl_read = (ulong)(PTBL); 	                    \
-    }
+		if (!IS_LAST_PTBL_READ(PTBL)) {                                         \
+					readmem((ulonglong)(PTBL), TYPE, machdep->ptbl,                 \
+							SIZE, "page table", FAULT_ON_ERROR);                    \
+						machdep->last_ptbl_read = (ulong)(PTBL); 	                    \
+		}
 
 #define SETUP_ENV  (0)
 #define PRE_SYMTAB (1)
@@ -1072,14 +1072,14 @@ extern struct machdep_table *machdep;
 #define FOREACH_G_FLAG (0x8000000)
 
 #define FOREACH_PS_EXCLUSIVE \
-  (FOREACH_g_FLAG|FOREACH_a_FLAG|FOREACH_t_FLAG|FOREACH_c_FLAG|FOREACH_p_FLAG|FOREACH_l_FLAG|FOREACH_r_FLAG)
+	(FOREACH_g_FLAG|FOREACH_a_FLAG|FOREACH_t_FLAG|FOREACH_c_FLAG|FOREACH_p_FLAG|FOREACH_l_FLAG|FOREACH_r_FLAG)
 
 struct foreach_data {
 	ulong flags;
-        int keyword_array[MAX_FOREACH_KEYWORDS];
-        ulong task_array[MAX_FOREACH_TASKS];
-        char *comm_array[MAX_FOREACH_COMMS];
-        ulong pid_array[MAX_FOREACH_PIDS];
+				int keyword_array[MAX_FOREACH_KEYWORDS];
+				ulong task_array[MAX_FOREACH_TASKS];
+				char *comm_array[MAX_FOREACH_COMMS];
+				ulong pid_array[MAX_FOREACH_PIDS];
 	ulong arg_array[MAX_FOREACH_ARGS];
 	struct regex_info {
 		char *pattern;
@@ -1096,12 +1096,12 @@ struct foreach_data {
 };
 
 struct reference {
-        char *str;
-        ulong cmdflags;
-        ulong hexval;
-        ulong decval;
-        ulong ref1;
-        ulong ref2;
+				char *str;
+				ulong cmdflags;
+				ulong hexval;
+				ulong decval;
+				ulong ref1;
+				ulong ref2;
 	void *refp;
 };
 
@@ -1145,8 +1145,8 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long task_struct_stime;
 	long task_struct_cpu;
 	long task_struct_run_list;
-        long task_struct_pgrp;
-        long task_struct_tgid;
+				long task_struct_pgrp;
+				long task_struct_tgid;
 	long task_struct_namespace;
 	long task_struct_pids;
 	long task_struct_last_run;
@@ -1232,17 +1232,17 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long mm_struct_arg_end;
 	long mm_struct_env_start;
 	long mm_struct_env_end;
-        long vm_area_struct_vm_mm;
-        long vm_area_struct_vm_next;
-        long vm_area_struct_vm_end;
-        long vm_area_struct_vm_start;
+				long vm_area_struct_vm_mm;
+				long vm_area_struct_vm_next;
+				long vm_area_struct_vm_end;
+				long vm_area_struct_vm_start;
 	long vm_area_struct_vm_flags;
 	long vm_area_struct_vm_file;
 	long vm_area_struct_vm_offset;
 	long vm_area_struct_vm_pgoff;
-        long vm_struct_addr;
-        long vm_struct_size;
-        long vm_struct_next;
+				long vm_struct_addr;
+				long vm_struct_size;
+				long vm_struct_next;
 	long module_size_of_struct;
 	long module_next;
 	long module_size;
@@ -1346,31 +1346,31 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long fdtable_open_fds;
 	long fdtable_fd;
 	long files_struct_fdt;
-        long files_struct_max_fds;
-        long files_struct_max_fdset;
-        long files_struct_open_fds;
-        long files_struct_fd;
+				long files_struct_max_fds;
+				long files_struct_max_fdset;
+				long files_struct_open_fds;
+				long files_struct_fd;
 	long files_struct_open_fds_init;
-        long file_f_dentry;
-        long file_f_vfsmnt;
-        long file_f_count;
+				long file_f_dentry;
+				long file_f_vfsmnt;
+				long file_f_count;
 	long file_f_path;
 	long path_mnt;
 	long path_dentry;
-        long fs_struct_root;
-        long fs_struct_pwd;
-        long fs_struct_rootmnt;
-        long fs_struct_pwdmnt;
-        long dentry_d_inode;
-        long dentry_d_parent;
-        long dentry_d_name;
+				long fs_struct_root;
+				long fs_struct_pwd;
+				long fs_struct_rootmnt;
+				long fs_struct_pwdmnt;
+				long dentry_d_inode;
+				long dentry_d_parent;
+				long dentry_d_name;
 	long dentry_d_covers;
 	long dentry_d_iname;
-        long qstr_len;
-        long qstr_name;
-        long inode_i_mode;
-        long inode_i_op;
-        long inode_i_sb;
+				long qstr_len;
+				long qstr_name;
+				long inode_i_mode;
+				long inode_i_op;
+				long inode_i_sb;
 	long inode_u;
 	long inode_i_flock;
 	long inode_i_fop;
@@ -1437,10 +1437,10 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long slab_s_s_mem;
 	long slab_s_inuse;
 	long slab_s_free;
-        long slab_list;
-        long slab_s_mem;
-        long slab_inuse;
-        long slab_free;
+				long slab_list;
+				long slab_s_mem;
+				long slab_inuse;
+				long slab_free;
 	long net_device_next;
 	long net_device_name;
 	long net_device_type;
@@ -1489,10 +1489,10 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long pglist_data_node_zones;
 	long pglist_data_node_mem_map;
 	long pglist_data_node_start_paddr;
-        long pglist_data_node_start_mapnr;
-        long pglist_data_node_size;
-        long pglist_data_node_id;
-        long pglist_data_node_next;
+				long pglist_data_node_start_mapnr;
+				long pglist_data_node_size;
+				long pglist_data_node_id;
+				long pglist_data_node_next;
 	long pglist_data_nr_zones;
 	long pglist_data_node_start_pfn;
 	long pglist_data_pgdat_next;
@@ -1500,16 +1500,16 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long pglist_data_node_spanned_pages;
 	long pglist_data_bdata;
 	long page_cache_bucket_chain;
-        long zone_struct_free_pages;
-        long zone_struct_free_area;
-        long zone_struct_zone_pgdat;
-        long zone_struct_name;
-        long zone_struct_size;
+				long zone_struct_free_pages;
+				long zone_struct_free_area;
+				long zone_struct_zone_pgdat;
+				long zone_struct_name;
+				long zone_struct_size;
 	long zone_struct_memsize;
 	long zone_struct_zone_start_pfn;
-        long zone_struct_zone_start_paddr;
-        long zone_struct_zone_start_mapnr;
-        long zone_struct_zone_mem_map;
+				long zone_struct_zone_start_paddr;
+				long zone_struct_zone_start_mapnr;
+				long zone_struct_zone_mem_map;
 	long zone_struct_inactive_clean_pages;
 	long zone_struct_inactive_clean_list;
 	long zone_struct_inactive_dirty_pages;
@@ -1519,25 +1519,25 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long zone_struct_pages_high;
 	long zone_free_pages;
 	long zone_free_area;
-        long zone_zone_pgdat;
+				long zone_zone_pgdat;
 	long zone_zone_mem_map;
-        long zone_name;
+				long zone_name;
 	long zone_spanned_pages;
 	long zone_zone_start_pfn;
 	long zone_pages_min;
 	long zone_pages_low;
 	long zone_pages_high;
 	long zone_vm_stat;
-        long neighbour_next;
-        long neighbour_primary_key;
-        long neighbour_ha;
-        long neighbour_dev;
-        long neighbour_nud_state;
+				long neighbour_next;
+				long neighbour_primary_key;
+				long neighbour_ha;
+				long neighbour_dev;
+				long neighbour_nud_state;
 	long neigh_table_hash_buckets;
 	long neigh_table_key_len;
-        long in_device_ifa_list;
-        long in_ifaddr_ifa_next;
-        long in_ifaddr_ifa_address;
+				long in_device_ifa_list;
+				long in_ifaddr_ifa_next;
+				long in_ifaddr_ifa_address;
 	long pci_dev_global_list;
 	long pci_dev_next;
 	long pci_dev_bus;
@@ -1546,15 +1546,15 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long pci_dev_device;
 	long pci_dev_vendor;
 	long pci_bus_number;
-        long resource_entry_t_from;
-        long resource_entry_t_num;
-        long resource_entry_t_name;
-        long resource_entry_t_next;
-        long resource_name;
-        long resource_start;
-        long resource_end;
-        long resource_sibling;
-        long resource_child;
+				long resource_entry_t_from;
+				long resource_entry_t_num;
+				long resource_entry_t_name;
+				long resource_entry_t_next;
+				long resource_name;
+				long resource_start;
+				long resource_end;
+				long resource_sibling;
+				long resource_child;
 	long runqueue_curr;
 	long runqueue_idle;
 	long runqueue_active;
@@ -1603,12 +1603,12 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long cpu_user_regs_esp;
 	long cpu_user_regs_rip;
 	long cpu_user_regs_rsp;
-        long unwind_table_core;
-        long unwind_table_init;
-        long unwind_table_address;
-        long unwind_table_size;
-        long unwind_table_link;
-        long unwind_table_name;
+				long unwind_table_core;
+				long unwind_table_init;
+				long unwind_table_address;
+				long unwind_table_size;
+				long unwind_table_link;
+				long unwind_table_name;
 	long rq_cfs;
 	long rq_rt;
 	long rq_nr_running;
@@ -1644,9 +1644,9 @@ struct offset_table {                    /* stash of commonly-used offsets */
 	long upid_ns;
 	long upid_pid_chain;
 	long pid_tasks;
-        long kmem_cache_cpu_freelist;
-        long kmem_cache_cpu_page;
-        long kmem_cache_cpu_node;
+				long kmem_cache_cpu_freelist;
+				long kmem_cache_cpu_page;
+				long kmem_cache_cpu_node;
 	long kmem_cache_flags;
 	long zone_nr_active;
 	long zone_nr_inactive;
@@ -1910,7 +1910,7 @@ struct size_table {         /* stash of commonly-used sizes */
 	long inode;
 	long vfsmount;
 	long super_block;
-        long irqdesc;
+				long irqdesc;
 	long module;
 	long list_head;
 	long hlist_node;
@@ -2035,9 +2035,9 @@ struct array_table {
 	int neigh_table_hash_buckets;
 	int neighbour_ha;
 	int swap_info;
-        int pglist_data_node_zones;
-        int zone_struct_free_area;
-        int zone_free_area;
+				int pglist_data_node_zones;
+				int zone_struct_free_area;
+				int zone_free_area;
 	int free_area;
 	int free_area_DIMENSION;
 	int prio_array_queue;
@@ -2098,11 +2098,11 @@ struct array_table {
  *  For use with non-debug kernels.
  */
 struct builtin_debug_table {
-        char *release;
+				char *release;
 	char *machine_type;
-        struct offset_table *offset_table;
-        struct size_table *size_table;
-        struct array_table *array_table;
+				struct offset_table *offset_table;
+				struct size_table *size_table;
+				struct array_table *array_table;
 };
 
 /*
@@ -2162,17 +2162,17 @@ struct vm_table {                /* kernel VM-related data */
 	int nr_zones;
 	int nr_free_areas;
 	struct node_table *node_table;
-        void (*dump_free_pages)(struct meminfo *);
+				void (*dump_free_pages)(struct meminfo *);
 	void (*dump_kmem_cache)(struct meminfo *);
 	struct slab_data *slab_data;
 	uint nr_swapfiles;
 	ulong last_swap_read;
 	char *swap_info_struct;
-        char *vma_cache;
-        ulong cached_vma[VMA_CACHE];
-        ulong cached_vma_hits[VMA_CACHE];
-        int vma_cache_index;
-        ulong vma_cache_fills;
+				char *vma_cache;
+				ulong cached_vma[VMA_CACHE];
+				ulong cached_vma_hits[VMA_CACHE];
+				int vma_cache_index;
+				ulong vma_cache_fills;
 	void *mem_sec;
 	char *mem_section;
 	int ZONE_HIGHMEM;
@@ -2237,11 +2237,11 @@ struct datatype_member {        /* minimal definition of a structure/union */
 #define union_name struct_name
 
 struct list_data {             /* generic structure used by do_list() to walk */
-        ulong flags;           /* through linked lists in the kernel */
-        ulong start;
-        long member_offset;
+				ulong flags;           /* through linked lists in the kernel */
+				ulong start;
+				long member_offset;
 	long list_head_offset;
-        ulong end;
+				ulong end;
 	ulong searchfor;
 	char **structname;
 	int structname_args;
@@ -2290,16 +2290,16 @@ struct alias_data {                 /* command alias storage */
 
 struct rb_node
 {
-        unsigned long  rb_parent_color;
+				unsigned long  rb_parent_color;
 #define RB_RED          0
 #define RB_BLACK        1
-        struct rb_node *rb_right;
-        struct rb_node *rb_left;
+				struct rb_node *rb_right;
+				struct rb_node *rb_left;
 };
 
 struct rb_root
 {
-        struct rb_node *rb_node;
+				struct rb_node *rb_node;
 };
 
 #define NUMBER_STACKFRAMES 4
@@ -2324,8 +2324,8 @@ struct rb_root
 #define IS_MODULE_SYMBOL(SYM)  ((SYM)->flags & MODULE_SYMBOL)
 
 struct syment {
-        ulong value;
-        char *name;
+				ulong value;
+				char *name;
 	struct syment *val_hash_next;
 	struct syment *name_hash_next;
 	char type;
@@ -2349,7 +2349,7 @@ struct symbol_namespace {
 
 #define SYMVAL_HASH (512)
 #define SYMVAL_HASH_INDEX(vaddr) \
-        (((vaddr) >> machdep->pageshift) % SYMVAL_HASH)
+				(((vaddr) >> machdep->pageshift) % SYMVAL_HASH)
 
 #define SYMNAME_HASH (512)
 #define SYMNAME_HASH_INDEX(name) \
@@ -2372,13 +2372,13 @@ struct symbol_table_data {
 	struct syment *symend;
 	long symcnt;
 	ulong syment_size;
-        struct symval_hash_chain {
-                struct syment *val_hash_head;
-                struct syment *val_hash_last;
-        } symval_hash[SYMVAL_HASH];
-        double val_hash_searches;
-        double val_hash_iterations;
-        struct syment *symname_hash[SYMNAME_HASH];
+				struct symval_hash_chain {
+								struct syment *val_hash_head;
+								struct syment *val_hash_last;
+				} symval_hash[SYMVAL_HASH];
+				double val_hash_searches;
+				double val_hash_iterations;
+				struct syment *symname_hash[SYMNAME_HASH];
 	struct symbol_namespace kernel_namespace;
 	struct syment *ext_module_symtable;
 	struct syment *ext_module_symend;
@@ -2438,44 +2438,44 @@ struct symbol_table_data {
 
 struct mod_section_data {
 #if defined(GDB_5_3) || defined(GDB_6_0)
-        struct sec *section;
+				struct sec *section;
 #else
-        struct bfd_section *section;
+				struct bfd_section *section;
 #endif
-        char name[MAX_MOD_SEC_NAME];
-        ulong offset;
-        ulong size;
-        int priority;
-        int flags;
+				char name[MAX_MOD_SEC_NAME];
+				ulong offset;
+				ulong size;
+				int priority;
+				int flags;
 };
 
 struct load_module {
-        ulong mod_base;
+				ulong mod_base;
 	ulong module_struct;
-        long mod_size;
-        char mod_namelist[MAX_MOD_NAMELIST];
-        char mod_name[MAX_MOD_NAME];
-        ulong mod_flags;
+				long mod_size;
+				char mod_namelist[MAX_MOD_NAMELIST];
+				char mod_name[MAX_MOD_NAME];
+				ulong mod_flags;
 	struct syment *mod_symtable;
 	struct syment *mod_symend;
-        long mod_ext_symcnt;
+				long mod_ext_symcnt;
 	struct syment *mod_ext_symtable;
 	struct syment *mod_ext_symend;
-        long mod_load_symcnt;
-        struct syment *mod_load_symtable;
-        struct syment *mod_load_symend;
-        long mod_symalloc;
+				long mod_load_symcnt;
+				struct syment *mod_load_symtable;
+				struct syment *mod_load_symend;
+				long mod_symalloc;
 	struct symbol_namespace mod_load_namespace;
 	ulong mod_size_of_struct;
-        ulong mod_text_start;
+				ulong mod_text_start;
 	ulong mod_etext_guess;
 	ulong mod_rodata_start;
-        ulong mod_data_start;
+				ulong mod_data_start;
 	ulong mod_bss_start;
 	int mod_sections;
 	struct mod_section_data *mod_section_data;
-        ulong mod_init_text_size;
-        ulong mod_init_module_ptr;
+				ulong mod_init_text_size;
+				ulong mod_init_module_ptr;
 	ulong mod_init_size;
 	struct syment *mod_init_symtable;
 	struct syment *mod_init_symend;
@@ -2740,29 +2740,29 @@ typedef unsigned long long __u64;
 typedef unsigned long long u64;
 
 struct arm64_user_pt_regs {
-        __u64           regs[31];
-        __u64           sp;
-        __u64           pc;
-        __u64           pstate;
+				__u64           regs[31];
+				__u64           sp;
+				__u64           pc;
+				__u64           pstate;
 };
 
 struct arm64_pt_regs {
-        union {
-                struct arm64_user_pt_regs user_regs;
-                struct {
-                        u64 regs[31];
-                        u64 sp;
-                        u64 pc;
-                        u64 pstate;
-                };
-        };
-        u64 orig_x0;
-        u64 syscallno;
+				union {
+								struct arm64_user_pt_regs user_regs;
+								struct {
+												u64 regs[31];
+												u64 sp;
+												u64 pc;
+												u64 pstate;
+								};
+				};
+				u64 orig_x0;
+				u64 syscallno;
 };
 
 #define TIF_SIGPENDING  (0)
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to ARM64 architecture\n")
+				error(FATAL, "-d option is not applicable to ARM64 architecture\n")
 
 struct machine_specific {
 	ulong flags;
@@ -2783,9 +2783,9 @@ struct machine_specific {
 };
 
 struct arm64_stackframe {
-        unsigned long fp;
-        unsigned long sp;
-        unsigned long pc;
+				unsigned long fp;
+				unsigned long sp;
+				unsigned long pc;
 };
 
 #endif  /* ARM64 */
@@ -2832,9 +2832,9 @@ struct arm64_stackframe {
 #define __swp_offset_PAE(entry)    (((entry) >> 32) >> 5)
 #define __swp_offset_nonPAE(entry) ((entry) >> 8)
 #define __swp_type(entry)          (machdep->flags & PAE ? \
-				    __swp_type_PAE(entry) : __swp_type_nonPAE(entry))
+						__swp_type_PAE(entry) : __swp_type_nonPAE(entry))
 #define __swp_offset(entry)        (machdep->flags & PAE ? \
-				    __swp_offset_PAE(entry) : __swp_offset_nonPAE(entry))
+						__swp_offset_PAE(entry) : __swp_offset_nonPAE(entry))
 
 #define TIF_SIGPENDING  (2)
 
@@ -2851,18 +2851,18 @@ struct arm64_stackframe {
 #define IS_LAST_PTBL_READ_PAE(ptbl)   ((ulong)(ptbl) == machdep->machspec->last_ptbl_read_PAE)
 
 #define FILL_PMD_PAE(PMD, TYPE, SIZE)			                    \
-    if (!IS_LAST_PMD_READ_PAE(PMD)) {                                       \
-            readmem((ulonglong)(PMD), TYPE, machdep->pmd,                   \
-	            SIZE, "pmd page", FAULT_ON_ERROR);                      \
-            machdep->machspec->last_pmd_read_PAE = (ulonglong)(PMD);        \
-    }
+		if (!IS_LAST_PMD_READ_PAE(PMD)) {                                       \
+						readmem((ulonglong)(PMD), TYPE, machdep->pmd,                   \
+							SIZE, "pmd page", FAULT_ON_ERROR);                      \
+						machdep->machspec->last_pmd_read_PAE = (ulonglong)(PMD);        \
+		}
 
 #define FILL_PTBL_PAE(PTBL, TYPE, SIZE)			           	    \
-    if (!IS_LAST_PTBL_READ_PAE(PTBL)) {                                     \
-    	    readmem((ulonglong)(PTBL), TYPE, machdep->ptbl,                 \
-	            SIZE, "page table", FAULT_ON_ERROR);                    \
-            machdep->machspec->last_ptbl_read_PAE = (ulonglong)(PTBL); 	    \
-    }
+		if (!IS_LAST_PTBL_READ_PAE(PTBL)) {                                     \
+					readmem((ulonglong)(PTBL), TYPE, machdep->ptbl,                 \
+							SIZE, "page table", FAULT_ON_ERROR);                    \
+						machdep->machspec->last_ptbl_read_PAE = (ulonglong)(PTBL); 	    \
+		}
 
 #endif  /* X86 */
 
@@ -2947,15 +2947,15 @@ struct arm64_stackframe {
 #define FILL_PML4() { \
 	if (!(pc->flags & RUNTIME) || ACTIVE()) \
 		if (!IS_LAST_PML4_READ(vt->kernel_pgd[0])) \
-                    readmem(vt->kernel_pgd[0], KVADDR, machdep->machspec->pml4, \
-                        PAGESIZE(), "init_level4_pgt", FAULT_ON_ERROR); \
-                machdep->machspec->last_pml4_read = (ulong)(vt->kernel_pgd[0]); \
+										readmem(vt->kernel_pgd[0], KVADDR, machdep->machspec->pml4, \
+												PAGESIZE(), "init_level4_pgt", FAULT_ON_ERROR); \
+								machdep->machspec->last_pml4_read = (ulong)(vt->kernel_pgd[0]); \
 	}
 
 #define FILL_PML4_HYPER() { \
 	if (!machdep->machspec->last_pml4_read) { \
 		unsigned long idle_pg_table = \
-		    symbol_exists("idle_pg_table_4") ? symbol_value("idle_pg_table_4") : \
+				symbol_exists("idle_pg_table_4") ? symbol_value("idle_pg_table_4") : \
 			symbol_value("idle_pg_table"); \
 		readmem(idle_pg_table, KVADDR, \
 			machdep->machspec->pml4, PAGESIZE(), "idle_pg_table", \
@@ -2967,11 +2967,11 @@ struct arm64_stackframe {
 #define IS_LAST_UPML_READ(pml) ((ulong)(pml) == machdep->machspec->last_upml_read)
 
 #define FILL_UPML(PML, TYPE, SIZE) 					      \
-    if (!IS_LAST_UPML_READ(PML)) {                                             \
-            readmem((ulonglong)((ulong)(PML)), TYPE, machdep->machspec->upml, \
-                    SIZE, "pml page", FAULT_ON_ERROR);                        \
-            machdep->machspec->last_upml_read = (ulong)(PML);                 \
-    }
+		if (!IS_LAST_UPML_READ(PML)) {                                             \
+						readmem((ulonglong)((ulong)(PML)), TYPE, machdep->machspec->upml, \
+										SIZE, "pml page", FAULT_ON_ERROR);                        \
+						machdep->machspec->last_upml_read = (ulong)(PML);                 \
+		}
 
 /*
  *  PHYSICAL_PAGE_MASK changed (enlarged) between 2.4 and 2.6, so
@@ -3021,7 +3021,7 @@ struct arm64_stackframe {
 
 #define _CPU_PDA_READ(CPU, BUFFER) \
 	((STRNEQ("_cpu_pda", closest_symbol((symbol_value("_cpu_pda") +	\
-	     ((CPU) * sizeof(unsigned long)))))) &&			\
+			 ((CPU) * sizeof(unsigned long)))))) &&			\
  	(readmem(symbol_value("_cpu_pda") + ((CPU) * sizeof(void *)),   \
 		 KVADDR, &cpu_pda_addr, sizeof(unsigned long),          \
 		 "_cpu_pda addr", RETURN_ON_ERROR)) &&	   	        \
@@ -3030,10 +3030,10 @@ struct arm64_stackframe {
 
 #define CPU_PDA_READ(CPU, BUFFER) \
 	(STRNEQ("cpu_pda", closest_symbol((symbol_value("cpu_pda") +	\
-	     ((CPU) * SIZE(x8664_pda))))) &&				\
-        readmem(symbol_value("cpu_pda") + ((CPU) * SIZE(x8664_pda)),	\
-             KVADDR, (BUFFER), SIZE(x8664_pda), "cpu_pda entry",	\
-             RETURN_ON_ERROR))
+			 ((CPU) * SIZE(x8664_pda))))) &&				\
+				readmem(symbol_value("cpu_pda") + ((CPU) * SIZE(x8664_pda)),	\
+						 KVADDR, (BUFFER), SIZE(x8664_pda), "cpu_pda entry",	\
+						 RETURN_ON_ERROR))
 
 #define VALID_LEVEL4_PGT_ADDR(X) \
 	(((X) == VIRTPAGEBASE(X)) && IS_KVADDR(X) && !IS_VMALLOC_ADDR(X))
@@ -3380,12 +3380,12 @@ struct machine_specific {
  * this stuff is hardwired here; it's probably etched in stone somewhere.
  */
 struct efi_memory_desc_t {
-        uint32_t type;
-        uint32_t pad;
-        uint64_t phys_addr;
-        uint64_t virt_addr;
-        uint64_t num_pages;
-        uint64_t attribute;
+				uint32_t type;
+				uint32_t pad;
+				uint64_t phys_addr;
+				uint64_t virt_addr;
+				uint64_t num_pages;
+				uint64_t attribute;
 } desc;
 
 /* Memory types: */
@@ -3429,7 +3429,7 @@ struct efi_memory_desc_t {
 #define DEFAULT_PHYS_START (KERNEL_TR_PAGE_SIZE * 1)
 
 #define IA64_GET_STACK_ULONG(OFF) \
-        ((INSTACK(OFF,bt)) ? (GET_STACK_ULONG(OFF)) : get_init_stack_ulong((unsigned long)OFF))
+				((INSTACK(OFF,bt)) ? (GET_STACK_ULONG(OFF)) : get_init_stack_ulong((unsigned long)OFF))
 
 #endif  /* IA64 */
 
@@ -3543,7 +3543,7 @@ struct efi_memory_desc_t {
 
 #define SWP_TYPE(entry) (((entry) >> 2) & 0x1f)
 #define SWP_OFFSET(entry) ((((entry) >> 11) & 0xfffffffe) | \
-                           (((entry) >> 7) & 0x1))
+													 (((entry) >> 7) & 0x1))
 #define __swp_type(entry)   SWP_TYPE(entry)
 #define __swp_offset(entry) SWP_OFFSET(entry)
 
@@ -3568,7 +3568,7 @@ struct efi_memory_desc_t {
 
 #define SWP_TYPE(entry)   (((entry) >> 2) & 0x1f)
 #define SWP_OFFSET(entry) ((((entry) >> 11) & 0xfffffffffffffffe) | \
-                           (((entry) >> 7) & 0x1))
+													 (((entry) >> 7) & 0x1))
 #define __swp_type(entry)  SWP_TYPE(entry)
 #define __swp_offset(entry) SWP_OFFSET(entry)
 
@@ -3954,36 +3954,36 @@ int gdb_line_number_callback(ulong, ulong, ulong);
  *  WARNING: the following type codes are type_code enums from gdb/gdbtypes.h
  */
 enum type_code {
-  TYPE_CODE_UNDEF,              /* Not used; catches errors */
-  TYPE_CODE_PTR,                /* Pointer type */
-  TYPE_CODE_ARRAY,              /* Array type with lower & upper bounds. */
-  TYPE_CODE_STRUCT,             /* C struct or Pascal record */
-  TYPE_CODE_UNION,              /* C union or Pascal variant part */
-  TYPE_CODE_ENUM,               /* Enumeration type */
+	TYPE_CODE_UNDEF,              /* Not used; catches errors */
+	TYPE_CODE_PTR,                /* Pointer type */
+	TYPE_CODE_ARRAY,              /* Array type with lower & upper bounds. */
+	TYPE_CODE_STRUCT,             /* C struct or Pascal record */
+	TYPE_CODE_UNION,              /* C union or Pascal variant part */
+	TYPE_CODE_ENUM,               /* Enumeration type */
 #if defined(GDB_5_3) || defined(GDB_6_0) || defined(GDB_6_1) || defined(GDB_7_0) || defined(GDB_7_3_1) || defined(GDB_7_6)
 #if defined(GDB_7_0) || defined(GDB_7_3_1) || defined(GDB_7_6)
-  TYPE_CODE_FLAGS,              /* Bit flags type */
+	TYPE_CODE_FLAGS,              /* Bit flags type */
 #endif
-  TYPE_CODE_FUNC,               /* Function type */
-  TYPE_CODE_INT,                /* Integer type */
+	TYPE_CODE_FUNC,               /* Function type */
+	TYPE_CODE_INT,                /* Integer type */
 
-  /* Floating type.  This is *NOT* a complex type.  Beware, there are parts
-     of GDB which bogusly assume that TYPE_CODE_FLT can mean complex.  */
-  TYPE_CODE_FLT,
+	/* Floating type.  This is *NOT* a complex type.  Beware, there are parts
+		 of GDB which bogusly assume that TYPE_CODE_FLT can mean complex.  */
+	TYPE_CODE_FLT,
 
-  /* Void type.  The length field specifies the length (probably always
-     one) which is used in pointer arithmetic involving pointers to
-     this type, but actually dereferencing such a pointer is invalid;
-     a void type has no length and no actual representation in memory
-     or registers.  A pointer to a void type is a generic pointer.  */
-  TYPE_CODE_VOID,
+	/* Void type.  The length field specifies the length (probably always
+		 one) which is used in pointer arithmetic involving pointers to
+		 this type, but actually dereferencing such a pointer is invalid;
+		 a void type has no length and no actual representation in memory
+		 or registers.  A pointer to a void type is a generic pointer.  */
+	TYPE_CODE_VOID,
 
-  TYPE_CODE_SET,                /* Pascal sets */
-  TYPE_CODE_RANGE,              /* Range (integers within spec'd bounds) */
+	TYPE_CODE_SET,                /* Pascal sets */
+	TYPE_CODE_RANGE,              /* Range (integers within spec'd bounds) */
 
-  /*
-   *  NOTE: the remainder of the type codes are not list or used here...
-   */
+	/*
+	 *  NOTE: the remainder of the type codes are not list or used here...
+	 */
 #endif
 };
 
@@ -4020,10 +4020,10 @@ extern long _ZOMBIE_;
 
 struct psinfo {
 	int argc;
-        ulong pid[MAX_PS_ARGS];
+				ulong pid[MAX_PS_ARGS];
 	int type[MAX_PS_ARGS];
-        ulong task[MAX_PS_ARGS];
-        char comm[MAX_PS_ARGS][TASK_COMM_LEN+1];
+				ulong task[MAX_PS_ARGS];
+				char comm[MAX_PS_ARGS][TASK_COMM_LEN+1];
 	struct regex_data {
 		char *pattern;
 		regex_t regex;
@@ -4037,10 +4037,10 @@ struct psinfo {
 #define is_mclx_compressed_dump(X)  (va_server_init((X), 0, 0, 0) == 0)
 
 struct task_mem_usage {
-        ulong rss;
-        ulong total_vm;
-        double pct_physmem;
-        ulong mm_struct_addr;
+				ulong rss;
+				ulong total_vm;
+				double pct_physmem;
+				ulong mm_struct_addr;
 	ulong pgd_addr;
 };
 
@@ -4860,7 +4860,7 @@ int arm_is_vmalloc_addr(ulong);
 void arm_dump_backtrace_entry(struct bt_info *, int, ulong, ulong);
 
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to ARM architecture\n")
+				error(FATAL, "-d option is not applicable to ARM architecture\n")
 
 struct arm_pt_regs {
 	ulong uregs[18];
@@ -4923,10 +4923,10 @@ int arm64_IS_VMALLOC_ADDR(ulong);
 void alpha_init(int);
 void alpha_dump_machdep_table(ulong);
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to alpha architecture\n")
+				error(FATAL, "-d option is not applicable to alpha architecture\n")
 
 #define HWRESET_TASK(X)  ((machdep->flags & HWRESET) && is_task_active(X) && \
-                         (task_to_context(X)->processor == 0))
+												 (task_to_context(X)->processor == 0))
 #endif
 
 /*
@@ -4944,7 +4944,7 @@ struct syment *x86_jmp_error_code(ulong);
 struct syment *x86_text_lock_jmp(ulong, ulong *);
 
 struct machine_specific {
-        ulong *idt_table;
+				ulong *idt_table;
 	ulong entry_tramp_start;
 	ulong entry_tramp_end;
 	physaddr_t entry_tramp_start_phys;
@@ -4975,30 +4975,30 @@ long x86_64_exception_frame(ulong, ulong, char *, struct bt_info *, FILE *);
 #define EFRAME_INIT (0)
 
 struct x86_64_pt_regs_offsets {
-        long r15;
-        long r14;
-        long r13;
-        long r12;
-        long rbp;
-        long rbx;
+				long r15;
+				long r14;
+				long r13;
+				long r12;
+				long rbp;
+				long rbx;
 /* arguments: non interrupts/non tracing syscalls only save up to here*/
-        long r11;
-        long r10;
-        long r9;
-        long r8;
-        long rax;
-        long rcx;
-        long rdx;
-        long rsi;
-        long rdi;
-        long orig_rax;
+				long r11;
+				long r10;
+				long r9;
+				long r8;
+				long rax;
+				long rcx;
+				long rdx;
+				long rsi;
+				long rdi;
+				long orig_rax;
 /* end of arguments */
 /* cpu exception frame or undefined */
-        long rip;
-        long cs;
-        long eflags;
-        long rsp;
-        long ss;
+				long rip;
+				long cs;
+				long eflags;
+				long rsp;
+				long ss;
 };
 
 #define MAX_EXCEPTION_STACKS 7
@@ -5022,7 +5022,7 @@ struct machine_specific {
 	ulong modules_vaddr;
 	ulong modules_end;
 	ulong phys_base;
-        char *pml4;
+				char *pml4;
 	char *upml;
 	ulong last_upml_read;
 	ulong last_pml4_read;
@@ -5079,36 +5079,36 @@ int dwarf_print_stack_entry(struct bt_info *, int);
  *  in include/asm-ppc/ptrace.h
  */
 struct ppc64_pt_regs {
-        long gpr[32];
-        long nip;
-        long msr;
-        long orig_gpr3;      /* Used for restarting system calls */
-        long ctr;
-        long link;
-        long xer;
-        long ccr;
-        long mq;             /* 601 only (not used at present) */
-                                /* Used on APUS to hold IPL value. */
+				long gpr[32];
+				long nip;
+				long msr;
+				long orig_gpr3;      /* Used for restarting system calls */
+				long ctr;
+				long link;
+				long xer;
+				long ccr;
+				long mq;             /* 601 only (not used at present) */
+																/* Used on APUS to hold IPL value. */
 	long trap;           /* Reason for being here */
-        long dar;            /* Fault registers */
-        long dsisr;
-        long result;         /* Result of a system call */
+				long dar;            /* Fault registers */
+				long dsisr;
+				long result;         /* Result of a system call */
 };
 
 struct ppc64_vmemmap {
-        unsigned long phys;
-        unsigned long virt;
+				unsigned long phys;
+				unsigned long virt;
 };
 
 /*
  * Used to store the HW interrupt stack. It is only for 2.4.
  */
 struct machine_specific {
-        ulong hwintrstack[NR_CPUS];
-        char *hwstackbuf;
-        uint hwstacksize;
-        char *level4;
-        ulong last_level4_read;
+				ulong hwintrstack[NR_CPUS];
+				char *hwstackbuf;
+				uint hwstacksize;
+				char *level4;
+				ulong last_level4_read;
 
 	uint l4_index_size;
 	uint l3_index_size;
@@ -5147,16 +5147,16 @@ struct machine_specific {
 #define IS_LAST_L4_READ(l4)   ((ulong)(l4) == machdep->machspec->last_level4_read)
 
 #define FILL_L4(L4, TYPE, SIZE) 						\
-    if (!IS_LAST_L4_READ(L4)) {							\
-            readmem((ulonglong)((ulong)(L4)), TYPE, machdep->machspec->level4,	\
-                    SIZE, "level4 page", FAULT_ON_ERROR);			\
-            machdep->machspec->last_level4_read = (ulong)(L4);			\
-    }
+		if (!IS_LAST_L4_READ(L4)) {							\
+						readmem((ulonglong)((ulong)(L4)), TYPE, machdep->machspec->level4,	\
+										SIZE, "level4 page", FAULT_ON_ERROR);			\
+						machdep->machspec->last_level4_read = (ulong)(L4);			\
+		}
 
 void ppc64_init(int);
 void ppc64_dump_machdep_table(ulong);
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to PowerPC architecture\n")
+				error(FATAL, "-d option is not applicable to PowerPC architecture\n")
 #define KSYMS_START (0x1)
 #define VM_ORIG     (0x2)
 #define VMEMMAP_AWARE (0x4)
@@ -5175,7 +5175,7 @@ void ppc_init(int);
 void ppc_dump_machdep_table(ulong);
 void ppc_relocate_nt_prstatus_percpu(void **, uint *);
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to PowerPC architecture\n")
+				error(FATAL, "-d option is not applicable to PowerPC architecture\n")
 #define KSYMS_START (0x1)
 /* This should match PPC_FEATURE_BOOKE from include/asm-powerpc/cputable.h */
 #define CPU_BOOKE (0x00008000)
@@ -5237,8 +5237,8 @@ physaddr_t ia64_xen_kdump_p2m(struct xen_kdump_data *xkd, physaddr_t pseudo);
 
 struct machine_specific {
 	ulong cpu_data_address;
-        ulong unimpl_va_mask;
-        ulong unimpl_pa_mask;
+				ulong unimpl_va_mask;
+				ulong unimpl_pa_mask;
 	long unw_tables_offset;
 	long unw_kernel_table_offset;
 	long unw_pt_regs_offsets;
@@ -5290,7 +5290,7 @@ int unwind_debug_v3(ulong);
 void s390_init(int);
 void s390_dump_machdep_table(ulong);
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to S390 architecture\n")
+				error(FATAL, "-d option is not applicable to S390 architecture\n")
 #define KSYMS_START (0x1)
 #endif
 
@@ -5315,7 +5315,7 @@ void get_s390_panicmsg(char *);
 void s390x_init(int);
 void s390x_dump_machdep_table(ulong);
 #define display_idt_table() \
-        error(FATAL, "-d option is not applicable to S390X architecture\n")
+				error(FATAL, "-d option is not applicable to S390X architecture\n")
 #define KSYMS_START (0x1)
 #endif
 
@@ -5691,21 +5691,21 @@ struct physmem_zone {
 };
 
 struct fix_addrs {
-        ulong task;
-        ulong saddr;
-        ulong sw;
+				ulong task;
+				ulong saddr;
+				ulong sw;
 };
 
 
 struct lkcd_environment {
-        int fd;                        /* dumpfile file descriptor */
+				int fd;                        /* dumpfile file descriptor */
 	ulong flags;                   /* flags from above */
 	ulong debug;                   /* shadow of pc->debug */
 	FILE *fp;		       /* abstracted fp for fprintf */
-        void *dump_header;             /* header stash, v1 or v2 */
+				void *dump_header;             /* header stash, v1 or v2 */
 	void *dump_header_asm;         /* architecture specific header for v2 */
 	void *dump_header_asm_smp;     /* architecture specific header for v7 & v8 */
-        void *dump_page;               /* current page header holder */
+				void *dump_page;               /* current page header holder */
 	uint32_t version;              /* version number of this dump */
 	uint32_t page_size;	       /* size of a Linux memory page */
 	int page_shift;                /* byte address to page */
@@ -5713,25 +5713,25 @@ struct lkcd_environment {
 	ulong panic_task;              /* panic task address */
 	char *panic_string;            /* pointer to stashed panic string */
 	uint32_t compression;          /* compression type */
-        uint32_t (*get_dp_size)(void); /* returns current page's dp_size */
-        uint32_t (*get_dp_flags)(void); /* returns current page's dp_size */
-        uint64_t (*get_dp_address)(void); /* returns current page's dp_address*/
+				uint32_t (*get_dp_size)(void); /* returns current page's dp_size */
+				uint32_t (*get_dp_flags)(void); /* returns current page's dp_size */
+				uint64_t (*get_dp_address)(void); /* returns current page's dp_address*/
 	size_t page_header_size;       /* size of version's page header */
-        unsigned long curpos;          /* offset into current page */
-        uint64_t curpaddr;             /* current page's physical address */
+				unsigned long curpos;          /* offset into current page */
+				uint64_t curpaddr;             /* current page's physical address */
 	off_t curhdroffs;              /* current page's header offset */
-        char *curbufptr;               /* pointer to uncompressed page buffer */
-        uint64_t kvbase;               /* physical-to-LKCD page address format*/
-        char *page_cache_buf;          /* base of cached buffer pages */
-        char *compressed_page;         /* copy of compressed page data */
-        int evict_index;               /* next page to evict */
-        ulong evictions;               /* total evictions done */
-        struct page_cache_hdr {        /* header for each cached page */
+				char *curbufptr;               /* pointer to uncompressed page buffer */
+				uint64_t kvbase;               /* physical-to-LKCD page address format*/
+				char *page_cache_buf;          /* base of cached buffer pages */
+				char *compressed_page;         /* copy of compressed page data */
+				int evict_index;               /* next page to evict */
+				ulong evictions;               /* total evictions done */
+				struct page_cache_hdr {        /* header for each cached page */
 		uint32_t pg_flags;
-                uint64_t pg_addr;
-                char *pg_bufptr;
-                ulong pg_hit_count;
-        } page_cache_hdr[LKCD_CACHED_PAGES];
+								uint64_t pg_addr;
+								char *pg_bufptr;
+								ulong pg_hit_count;
+				} page_cache_hdr[LKCD_CACHED_PAGES];
 	struct page_hash_entry *page_hash;
 	ulong total_pages;
 	ulong benchmark_pages;
@@ -5772,7 +5772,7 @@ struct lkcd_environment {
 #define MEGABYTE_ALIGNED(vaddr)  (!((uint64_t)(vaddr) & MEGABYTE_MASK))
 
 #define LKCD_PAGE_HASH_INDEX(paddr) \
-        (((paddr) >> lkcd->page_shift) % LKCD_PAGE_HASH)
+				(((paddr) >> lkcd->page_shift) % LKCD_PAGE_HASH)
 #define LKCD_PAGES_PER_MEGABYTE() (MEGABYTES(1) / lkcd->page_size)
 #define LKCD_PAGE_MEGABYTE(page)  ((page) / LKCD_PAGES_PER_MEGABYTE())
 #define LKCD_BENCHMARKS_DONE()  (lkcd->benchmarks_done >= lkcd->benchmark_pages)

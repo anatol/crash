@@ -25,12 +25,12 @@
  *  From xenctrl.h, but probably not on most host machines.
  */
 typedef struct xc_core_header {
-    unsigned int xch_magic;
-    unsigned int xch_nr_vcpus;
-    unsigned int xch_nr_pages;
-    unsigned int xch_ctxt_offset;
-    unsigned int xch_index_offset;
-    unsigned int xch_pages_offset;
+		unsigned int xch_magic;
+		unsigned int xch_nr_vcpus;
+		unsigned int xch_nr_pages;
+		unsigned int xch_ctxt_offset;
+		unsigned int xch_index_offset;
+		unsigned int xch_pages_offset;
 } xc_core_header_t;
 
 /*
@@ -39,12 +39,12 @@ typedef struct xc_core_header {
  *  with the original dumpfile format and new ELF-style format.
  */
 struct xen_core_header {
-    unsigned int xch_magic;
-    unsigned int xch_nr_vcpus;
-    unsigned int xch_nr_pages;
-    unsigned long xch_ctxt_offset;
-    unsigned long xch_index_offset;
-    unsigned long xch_pages_offset;
+		unsigned int xch_magic;
+		unsigned int xch_nr_vcpus;
+		unsigned int xch_nr_pages;
+		unsigned long xch_ctxt_offset;
+		unsigned long xch_index_offset;
+		unsigned long xch_pages_offset;
 };
 
 struct pfn_offset_cache {
@@ -69,7 +69,7 @@ struct last_batch {
 };
 
 struct xendump_data {
-        ulong flags;       /* XENDUMP_LOCAL, plus anything else... */
+				ulong flags;       /* XENDUMP_LOCAL, plus anything else... */
 	int xfd;
 	int pc_next;
 	uint page_size;
@@ -126,19 +126,19 @@ struct xendump_data {
 #define XC_CORE_ELF        (XENDUMP_LOCAL << 8)
 
 #define MACHINE_BYTE_ORDER()  \
-        (machine_type("X86") || \
-         machine_type("X86_64") || \
-         machine_type("IA64") ? __LITTLE_ENDIAN : __BIG_ENDIAN)
+				(machine_type("X86") || \
+				 machine_type("X86_64") || \
+				 machine_type("IA64") ? __LITTLE_ENDIAN : __BIG_ENDIAN)
 
 #define BYTE_SWAP_REQUIRED(endian) (endian != MACHINE_BYTE_ORDER())
 
 static inline uint32_t
 swab32(uint32_t x)
 {
-        return (((x & 0x000000ffU) << 24) |
-                ((x & 0x0000ff00U) <<  8) |
-                ((x & 0x00ff0000U) >>  8) |
-                ((x & 0xff000000U) >> 24));
+				return (((x & 0x000000ffU) << 24) |
+								((x & 0x0000ff00U) <<  8) |
+								((x & 0x00ff0000U) >>  8) |
+								((x & 0xff000000U) >> 24));
 }
 
 #define MFN_NOT_FOUND (-1)
@@ -150,12 +150,12 @@ swab32(uint32_t x)
  *  ia64 "xm save" format is completely different than the others.
  */
 typedef struct xen_domctl_arch_setup {
-    uint64_t flags;      /* XEN_DOMAINSETUP_* */
+		uint64_t flags;      /* XEN_DOMAINSETUP_* */
 /* #ifdef __ia64__ */
-    uint64_t bp;            /* mpaddr of boot param area */
-    uint64_t maxmem;        /* Highest memory address for MDT.  */
-    uint64_t xsi_va;        /* Xen shared_info area virtual address.  */
-    uint32_t hypercall_imm; /* Break imm for Xen hypercalls.  */
+		uint64_t bp;            /* mpaddr of boot param area */
+		uint64_t maxmem;        /* Highest memory address for MDT.  */
+		uint64_t xsi_va;        /* Xen shared_info area virtual address.  */
+		uint32_t hypercall_imm; /* Break imm for Xen hypercalls.  */
 /* #endif */
 } xen_domctl_arch_setup_t;
 

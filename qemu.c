@@ -70,7 +70,7 @@ ldq (struct qemu_device_x86 *dx86, struct qemu_device_ram *dram, uint64_t addr)
 
 static uint64_t
 get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
-	      uint64_t addr)
+				uint64_t addr)
 {
 	uint64_t pde_addr, pte_addr;
 	uint64_t pte, paddr;
@@ -95,14 +95,14 @@ get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
 				return -1;
 
 			pml4e_addr = ((dx86->cr3 & ~0xfff)
-				      + (((addr >> 39) & 0x1ff) << 3));
+							+ (((addr >> 39) & 0x1ff) << 3));
 			pml4e = ldq (dx86, dram, pml4e_addr);
 			if (!(pml4e & PG_PRESENT_MASK))
 				return -1;
 			dprintf ("PML4 page present\n");
 
 			pdpe_addr = ((pml4e & ~0xfff)
-				     + (((addr >> 30) & 0x1ff) << 3));
+						 + (((addr >> 30) & 0x1ff) << 3));
 			pdpe = ldq (dx86, dram, pdpe_addr);
 			if (!(pdpe & PG_PRESENT_MASK))
 				return -1;
@@ -111,7 +111,7 @@ get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
 			dprintf ("long mode inactive\n");
 
 			pdpe_addr = ((dx86->cr3 & ~0x1f)
-				     + ((addr >> 27) & 0x18));
+						 + ((addr >> 27) & 0x18));
 			pdpe = ldq (dx86, dram, pdpe_addr);
 			if (!(pdpe & PG_PRESENT_MASK))
 				return -1;
@@ -135,7 +135,7 @@ get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
 			dprintf ("4 KB PAE page\n");
 
 			pte_addr = ((pde & ~0xfff)
-				    + (((addr >> 12) & 0x1ff) << 3));
+						+ (((addr >> 12) & 0x1ff) << 3));
 			page_size = 4096;
 			pte = ldq (dx86, dram, pte_addr);
 			if (!(pte & PG_PRESENT_MASK))
@@ -155,7 +155,7 @@ get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
 		} else {
 			/* page directory entry */
 			pde_addr = ((dx86->cr3 & ~0xfff)
-				    + ((addr >> 20) & 0xffc));
+						+ ((addr >> 20) & 0xffc));
 			pde = ldl (dx86, dram, pde_addr);
 			if (!(pde & PG_PRESENT_MASK))
 				return -1;
@@ -166,7 +166,7 @@ get_phys_page(struct qemu_device_x86 *dx86, struct qemu_device_ram *dram,
 			} else {
 				page_size = 4096;
 				pte_addr = ((pde & ~0xfff)
-					    + ((addr >> 10) & 0xffc));
+							+ ((addr >> 10) & 0xffc));
 				pte = ldl (dx86, dram, pte_addr);
 				if (!(pte & PG_PRESENT_MASK))
 					return -1;
@@ -205,24 +205,24 @@ get_kernel_base(struct qemu_device_list *dl)
 		device_find_instance (dl, "ram", 0);
 
 	for (i = 30, last = -1; (kernel_base == -1) && (i >= 20); i--)
-        {
-                mask = ~((1LL << i) - 1);
-                base_vaddr = dx86->idt.base & mask;
+				{
+								mask = ~((1LL << i) - 1);
+								base_vaddr = dx86->idt.base & mask;
 		if (base_vaddr == last)
 			continue;
 		if (base_vaddr < kvm->kvbase) {
 			fprintf(stderr,
-			    "WARNING: IDT base contains: %llx\n         "
-			    "cannot determine physical base address: defaulting to 0\n\n",
+					"WARNING: IDT base contains: %llx\n         "
+					"cannot determine physical base address: defaulting to 0\n\n",
 				(unsigned long long)base_vaddr);
 			return 0;
 		}
 		dprintf("get_kernel_base: %llx\n", (unsigned long long)base_vaddr);
-                kernel_base = get_phys_page(dx86, dram, base_vaddr);
+								kernel_base = get_phys_page(dx86, dram, base_vaddr);
 		last = base_vaddr;
-        }
+				}
 
-        if (kernel_base != -1) {
+				if (kernel_base != -1) {
 		dprintf("kvbase: %llx vaddr used: %llx physical: %llx\n",
 			(unsigned long long)kvm->kvbase,
 			(unsigned long long)base_vaddr,
@@ -231,8 +231,8 @@ get_kernel_base(struct qemu_device_list *dl)
 		 *  Subtract the offset between the virtual address used
 		 *  and the kernel's base virtual address.
 		 */
-                kernel_base -= (base_vaddr - kvm->kvbase);
-        } else {
+								kernel_base -= (base_vaddr - kvm->kvbase);
+				} else {
 		dprintf("WARNING: cannot determine physical base address:"
 			" defaulting to 0\n\n");
 		kernel_base = 0;

@@ -53,14 +53,14 @@ map_virtual(u64 offset, struct page **pp)
 	 */
 	if (!page_is_ram(pfn)) {
 		printk(KERN_INFO
-		    "crash memory driver: !page_is_ram(pfn: %lx)\n", pfn);
+				"crash memory driver: !page_is_ram(pfn: %lx)\n", pfn);
 		return NULL;
 	}
 #endif
 
 	if (!pfn_valid(pfn)) {
 		printk(KERN_INFO
-		    "crash memory driver: invalid pfn: %lx\n", pfn);
+				"crash memory driver: invalid pfn: %lx\n", pfn);
 		return NULL;
 	}
 
@@ -69,7 +69,7 @@ map_virtual(u64 offset, struct page **pp)
 	vaddr = kmap(page);
 	if (!vaddr) {
 		printk(KERN_INFO
-		    "crash memory driver: pfn: %lx kmap(page: %lx) failed\n",
+				"crash memory driver: pfn: %lx kmap(page: %lx) failed\n",
 			pfn, (unsigned long)page);
 		return NULL;
 	}
@@ -158,7 +158,7 @@ crash_init(void)
 	ret = misc_register(&crash_dev);
 	if (ret) {
 		printk(KERN_ERR
-		    "crash memory driver: cannot misc_register (MISC_DYNAMIC_MINOR)\n");
+				"crash memory driver: cannot misc_register (MISC_DYNAMIC_MINOR)\n");
 		goto out;
 	}
 

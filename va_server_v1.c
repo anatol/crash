@@ -79,7 +79,7 @@ int vas_lseek_v1(u_long position, int whence)
 		return -1;
 	if(position > (vas_end_va - vas_start_va)) {
 		printf("position 0x%lx beyond dump range of 0x%lx\n",
-		       position, (vas_end_va - vas_start_va));
+					 position, (vas_end_va - vas_start_va));
 		return -1;
 	}
 	vas_base_va = vas_start_va + position;
@@ -93,7 +93,7 @@ size_t vas_read_v1(void *buf_in, size_t count)
 
 	if(count > (vas_end_va - vas_base_va)) {
 		printf("count 0x%lx greater than remaining dump of 0x%lx\n",
-		       (ulong)count, (vas_end_va - vas_base_va));
+					 (ulong)count, (vas_end_va - vas_base_va));
 		return -1;
 	}
 	va = vas_base_va;
@@ -163,7 +163,7 @@ void load_data_v1(struct map_hdr_v1 *hdr, u_long index, u_long *buf, u_long *len
 	if(hdr->map[index].exp_data)
 		goto out;
 	ret = fseek(vas_file_p, (long)((hdr->blk_offset + hdr->map[index].start_blk) * hdr->blk_size),
-		    SEEK_SET);
+				SEEK_SET);
 
 	if(ret == -1) {
 		printf("load_data: unable to fseek, errno = %d\n", ferror(vas_file_p));
@@ -204,7 +204,7 @@ void load_data_v1(struct map_hdr_v1 *hdr, u_long index, u_long *buf, u_long *len
 		clean_exit(1);
 	}
 	free((void *)compr_buf);
-  out:
+	out:
 	if(buf)
 		*buf = (u_long)hdr->map[index].exp_data;
 	if(len)
@@ -334,7 +334,7 @@ int read_map_v1(int blk_pos)
 	hdr->map = (struct crash_map_entry_v1 *)malloc(hdr->map_entries *
 							 sizeof(struct crash_map_entry_v1));
 	items = fread((void *)hdr->map, sizeof(struct crash_map_entry_v1), hdr->map_entries,
-		      vas_file_p);
+					vas_file_p);
 	if(items != hdr->map_entries) {
 		printf("unable to read map entries, err = %d\n", errno);
 		return -1;

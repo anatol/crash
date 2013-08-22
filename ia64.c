@@ -93,8 +93,8 @@ ia64_init(int when)
 		return;
 	}
 
-        switch (when)
-        {
+				switch (when)
+				{
 	case SETUP_ENV:
 #if defined(PR_SET_FPEMU) && defined(PR_FPEMU_NOPRINT)
 		prctl(PR_SET_FPEMU, PR_FPEMU_NOPRINT, 0, 0, 0);
@@ -104,15 +104,15 @@ ia64_init(int when)
 #endif
 		break;
 
-        case PRE_SYMTAB:
-                machdep->verify_symbol = ia64_verify_symbol;
+				case PRE_SYMTAB:
+								machdep->verify_symbol = ia64_verify_symbol;
 		machdep->machspec = &ia64_machine_specific;
 		if (pc->flags & KERNEL_DEBUG_QUERY)
 			return;
-                machdep->pagesize = memory_page_size();
-                machdep->pageshift = ffs(machdep->pagesize) - 1;
-                machdep->pageoffset = machdep->pagesize - 1;
-                machdep->pagemask = ~(machdep->pageoffset);
+								machdep->pagesize = memory_page_size();
+								machdep->pageshift = ffs(machdep->pagesize) - 1;
+								machdep->pageoffset = machdep->pagesize - 1;
+								machdep->pagemask = ~(machdep->pageoffset);
 		switch (machdep->pagesize)
 		{
 		case 4096:
@@ -131,29 +131,29 @@ ia64_init(int when)
 			machdep->stacksize = 32*1024;
 			break;
 		}
-                if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pgd space.");
+								if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pgd space.");
 		if ((machdep->pud = (char *)malloc(PAGESIZE())) == NULL)
 			error(FATAL, "cannot malloc pud space.");
-                if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pmd space.");
-                if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc ptbl space.");
-                machdep->last_pgd_read = 0;
-                machdep->last_pud_read = 0;
-                machdep->last_pmd_read = 0;
-                machdep->last_ptbl_read = 0;
+								if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pmd space.");
+								if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc ptbl space.");
+								machdep->last_pgd_read = 0;
+								machdep->last_pud_read = 0;
+								machdep->last_pmd_read = 0;
+								machdep->last_ptbl_read = 0;
 		machdep->verify_paddr = ia64_verify_paddr;
 		machdep->get_kvaddr_ranges = ia64_get_kvaddr_ranges;
 		machdep->ptrs_per_pgd = PTRS_PER_PGD;
-                machdep->machspec->phys_start = UNKNOWN_PHYS_START;
-                if (machdep->cmdline_args[0])
+								machdep->machspec->phys_start = UNKNOWN_PHYS_START;
+								if (machdep->cmdline_args[0])
 			parse_cmdline_args();
 		if (ACTIVE())
 			machdep->flags |= DEVMEMRD;
-                break;
+								break;
 
-        case PRE_GDB:
+				case PRE_GDB:
 
 		if (pc->flags & KERNEL_DEBUG_QUERY)
 			return;
@@ -167,36 +167,36 @@ ia64_init(int when)
 
 
 		if ((sp = symbol_search("empty_zero_page")) &&
-		    (spn = next_symbol(NULL, sp)) &&
-		    ((spn->value - sp->value) != PAGESIZE()))
+				(spn = next_symbol(NULL, sp)) &&
+				((spn->value - sp->value) != PAGESIZE()))
 			error(FATAL,
-	        "compiled-in page size: %d  (apparent) kernel page size: %ld\n",
+					"compiled-in page size: %d  (apparent) kernel page size: %ld\n",
 				PAGESIZE(), spn->value - sp->value);
 
-                machdep->kvbase = KERNEL_VMALLOC_BASE;
+								machdep->kvbase = KERNEL_VMALLOC_BASE;
 		machdep->identity_map_base = KERNEL_CACHED_BASE;
-                machdep->is_kvaddr = generic_is_kvaddr;
-                machdep->is_uvaddr = generic_is_uvaddr;
-                machdep->eframe_search = ia64_eframe_search;
-                machdep->back_trace = ia64_back_trace_cmd;
-                machdep->processor_speed = ia64_processor_speed;
-                machdep->uvtop = ia64_uvtop;
-                machdep->kvtop = ia64_kvtop;
-                machdep->get_task_pgd = ia64_get_task_pgd;
-                machdep->dump_irq = ia64_dump_irq;
+								machdep->is_kvaddr = generic_is_kvaddr;
+								machdep->is_uvaddr = generic_is_uvaddr;
+								machdep->eframe_search = ia64_eframe_search;
+								machdep->back_trace = ia64_back_trace_cmd;
+								machdep->processor_speed = ia64_processor_speed;
+								machdep->uvtop = ia64_uvtop;
+								machdep->kvtop = ia64_kvtop;
+								machdep->get_task_pgd = ia64_get_task_pgd;
+								machdep->dump_irq = ia64_dump_irq;
 		machdep->get_stack_frame = ia64_get_stack_frame;
 		machdep->get_stackbase = ia64_get_stackbase;
 		machdep->get_stacktop = ia64_get_stacktop;
-                machdep->translate_pte = ia64_translate_pte;
-                machdep->memory_size = generic_memory_size;
-                machdep->vmalloc_start = ia64_vmalloc_start;
-                machdep->is_task_addr = ia64_is_task_addr;
-                machdep->dis_filter = ia64_dis_filter;
+								machdep->translate_pte = ia64_translate_pte;
+								machdep->memory_size = generic_memory_size;
+								machdep->vmalloc_start = ia64_vmalloc_start;
+								machdep->is_task_addr = ia64_is_task_addr;
+								machdep->dis_filter = ia64_dis_filter;
 		machdep->cmd_mach = ia64_cmd_mach;
 		machdep->get_smp_cpus = ia64_get_smp_cpus;
 		machdep->line_number_hooks = ia64_line_number_hooks;
 		machdep->value_to_symbol = generic_machdep_value_to_symbol;
-                machdep->init_kernel_pgd = NULL;
+								machdep->init_kernel_pgd = NULL;
 		machdep->get_irq_affinity = generic_get_irq_affinity;
 		machdep->show_interrupts = generic_show_interrupts;
 
@@ -208,22 +208,22 @@ ia64_init(int when)
 			machdep->machspec->kernel_region = KERNEL_CACHED_REGION;
 			machdep->machspec->kernel_start = KERNEL_CACHED_BASE;
 		}
-        	if (machdep->machspec->kernel_region == KERNEL_VMALLOC_REGION) {
-                	machdep->machspec->vmalloc_start =
+					if (machdep->machspec->kernel_region == KERNEL_VMALLOC_REGION) {
+									machdep->machspec->vmalloc_start =
 				machdep->machspec->kernel_start +
 				GIGABYTES((ulong)(4));
 			if (machdep->machspec->phys_start == UNKNOWN_PHYS_START)
 				ia64_calc_phys_start();
 		} else
-               		machdep->machspec->vmalloc_start = KERNEL_VMALLOC_BASE;
+							 		machdep->machspec->vmalloc_start = KERNEL_VMALLOC_BASE;
 
 		machdep->xen_kdump_p2m_create = ia64_xen_kdump_p2m_create;
 		machdep->xendump_p2m_create = ia64_xendump_p2m_create;
 		machdep->xendump_panic_task = ia64_xendump_panic_task;
 		machdep->get_xendump_regs = ia64_get_xendump_regs;
-                break;
+								break;
 
-        case POST_GDB:
+				case POST_GDB:
 		STRUCT_SIZE_INIT(cpuinfo_ia64, "cpuinfo_ia64");
 		STRUCT_SIZE_INIT(switch_stack, "switch_stack");
 		MEMBER_OFFSET_INIT(thread_struct_fph, "thread_struct", "fph");
@@ -236,17 +236,17 @@ ia64_init(int when)
 			"switch_stack", "ar_rnat");
 		MEMBER_OFFSET_INIT(switch_stack_pr,
 			"switch_stack", "pr");
-        	MEMBER_OFFSET_INIT(cpuinfo_ia64_proc_freq,
+					MEMBER_OFFSET_INIT(cpuinfo_ia64_proc_freq,
 			"cpuinfo_ia64", "proc_freq");
-        	MEMBER_OFFSET_INIT(cpuinfo_ia64_unimpl_va_mask,
+					MEMBER_OFFSET_INIT(cpuinfo_ia64_unimpl_va_mask,
 			"cpuinfo_ia64", "unimpl_va_mask");
-        	MEMBER_OFFSET_INIT(cpuinfo_ia64_unimpl_pa_mask,
+					MEMBER_OFFSET_INIT(cpuinfo_ia64_unimpl_pa_mask,
 			"cpuinfo_ia64", "unimpl_pa_mask");
 		if (kernel_symbol_exists("nr_irqs"))
 			get_symbol_data("nr_irqs", sizeof(unsigned int),
 				&machdep->nr_irqs);
 		else if (symbol_exists("irq_desc"))
-		        ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
+						ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
 				"irq_desc", NULL, 0);
 		else if (symbol_exists("_irq_desc"))
 			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
@@ -256,7 +256,7 @@ ia64_init(int when)
 		machdep->section_size_bits = _SECTION_SIZE_BITS;
 		machdep->max_physmem_bits = _MAX_PHYSMEM_BITS;
 		ia64_create_memmap();
-                break;
+								break;
 
 	case POST_INIT:
 		ia64_post_init();
@@ -292,10 +292,10 @@ parse_cmdline_args(void)
 	char buf[BUFSIZE];
 	char *arglist[MAXARGS];
 	ulong value;
-        struct machine_specific *ms;
+				struct machine_specific *ms;
 	int vm_flag;
 
-        ms = &ia64_machine_specific;
+				ms = &ia64_machine_specific;
 	vm_flag = 0;
 
 	for (index = 0; index < MAX_MACHDEP_ARGS; index++) {
@@ -305,17 +305,17 @@ parse_cmdline_args(void)
 
 		if (!strstr(machdep->cmdline_args[index], "=")) {
 			errflag = 0;
-	        	value = htol(machdep->cmdline_args[index],
-	                	RETURN_ON_ERROR|QUIET, &errflag);
+						value = htol(machdep->cmdline_args[index],
+										RETURN_ON_ERROR|QUIET, &errflag);
 			if (!errflag) {
-	        		ms->phys_start = value;
+							ms->phys_start = value;
 				error(NOTE, "setting phys_start to: 0x%lx\n",
 					ms->phys_start);
 			} else
 				error(WARNING, "ignoring --machdep option: %s\n\n",
 					machdep->cmdline_args[index]);
 			continue;
-	        }
+					}
 
 		strcpy(buf, machdep->cmdline_args[index]);
 
@@ -332,12 +332,12 @@ parse_cmdline_args(void)
 			if (STRNEQ(arglist[i], "phys_start=")) {
 				p = arglist[i] + strlen("phys_start=");
 				if (strlen(p)) {
-	        			value = htol(p, RETURN_ON_ERROR|QUIET,
+								value = htol(p, RETURN_ON_ERROR|QUIET,
 						&errflag);
 					if (!errflag) {
-	        				ms->phys_start = value;
+									ms->phys_start = value;
 						error(NOTE,
-						    "setting phys_start to: 0x%lx\n",
+								"setting phys_start to: 0x%lx\n",
 							ms->phys_start);
 						continue;
 					}
@@ -350,9 +350,9 @@ parse_cmdline_args(void)
 					if (!errflag) {
 						ms->ia64_init_stack_size = (int)value;
 						error(NOTE,
-			    	    	      "setting init_stack_size to: 0x%x (%d)\n",
-					    		ms->ia64_init_stack_size,
-					    		ms->ia64_init_stack_size);
+												"setting init_stack_size to: 0x%x (%d)\n",
+									ms->ia64_init_stack_size,
+									ms->ia64_init_stack_size);
 						continue;
 					}
 				}
@@ -407,7 +407,7 @@ ia64_in_init_stack(ulong addr)
 	init_stack_addr = ia64_VTOP(symbol_value("ia64_init_stack"));
 	addr = ia64_VTOP(addr);
 	if ((addr < init_stack_addr) ||
-	    (addr >= (init_stack_addr+machdep->machspec->ia64_init_stack_size)))
+			(addr >= (init_stack_addr+machdep->machspec->ia64_init_stack_size)))
 		return FALSE;
 
 	return TRUE;
@@ -433,8 +433,8 @@ ia64_in_per_cpu_mca_stack(void)
 		return 0;
 
 	if (!symbol_exists("__per_cpu_mca") ||
-	    !(plen = get_array_length("__per_cpu_mca", NULL, 0)) ||
-	    (plen < kt->cpus))
+			!(plen = get_array_length("__per_cpu_mca", NULL, 0)) ||
+			(plen < kt->cpus))
 		return 0;
 
 	vaddr = SWITCH_STACK_ADDR(CURRENT_TASK());
@@ -445,7 +445,7 @@ ia64_in_per_cpu_mca_stack(void)
 	__per_cpu_mca = (ulong *)GETBUF(sizeof(ulong) * kt->cpus);
 
 	if (!readmem(symbol_value("__per_cpu_mca"), KVADDR, __per_cpu_mca,
-	    sizeof(ulong) * kt->cpus, "__per_cpu_mca", RETURN_ON_ERROR|QUIET))
+			sizeof(ulong) * kt->cpus, "__per_cpu_mca", RETURN_ON_ERROR|QUIET))
 		return 0;
 
 	if (CRASHDEBUG(1)) {
@@ -468,7 +468,7 @@ ia64_in_per_cpu_mca_stack(void)
 void
 ia64_dump_machdep_table(ulong arg)
 {
-        int i, others, verbose;
+				int i, others, verbose;
 	struct machine_specific *ms;
 
 	verbose = FALSE;
@@ -485,37 +485,37 @@ ia64_dump_machdep_table(ulong arg)
 		case 2:
 			if (machdep->flags & NEW_UNWIND) {
 				machdep->flags &=
-				        ~(NEW_UNWIND|NEW_UNW_V1|NEW_UNW_V2|NEW_UNW_V3);
+								~(NEW_UNWIND|NEW_UNW_V1|NEW_UNW_V2|NEW_UNW_V3);
 				machdep->flags |= OLD_UNWIND;
-                        	ms->unwind_init = ia64_old_unwind_init;
-                        	ms->unwind = ia64_old_unwind;
-                        	ms->dump_unwind_stats = NULL;
-                        	ms->unwind_debug = NULL;
+													ms->unwind_init = ia64_old_unwind_init;
+													ms->unwind = ia64_old_unwind;
+													ms->dump_unwind_stats = NULL;
+													ms->unwind_debug = NULL;
 			} else {
 				machdep->flags &= ~OLD_UNWIND;
 				machdep->flags |= NEW_UNWIND;
 				if (MEMBER_EXISTS("unw_frame_info", "pt")) {
 					if (MEMBER_EXISTS("pt_regs", "ar_csd")) {
 						machdep->flags |= NEW_UNW_V3;
-                        			ms->unwind_init = unwind_init_v3;
-                        			ms->unwind = unwind_v3;
-                        			ms->unwind_debug = unwind_debug_v3;
-                        			ms->dump_unwind_stats =
+															ms->unwind_init = unwind_init_v3;
+															ms->unwind = unwind_v3;
+															ms->unwind_debug = unwind_debug_v3;
+															ms->dump_unwind_stats =
 							dump_unwind_stats_v3;
 					} else {
 						machdep->flags |= NEW_UNW_V2;
-                        			ms->unwind_init = unwind_init_v2;
-                        			ms->unwind = unwind_v2;
-                        			ms->unwind_debug = unwind_debug_v2;
-                        			ms->dump_unwind_stats =
+															ms->unwind_init = unwind_init_v2;
+															ms->unwind = unwind_v2;
+															ms->unwind_debug = unwind_debug_v2;
+															ms->dump_unwind_stats =
 							dump_unwind_stats_v2;
 					}
 				} else {
 					machdep->flags |= NEW_UNW_V1;
-                        		ms->unwind_init = unwind_init_v1;
-                        		ms->unwind = unwind_v1;
-                        		ms->unwind_debug = unwind_debug_v1;
-                        		ms->dump_unwind_stats =
+														ms->unwind_init = unwind_init_v1;
+														ms->unwind = unwind_v1;
+														ms->unwind_debug = unwind_debug_v1;
+														ms->dump_unwind_stats =
 						dump_unwind_stats_v1;
 				}
 			}
@@ -529,9 +529,9 @@ ia64_dump_machdep_table(ulong arg)
 		}
 	}
 
-        others = 0;
-        fprintf(fp, "              flags: %lx (", machdep->flags);
-        /* future flags tests here */
+				others = 0;
+				fprintf(fp, "              flags: %lx (", machdep->flags);
+				/* future flags tests here */
 	if (machdep->flags & NEW_UNWIND)
 		fprintf(fp, "%sNEW_UNWIND", others++ ? "|" : "");
 	if (machdep->flags & NEW_UNW_V1)
@@ -560,71 +560,71 @@ ia64_dump_machdep_table(ulong arg)
 		fprintf(fp, "%sMCA", others++ ? "|" : "");
 	if (machdep->flags & VM_4_LEVEL)
 		fprintf(fp, "%sVM_4_LEVEL", others++ ? "|" : "");
-        fprintf(fp, ")\n");
-        fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
+				fprintf(fp, ")\n");
+				fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
 	fprintf(fp, "  identity_map_base: %lx\n", machdep->identity_map_base);
-        fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
-        fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
-        fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
-        fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
-        fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
-        fprintf(fp, "                 hz: %d\n", machdep->hz);
-        fprintf(fp, "                mhz: %d\n", machdep->hz);
-        fprintf(fp, "            memsize: %ld (0x%lx)\n",
+				fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
+				fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
+				fprintf(fp, "           pagemask: %llx\n", machdep->pagemask);
+				fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
+				fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
+				fprintf(fp, "                 hz: %d\n", machdep->hz);
+				fprintf(fp, "                mhz: %d\n", machdep->hz);
+				fprintf(fp, "            memsize: %ld (0x%lx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
-        fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
-        fprintf(fp, "      eframe_search: ia64_eframe_search()\n");
-        fprintf(fp, "         back_trace: ia64_back_trace_cmd()\n");
-        fprintf(fp, "get_processor_speed: ia64_processor_speed()\n");
-        fprintf(fp, "              uvtop: ia64_uvtop()\n");
-        fprintf(fp, "              kvtop: ia64_kvtop()\n");
-        fprintf(fp, "       get_task_pgd: ia64_get_task_pgd()\n");
-        fprintf(fp, "           dump_irq: ia64_dump_irq()\n");
+				fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
+				fprintf(fp, "      eframe_search: ia64_eframe_search()\n");
+				fprintf(fp, "         back_trace: ia64_back_trace_cmd()\n");
+				fprintf(fp, "get_processor_speed: ia64_processor_speed()\n");
+				fprintf(fp, "              uvtop: ia64_uvtop()\n");
+				fprintf(fp, "              kvtop: ia64_kvtop()\n");
+				fprintf(fp, "       get_task_pgd: ia64_get_task_pgd()\n");
+				fprintf(fp, "           dump_irq: ia64_dump_irq()\n");
 	fprintf(fp, "    get_stack_frame: ia64_get_stack_frame()\n");
 	fprintf(fp, "      get_stackbase: ia64_get_stackbase()\n");
 	fprintf(fp, "       get_stacktop: ia64_get_stacktop()\n");
-        fprintf(fp, "      translate_pte: ia64_translate_pte()\n");
-        fprintf(fp, "        memory_size: generic_memory_size()\n");
-        fprintf(fp, "      vmalloc_start: ia64_vmalloc_start()\n");
-        fprintf(fp, "       is_task_addr: ia64_is_task_addr()\n");
-        fprintf(fp, "      verify_symbol: ia64_verify_symbol()\n");
-        fprintf(fp, "         dis_filter: ia64_dis_filter()\n");
-        fprintf(fp, "           cmd_mach: ia64_cmd_mach()\n");
-        fprintf(fp, "       get_smp_cpus: ia64_get_smp_cpus()\n");
+				fprintf(fp, "      translate_pte: ia64_translate_pte()\n");
+				fprintf(fp, "        memory_size: generic_memory_size()\n");
+				fprintf(fp, "      vmalloc_start: ia64_vmalloc_start()\n");
+				fprintf(fp, "       is_task_addr: ia64_is_task_addr()\n");
+				fprintf(fp, "      verify_symbol: ia64_verify_symbol()\n");
+				fprintf(fp, "         dis_filter: ia64_dis_filter()\n");
+				fprintf(fp, "           cmd_mach: ia64_cmd_mach()\n");
+				fprintf(fp, "       get_smp_cpus: ia64_get_smp_cpus()\n");
 	fprintf(fp, "  get_kvaddr_ranges: ia64_get_kvaddr_ranges()\n");
-        fprintf(fp, "          is_kvaddr: generic_is_kvaddr()\n");
-        fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
-        fprintf(fp, "       verify_paddr: %s()\n",
+				fprintf(fp, "          is_kvaddr: generic_is_kvaddr()\n");
+				fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
+				fprintf(fp, "       verify_paddr: %s()\n",
 		(machdep->verify_paddr == ia64_verify_paddr) ?
 		"ia64_verify_paddr" : "generic_verify_paddr");
 	fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
 	fprintf(fp, "    show_interrupts: generic_show_interrupts()\n");
-        fprintf(fp, "    init_kernel_pgd: NULL\n");
+				fprintf(fp, "    init_kernel_pgd: NULL\n");
 	fprintf(fp, "xen_kdump_p2m_create: ia64_xen_kdump_p2m_create()\n");
-        fprintf(fp, " xendump_p2m_create: ia64_xendump_p2m_create()\n");
+				fprintf(fp, " xendump_p2m_create: ia64_xendump_p2m_create()\n");
 	fprintf(fp, " xendump_panic_task: ia64_xendump_panic_task()\n");
 	fprintf(fp, "   get_xendump_regs: ia64_get_xendump_regs()\n");
 	fprintf(fp, "    value_to_symbol: generic_machdep_value_to_symbol()\n");
-        fprintf(fp, "  line_number_hooks: ia64_line_number_hooks\n");
-        fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
-        fprintf(fp, "      last_pud_read: %lx\n", machdep->last_pud_read);
-        fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
-        fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
-        fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
-        fprintf(fp, "                pud: %lx\n", (ulong)machdep->pud);
-        fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
-        fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
+				fprintf(fp, "  line_number_hooks: ia64_line_number_hooks\n");
+				fprintf(fp, "      last_pgd_read: %lx\n", machdep->last_pgd_read);
+				fprintf(fp, "      last_pud_read: %lx\n", machdep->last_pud_read);
+				fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
+				fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
+				fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
+				fprintf(fp, "                pud: %lx\n", (ulong)machdep->pud);
+				fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
+				fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
 	fprintf(fp, "       ptrs_per_pgd: %d\n", machdep->ptrs_per_pgd);
-        for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
-                fprintf(fp, "    cmdline_args[%d]: %s\n",
-                        i, machdep->cmdline_args[i] ?
-                        machdep->cmdline_args[i] : "(unused)");
-        }
-        fprintf(fp, "  section_size_bits: %ld\n", machdep->section_size_bits);
-        fprintf(fp, "   max_physmem_bits: %ld\n", machdep->max_physmem_bits);
-        fprintf(fp, "  sections_per_root: %ld\n", machdep->sections_per_root);
-        fprintf(fp, "           machspec: ia64_machine_specific\n");
+				for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
+								fprintf(fp, "    cmdline_args[%d]: %s\n",
+												i, machdep->cmdline_args[i] ?
+												machdep->cmdline_args[i] : "(unused)");
+				}
+				fprintf(fp, "  section_size_bits: %ld\n", machdep->section_size_bits);
+				fprintf(fp, "   max_physmem_bits: %ld\n", machdep->max_physmem_bits);
+				fprintf(fp, "  sections_per_root: %ld\n", machdep->sections_per_root);
+				fprintf(fp, "           machspec: ia64_machine_specific\n");
 	fprintf(fp, "                   cpu_data_address: %lx\n",
 			machdep->machspec->cpu_data_address);
 	fprintf(fp, "                     unimpl_va_mask: %lx\n",
@@ -682,36 +682,36 @@ ia64_dump_machdep_table(ulong arg)
 		fprintf(fp, "%lx\n", (ulong)ms->unwind_init);
 
 	fprintf(fp, "                             unwind: ");
-        if (ms->unwind == unwind_v1)
-                fprintf(fp, "unwind_v1()\n");
-        else if (ms->unwind == unwind_v2)
-                fprintf(fp, "unwind_v2()\n");
-        else if (ms->unwind == unwind_v3)
-                fprintf(fp, "unwind_v3()\n");
+				if (ms->unwind == unwind_v1)
+								fprintf(fp, "unwind_v1()\n");
+				else if (ms->unwind == unwind_v2)
+								fprintf(fp, "unwind_v2()\n");
+				else if (ms->unwind == unwind_v3)
+								fprintf(fp, "unwind_v3()\n");
 	else if (ms->unwind == ia64_old_unwind)
 		fprintf(fp, "ia64_old_unwind()\n");
-        else
-                fprintf(fp, "%lx\n", (ulong)ms->unwind);
+				else
+								fprintf(fp, "%lx\n", (ulong)ms->unwind);
 
 	fprintf(fp, "                  dump_unwind_stats: ");
-        if (ms->dump_unwind_stats == dump_unwind_stats_v1)
-                fprintf(fp, "dump_unwind_stats_v1()\n");
-        else if (ms->dump_unwind_stats == dump_unwind_stats_v2)
-                fprintf(fp, "dump_unwind_stats_v2()\n");
-        else if (ms->dump_unwind_stats == dump_unwind_stats_v3)
-                fprintf(fp, "dump_unwind_stats_v3()\n");
-        else
-                fprintf(fp, "%lx\n", (ulong)ms->dump_unwind_stats);
+				if (ms->dump_unwind_stats == dump_unwind_stats_v1)
+								fprintf(fp, "dump_unwind_stats_v1()\n");
+				else if (ms->dump_unwind_stats == dump_unwind_stats_v2)
+								fprintf(fp, "dump_unwind_stats_v2()\n");
+				else if (ms->dump_unwind_stats == dump_unwind_stats_v3)
+								fprintf(fp, "dump_unwind_stats_v3()\n");
+				else
+								fprintf(fp, "%lx\n", (ulong)ms->dump_unwind_stats);
 
 	fprintf(fp, "                       unwind_debug: ");
-        if (ms->unwind_debug == unwind_debug_v1)
-                fprintf(fp, "unwind_debug_v1()\n");
-        else if (ms->unwind_debug == unwind_debug_v2)
-                fprintf(fp, "unwind_debug_v2()\n");
-        else if (ms->unwind_debug == unwind_debug_v3)
-                fprintf(fp, "unwind_debug_v3()\n");
-        else
-                fprintf(fp, "%lx\n", (ulong)ms->unwind_debug);
+				if (ms->unwind_debug == unwind_debug_v1)
+								fprintf(fp, "unwind_debug_v1()\n");
+				else if (ms->unwind_debug == unwind_debug_v2)
+								fprintf(fp, "unwind_debug_v2()\n");
+				else if (ms->unwind_debug == unwind_debug_v3)
+								fprintf(fp, "unwind_debug_v3()\n");
+				else
+								fprintf(fp, "%lx\n", (ulong)ms->unwind_debug);
 
 	fprintf(fp, "               ia64_init_stack_size: %d\n",
 		ms->ia64_init_stack_size);
@@ -734,8 +734,8 @@ ia64_verify_symbol(const char *name, ulong value, char type)
 	if (XEN_HYPER_MODE() && STREQ(name, "__per_cpu_shift"))
 		return TRUE;
 
-        if (CRASHDEBUG(8))
-                fprintf(fp, "%016lx %s\n", value, name);
+				if (CRASHDEBUG(8))
+								fprintf(fp, "%016lx %s\n", value, name);
 
 //	if (STREQ(name, "phys_start") && type == 'A')
 //		if (machdep->machspec->phys_start == UNKNOWN_PHYS_START)
@@ -755,7 +755,7 @@ static int
 ia64_eframe_search(struct bt_info *bt)
 {
 	return(error(FATAL,
-	    "ia64_eframe_search: not available for this architecture\n"));
+			"ia64_eframe_search: not available for this architecture\n"));
 }
 
 
@@ -771,12 +771,12 @@ ia64_back_trace_cmd(struct bt_info *bt)
 	struct machine_specific *ms = &ia64_machine_specific;
 
 	if (bt->flags & BT_SWITCH_STACK)
-        	ia64_dump_switch_stack(bt->task, 0);
+					ia64_dump_switch_stack(bt->task, 0);
 
-        if (machdep->flags & UNW_OUT_OF_SYNC)
-                error(FATAL,
-                    "kernel and %s unwind data structures are out of sync\n",
-                        pc->program_name);
+				if (machdep->flags & UNW_OUT_OF_SYNC)
+								error(FATAL,
+										"kernel and %s unwind data structures are out of sync\n",
+												pc->program_name);
 
 	ms->unwind(bt);
 
@@ -791,11 +791,11 @@ ia64_back_trace_cmd(struct bt_info *bt)
 static void
 ia64_dump_irq(int irq)
 {
-        if (symbol_exists("irq_desc") || symbol_exists("_irq_desc") ||
-	    kernel_symbol_exists("irq_desc_ptrs")) {
-                machdep->dump_irq = generic_dump_irq;
-                return(generic_dump_irq(irq));
-        }
+				if (symbol_exists("irq_desc") || symbol_exists("_irq_desc") ||
+			kernel_symbol_exists("irq_desc_ptrs")) {
+								machdep->dump_irq = generic_dump_irq;
+								return(generic_dump_irq(irq));
+				}
 
 	error(FATAL,
 		"ia64_dump_irq: neither irq_desc or _irq_desc exist\n");
@@ -818,8 +818,8 @@ ia64_processor_speed(void)
 	bootstrap_processor = 0;
 
 	if (!machdep->machspec->cpu_data_address ||
-	    !VALID_STRUCT(cpuinfo_ia64) ||
-	    !VALID_MEMBER(cpuinfo_ia64_proc_freq))
+			!VALID_STRUCT(cpuinfo_ia64) ||
+			!VALID_MEMBER(cpuinfo_ia64_proc_freq))
 		return (machdep->mhz = mhz);
 
 	if (symbol_exists("bootstrap_processor"))
@@ -828,10 +828,10 @@ ia64_processor_speed(void)
 	if (bootstrap_processor == -1)
 		bootstrap_processor = 0;
 
-        readmem(machdep->machspec->cpu_data_address +
+				readmem(machdep->machspec->cpu_data_address +
 		OFFSET(cpuinfo_ia64_proc_freq),
-        	KVADDR, &proc_freq, sizeof(ulong),
-                "cpuinfo_ia64 proc_freq", FAULT_ON_ERROR);
+					KVADDR, &proc_freq, sizeof(ulong),
+								"cpuinfo_ia64 proc_freq", FAULT_ON_ERROR);
 
 	mhz = proc_freq/1000000;
 
@@ -871,10 +871,10 @@ ia64_vtop_4l(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int usr)
 	FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
 	pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
 
-        if (verbose)
-                fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
+				if (verbose)
+								fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
 
-        if (!(pgd_pte))
+				if (!(pgd_pte))
 		return FALSE;
 
 	offset = (vaddr >> PUD_SHIFT) & (PTRS_PER_PUD - 1);
@@ -884,7 +884,7 @@ ia64_vtop_4l(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int usr)
 	pud_pte = ULONG(machdep->pud + PAGEOFFSET(page_upper));
 
 	if (verbose)
-                fprintf(fp, "   PUD: %lx => %lx\n", (ulong)page_upper, pud_pte);
+								fprintf(fp, "   PUD: %lx => %lx\n", (ulong)page_upper, pud_pte);
 
 	if (!(pud_pte))
 		return FALSE;
@@ -895,35 +895,35 @@ ia64_vtop_4l(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int usr)
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
 	pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
 
-        if (verbose)
-                fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
+				if (verbose)
+								fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
 
-        if (!(pmd_pte))
+				if (!(pmd_pte))
 		return FALSE;
 
-        offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
-        page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
+				offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
+				page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
 
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
 
-        if (!(pte & (_PAGE_P | _PAGE_PROTNONE))) {
+				if (!(pte & (_PAGE_P | _PAGE_PROTNONE))) {
 		if (usr)
-		  	*paddr = pte;
+				*paddr = pte;
 		if (pte && verbose) {
 			fprintf(fp, "\n");
 			ia64_translate_pte(pte, 0, 0);
 		}
 		return FALSE;
-        }
+				}
 
-        *paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
+				*paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
 
-        if (verbose) {
-                fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
 		ia64_translate_pte(pte, 0, 0);
 	}
 
@@ -961,10 +961,10 @@ ia64_vtop(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int usr)
 	FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
 	pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
 
-        if (verbose)
-                fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
+				if (verbose)
+								fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
 
-        if (!(pgd_pte))
+				if (!(pgd_pte))
 		return FALSE;
 
 	offset = (vaddr >> PMD_SHIFT) & (PTRS_PER_PMD - 1);
@@ -973,35 +973,35 @@ ia64_vtop(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int usr)
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
 	pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
 
-        if (verbose)
-                fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
+				if (verbose)
+								fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
 
-        if (!(pmd_pte))
+				if (!(pmd_pte))
 		return FALSE;
 
-        offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
-        page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
+				offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
+				page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
 
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
 
-        if (!(pte & (_PAGE_P | _PAGE_PROTNONE))) {
+				if (!(pte & (_PAGE_P | _PAGE_PROTNONE))) {
 		if (usr)
-		  	*paddr = pte;
+				*paddr = pte;
 		if (pte && verbose) {
 			fprintf(fp, "\n");
 			ia64_translate_pte(pte, 0, 0);
 		}
 		return FALSE;
-        }
+				}
 
-        *paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
+				*paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
 
-        if (verbose) {
-                fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
 		ia64_translate_pte(pte, 0, 0);
 	}
 
@@ -1033,16 +1033,16 @@ ia64_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose
 		return ia64_kvtop(tc, uvaddr, paddr, verbose);
 
 	if ((mm = task_mm(tc->task, TRUE)))
-        	pgd = ULONG_PTR(tt->mm_struct + OFFSET(mm_struct_pgd));
+					pgd = ULONG_PTR(tt->mm_struct + OFFSET(mm_struct_pgd));
 	else
 		readmem(tc->mm_struct + OFFSET(mm_struct_pgd), KVADDR, &pgd,
 			sizeof(long), "mm_struct pgd", FAULT_ON_ERROR);
 
 	if (XEN() && (kt->xen_flags & WRITABLE_PAGE_TABLES)) {
-                if (machdep->flags & VM_4_LEVEL)
-                        return ia64_vtop_4l_xen_wpt(uvaddr, paddr, pgd, verbose, 1);
-                else
-                        return ia64_vtop_xen_wpt(uvaddr, paddr, pgd, verbose, 1);
+								if (machdep->flags & VM_4_LEVEL)
+												return ia64_vtop_4l_xen_wpt(uvaddr, paddr, pgd, verbose, 1);
+								else
+												return ia64_vtop_xen_wpt(uvaddr, paddr, pgd, verbose, 1);
 	} else {
 		if (machdep->flags & VM_4_LEVEL)
 			return ia64_vtop_4l(uvaddr, paddr, pgd, verbose, 1);
@@ -1061,15 +1061,15 @@ ia64_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose
 static int
 ia64_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbose)
 {
-        ulong *pgd;
+				ulong *pgd;
 
-        if (!IS_KVADDR(kvaddr))
-                return FALSE;
+				if (!IS_KVADDR(kvaddr))
+								return FALSE;
 
-        if (!vt->vmalloc_start) {
-                *paddr = ia64_VTOP(kvaddr);
-                return TRUE;
-        }
+				if (!vt->vmalloc_start) {
+								*paddr = ia64_VTOP(kvaddr);
+								return TRUE;
+				}
 
 	switch (VADDR_REGION(kvaddr))
 	{
@@ -1077,37 +1077,37 @@ ia64_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbose
 		*paddr = kvaddr - KERNEL_UNCACHED_BASE;
 		if (verbose)
 			fprintf(fp, "[UNCACHED MEMORY]\n");
-                return TRUE;
+								return TRUE;
 
 	case KERNEL_CACHED_REGION:
-                *paddr = ia64_VTOP(kvaddr);
+								*paddr = ia64_VTOP(kvaddr);
 		if (verbose)
 			fprintf(fp, "[MAPPED IN TRANSLATION REGISTER]\n");
-                return TRUE;
+								return TRUE;
 
 	case KERNEL_VMALLOC_REGION:
 		if (ia64_IS_VMALLOC_ADDR(kvaddr))
 			break;
 		if ((kvaddr < machdep->machspec->kernel_start) &&
-		    (machdep->machspec->kernel_region ==
-		    KERNEL_VMALLOC_REGION)) {
+				(machdep->machspec->kernel_region ==
+				KERNEL_VMALLOC_REGION)) {
 			*paddr = PADDR_NOT_AVAILABLE;
 			return FALSE;
 		}
-                *paddr = ia64_VTOP(kvaddr);
+								*paddr = ia64_VTOP(kvaddr);
 		if (verbose)
 			fprintf(fp, "[MAPPED IN TRANSLATION REGISTER]\n");
-                return TRUE;
-        }
+								return TRUE;
+				}
 
-        if (!(pgd = (ulong *)vt->kernel_pgd[0]))
+				if (!(pgd = (ulong *)vt->kernel_pgd[0]))
 		error(FATAL, "cannot determine kernel pgd pointer\n");
 
 	if (XEN() && (kt->xen_flags & WRITABLE_PAGE_TABLES)) {
-                if (machdep->flags & VM_4_LEVEL)
-                        return ia64_vtop_4l_xen_wpt(kvaddr, paddr, pgd, verbose, 0);
-                else
-                        return ia64_vtop_xen_wpt(kvaddr, paddr, pgd, verbose, 0);
+								if (machdep->flags & VM_4_LEVEL)
+												return ia64_vtop_4l_xen_wpt(kvaddr, paddr, pgd, verbose, 0);
+								else
+												return ia64_vtop_xen_wpt(kvaddr, paddr, pgd, verbose, 0);
 	} else {
 		if (machdep->flags & VM_4_LEVEL)
 			return ia64_vtop_4l(kvaddr, paddr, pgd, verbose, 0);
@@ -1146,10 +1146,10 @@ ia64_get_task_pgd(ulong task)
 static void
 ia64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 {
-        if (pcp)
-                *pcp = ia64_get_pc(bt);
-        if (spp)
-                *spp = ia64_get_sp(bt);
+				if (pcp)
+								*pcp = ia64_get_pc(bt);
+				if (spp)
+								*spp = ia64_get_sp(bt);
 }
 
 
@@ -1159,12 +1159,12 @@ ia64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 static ulong
 ia64_get_pc(struct bt_info *bt)
 {
-        ulong b0;
+				ulong b0;
 
-        readmem(SWITCH_STACK_ADDR(bt->task) + OFFSET(switch_stack_b0), KVADDR,
-                &b0, sizeof(void *), "switch_stack b0", FAULT_ON_ERROR);
+				readmem(SWITCH_STACK_ADDR(bt->task) + OFFSET(switch_stack_b0), KVADDR,
+								&b0, sizeof(void *), "switch_stack b0", FAULT_ON_ERROR);
 
-        return b0;
+				return b0;
 }
 
 
@@ -1177,19 +1177,19 @@ ia64_get_sp(struct bt_info *bt)
 {
 	ulong bspstore;
 
-        readmem(SWITCH_STACK_ADDR(bt->task) + OFFSET(switch_stack_ar_bspstore),
+				readmem(SWITCH_STACK_ADDR(bt->task) + OFFSET(switch_stack_ar_bspstore),
 		KVADDR, &bspstore, sizeof(void *), "switch_stack ar_bspstore",
 		FAULT_ON_ERROR);
 
 	if (bt->flags &
-	    (BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT)) {
+			(BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT)) {
 		bspstore = bt->task + SIZE(task_struct);
 		if (tt->flags & THREAD_INFO)
 			bspstore += SIZE(thread_info);
 		bspstore = roundup(bspstore, sizeof(ulong));
 	}
 
-        return bspstore;
+				return bspstore;
 }
 
 /*
@@ -1198,19 +1198,19 @@ ia64_get_sp(struct bt_info *bt)
 static ulong
 ia64_get_thread_ksp(ulong task)
 {
-        ulong ksp;
+				ulong ksp;
 
 	if (XEN_HYPER_MODE()) {
-        	readmem(task + XEN_HYPER_OFFSET(vcpu_thread_ksp), KVADDR,
-                	&ksp, sizeof(void *),
-                	"vcpu thread ksp", FAULT_ON_ERROR);
+					readmem(task + XEN_HYPER_OFFSET(vcpu_thread_ksp), KVADDR,
+									&ksp, sizeof(void *),
+									"vcpu thread ksp", FAULT_ON_ERROR);
 	} else {
-        	readmem(task + OFFSET(task_struct_thread_ksp), KVADDR,
-                	&ksp, sizeof(void *),
-                	"thread_struct ksp", FAULT_ON_ERROR);
+					readmem(task + OFFSET(task_struct_thread_ksp), KVADDR,
+									&ksp, sizeof(void *),
+									"thread_struct ksp", FAULT_ON_ERROR);
 	}
 
-        return ksp;
+				return ksp;
 }
 
 /*
@@ -1222,7 +1222,7 @@ ia64_get_switch_stack(ulong task)
 	ulong sw;
 
 	if (LKCD_DUMPFILE() && (sw = get_lkcd_switch_stack(task)))
-	    return sw;
+			return sw;
 	/*
 	 * debug only: get panic switch_stack from the ELF header.
 	 */
@@ -1245,15 +1245,15 @@ ia64_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 {
 	int c, len1, len2, len3, others, page_present;
 	char buf[BUFSIZE];
-        char buf2[BUFSIZE];
-        char buf3[BUFSIZE];
+				char buf2[BUFSIZE];
+				char buf3[BUFSIZE];
 	char ptebuf[BUFSIZE];
 	char physbuf[BUFSIZE];
-        char *arglist[MAXARGS];
+				char *arglist[MAXARGS];
 	char *ptr;
 	ulong paddr;
 
-        paddr = pte & _PFN_MASK;
+				paddr = pte & _PFN_MASK;
 	page_present = !!(pte & (_PAGE_P | _PAGE_PROTNONE));
 
 	if (physaddr) {
@@ -1265,27 +1265,27 @@ ia64_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 	len1 = MAX(strlen(ptebuf), strlen("PTE"));
 	fprintf(fp, "%s  ", mkstring(buf, len1, CENTER|LJUST, "PTE"));
 
-        if (!page_present && pte) {
-                swap_location(pte, buf);
-                if ((c = parse_line(buf, arglist)) != 3)
+				if (!page_present && pte) {
+								swap_location(pte, buf);
+								if ((c = parse_line(buf, arglist)) != 3)
 			error(FATAL, "cannot determine swap location\n");
 
-                len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
-                len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
+								len2 = MAX(strlen(arglist[0]), strlen("SWAP"));
+								len3 = MAX(strlen(arglist[2]), strlen("OFFSET"));
 
-                fprintf(fp, "%s  %s\n",
-                        mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
-                        mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
+								fprintf(fp, "%s  %s\n",
+												mkstring(buf2, len2, CENTER|LJUST, "SWAP"),
+												mkstring(buf3, len3, CENTER|LJUST, "OFFSET"));
 
-                strcpy(buf2, arglist[0]);
-                strcpy(buf3, arglist[2]);
-                fprintf(fp, "%s  %s  %s\n",
-                        mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-                        mkstring(buf2, len2, CENTER|RJUST, NULL),
-                        mkstring(buf3, len3, CENTER|RJUST, NULL));
+								strcpy(buf2, arglist[0]);
+								strcpy(buf3, arglist[2]);
+								fprintf(fp, "%s  %s  %s\n",
+												mkstring(ptebuf, len1, CENTER|RJUST, NULL),
+												mkstring(buf2, len2, CENTER|RJUST, NULL),
+												mkstring(buf3, len3, CENTER|RJUST, NULL));
 
-                return page_present;
-        }
+								return page_present;
+				}
 
 	sprintf(physbuf, "%lx", paddr);
 	len2 = MAX(strlen(physbuf), strlen("PHYSICAL"));
@@ -1405,16 +1405,16 @@ ia64_vmalloc_start(void)
 static int
 ia64_is_task_addr(ulong task)
 {
-        int i;
+				int i;
 
-        if (IS_KVADDR(task) && (ALIGNED_STACK_OFFSET(task) == 0))
-                return TRUE;
+				if (IS_KVADDR(task) && (ALIGNED_STACK_OFFSET(task) == 0))
+								return TRUE;
 
-        for (i = 0; i < kt->cpus; i++)
-                if (task == tt->idle_threads[i])
-                        return TRUE;
+				for (i = 0; i < kt->cpus; i++)
+								if (task == tt->idle_threads[i])
+												return TRUE;
 
-        return FALSE;
+				return FALSE;
 }
 
 
@@ -1424,65 +1424,65 @@ ia64_is_task_addr(ulong task)
 static int
 ia64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
-        char buf1[BUFSIZE];
-        char buf2[BUFSIZE];
-        char *colon, *p1, *p2;
-        int argc;
+				char buf1[BUFSIZE];
+				char buf2[BUFSIZE];
+				char *colon, *p1, *p2;
+				int argc;
 	int revise_bracket, stop_bit;
-        char *argv[MAXARGS];
-        ulong value;
+				char *argv[MAXARGS];
+				ulong value;
 
-        if (!inbuf)
-                return TRUE;
+				if (!inbuf)
+								return TRUE;
 
 /*
  *  For some reason gdb can go off into the weeds translating text addresses,
  *  (on alpha -- not necessarily seen on ia64) so this routine both fixes the
  *  references as well as imposing the current output radix on the translations.
  */
-        console("IN: %s", inbuf);
+				console("IN: %s", inbuf);
 
-        colon = strstr(inbuf, ":");
+				colon = strstr(inbuf, ":");
 
-        if (colon) {
-                sprintf(buf1, "0x%lx <%s>", vaddr,
-                        value_to_symstr(vaddr, buf2, output_radix));
-                sprintf(buf2, "%s%s", buf1, colon);
-                strcpy(inbuf, buf2);
-        }
+				if (colon) {
+								sprintf(buf1, "0x%lx <%s>", vaddr,
+												value_to_symstr(vaddr, buf2, output_radix));
+								sprintf(buf2, "%s%s", buf1, colon);
+								strcpy(inbuf, buf2);
+				}
 
-        strcpy(buf1, inbuf);
-        argc = parse_line(buf1, argv);
+				strcpy(buf1, inbuf);
+				argc = parse_line(buf1, argv);
 
 	revise_bracket = stop_bit = 0;
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-            (LASTCHAR(argv[argc-1]) == '>')) {
+						(LASTCHAR(argv[argc-1]) == '>')) {
 		revise_bracket = TRUE;
 		stop_bit = FALSE;
 	} else if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-            strstr(argv[argc-1], ">;;")) {
+						strstr(argv[argc-1], ">;;")) {
 		revise_bracket = TRUE;
 		stop_bit = TRUE;
 	}
 
-        if (revise_bracket) {
-                p1 = rindex(inbuf, '<');
-                while ((p1 > inbuf) && !STRNEQ(p1, "0x"))
-                        p1--;
+				if (revise_bracket) {
+								p1 = rindex(inbuf, '<');
+								while ((p1 > inbuf) && !STRNEQ(p1, "0x"))
+												p1--;
 
-                if (!STRNEQ(p1, "0x"))
-                        return FALSE;
+								if (!STRNEQ(p1, "0x"))
+												return FALSE;
 
-                if (!extract_hex(p1, &value, NULLCHAR, TRUE))
-                        return FALSE;
+								if (!extract_hex(p1, &value, NULLCHAR, TRUE))
+												return FALSE;
 
-                sprintf(buf1, "0x%lx <%s>%s\n", value,
-                        value_to_symstr(value, buf2, output_radix),
+								sprintf(buf1, "0x%lx <%s>%s\n", value,
+												value_to_symstr(value, buf2, output_radix),
 			stop_bit ? ";;" : "");
 
-                sprintf(p1, "%s", buf1);
+								sprintf(p1, "%s", buf1);
 
-        } else if (STRNEQ(argv[argc-2], "br.call.") &&
+				} else if (STRNEQ(argv[argc-2], "br.call.") &&
 		 STRNEQ(argv[argc-1], "b0=0x")) {
 		/*
 		 *  Update module function calls of these formats:
@@ -1494,33 +1494,33 @@ ia64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 		 *  address is a known symbol with no offset.
 		 */
 		if ((p1 = strstr(argv[argc-1], ";;")) &&
-		    (p2 = strstr(inbuf, ";;\n"))) {
+				(p2 = strstr(inbuf, ";;\n"))) {
 			*p1 = NULLCHAR;
 			p1 = &argv[argc-1][3];
 
-                	if (extract_hex(p1, &value, NULLCHAR, TRUE)) {
+									if (extract_hex(p1, &value, NULLCHAR, TRUE)) {
 				sprintf(buf1, " <%s>;;\n",
 					value_to_symstr(value, buf2,
 					output_radix));
 				if (IS_MODULE_VADDR(value) &&
-				    !strstr(buf2, "+"))
+						!strstr(buf2, "+"))
 					sprintf(p2, buf1);
 			}
 		} else {
 			p1 = &argv[argc-1][3];
 			p2 = &LASTCHAR(inbuf);
-                	if (extract_hex(p1, &value, '\n', TRUE)) {
+									if (extract_hex(p1, &value, '\n', TRUE)) {
 				sprintf(buf1, " <%s>\n",
 					value_to_symstr(value, buf2,
 					output_radix));
 				if (IS_MODULE_VADDR(value) &&
-				    !strstr(buf2, "+"))
+						!strstr(buf2, "+"))
 					sprintf(p2, buf1);
 			}
 		}
 	}
 
-        console("    %s", inbuf);
+				console("    %s", inbuf);
 
 	return TRUE;
 }
@@ -1535,7 +1535,7 @@ enum pt_reg_names {
 		P_pr, P_loadrs,
 		P_b0, P_b6, P_b7,
 		P_r1, P_r2, P_r3, P_r8, P_r9, P_r10, P_r11, P_r12, P_r13,
-	        P_r14, P_r15, P_r16, P_r17, P_r18, P_r19, P_r20, P_r21,
+					P_r14, P_r15, P_r16, P_r17, P_r18, P_r19, P_r20, P_r21,
 		P_r22, P_r23, P_r24, P_r25, P_r26, P_r27, P_r28, P_r29,
 		P_r30, P_r31,
 		P_f6_lo, P_f6_hi,
@@ -1556,21 +1556,21 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 
 	console("ia64_exception_frame: pt_regs: %lx\n", addr);
 
-        if (bt->debug)
-                CRASHDEBUG_RESTORE();
+				if (bt->debug)
+								CRASHDEBUG_RESTORE();
 	CRASHDEBUG_SUSPEND(0);
 
-        BZERO(&eframe, sizeof(ulong) * NUM_PT_REGS);
+				BZERO(&eframe, sizeof(ulong) * NUM_PT_REGS);
 
-        open_tmpfile();
+				open_tmpfile();
 	if (XEN_HYPER_MODE())
-        	dump_struct("cpu_user_regs", addr, RADIX(16));
+					dump_struct("cpu_user_regs", addr, RADIX(16));
 	else
-        	dump_struct("pt_regs", addr, RADIX(16));
-        rewind(pc->tmpfile);
+					dump_struct("pt_regs", addr, RADIX(16));
+				rewind(pc->tmpfile);
 
 	fval = 0;
-        while (fgets(buf, BUFSIZE, pc->tmpfile)) {
+				while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 
 		if (strstr(buf, "f6 = ")) {
 			fval = 6;
@@ -1589,18 +1589,18 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 			continue;
 		}
 
-                if (strstr(buf, "f10 = ")) {
-                        fval = 10;
-                        continue;
-                }
+								if (strstr(buf, "f10 = ")) {
+												fval = 10;
+												continue;
+								}
 
-                if (strstr(buf, "f11 = ")) {
-                        fval = 11;
-                        continue;
-                }
+								if (strstr(buf, "f11 = ")) {
+												fval = 11;
+												continue;
+								}
 
-                if (!strstr(buf, "0x"))
-                        continue;
+								if (!strstr(buf, "0x"))
+												continue;
 
 		if (fval) {
 			p = strstr(buf, "0x");
@@ -1627,14 +1627,14 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 				eframe[P_f9_lo] = value1;
 				eframe[P_f9_hi] = value2;
 				break;
-                        case 10:
-                                eframe[P_f10_lo] = value1;
-                                eframe[P_f10_hi] = value2;
-                                break;
-                        case 11:
-                                eframe[P_f11_lo] = value1;
-                                eframe[P_f11_hi] = value2;
-                                break;
+												case 10:
+																eframe[P_f10_lo] = value1;
+																eframe[P_f10_hi] = value2;
+																break;
+												case 11:
+																eframe[P_f11_lo] = value1;
+																eframe[P_f11_hi] = value2;
+																break;
 			}
 			fval = 0;
 			continue;
@@ -1680,151 +1680,151 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 			eframe[P_ar_ccv] = value1;
 		}
 
-                if (strstr(buf, "ar_fpsr = ")) {
-                        eframe[P_ar_fpsr] = value1;
-                }
+								if (strstr(buf, "ar_fpsr = ")) {
+												eframe[P_ar_fpsr] = value1;
+								}
 
-                if (strstr(buf, "pr = ")) {
-                        eframe[P_pr] = value1;
-                }
+								if (strstr(buf, "pr = ")) {
+												eframe[P_pr] = value1;
+								}
 
-                if (strstr(buf, "loadrs = ")) {
-                        eframe[P_loadrs] = value1;
-                }
+								if (strstr(buf, "loadrs = ")) {
+												eframe[P_loadrs] = value1;
+								}
 
-                if (strstr(buf, "b0 = ")) {
-                        eframe[P_b0] = value1;
-                }
+								if (strstr(buf, "b0 = ")) {
+												eframe[P_b0] = value1;
+								}
 
-                if (strstr(buf, "b6 = ")) {
-                        eframe[P_b6] = value1;
-                }
+								if (strstr(buf, "b6 = ")) {
+												eframe[P_b6] = value1;
+								}
 
-                if (strstr(buf, "b7 = ")) {
-                        eframe[P_b7] = value1;
-                }
+								if (strstr(buf, "b7 = ")) {
+												eframe[P_b7] = value1;
+								}
 
-                if (strstr(buf, "r1 = ")) {
-                        eframe[P_r1] = value1;
-                }
-
-
-                if (strstr(buf, "r2 = ")) {
-                        eframe[P_r2] = value1;
-                }
+								if (strstr(buf, "r1 = ")) {
+												eframe[P_r1] = value1;
+								}
 
 
-                if (strstr(buf, "r3 = ")) {
-                        eframe[P_r3] = value1;
-                }
+								if (strstr(buf, "r2 = ")) {
+												eframe[P_r2] = value1;
+								}
 
 
-                if (strstr(buf, "r8 = ")) {
-                        eframe[P_r8] = value1;
-                }
+								if (strstr(buf, "r3 = ")) {
+												eframe[P_r3] = value1;
+								}
 
 
-                if (strstr(buf, "r9 = ")) {
-                        eframe[P_r9] = value1;
-                }
-
-                if (strstr(buf, "r10 = ")) {
-                        eframe[P_r10] = value1;
-                }
+								if (strstr(buf, "r8 = ")) {
+												eframe[P_r8] = value1;
+								}
 
 
-                if (strstr(buf, "r11 = ")) {
-                        eframe[P_r11] = value1;
-                }
+								if (strstr(buf, "r9 = ")) {
+												eframe[P_r9] = value1;
+								}
 
-                if (strstr(buf, "r12 = ")) {
-                        eframe[P_r12] = value1;
-                }
+								if (strstr(buf, "r10 = ")) {
+												eframe[P_r10] = value1;
+								}
 
-                if (strstr(buf, "r13 = ")) {
-                        eframe[P_r13] = value1;
-                }
 
-                if (strstr(buf, "r14 = ")) {
-                        eframe[P_r14] = value1;
-                }
+								if (strstr(buf, "r11 = ")) {
+												eframe[P_r11] = value1;
+								}
 
-                if (strstr(buf, "r15 = ")) {
-                        eframe[P_r15] = value1;
-                }
+								if (strstr(buf, "r12 = ")) {
+												eframe[P_r12] = value1;
+								}
 
-                if (strstr(buf, "r16 = ")) {
-                        eframe[P_r16] = value1;
-                }
+								if (strstr(buf, "r13 = ")) {
+												eframe[P_r13] = value1;
+								}
 
-                if (strstr(buf, "r17 = ")) {
-                        eframe[P_r17] = value1;
-                }
+								if (strstr(buf, "r14 = ")) {
+												eframe[P_r14] = value1;
+								}
 
-                if (strstr(buf, "r18 = ")) {
-                        eframe[P_r18] = value1;
-                }
+								if (strstr(buf, "r15 = ")) {
+												eframe[P_r15] = value1;
+								}
 
-                if (strstr(buf, "r19 = ")) {
-                        eframe[P_r19] = value1;
-                }
+								if (strstr(buf, "r16 = ")) {
+												eframe[P_r16] = value1;
+								}
 
-                if (strstr(buf, "r20 = ")) {
-                        eframe[P_r20] = value1;
-                }
+								if (strstr(buf, "r17 = ")) {
+												eframe[P_r17] = value1;
+								}
 
-                if (strstr(buf, "r21 = ")) {
-                        eframe[P_r21] = value1;
-                }
+								if (strstr(buf, "r18 = ")) {
+												eframe[P_r18] = value1;
+								}
 
-                if (strstr(buf, "r22 = ")) {
-                        eframe[P_r22] = value1;
-                }
+								if (strstr(buf, "r19 = ")) {
+												eframe[P_r19] = value1;
+								}
 
-                if (strstr(buf, "r23 = ")) {
-                        eframe[P_r23] = value1;
-                }
+								if (strstr(buf, "r20 = ")) {
+												eframe[P_r20] = value1;
+								}
 
-                if (strstr(buf, "r24 = ")) {
-                        eframe[P_r24] = value1;
-                }
+								if (strstr(buf, "r21 = ")) {
+												eframe[P_r21] = value1;
+								}
 
-                if (strstr(buf, "r25 = ")) {
-                        eframe[P_r25] = value1;
-                }
+								if (strstr(buf, "r22 = ")) {
+												eframe[P_r22] = value1;
+								}
 
-                if (strstr(buf, "r26 = ")) {
-                        eframe[P_r26] = value1;
-                }
+								if (strstr(buf, "r23 = ")) {
+												eframe[P_r23] = value1;
+								}
 
-                if (strstr(buf, "r27 = ")) {
-                        eframe[P_r27] = value1;
-                }
+								if (strstr(buf, "r24 = ")) {
+												eframe[P_r24] = value1;
+								}
 
-                if (strstr(buf, "r28 = ")) {
-                        eframe[P_r28] = value1;
-                }
+								if (strstr(buf, "r25 = ")) {
+												eframe[P_r25] = value1;
+								}
 
-                if (strstr(buf, "r29 = ")) {
-                        eframe[P_r29] = value1;
-                }
+								if (strstr(buf, "r26 = ")) {
+												eframe[P_r26] = value1;
+								}
 
-                if (strstr(buf, "r30 = ")) {
-                        eframe[P_r30] = value1;
-                }
+								if (strstr(buf, "r27 = ")) {
+												eframe[P_r27] = value1;
+								}
 
-                if (strstr(buf, "r31 = ")) {
-                        eframe[P_r31] = value1;
-                }
+								if (strstr(buf, "r28 = ")) {
+												eframe[P_r28] = value1;
+								}
+
+								if (strstr(buf, "r29 = ")) {
+												eframe[P_r29] = value1;
+								}
+
+								if (strstr(buf, "r30 = ")) {
+												eframe[P_r30] = value1;
+								}
+
+								if (strstr(buf, "r31 = ")) {
+												eframe[P_r31] = value1;
+								}
 	}
 
-       	close_tmpfile();
+			 	close_tmpfile();
 
 	fprintf(fp, "  EFRAME: %lx\n", addr);
 
 	if (bt->flags & BT_INCOMPLETE_USER_EFRAME) {
 		fprintf(fp,
-    "  [exception frame incomplete -- check salinfo for complete context]\n");
+		"  [exception frame incomplete -- check salinfo for complete context]\n");
 		bt->flags &= ~BT_INCOMPLETE_USER_EFRAME;
 	}
 
@@ -1832,8 +1832,8 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 		eframe[P_b0], eframe[P_cr_iip]);
 /**
 	if (is_kernel_text(eframe[P_cr_iip]))
-        	fprintf(fp, "<%s>",
-                	value_to_symstr(eframe[P_cr_iip], buf, 0));
+					fprintf(fp, "<%s>",
+									value_to_symstr(eframe[P_cr_iip], buf, 0));
 	fprintf(fp, "\n");
 **/
 	fprintf(fp, " CR_IPSR: %016lx      CR_IFS: %016lx\n",
@@ -1842,59 +1842,59 @@ ia64_exception_frame(ulong addr, struct bt_info *bt)
 		eframe[P_ar_pfs], eframe[P_ar_rsc]);
 	fprintf(fp, " AR_UNAT: %016lx     AR_RNAT: %016lx\n",
 		eframe[P_ar_unat], eframe[P_ar_rnat]);
-        fprintf(fp, "  AR_CCV: %016lx     AR_FPSR: %016lx\n",
-                eframe[P_ar_ccv], eframe[P_ar_fpsr]);
-        fprintf(fp, "  LOADRS: %016lx AR_BSPSTORE: %016lx\n",
+				fprintf(fp, "  AR_CCV: %016lx     AR_FPSR: %016lx\n",
+								eframe[P_ar_ccv], eframe[P_ar_fpsr]);
+				fprintf(fp, "  LOADRS: %016lx AR_BSPSTORE: %016lx\n",
 		eframe[P_loadrs], eframe[P_ar_bspstore]);
-        fprintf(fp, "      B6: %016lx          B7: %016lx\n",
+				fprintf(fp, "      B6: %016lx          B7: %016lx\n",
 		eframe[P_b6], eframe[P_b7]);
-        fprintf(fp, "      PR: %016lx          R1: %016lx\n",
+				fprintf(fp, "      PR: %016lx          R1: %016lx\n",
 		eframe[P_pr], eframe[P_r1]);
-        fprintf(fp, "      R2: %016lx          R3: %016lx\n",
+				fprintf(fp, "      R2: %016lx          R3: %016lx\n",
 		eframe[P_r2], eframe[P_r3]);
-        fprintf(fp, "      R8: %016lx          R9: %016lx\n",
+				fprintf(fp, "      R8: %016lx          R9: %016lx\n",
 		eframe[P_r8], eframe[P_r9]);
-        fprintf(fp, "     R10: %016lx         R11: %016lx\n",
+				fprintf(fp, "     R10: %016lx         R11: %016lx\n",
 		eframe[P_r10], eframe[P_r11]);
-        fprintf(fp, "     R12: %016lx         R13: %016lx\n",
+				fprintf(fp, "     R12: %016lx         R13: %016lx\n",
 		eframe[P_r12], eframe[P_r13]);
-        fprintf(fp, "     R14: %016lx         R15: %016lx\n",
+				fprintf(fp, "     R14: %016lx         R15: %016lx\n",
 		eframe[P_r14], eframe[P_r15]);
-        fprintf(fp, "     R16: %016lx         R17: %016lx\n",
+				fprintf(fp, "     R16: %016lx         R17: %016lx\n",
 		eframe[P_r16], eframe[P_r17]);
-        fprintf(fp, "     R18: %016lx         R19: %016lx\n",
+				fprintf(fp, "     R18: %016lx         R19: %016lx\n",
 		eframe[P_r18], eframe[P_r19]);
-        fprintf(fp, "     R20: %016lx         R21: %016lx\n",
+				fprintf(fp, "     R20: %016lx         R21: %016lx\n",
 		eframe[P_r20], eframe[P_r21]);
-        fprintf(fp, "     R22: %016lx         R23: %016lx\n",
+				fprintf(fp, "     R22: %016lx         R23: %016lx\n",
 		eframe[P_r22], eframe[P_r23]);
-        fprintf(fp, "     R24: %016lx         R25: %016lx\n",
+				fprintf(fp, "     R24: %016lx         R25: %016lx\n",
 		eframe[P_r24], eframe[P_r25]);
-        fprintf(fp, "     R26: %016lx         R27: %016lx\n",
+				fprintf(fp, "     R26: %016lx         R27: %016lx\n",
 		eframe[P_r26], eframe[P_r27]);
-        fprintf(fp, "     R28: %016lx         R29: %016lx\n",
+				fprintf(fp, "     R28: %016lx         R29: %016lx\n",
 		eframe[P_r28], eframe[P_r29]);
-        fprintf(fp, "     R30: %016lx         R31: %016lx\n",
+				fprintf(fp, "     R30: %016lx         R31: %016lx\n",
 		eframe[P_r30], eframe[P_r31]);
 	fprintf(fp, "      F6: %05lx%016lx  ",
 		eframe[P_f6_hi], eframe[P_f6_lo]);
-        fprintf(fp, "   F7: %05lx%016lx\n",
-                eframe[P_f7_hi], eframe[P_f7_lo]);
-        fprintf(fp, "      F8: %05lx%016lx  ",
-                eframe[P_f8_hi], eframe[P_f8_lo]);
-        fprintf(fp, "   F9: %05lx%016lx\n",
-                eframe[P_f9_hi], eframe[P_f9_lo]);
+				fprintf(fp, "   F7: %05lx%016lx\n",
+								eframe[P_f7_hi], eframe[P_f7_lo]);
+				fprintf(fp, "      F8: %05lx%016lx  ",
+								eframe[P_f8_hi], eframe[P_f8_lo]);
+				fprintf(fp, "   F9: %05lx%016lx\n",
+								eframe[P_f9_hi], eframe[P_f9_lo]);
 
 	if (machdep->flags & NEW_UNW_V3) {
-        	fprintf(fp, "     F10: %05lx%016lx  ",
-                	eframe[P_f10_hi], eframe[P_f10_lo]);
-        	fprintf(fp, "  F11: %05lx%016lx\n",
-                	eframe[P_f11_hi], eframe[P_f11_lo]);
+					fprintf(fp, "     F10: %05lx%016lx  ",
+									eframe[P_f10_hi], eframe[P_f10_lo]);
+					fprintf(fp, "  F11: %05lx%016lx\n",
+									eframe[P_f11_hi], eframe[P_f11_lo]);
 	}
 
 	CRASHDEBUG_RESTORE();
-        if (bt->debug)
-                CRASHDEBUG_SUSPEND(bt->debug);
+				if (bt->debug)
+								CRASHDEBUG_SUSPEND(bt->debug);
 }
 
 enum ss_reg_names {
@@ -1913,22 +1913,22 @@ enum ss_reg_names {
 		S_f17_lo, S_f17_hi,
 		S_f18_lo, S_f18_hi,
 		S_f19_lo, S_f19_hi,
-                S_f20_lo, S_f20_hi,
-                S_f21_lo, S_f21_hi,
-                S_f22_lo, S_f22_hi,
-                S_f23_lo, S_f23_hi,
-                S_f24_lo, S_f24_hi,
-                S_f25_lo, S_f25_hi,
-                S_f26_lo, S_f26_hi,
-                S_f27_lo, S_f27_hi,
-                S_f28_lo, S_f28_hi,
-                S_f29_lo, S_f29_hi,
-                S_f30_lo, S_f30_hi,
-                S_f31_lo, S_f31_hi,
+								S_f20_lo, S_f20_hi,
+								S_f21_lo, S_f21_hi,
+								S_f22_lo, S_f22_hi,
+								S_f23_lo, S_f23_hi,
+								S_f24_lo, S_f24_hi,
+								S_f25_lo, S_f25_hi,
+								S_f26_lo, S_f26_hi,
+								S_f27_lo, S_f27_hi,
+								S_f28_lo, S_f28_hi,
+								S_f29_lo, S_f29_hi,
+								S_f30_lo, S_f30_hi,
+								S_f31_lo, S_f31_hi,
 		S_r4, S_r5, S_r6, S_r7,
 		S_b0, S_b1, S_b2, S_b3, S_b4, S_b5,
 		S_ar_pfs, S_ar_lc, S_ar_unat, S_ar_rnat, S_ar_bspstore, S_pr,
-                NUM_SS_REGS };
+								NUM_SS_REGS };
 
 
 /*
@@ -1938,21 +1938,21 @@ static void
 ia64_dump_switch_stack(ulong task, ulong flag)
 {
 	ulong addr;
-        char buf[BUFSIZE], *p;
-        int fval;
-        ulong value1, value2;
-        ulong ss[NUM_SS_REGS];
+				char buf[BUFSIZE], *p;
+				int fval;
+				ulong value1, value2;
+				ulong ss[NUM_SS_REGS];
 
 	addr = SWITCH_STACK_ADDR(task);
 
-        BZERO(&ss, sizeof(ulong) * NUM_SS_REGS);
+				BZERO(&ss, sizeof(ulong) * NUM_SS_REGS);
 
-        open_tmpfile();
-        dump_struct("switch_stack", addr, RADIX(16));
-        rewind(pc->tmpfile);
+				open_tmpfile();
+				dump_struct("switch_stack", addr, RADIX(16));
+				rewind(pc->tmpfile);
 
-        fval = 0;
-        while (fgets(buf, BUFSIZE, pc->tmpfile)) {
+				fval = 0;
+				while (fgets(buf, BUFSIZE, pc->tmpfile)) {
 
 		if (strstr(buf, "f2 = ")) {
 			fval = 2;
@@ -2050,17 +2050,17 @@ ia64_dump_switch_stack(ulong task, ulong flag)
 			fval = 29;
 			continue;
 		}
-                if (strstr(buf, "f30 = ")) {
-                        fval = 30;
-                        continue;
-                }
-                if (strstr(buf, "f31 = ")) {
-                        fval = 31;
-                        continue;
-                }
+								if (strstr(buf, "f30 = ")) {
+												fval = 30;
+												continue;
+								}
+								if (strstr(buf, "f31 = ")) {
+												fval = 31;
+												continue;
+								}
 
-                if (!strstr(buf, "0x"))
-                        continue;
+								if (!strstr(buf, "0x"))
+												continue;
 
 		if (fval) {
 			p = strstr(buf, "0x");
@@ -2085,94 +2085,94 @@ ia64_dump_switch_stack(ulong task, ulong flag)
 				ss[S_f5_lo] = value1;
 				ss[S_f5_hi] = value2;
 				break;
-                        case 10:
-                                ss[S_f10_lo] = value1;
-                                ss[S_f10_hi] = value2;
-                                break;
-                        case 11:
-                                ss[S_f11_lo] = value1;
-                                ss[S_f11_hi] = value2;
-                                break;
-                        case 12:
-                                ss[S_f12_lo] = value1;
-                                ss[S_f12_hi] = value2;
-                                break;
-                        case 13:
-                                ss[S_f13_lo] = value1;
-                                ss[S_f13_hi] = value2;
-                                break;
-                        case 14:
-                                ss[S_f14_lo] = value1;
-                                ss[S_f14_hi] = value2;
-                                break;
-                        case 15:
-                                ss[S_f15_lo] = value1;
-                                ss[S_f15_hi] = value2;
-                                break;
-                        case 16:
-                                ss[S_f16_lo] = value1;
-                                ss[S_f16_hi] = value2;
-                                break;
-                        case 17:
-                                ss[S_f17_lo] = value1;
-                                ss[S_f17_hi] = value2;
-                                break;
-                        case 18:
-                                ss[S_f18_lo] = value1;
-                                ss[S_f18_hi] = value2;
-                                break;
-                        case 19:
-                                ss[S_f19_lo] = value1;
-                                ss[S_f19_hi] = value2;
-                                break;
-                        case 20:
-                                ss[S_f20_lo] = value1;
-                                ss[S_f20_hi] = value2;
-                                break;
-                        case 21:
-                                ss[S_f21_lo] = value1;
-                                ss[S_f21_hi] = value2;
-                                break;
-                        case 22:
-                                ss[S_f22_lo] = value1;
-                                ss[S_f22_hi] = value2;
-                                break;
-                        case 23:
-                                ss[S_f23_lo] = value1;
-                                ss[S_f23_hi] = value2;
-                                break;
-                        case 24:
-                                ss[S_f24_lo] = value1;
-                                ss[S_f24_hi] = value2;
-                                break;
-                        case 25:
-                                ss[S_f25_lo] = value1;
-                                ss[S_f25_hi] = value2;
-                                break;
-                        case 26:
-                                ss[S_f26_lo] = value1;
-                                ss[S_f26_hi] = value2;
-                                break;
-                        case 27:
-                                ss[S_f27_lo] = value1;
-                                ss[S_f27_hi] = value2;
-                                break;
-                        case 28:
-                                ss[S_f28_lo] = value1;
-                                ss[S_f28_hi] = value2;
-                                break;
-                        case 29:
-                                ss[S_f29_lo] = value1;
-                                ss[S_f29_hi] = value2;
-                                break;
-                        case 30:
-                                ss[S_f30_lo] = value1;
-                                ss[S_f30_hi] = value2;
-                                break;
-                        case 31:
-                                ss[S_f31_lo] = value1;
-                                ss[S_f31_hi] = value2;
-                                break;
+												case 10:
+																ss[S_f10_lo] = value1;
+																ss[S_f10_hi] = value2;
+																break;
+												case 11:
+																ss[S_f11_lo] = value1;
+																ss[S_f11_hi] = value2;
+																break;
+												case 12:
+																ss[S_f12_lo] = value1;
+																ss[S_f12_hi] = value2;
+																break;
+												case 13:
+																ss[S_f13_lo] = value1;
+																ss[S_f13_hi] = value2;
+																break;
+												case 14:
+																ss[S_f14_lo] = value1;
+																ss[S_f14_hi] = value2;
+																break;
+												case 15:
+																ss[S_f15_lo] = value1;
+																ss[S_f15_hi] = value2;
+																break;
+												case 16:
+																ss[S_f16_lo] = value1;
+																ss[S_f16_hi] = value2;
+																break;
+												case 17:
+																ss[S_f17_lo] = value1;
+																ss[S_f17_hi] = value2;
+																break;
+												case 18:
+																ss[S_f18_lo] = value1;
+																ss[S_f18_hi] = value2;
+																break;
+												case 19:
+																ss[S_f19_lo] = value1;
+																ss[S_f19_hi] = value2;
+																break;
+												case 20:
+																ss[S_f20_lo] = value1;
+																ss[S_f20_hi] = value2;
+																break;
+												case 21:
+																ss[S_f21_lo] = value1;
+																ss[S_f21_hi] = value2;
+																break;
+												case 22:
+																ss[S_f22_lo] = value1;
+																ss[S_f22_hi] = value2;
+																break;
+												case 23:
+																ss[S_f23_lo] = value1;
+																ss[S_f23_hi] = value2;
+																break;
+												case 24:
+																ss[S_f24_lo] = value1;
+																ss[S_f24_hi] = value2;
+																break;
+												case 25:
+																ss[S_f25_lo] = value1;
+																ss[S_f25_hi] = value2;
+																break;
+												case 26:
+																ss[S_f26_lo] = value1;
+																ss[S_f26_hi] = value2;
+																break;
+												case 27:
+																ss[S_f27_lo] = value1;
+																ss[S_f27_hi] = value2;
+																break;
+												case 28:
+																ss[S_f28_lo] = value1;
+																ss[S_f28_hi] = value2;
+																break;
+												case 29:
+																ss[S_f29_lo] = value1;
+																ss[S_f29_hi] = value2;
+																break;
+												case 30:
+																ss[S_f30_lo] = value1;
+																ss[S_f30_hi] = value2;
+																break;
+												case 31:
+																ss[S_f31_lo] = value1;
+																ss[S_f31_hi] = value2;
+																break;
 			}
 			fval = 0;
 			continue;
@@ -2182,71 +2182,71 @@ ia64_dump_switch_stack(ulong task, ulong flag)
 		p = strstr(buf, " = ");
 		extract_hex(p, &value1, NULLCHAR, FALSE);
 
-                if (strstr(buf, "caller_unat = ")) {
-                        ss[S_caller_unat] = value1;
-                }
-                if (strstr(buf, "ar_fpsr = ")) {
-                        ss[S_ar_fpsr] = value1;
-                }
-                if (strstr(buf, "r4 = ")) {
-                        ss[S_r4] = value1;
-                }
-                if (strstr(buf, "r5 = ")) {
-                        ss[S_r5] = value1;
-                }
-                if (strstr(buf, "r6 = ")) {
-                        ss[S_r6] = value1;
-                }
-                if (strstr(buf, "r7 = ")) {
-                        ss[S_r7] = value1;
-                }
-                if (strstr(buf, "b0 = ")) {
-                        ss[S_b0] = value1;
-                }
-                if (strstr(buf, "b1 = ")) {
-                        ss[S_b1] = value1;
-                }
-                if (strstr(buf, "b2 = ")) {
-                        ss[S_b2] = value1;
-                }
-                if (strstr(buf, "b3 = ")) {
-                        ss[S_b3] = value1;
-                }
-                if (strstr(buf, "b4 = ")) {
-                        ss[S_b4] = value1;
-                }
-                if (strstr(buf, "b5 = ")) {
-                        ss[S_b5] = value1;
-                }
-                if (strstr(buf, "ar_pfs = ")) {
-                        ss[S_ar_pfs] = value1;
-                }
-                if (strstr(buf, "ar_lc = ")) {
-                        ss[S_ar_lc] = value1;
-                }
-                if (strstr(buf, "ar_unat = ")) {
-                        ss[S_ar_unat] = value1;
-                }
-                if (strstr(buf, "ar_rnat = ")) {
-                        ss[S_ar_rnat] = value1;
-                }
-                if (strstr(buf, "ar_bspstore = ")) {
-                        ss[S_ar_bspstore] = value1;
-                }
-                if (strstr(buf, "pr = ")) {
-                        ss[S_pr] = value1;
-                }
+								if (strstr(buf, "caller_unat = ")) {
+												ss[S_caller_unat] = value1;
+								}
+								if (strstr(buf, "ar_fpsr = ")) {
+												ss[S_ar_fpsr] = value1;
+								}
+								if (strstr(buf, "r4 = ")) {
+												ss[S_r4] = value1;
+								}
+								if (strstr(buf, "r5 = ")) {
+												ss[S_r5] = value1;
+								}
+								if (strstr(buf, "r6 = ")) {
+												ss[S_r6] = value1;
+								}
+								if (strstr(buf, "r7 = ")) {
+												ss[S_r7] = value1;
+								}
+								if (strstr(buf, "b0 = ")) {
+												ss[S_b0] = value1;
+								}
+								if (strstr(buf, "b1 = ")) {
+												ss[S_b1] = value1;
+								}
+								if (strstr(buf, "b2 = ")) {
+												ss[S_b2] = value1;
+								}
+								if (strstr(buf, "b3 = ")) {
+												ss[S_b3] = value1;
+								}
+								if (strstr(buf, "b4 = ")) {
+												ss[S_b4] = value1;
+								}
+								if (strstr(buf, "b5 = ")) {
+												ss[S_b5] = value1;
+								}
+								if (strstr(buf, "ar_pfs = ")) {
+												ss[S_ar_pfs] = value1;
+								}
+								if (strstr(buf, "ar_lc = ")) {
+												ss[S_ar_lc] = value1;
+								}
+								if (strstr(buf, "ar_unat = ")) {
+												ss[S_ar_unat] = value1;
+								}
+								if (strstr(buf, "ar_rnat = ")) {
+												ss[S_ar_rnat] = value1;
+								}
+								if (strstr(buf, "ar_bspstore = ")) {
+												ss[S_ar_bspstore] = value1;
+								}
+								if (strstr(buf, "pr = ")) {
+												ss[S_pr] = value1;
+								}
 	}
 
 	close_tmpfile();
 
 	fprintf(fp, "SWITCH_STACK: %lx\n", addr);
 
-        fprintf(fp, "      B0: %016lx          B1: %016lx\n",
+				fprintf(fp, "      B0: %016lx          B1: %016lx\n",
 		ss[S_b0], ss[S_b1]);
-        fprintf(fp, "      B2: %016lx          B3: %016lx\n",
+				fprintf(fp, "      B2: %016lx          B3: %016lx\n",
 		ss[S_b2], ss[S_b3]);
-        fprintf(fp, "      B4: %016lx          B5: %016lx\n",
+				fprintf(fp, "      B4: %016lx          B5: %016lx\n",
 		ss[S_b4], ss[S_b5]);
 
 	fprintf(fp, "  AR_PFS: %016lx       AR_LC: %016lx\n",
@@ -2258,37 +2258,37 @@ ia64_dump_switch_stack(ulong task, ulong flag)
 	fprintf(fp, " AR_FPSR: %016lx CALLER_UNAT: %016lx\n",
 		ss[S_ar_fpsr], ss[S_caller_unat]);
 
-        fprintf(fp, "      R4: %016lx          R5: %016lx\n",
+				fprintf(fp, "      R4: %016lx          R5: %016lx\n",
 		ss[S_r4], ss[S_r5]);
-        fprintf(fp, "      R6: %016lx          R7: %016lx\n",
+				fprintf(fp, "      R6: %016lx          R7: %016lx\n",
 		ss[S_r6], ss[S_r7]);
 
-        fprintf(fp, "      F2: %05lx%016lx  ", ss[S_f2_hi], ss[S_f2_lo]);
-        fprintf(fp, "   F3: %05lx%016lx\n", ss[S_f3_hi], ss[S_f3_lo]);
-        fprintf(fp, "      F4: %05lx%016lx  ", ss[S_f4_hi], ss[S_f4_lo]);
-        fprintf(fp, "   F5: %05lx%016lx\n", ss[S_f5_hi], ss[S_f5_lo]);
-        fprintf(fp, "     F10: %05lx%016lx  ", ss[S_f10_hi], ss[S_f10_lo]);
-        fprintf(fp, "  F11: %05lx%016lx\n", ss[S_f11_hi], ss[S_f11_lo]);
-        fprintf(fp, "     F12: %05lx%016lx  ", ss[S_f12_hi], ss[S_f12_lo]);
-        fprintf(fp, "  F13: %05lx%016lx\n", ss[S_f13_hi], ss[S_f13_lo]);
-        fprintf(fp, "     F14: %05lx%016lx  ", ss[S_f14_hi], ss[S_f14_lo]);
-        fprintf(fp, "  F15: %05lx%016lx\n", ss[S_f15_hi], ss[S_f15_lo]);
-        fprintf(fp, "     F16: %05lx%016lx  ", ss[S_f16_hi], ss[S_f16_lo]);
-        fprintf(fp, "  F17: %05lx%016lx\n", ss[S_f17_hi], ss[S_f17_lo]);
-        fprintf(fp, "     F18: %05lx%016lx  ", ss[S_f18_hi], ss[S_f18_lo]);
-        fprintf(fp, "  F19: %05lx%016lx\n", ss[S_f19_hi], ss[S_f19_lo]);
-        fprintf(fp, "     F20: %05lx%016lx  ", ss[S_f20_hi], ss[S_f20_lo]);
-        fprintf(fp, "  F21: %05lx%016lx\n", ss[S_f21_hi], ss[S_f21_lo]);
-        fprintf(fp, "     F22: %05lx%016lx  ", ss[S_f22_hi], ss[S_f22_lo]);
-        fprintf(fp, "  F23: %05lx%016lx\n", ss[S_f23_hi], ss[S_f23_lo]);
-        fprintf(fp, "     F24: %05lx%016lx  ", ss[S_f24_hi], ss[S_f24_lo]);
-        fprintf(fp, "  F25: %05lx%016lx\n", ss[S_f25_hi], ss[S_f25_lo]);
-        fprintf(fp, "     F26: %05lx%016lx  ", ss[S_f26_hi], ss[S_f26_lo]);
-        fprintf(fp, "  F27: %05lx%016lx\n", ss[S_f27_hi], ss[S_f27_lo]);
-        fprintf(fp, "     F28: %05lx%016lx  ", ss[S_f28_hi], ss[S_f28_lo]);
-        fprintf(fp, "  F29: %05lx%016lx\n", ss[S_f29_hi], ss[S_f29_lo]);
-        fprintf(fp, "     F30: %05lx%016lx  ", ss[S_f30_hi], ss[S_f30_lo]);
-        fprintf(fp, "  F31: %05lx%016lx\n", ss[S_f31_hi], ss[S_f31_lo]);
+				fprintf(fp, "      F2: %05lx%016lx  ", ss[S_f2_hi], ss[S_f2_lo]);
+				fprintf(fp, "   F3: %05lx%016lx\n", ss[S_f3_hi], ss[S_f3_lo]);
+				fprintf(fp, "      F4: %05lx%016lx  ", ss[S_f4_hi], ss[S_f4_lo]);
+				fprintf(fp, "   F5: %05lx%016lx\n", ss[S_f5_hi], ss[S_f5_lo]);
+				fprintf(fp, "     F10: %05lx%016lx  ", ss[S_f10_hi], ss[S_f10_lo]);
+				fprintf(fp, "  F11: %05lx%016lx\n", ss[S_f11_hi], ss[S_f11_lo]);
+				fprintf(fp, "     F12: %05lx%016lx  ", ss[S_f12_hi], ss[S_f12_lo]);
+				fprintf(fp, "  F13: %05lx%016lx\n", ss[S_f13_hi], ss[S_f13_lo]);
+				fprintf(fp, "     F14: %05lx%016lx  ", ss[S_f14_hi], ss[S_f14_lo]);
+				fprintf(fp, "  F15: %05lx%016lx\n", ss[S_f15_hi], ss[S_f15_lo]);
+				fprintf(fp, "     F16: %05lx%016lx  ", ss[S_f16_hi], ss[S_f16_lo]);
+				fprintf(fp, "  F17: %05lx%016lx\n", ss[S_f17_hi], ss[S_f17_lo]);
+				fprintf(fp, "     F18: %05lx%016lx  ", ss[S_f18_hi], ss[S_f18_lo]);
+				fprintf(fp, "  F19: %05lx%016lx\n", ss[S_f19_hi], ss[S_f19_lo]);
+				fprintf(fp, "     F20: %05lx%016lx  ", ss[S_f20_hi], ss[S_f20_lo]);
+				fprintf(fp, "  F21: %05lx%016lx\n", ss[S_f21_hi], ss[S_f21_lo]);
+				fprintf(fp, "     F22: %05lx%016lx  ", ss[S_f22_hi], ss[S_f22_lo]);
+				fprintf(fp, "  F23: %05lx%016lx\n", ss[S_f23_hi], ss[S_f23_lo]);
+				fprintf(fp, "     F24: %05lx%016lx  ", ss[S_f24_hi], ss[S_f24_lo]);
+				fprintf(fp, "  F25: %05lx%016lx\n", ss[S_f25_hi], ss[S_f25_lo]);
+				fprintf(fp, "     F26: %05lx%016lx  ", ss[S_f26_hi], ss[S_f26_lo]);
+				fprintf(fp, "  F27: %05lx%016lx\n", ss[S_f27_hi], ss[S_f27_lo]);
+				fprintf(fp, "     F28: %05lx%016lx  ", ss[S_f28_hi], ss[S_f28_lo]);
+				fprintf(fp, "  F29: %05lx%016lx\n", ss[S_f29_hi], ss[S_f29_lo]);
+				fprintf(fp, "     F30: %05lx%016lx  ", ss[S_f30_hi], ss[S_f30_lo]);
+				fprintf(fp, "  F31: %05lx%016lx\n", ss[S_f31_hi], ss[S_f31_lo]);
 }
 
 /*
@@ -2311,14 +2311,14 @@ ia64_get_smp_cpus(void)
 void
 ia64_cmd_mach(void)
 {
-        int c, cflag, mflag;
+				int c, cflag, mflag;
 	unsigned int radix;
 
 	cflag = mflag = radix = 0;
 
-        while ((c = getopt(argcnt, args, "cmxd")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args, "cmxd")) != EOF) {
+								switch(c)
+								{
 		case 'c':
 			cflag++;
 			break;
@@ -2338,14 +2338,14 @@ ia64_cmd_mach(void)
 					"-d and -x are mutually exclusive\n");
 			radix = 10;
 			break;
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	if (cflag)
 		ia64_display_cpu_data(radix);
@@ -2360,32 +2360,32 @@ ia64_cmd_mach(void)
 static void
 ia64_display_machine_stats(void)
 {
-        struct new_utsname *uts;
-        char buf[BUFSIZE];
-        ulong mhz;
+				struct new_utsname *uts;
+				char buf[BUFSIZE];
+				ulong mhz;
 
-        uts = &kt->utsname;
+				uts = &kt->utsname;
 
-        fprintf(fp, "              MACHINE TYPE: %s\n", uts->machine);
-        fprintf(fp, "               MEMORY SIZE: %s\n", get_memory_size(buf));
-        fprintf(fp, "                      CPUS: %d\n", kt->cpus);
+				fprintf(fp, "              MACHINE TYPE: %s\n", uts->machine);
+				fprintf(fp, "               MEMORY SIZE: %s\n", get_memory_size(buf));
+				fprintf(fp, "                      CPUS: %d\n", kt->cpus);
 	if (!STREQ(kt->hypervisor, "(undetermined)") &&
-	    !STREQ(kt->hypervisor, "bare hardware"))
+			!STREQ(kt->hypervisor, "bare hardware"))
 		fprintf(fp, "                HYPERVISOR: %s\n",  kt->hypervisor);
-        fprintf(fp, "           PROCESSOR SPEED: ");
-        if ((mhz = machdep->processor_speed()))
-                fprintf(fp, "%ld Mhz\n", mhz);
-        else
-                fprintf(fp, "(unknown)\n");
-        fprintf(fp, "                        HZ: %d\n", machdep->hz);
-        fprintf(fp, "                 PAGE SIZE: %d\n", PAGESIZE());
+				fprintf(fp, "           PROCESSOR SPEED: ");
+				if ((mhz = machdep->processor_speed()))
+								fprintf(fp, "%ld Mhz\n", mhz);
+				else
+								fprintf(fp, "(unknown)\n");
+				fprintf(fp, "                        HZ: %d\n", machdep->hz);
+				fprintf(fp, "                 PAGE SIZE: %d\n", PAGESIZE());
 //      fprintf(fp, "             L1 CACHE SIZE: %d\n", l1_cache_size());
-        fprintf(fp, "         KERNEL STACK SIZE: %ld\n", STACKSIZE());
-        fprintf(fp, "      KERNEL CACHED REGION: %lx\n",
+				fprintf(fp, "         KERNEL STACK SIZE: %ld\n", STACKSIZE());
+				fprintf(fp, "      KERNEL CACHED REGION: %lx\n",
 		(ulong)KERNEL_CACHED_REGION << REGION_SHIFT);
-        fprintf(fp, "    KERNEL UNCACHED REGION: %lx\n",
+				fprintf(fp, "    KERNEL UNCACHED REGION: %lx\n",
 		(ulong)KERNEL_UNCACHED_REGION << REGION_SHIFT);
-        fprintf(fp, "     KERNEL VMALLOC REGION: %lx\n",
+				fprintf(fp, "     KERNEL VMALLOC REGION: %lx\n",
 		(ulong)KERNEL_VMALLOC_REGION << REGION_SHIFT);
 	fprintf(fp, "    USER DATA/STACK REGION: %lx\n",
 		(ulong)USER_STACK_REGION << REGION_SHIFT);
@@ -2402,7 +2402,7 @@ ia64_display_machine_stats(void)
 static void
 ia64_display_cpu_data(unsigned int radix)
 {
-        int cpu;
+				int cpu;
 	ulong cpu_data;
 	int array_location_known;
 	struct syment *sp;
@@ -2415,23 +2415,23 @@ ia64_display_cpu_data(unsigned int radix)
 	array_location_known = per_cpu_symbol_search("per_cpu__cpu_info") ||
 		symbol_exists("cpu_data") || symbol_exists("_cpu_data");
 
-        for (cpu = 0; cpu < kt->cpus; cpu++) {
-                fprintf(fp, "%sCPU %d: %s\n", cpu ? "\n" : "", cpu,
+				for (cpu = 0; cpu < kt->cpus; cpu++) {
+								fprintf(fp, "%sCPU %d: %s\n", cpu ? "\n" : "", cpu,
 			array_location_known ? "" : "(boot)");
-                dump_struct("cpuinfo_ia64", cpu_data, radix);
+								dump_struct("cpuinfo_ia64", cpu_data, radix);
 
 		if (!array_location_known)
 			break;
 
 		if ((sp = per_cpu_symbol_search("per_cpu__cpu_info"))) {
-                       if ((kt->flags & SMP) && (kt->flags & PER_CPU_OFF))
-                                cpu_data = sp->value +
+											 if ((kt->flags & SMP) && (kt->flags & PER_CPU_OFF))
+																cpu_data = sp->value +
 					kt->__per_cpu_offset[cpu+1];
-                       else
+											 else
 				break;   /* we've already done cpu 0 */
 		} else
 			cpu_data += SIZE(cpuinfo_ia64);
-        }
+				}
 }
 
 
@@ -2443,10 +2443,10 @@ ia64_display_memmap(void)
 {
 	int i, others;
 	struct efi_memory_desc_t *desc;
-        struct machine_specific *ms;
+				struct machine_specific *ms;
 	char *map;
 
-        ms = &ia64_machine_specific;
+				ms = &ia64_machine_specific;
 	map = ms->ia64_memmap;
 
 	if (!map) {
@@ -2455,9 +2455,9 @@ ia64_display_memmap(void)
 	}
 
 	fprintf(fp,
-	  "      PHYSICAL ADDRESS RANGE         TYPE / ATTRIBUTE / [ACCESS]\n");
+		"      PHYSICAL ADDRESS RANGE         TYPE / ATTRIBUTE / [ACCESS]\n");
 
-        for (i = 0; i < ms->efi_memmap_size/ms->efi_memdesc_size; i++) {
+				for (i = 0; i < ms->efi_memmap_size/ms->efi_memdesc_size; i++) {
 		desc = (struct efi_memory_desc_t *)map;
 
 		fprintf(fp, "%016lx - %016lx  ",
@@ -2523,10 +2523,10 @@ ia64_display_memmap(void)
 
 		switch (VADDR_REGION(desc->virt_addr))
 		{
-        	case KERNEL_UNCACHED_REGION:
+					case KERNEL_UNCACHED_REGION:
 			fprintf(fp, "[R6]\n");
 			break;
-        	case KERNEL_CACHED_REGION:
+					case KERNEL_CACHED_REGION:
 			fprintf(fp, "[R7]\n");
 			break;
 		default:
@@ -2537,7 +2537,7 @@ ia64_display_memmap(void)
 			goto next_desc;
 
 		fprintf(fp,
-		    "physical: %016lx  %dk pages: %ld  virtual: %016lx\n",
+				"physical: %016lx  %dk pages: %ld  virtual: %016lx\n",
 			desc->phys_addr, (1 << EFI_PAGE_SHIFT)/1024,
 			desc->num_pages, desc->virt_addr);
 
@@ -2599,23 +2599,23 @@ ia64_display_memmap(void)
 			"[available]" : "");
 
 next_desc:
-                map += ms->efi_memdesc_size;
-        }
+								map += ms->efi_memdesc_size;
+				}
 }
 
 static int
 ia64_available_memory(struct efi_memory_desc_t *desc)
 {
 	if (desc->attribute & EFI_MEMORY_WB) {
-	        switch (desc->type) {
-                case EFI_LOADER_CODE:
-                case EFI_LOADER_DATA:
-                case EFI_BOOT_SERVICES_CODE:
-                case EFI_BOOT_SERVICES_DATA:
-                case EFI_CONVENTIONAL_MEMORY:
-                	return TRUE;
-                }
-        }
+					switch (desc->type) {
+								case EFI_LOADER_CODE:
+								case EFI_LOADER_DATA:
+								case EFI_BOOT_SERVICES_CODE:
+								case EFI_BOOT_SERVICES_DATA:
+								case EFI_CONVENTIONAL_MEMORY:
+									return TRUE;
+								}
+				}
 	return FALSE;
 }
 
@@ -2625,18 +2625,18 @@ ia64_available_memory(struct efi_memory_desc_t *desc)
 static void
 ia64_create_memmap(void)
 {
-        struct machine_specific *ms;
-        uint64_t ia64_boot_param, efi_memmap;
+				struct machine_specific *ms;
+				uint64_t ia64_boot_param, efi_memmap;
 	ulong num_physpages;
 	char *memmap;
 
-        ms = &ia64_machine_specific;
+				ms = &ia64_machine_specific;
 	ms->ia64_memmap = NULL;
 
-        if (symbol_exists("num_physpages")) {
-                get_symbol_data("num_physpages", sizeof(ulong), &num_physpages);
-                machdep->memsize = num_physpages * PAGESIZE();
-        }
+				if (symbol_exists("num_physpages")) {
+								get_symbol_data("num_physpages", sizeof(ulong), &num_physpages);
+								machdep->memsize = num_physpages * PAGESIZE();
+				}
 
 	if (!symbol_exists("ia64_boot_param"))
 		return;
@@ -2644,25 +2644,25 @@ ia64_create_memmap(void)
 	if ((ms->mem_limit = check_mem_limit()))
 		machdep->flags |= MEM_LIMIT;
 
-       	get_symbol_data("ia64_boot_param", sizeof(void *), &ia64_boot_param);
+			 	get_symbol_data("ia64_boot_param", sizeof(void *), &ia64_boot_param);
 
-        if ((ms->mem_limit && (ia64_VTOP(ia64_boot_param) >= ms->mem_limit)) ||
-            !readmem(ia64_boot_param+
-	    MEMBER_OFFSET("ia64_boot_param", "efi_memmap"),
-            KVADDR, &efi_memmap, sizeof(uint64_t), "efi_memmap",
-	    QUIET|RETURN_ON_ERROR)) {
+				if ((ms->mem_limit && (ia64_VTOP(ia64_boot_param) >= ms->mem_limit)) ||
+						!readmem(ia64_boot_param+
+			MEMBER_OFFSET("ia64_boot_param", "efi_memmap"),
+						KVADDR, &efi_memmap, sizeof(uint64_t), "efi_memmap",
+			QUIET|RETURN_ON_ERROR)) {
 		if (!XEN() || CRASHDEBUG(1))
 			error(WARNING, "cannot read ia64_boot_param: "
-			    "memory verification will not be performed\n\n");
+					"memory verification will not be performed\n\n");
 		return;
 	}
 
-        readmem(ia64_boot_param+MEMBER_OFFSET("ia64_boot_param",
-                "efi_memmap_size"), KVADDR, &ms->efi_memmap_size,
-                sizeof(uint64_t), "efi_memmap_size", FAULT_ON_ERROR);
-        readmem(ia64_boot_param+MEMBER_OFFSET("ia64_boot_param",
-                "efi_memdesc_size"), KVADDR, &ms->efi_memdesc_size,
-                sizeof(uint64_t), "efi_memdesc_size", FAULT_ON_ERROR);
+				readmem(ia64_boot_param+MEMBER_OFFSET("ia64_boot_param",
+								"efi_memmap_size"), KVADDR, &ms->efi_memmap_size,
+								sizeof(uint64_t), "efi_memmap_size", FAULT_ON_ERROR);
+				readmem(ia64_boot_param+MEMBER_OFFSET("ia64_boot_param",
+								"efi_memdesc_size"), KVADDR, &ms->efi_memdesc_size,
+								sizeof(uint64_t), "efi_memdesc_size", FAULT_ON_ERROR);
 
 	if (!(memmap = (char *) malloc(ms->efi_memmap_size))) {
 		error(WARNING, "cannot malloc ia64_memmap\n");
@@ -2670,12 +2670,12 @@ ia64_create_memmap(void)
 	}
 
 	if ((ms->mem_limit && (efi_memmap >= ms->mem_limit)) ||
-            !readmem(PTOV(efi_memmap), KVADDR, memmap,
-	    ms->efi_memmap_size, "efi_mmap contents",
-	    QUIET|RETURN_ON_ERROR)) {
+						!readmem(PTOV(efi_memmap), KVADDR, memmap,
+			ms->efi_memmap_size, "efi_mmap contents",
+			QUIET|RETURN_ON_ERROR)) {
 		if (!XEN() || (XEN() && CRASHDEBUG(1)))
 			error(WARNING, "cannot read efi_mmap: "
-			    "EFI memory verification will not be performed\n\n");
+					"EFI memory verification will not be performed\n\n");
 		free(memmap);
 		return;
 	}
@@ -2690,30 +2690,30 @@ ia64_create_memmap(void)
 static int
 ia64_verify_paddr(uint64_t paddr)
 {
-        int i, j, cnt, found, desc_count, desc_size;
-        struct efi_memory_desc_t *desc;
-        struct machine_specific *ms;
+				int i, j, cnt, found, desc_count, desc_size;
+				struct efi_memory_desc_t *desc;
+				struct machine_specific *ms;
 	uint64_t phys_end;
-        char *map;
+				char *map;
 	int efi_pages;
 	ulong efi_pagesize;
 
 	/*
 	 *  When kernel text and data are mapped in region 5,
 	 *  and we're using the crash memory device driver,
-         *  then the driver will gracefully fail the read attempt
+				 *  then the driver will gracefully fail the read attempt
  	 *  if the address is bogus.
 	 */
 	if ((VADDR_REGION(paddr) == KERNEL_VMALLOC_REGION) &&
-	    (pc->flags & MEMMOD))
+			(pc->flags & MEMMOD))
 		return TRUE;
 
-        ms = &ia64_machine_specific;
-        if (ms->ia64_memmap == NULL)
+				ms = &ia64_machine_specific;
+				if (ms->ia64_memmap == NULL)
 		return TRUE;
 
 	desc_count = ms->efi_memmap_size/ms->efi_memdesc_size;
-        desc_size = ms->efi_memdesc_size;
+				desc_size = ms->efi_memdesc_size;
 
 	efi_pagesize = (1 << EFI_PAGE_SHIFT);
 	efi_pages = PAGESIZE() / efi_pagesize;
@@ -2721,21 +2721,21 @@ ia64_verify_paddr(uint64_t paddr)
 
 	for (i = cnt = 0; i < efi_pages; i++, paddr += efi_pagesize) {
 		map = ms->ia64_memmap;
-	        for (j = found = 0; j < desc_count; j++) {
-	                desc = (struct efi_memory_desc_t *)map;
-	                if (ia64_available_memory(desc)) {
-	                        phys_end = desc->phys_addr +
-	                                (desc->num_pages * efi_pagesize);
-	                        if ((paddr >= desc->phys_addr) &&
-	                            ((paddr + efi_pagesize) <= phys_end)) {
-	                                cnt++;
+					for (j = found = 0; j < desc_count; j++) {
+									desc = (struct efi_memory_desc_t *)map;
+									if (ia64_available_memory(desc)) {
+													phys_end = desc->phys_addr +
+																	(desc->num_pages * efi_pagesize);
+													if ((paddr >= desc->phys_addr) &&
+															((paddr + efi_pagesize) <= phys_end)) {
+																	cnt++;
 					found = TRUE;
 				}
-	                }
+									}
 			if (found)
 				break;
-	                map += desc_size;
-	        }
+									map += desc_size;
+					}
 	}
 
 	return (cnt == efi_pages);
@@ -2749,14 +2749,14 @@ static ulong
 check_mem_limit(void)
 {
 	ulong mem_limit;
-        char *saved_command_line, *p1, *p2;
+				char *saved_command_line, *p1, *p2;
 	int len;
 
-        if (!symbol_exists("mem_limit"))
+				if (!symbol_exists("mem_limit"))
 		return 0;
 
-        get_symbol_data("mem_limit", sizeof(ulong), &mem_limit);
-        if (mem_limit == ~0UL)
+				get_symbol_data("mem_limit", sizeof(ulong), &mem_limit);
+				if (mem_limit == ~0UL)
 		return 0;
 
 	mem_limit += 1;
@@ -2770,7 +2770,7 @@ check_mem_limit(void)
 
 	saved_command_line = GETBUF(len+1);
 	if (!readmem(symbol_value("saved_command_line"), KVADDR,
-	    saved_command_line, len, "saved_command_line", RETURN_ON_ERROR))
+			saved_command_line, len, "saved_command_line", RETURN_ON_ERROR))
 		goto no_command_line;
 
 	if (!(p1 = strstr(saved_command_line, "mem=")))
@@ -2934,7 +2934,7 @@ ia64_post_init(void)
 		else if (symbol_exists("cpu_data"))
 			ms->cpu_data_address = symbol_value("cpu_data");
 		else if ((sp = per_cpu_symbol_search("per_cpu__cpu_info")) ||
-		         (sp = per_cpu_symbol_search("per_cpu__ia64_cpu_info"))) {
+						 (sp = per_cpu_symbol_search("per_cpu__ia64_cpu_info"))) {
 			if ((kt->flags & SMP) && (kt->flags & PER_CPU_OFF))
 				ms->cpu_data_address = sp->value +
 					kt->__per_cpu_offset[0];
@@ -2945,23 +2945,23 @@ ia64_post_init(void)
 			ms->cpu_data_address = 0;
 		}
 
-	        if (ms->cpu_data_address) {
-	            	if (VALID_MEMBER(cpuinfo_ia64_unimpl_va_mask))
-	       			readmem(ms->cpu_data_address +
-	                		OFFSET(cpuinfo_ia64_unimpl_va_mask),
-	                		KVADDR, &ms->unimpl_va_mask,
+					if (ms->cpu_data_address) {
+								if (VALID_MEMBER(cpuinfo_ia64_unimpl_va_mask))
+				 			readmem(ms->cpu_data_address +
+											OFFSET(cpuinfo_ia64_unimpl_va_mask),
+											KVADDR, &ms->unimpl_va_mask,
 					sizeof(ulong),
-	                		"unimpl_va_mask", FAULT_ON_ERROR);
-	            	if (VALID_MEMBER(cpuinfo_ia64_unimpl_pa_mask))
-	                        readmem(ms->cpu_data_address +
-	                                OFFSET(cpuinfo_ia64_unimpl_pa_mask),
-	                                KVADDR, &ms->unimpl_pa_mask,
+											"unimpl_va_mask", FAULT_ON_ERROR);
+								if (VALID_MEMBER(cpuinfo_ia64_unimpl_pa_mask))
+													readmem(ms->cpu_data_address +
+																	OFFSET(cpuinfo_ia64_unimpl_pa_mask),
+																	KVADDR, &ms->unimpl_pa_mask,
 					sizeof(ulong),
-	                                "unimpl_pa_mask", FAULT_ON_ERROR);
+																	"unimpl_pa_mask", FAULT_ON_ERROR);
 		}
 	}
 
-        if (symbol_exists("ia64_init_stack") && !ms->ia64_init_stack_size) {
+				if (symbol_exists("ia64_init_stack") && !ms->ia64_init_stack_size) {
 		get_symbol_type("ia64_init_stack", NULL, &req);
 		ms->ia64_init_stack_size = req.length;
 	}
@@ -2982,7 +2982,7 @@ static void
 try_old_unwind(struct bt_info *bt)
 {
 	if ((machdep->flags & NEW_UNWIND) &&
-	     (STRUCT_SIZE("unw_frame_info") == sizeof(struct unw_frame_info))) {
+			 (STRUCT_SIZE("unw_frame_info") == sizeof(struct unw_frame_info))) {
 		error(INFO, "unwind: trying old unwind mechanism\n");
 		ia64_old_unwind(bt);
 	}
@@ -3000,15 +3000,15 @@ ia64_old_unwind_init(void)
 {
 	long len;
 
-        len = STRUCT_SIZE("unw_frame_info");
-        if (len < 0) {
-                error(WARNING, "cannot determine size of unw_frame_info\n");
-                        machdep->flags |= UNW_OUT_OF_SYNC;
-        } else if (len != sizeof(struct unw_frame_info)) {
-                error(WARNING, "unw_frame_info size differs: %ld (local: %d)\n",
-                        len, sizeof(struct unw_frame_info));
-                        machdep->flags |= UNW_OUT_OF_SYNC;
-        }
+				len = STRUCT_SIZE("unw_frame_info");
+				if (len < 0) {
+								error(WARNING, "cannot determine size of unw_frame_info\n");
+												machdep->flags |= UNW_OUT_OF_SYNC;
+				} else if (len != sizeof(struct unw_frame_info)) {
+								error(WARNING, "unw_frame_info size differs: %ld (local: %d)\n",
+												len, sizeof(struct unw_frame_info));
+												machdep->flags |= UNW_OUT_OF_SYNC;
+				}
 
 }
 
@@ -3017,7 +3017,7 @@ static int unw_debug;  /* debug fprintf indent */
 static void
 ia64_old_unwind(struct bt_info *bt)
 {
-        struct unw_frame_info unw_frame_info, *info;
+				struct unw_frame_info unw_frame_info, *info;
 	struct syment *sm;
 	int frame;
 	char *name;
@@ -3033,8 +3033,8 @@ ia64_old_unwind(struct bt_info *bt)
 	frame = 0;
 
 	do {
-                if (info->ip == 0)
-                        break;
+								if (info->ip == 0)
+												break;
 
 		if (!IS_KVADDR(info->ip))
 			break;
@@ -3045,23 +3045,23 @@ ia64_old_unwind(struct bt_info *bt)
 			name = "(unknown)";
 
 		if (BT_REFERENCE_CHECK(bt)) {
-                	switch (bt->ref->cmdflags &
+									switch (bt->ref->cmdflags &
 				(BT_REF_SYMBOL|BT_REF_HEXVAL))
-                	{
-                	case BT_REF_SYMBOL:
-                        	if (STREQ(name, bt->ref->str)) {
-                                	bt->ref->cmdflags |= BT_REF_FOUND;
+									{
+									case BT_REF_SYMBOL:
+													if (STREQ(name, bt->ref->str)) {
+																	bt->ref->cmdflags |= BT_REF_FOUND;
 					goto unwind_return;
 				}
-                        	break;
+													break;
 
-                	case BT_REF_HEXVAL:
-                        	if (bt->ref->hexval == info->ip) {
-                                	bt->ref->cmdflags |= BT_REF_FOUND;
+									case BT_REF_HEXVAL:
+													if (bt->ref->hexval == info->ip) {
+																	bt->ref->cmdflags |= BT_REF_FOUND;
 					goto unwind_return;
 				}
-                        	break;
-                	}
+													break;
+									}
 		} else {
 
 			fprintf(fp, "%s#%d [BSP:%lx] %s at %lx\n",
@@ -3086,8 +3086,8 @@ ia64_old_unwind(struct bt_info *bt)
 
 unwind_return:
 
-        if (!BT_REFERENCE_CHECK(bt) && !is_kernel_thread(bt->task))
-        	ia64_exception_frame(bt->stacktop - SIZE(pt_regs), bt);
+				if (!BT_REFERENCE_CHECK(bt) && !is_kernel_thread(bt->task))
+					ia64_exception_frame(bt->stacktop - SIZE(pt_regs), bt);
 
 	if (bt->debug)
 		CRASHDEBUG_RESTORE();
@@ -3096,7 +3096,7 @@ unwind_return:
 static unsigned long
 ia64_rse_slot_num (unsigned long *addr)
 {
-        return (((unsigned long) addr) >> 3) & 0x3f;
+				return (((unsigned long) addr) >> 3) & 0x3f;
 }
 
 /*
@@ -3106,17 +3106,17 @@ ia64_rse_slot_num (unsigned long *addr)
 static unsigned long *
 ia64_rse_skip_regs (unsigned long *addr, long num_regs)
 {
-        long delta = ia64_rse_slot_num(addr) + num_regs;
+				long delta = ia64_rse_slot_num(addr) + num_regs;
 
 	if (CRASHDEBUG(1)) {
 		fprintf(fp,
-	    "%sia64_rse_skip_regs: ia64_rse_slot_num(%lx): %ld num_regs: %ld\n",
+			"%sia64_rse_skip_regs: ia64_rse_slot_num(%lx): %ld num_regs: %ld\n",
 			space(unw_debug),
 			(ulong)addr, ia64_rse_slot_num(addr), num_regs);
 	}
 
-        if (num_regs < 0)
-                delta -= 0x3e;
+				if (num_regs < 0)
+								delta -= 0x3e;
 
 	if (CRASHDEBUG(1)) {
 		fprintf(fp, "%sia64_rse_skip_regs: delta: %ld return(%lx)",
@@ -3130,7 +3130,7 @@ ia64_rse_skip_regs (unsigned long *addr, long num_regs)
 				(addr + num_regs + delta/0x3f) - addr);
 	}
 
-        return(addr + num_regs + delta/0x3f);
+				return(addr + num_regs + delta/0x3f);
 }
 
 /*
@@ -3140,7 +3140,7 @@ ia64_rse_skip_regs (unsigned long *addr, long num_regs)
 static unsigned long *
 ia64_rse_rnat_addr (unsigned long *slot_addr)
 {
-        return (unsigned long *) ((unsigned long) slot_addr | (0x3f << 3));
+				return (unsigned long *) ((unsigned long) slot_addr | (0x3f << 3));
 }
 
 /*
@@ -3152,40 +3152,40 @@ static void
 unw_init_from_blocked_task(struct unw_frame_info *info, ulong task)
 {
 	ulong sw;
-        ulong sol, limit, top;
+				ulong sol, limit, top;
 	ulong ar_pfs, ar_bspstore, b0;
 
 	sw = SWITCH_STACK_ADDR(task);
 	BZERO(info, sizeof(struct unw_frame_info));
 
-        readmem(sw + OFFSET(switch_stack_b0), KVADDR,
-                &b0, sizeof(ulong), "switch_stack b0", FAULT_ON_ERROR);
-        readmem(sw + OFFSET(switch_stack_ar_pfs), KVADDR,
-                &ar_pfs, sizeof(ulong), "switch_stack ar_pfs", FAULT_ON_ERROR);
-        readmem(sw + OFFSET(switch_stack_ar_bspstore), KVADDR,
-                &ar_bspstore, sizeof(ulong), "switch_stack ar_bspstore",
+				readmem(sw + OFFSET(switch_stack_b0), KVADDR,
+								&b0, sizeof(ulong), "switch_stack b0", FAULT_ON_ERROR);
+				readmem(sw + OFFSET(switch_stack_ar_pfs), KVADDR,
+								&ar_pfs, sizeof(ulong), "switch_stack ar_pfs", FAULT_ON_ERROR);
+				readmem(sw + OFFSET(switch_stack_ar_bspstore), KVADDR,
+								&ar_bspstore, sizeof(ulong), "switch_stack ar_bspstore",
 		FAULT_ON_ERROR);
 
-        sol = (ar_pfs >> 7) & 0x7f; /* size of locals */
+				sol = (ar_pfs >> 7) & 0x7f; /* size of locals */
 
-        limit = task + IA64_RBS_OFFSET;
-        top = ar_bspstore;
-        if ((top - task) >= IA64_STK_OFFSET)
-                top = limit;
+				limit = task + IA64_RBS_OFFSET;
+				top = ar_bspstore;
+				if ((top - task) >= IA64_STK_OFFSET)
+								top = limit;
 
-        if (CRASHDEBUG(1)) {
+				if (CRASHDEBUG(1)) {
 		unw_debug++;
-                fprintf(fp,
-                    "unw_init_from_blocked_task: stack top: %lx sol: %ld\n",
+								fprintf(fp,
+										"unw_init_from_blocked_task: stack top: %lx sol: %ld\n",
 			top, sol);
 	}
 
-        info->regstk.limit = limit;
-        info->regstk.top   = top;
-        info->sw = (struct switch_stack *)sw;
-        info->bsp = (ulong)ia64_rse_skip_regs((ulong *)info->regstk.top, -sol);
-        info->cfm = (ulong *)(sw + OFFSET(switch_stack_ar_pfs));
-        info->ip = b0;
+				info->regstk.limit = limit;
+				info->regstk.top   = top;
+				info->sw = (struct switch_stack *)sw;
+				info->bsp = (ulong)ia64_rse_skip_regs((ulong *)info->regstk.top, -sol);
+				info->cfm = (ulong *)(sw + OFFSET(switch_stack_ar_pfs));
+				info->ip = b0;
 
 	if (CRASHDEBUG(1))
 		dump_unw_frame_info(info);
@@ -3211,51 +3211,51 @@ old_unw_unwind (struct unw_frame_info *info)
 	unsigned long sol, cfm;
 	int is_nat;
 
-        if (!readmem((ulong)info->cfm, KVADDR, &cfm,
-             sizeof(long), "info->cfm", QUIET|RETURN_ON_ERROR))
+				if (!readmem((ulong)info->cfm, KVADDR, &cfm,
+						 sizeof(long), "info->cfm", QUIET|RETURN_ON_ERROR))
 		return -1;
 
-        sol = (cfm >> 7) & 0x7f;        /* size of locals */
+				sol = (cfm >> 7) & 0x7f;        /* size of locals */
 
 	if (CRASHDEBUG(1)) {
 		fprintf(fp, "old_unw_unwind: cfm: %lx  sol: %ld\n", cfm, sol);
 		unw_debug++;
 	}
 
-       /*
-         * In general, we would have to make use of unwind info to
-         * unwind an IA-64 stack, but for now gcc uses a special
-         * convention that makes this possible without full-fledged
-         * unwind info.  Specifically, we expect "rp" in the second
-         * last, and "ar.pfs" in the last local register, so the
-         * number of locals in a frame must be at least two.  If it's
-         * less than that, we reached the end of the C call stack.
-         */
-        if (sol < 2)
-                return -1;
+			 /*
+				 * In general, we would have to make use of unwind info to
+				 * unwind an IA-64 stack, but for now gcc uses a special
+				 * convention that makes this possible without full-fledged
+				 * unwind info.  Specifically, we expect "rp" in the second
+				 * last, and "ar.pfs" in the last local register, so the
+				 * number of locals in a frame must be at least two.  If it's
+				 * less than that, we reached the end of the C call stack.
+				 */
+				if (sol < 2)
+								return -1;
 
-        info->ip = rse_read_reg(info, sol - 2, &is_nat);
+				info->ip = rse_read_reg(info, sol - 2, &is_nat);
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "old_unw_unwind: ip: %lx\n", info->ip);
 
-        if (is_nat || (info->ip & (machdep->machspec->unimpl_va_mask | 0xf)))
-                return -1;
+				if (is_nat || (info->ip & (machdep->machspec->unimpl_va_mask | 0xf)))
+								return -1;
 
-        info->cfm = ia64_rse_skip_regs((ulong *)info->bsp, sol - 1);
+				info->cfm = ia64_rse_skip_regs((ulong *)info->bsp, sol - 1);
 
-        cfm = rse_read_reg(info, sol - 1, &is_nat);
+				cfm = rse_read_reg(info, sol - 1, &is_nat);
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "old_unw_unwind: info->cfm: %lx => %lx\n",
 			(ulong)info->cfm, cfm);
 
-        if (is_nat)
-                return -1;
+				if (is_nat)
+								return -1;
 
-        sol = (cfm >> 7) & 0x7f;
+				sol = (cfm >> 7) & 0x7f;
 
-        info->bsp = (ulong)ia64_rse_skip_regs((ulong *)info->bsp, -sol);
+				info->bsp = (ulong)ia64_rse_skip_regs((ulong *)info->bsp, -sol);
 
 	if (CRASHDEBUG(1)) {
 		fprintf(fp, "old_unw_unwind: next sol: %ld\n", sol);
@@ -3265,37 +3265,37 @@ old_unw_unwind (struct unw_frame_info *info)
 	return 0;
 
 #ifdef KERNEL_SOURCE
-        unsigned long sol, cfm = *info->cfm;
-        int is_nat;
+				unsigned long sol, cfm = *info->cfm;
+				int is_nat;
 
-        sol = (cfm >> 7) & 0x7f;        /* size of locals */
+				sol = (cfm >> 7) & 0x7f;        /* size of locals */
 
-        /*
-         * In general, we would have to make use of unwind info to
-         * unwind an IA-64 stack, but for now gcc uses a special
-         * convention that makes this possible without full-fledged
-         * unwind info.  Specifically, we expect "rp" in the second
-         * last, and "ar.pfs" in the last local register, so the
-         * number of locals in a frame must be at least two.  If it's
-         * less than that, we reached the end of the C call stack.
-         */
-        if (sol < 2)
-                return -1;
+				/*
+				 * In general, we would have to make use of unwind info to
+				 * unwind an IA-64 stack, but for now gcc uses a special
+				 * convention that makes this possible without full-fledged
+				 * unwind info.  Specifically, we expect "rp" in the second
+				 * last, and "ar.pfs" in the last local register, so the
+				 * number of locals in a frame must be at least two.  If it's
+				 * less than that, we reached the end of the C call stack.
+				 */
+				if (sol < 2)
+								return -1;
 
-        info->ip = rse_read_reg(info, sol - 2, &is_nat);
-        if (is_nat || (info->ip & (my_cpu_data.unimpl_va_mask | 0xf)))
-                /* reject let obviously bad addresses */
-                return -1;
+				info->ip = rse_read_reg(info, sol - 2, &is_nat);
+				if (is_nat || (info->ip & (my_cpu_data.unimpl_va_mask | 0xf)))
+								/* reject let obviously bad addresses */
+								return -1;
 
-        info->cfm = ia64_rse_skip_regs((unsigned long *) info->bsp, sol - 1);
-        cfm = rse_read_reg(info, sol - 1, &is_nat);
-        if (is_nat)
-                return -1;
+				info->cfm = ia64_rse_skip_regs((unsigned long *) info->bsp, sol - 1);
+				cfm = rse_read_reg(info, sol - 1, &is_nat);
+				if (is_nat)
+								return -1;
 
-        sol = (cfm >> 7) & 0x7f;
+				sol = (cfm >> 7) & 0x7f;
 
-        info->bsp = (unsigned long) ia64_rse_skip_regs((unsigned long *) info->bsp, -sol);
-        return 0;
+				info->bsp = (unsigned long) ia64_rse_skip_regs((unsigned long *) info->bsp, -sol);
+				return 0;
 #endif  /* KERNEL_SOURCE */
 }
 
@@ -3309,7 +3309,7 @@ old_unw_unwind (struct unw_frame_info *info)
 static ulong
 rse_read_reg (struct unw_frame_info *info, int regnum, int *is_nat)
 {
-        ulong *addr, *rnat_addr, rnat;
+				ulong *addr, *rnat_addr, rnat;
 	ulong regcontent;
 
 	if (CRASHDEBUG(1)) {
@@ -3318,7 +3318,7 @@ rse_read_reg (struct unw_frame_info *info, int regnum, int *is_nat)
 		unw_debug++;
 	}
 
-        addr = ia64_rse_skip_regs((unsigned long *) info->bsp, regnum);
+				addr = ia64_rse_skip_regs((unsigned long *) info->bsp, regnum);
 
 	if (CRASHDEBUG(1)) {
 		unw_debug--;
@@ -3326,34 +3326,34 @@ rse_read_reg (struct unw_frame_info *info, int regnum, int *is_nat)
 			space(unw_debug), (ulong)addr);
 	}
 
-        if (((ulong)addr < info->regstk.limit) ||
-	    ((ulong)addr >= info->regstk.top) ||
-	    (((long)addr & 0x7) != 0)) {
-                *is_nat = 1;
+				if (((ulong)addr < info->regstk.limit) ||
+			((ulong)addr >= info->regstk.top) ||
+			(((long)addr & 0x7) != 0)) {
+								*is_nat = 1;
 
 		if (CRASHDEBUG(1))
 			fprintf(fp,
-		    "%srse_read_reg: is_nat: %d -- return 0xdeadbeefdeadbeef\n",
+				"%srse_read_reg: is_nat: %d -- return 0xdeadbeefdeadbeef\n",
 				space(unw_debug), *is_nat);
 
-                return 0xdeadbeefdeadbeef;
-        }
+								return 0xdeadbeefdeadbeef;
+				}
 
-        rnat_addr = ia64_rse_rnat_addr(addr);
+				rnat_addr = ia64_rse_rnat_addr(addr);
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "%srse_read_reg: rnat_addr: %lx\n",
 			space(unw_debug), (ulong)rnat_addr);
 
-        if ((unsigned long) rnat_addr >= info->regstk.top)
+				if ((unsigned long) rnat_addr >= info->regstk.top)
 		readmem((ulong)(info->sw) + OFFSET(switch_stack_ar_rnat),
 			KVADDR, &rnat, sizeof(long),
 			"info->sw->ar_rnat", FAULT_ON_ERROR);
-        else
+				else
 		readmem((ulong)rnat_addr, KVADDR, &rnat, sizeof(long),
 			"rnat_addr", FAULT_ON_ERROR);
 
-        *is_nat = (rnat & (1UL << ia64_rse_slot_num(addr))) != 0;
+				*is_nat = (rnat & (1UL << ia64_rse_slot_num(addr))) != 0;
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "%srse_read_reg: rnat: %lx is_nat: %d\n",
@@ -3369,11 +3369,11 @@ rse_read_reg (struct unw_frame_info *info, int regnum, int *is_nat)
 			space(unw_debug), (ulong)addr, regcontent);
 		if (is_kernel_text(regcontent))
 			fprintf(fp, "(%s)",
-			    value_to_symstr(regcontent, buf, pc->output_radix));
+					value_to_symstr(regcontent, buf, pc->output_radix));
 		fprintf(fp, "\n");
 	}
 
-        return regcontent;
+				return regcontent;
 }
 
 /*
@@ -3457,8 +3457,8 @@ dump_unw_frame_info(struct unw_frame_info *info)
 }
 
 static const char *hook_files[] = {
-        "arch/ia64/kernel/entry.S",
-        "arch/ia64/kernel/head.S",
+				"arch/ia64/kernel/entry.S",
+				"arch/ia64/kernel/head.S",
 };
 
 #define ENTRY_S      ((char **)&hook_files[0])
@@ -3486,21 +3486,21 @@ static struct line_number_hook ia64_line_number_hooks[] = {
 	{"ia64_prepare_handle_unaligned", ENTRY_S},
 	{"unw_init_running", ENTRY_S},
 
-        {"_start", HEAD_S},
-        {"ia64_save_debug_regs", HEAD_S},
-        {"ia64_load_debug_regs", HEAD_S},
-        {"__ia64_save_fpu", HEAD_S},
-        {"__ia64_load_fpu", HEAD_S},
-        {"__ia64_init_fpu", HEAD_S},
-        {"ia64_switch_mode", HEAD_S},
-        {"ia64_set_b1", HEAD_S},
-        {"ia64_set_b2", HEAD_S},
-        {"ia64_set_b3", HEAD_S},
-        {"ia64_set_b4", HEAD_S},
-        {"ia64_set_b5", HEAD_S},
-        {"ia64_spinlock_contention", HEAD_S},
+				{"_start", HEAD_S},
+				{"ia64_save_debug_regs", HEAD_S},
+				{"ia64_load_debug_regs", HEAD_S},
+				{"__ia64_save_fpu", HEAD_S},
+				{"__ia64_load_fpu", HEAD_S},
+				{"__ia64_init_fpu", HEAD_S},
+				{"ia64_switch_mode", HEAD_S},
+				{"ia64_set_b1", HEAD_S},
+				{"ia64_set_b2", HEAD_S},
+				{"ia64_set_b3", HEAD_S},
+				{"ia64_set_b4", HEAD_S},
+				{"ia64_set_b5", HEAD_S},
+				{"ia64_spinlock_contention", HEAD_S},
 
-       {NULL, NULL}    /* list must be NULL-terminated */
+			 {NULL, NULL}    /* list must be NULL-terminated */
 };
 
 void
@@ -3509,27 +3509,27 @@ ia64_dump_line_number(ulong ip)
 	int retries;
 	char buf[BUFSIZE], *p;
 
-        retries = 0;
+				retries = 0;
 try_closest:
 	get_line_number(ip, buf, FALSE);
 
-        if (strlen(buf)) {
-                if (retries) {
-                        p = strstr(buf, ": ");
+				if (strlen(buf)) {
+								if (retries) {
+												p = strstr(buf, ": ");
 			if (p)
 				*p = NULLCHAR;
-                }
-                fprintf(fp, "    %s\n", buf);
-        } else {
-                if (retries)
-                        fprintf(fp, GDB_PATCHED() ?
-			  "" : "    (cannot determine file and line number)\n");
-                else {
-                        retries++;
-                        ip = closest_symbol_value(ip);
-                        goto try_closest;
-                }
-        }
+								}
+								fprintf(fp, "    %s\n", buf);
+				} else {
+								if (retries)
+												fprintf(fp, GDB_PATCHED() ?
+				"" : "    (cannot determine file and line number)\n");
+								else {
+												retries++;
+												ip = closest_symbol_value(ip);
+												goto try_closest;
+								}
+				}
 }
 
 /*
@@ -3558,10 +3558,10 @@ ia64_PTOV(ulong paddr)
 ulong
 ia64_VTOP(ulong vaddr)
 {
-        struct machine_specific *ms;
+				struct machine_specific *ms;
 	ulong paddr;
 
-        ms = &ia64_machine_specific;
+				ms = &ia64_machine_specific;
 
 	switch (VADDR_REGION(vaddr))
 	{
@@ -3578,16 +3578,16 @@ ia64_VTOP(ulong vaddr)
 	 *  a real vmalloc() address.
 	 */
 	case KERNEL_VMALLOC_REGION:
-	       /*
+				 /*
 	 	* Real vmalloc() addresses should never be the subject
-	        * of a VTOP() translation.
-	        */
+					* of a VTOP() translation.
+					*/
 		if (ia64_IS_VMALLOC_ADDR(vaddr) ||
-        	    (ms->kernel_region != KERNEL_VMALLOC_REGION))
+							(ms->kernel_region != KERNEL_VMALLOC_REGION))
 			return(error(FATAL,
-			    "ia64_VTOP(%lx): unexpected region 5 address\n",
+					"ia64_VTOP(%lx): unexpected region 5 address\n",
 				 vaddr));
-	       /*
+				 /*
 	 	*  If it's a region 5 kernel address, subtract the starting
 		*  kernel virtual address, and then add the base physical page.
 	 	*/
@@ -3611,7 +3611,7 @@ int
 ia64_IS_VMALLOC_ADDR(ulong vaddr)
 {
 	return ((vaddr >= machdep->machspec->vmalloc_start) &&
-        	(vaddr < (ulong)KERNEL_UNCACHED_BASE));
+					(vaddr < (ulong)KERNEL_UNCACHED_BASE));
 }
 
 static int
@@ -3704,10 +3704,10 @@ ia64_vtop_4l_xen_wpt(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, in
 	FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
 	pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
 
-        if (verbose)
-                fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
+				if (verbose)
+								fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
 
-        if (!(pgd_pte))
+				if (!(pgd_pte))
 		return FALSE;
 
 	offset = (vaddr >> PUD_SHIFT) & (PTRS_PER_PUD - 1);
@@ -3717,7 +3717,7 @@ ia64_vtop_4l_xen_wpt(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, in
 	pud_pte = ULONG(machdep->pud + PAGEOFFSET(page_upper));
 
 	if (verbose)
-                fprintf(fp, "   PUD: %lx => %lx\n", (ulong)page_upper, pud_pte);
+								fprintf(fp, "   PUD: %lx => %lx\n", (ulong)page_upper, pud_pte);
 
 	if (!(pud_pte))
 		return FALSE;
@@ -3728,35 +3728,35 @@ ia64_vtop_4l_xen_wpt(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, in
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
 	pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
 
-        if (verbose)
-                fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
+				if (verbose)
+								fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
 
-        if (!(pmd_pte))
+				if (!(pmd_pte))
 		return FALSE;
 
-        offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
-        page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
+				offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
+				page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
 
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
 
-        if (!(pte & (_PAGE_P))) {
+				if (!(pte & (_PAGE_P))) {
 		if (usr)
-		  	*paddr = pte;
+				*paddr = pte;
 		if (pte && verbose) {
 			fprintf(fp, "\n");
 			ia64_translate_pte(pte, 0, 0);
 		}
 		return FALSE;
-        }
+				}
 
-        *paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
+				*paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
 
-        if (verbose) {
-                fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
 		ia64_translate_pte(pte, 0, 0);
 	}
 
@@ -3799,10 +3799,10 @@ ia64_vtop_xen_wpt(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int u
 	FILL_PGD(PAGEBASE(pgd), KVADDR, PAGESIZE());
 	pgd_pte = ULONG(machdep->pgd + PAGEOFFSET(page_dir));
 
-        if (verbose)
-                fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
+				if (verbose)
+								fprintf(fp, "   PGD: %lx => %lx\n", (ulong)page_dir, pgd_pte);
 
-        if (!(pgd_pte))
+				if (!(pgd_pte))
 		return FALSE;
 
 	offset = (vaddr >> PMD_SHIFT) & (PTRS_PER_PMD - 1);
@@ -3811,35 +3811,35 @@ ia64_vtop_xen_wpt(ulong vaddr, physaddr_t *paddr, ulong *pgd, int verbose, int u
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
 	pmd_pte = ULONG(machdep->pmd + PAGEOFFSET(page_middle));
 
-        if (verbose)
-                fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
+				if (verbose)
+								fprintf(fp, "   PMD: %lx => %lx\n", (ulong)page_middle, pmd_pte);
 
-        if (!(pmd_pte))
+				if (!(pmd_pte))
 		return FALSE;
 
-        offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
-        page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
+				offset = (vaddr >> PAGESHIFT()) & (PTRS_PER_PTE - 1);
+				page_table = (ulong *)(PTOV(pmd_pte & _PFN_MASK)) + offset;
 
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose)
-                fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
+				if (verbose)
+								fprintf(fp, "   PTE: %lx => %lx\n", (ulong)page_table, pte);
 
-        if (!(pte & (_PAGE_P))) {
+				if (!(pte & (_PAGE_P))) {
 		if (usr)
-		  	*paddr = pte;
+				*paddr = pte;
 		if (pte && verbose) {
 			fprintf(fp, "\n");
 			ia64_translate_pte(pte, 0, 0);
 		}
 		return FALSE;
-        }
+				}
 
-        *paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
+				*paddr = (pte & _PFN_MASK) + PAGEOFFSET(vaddr);
 
-        if (verbose) {
-                fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
+				if (verbose) {
+								fprintf(fp, "  PAGE: %lx\n\n", PAGEBASE(*paddr));
 		ia64_translate_pte(pte, 0, 0);
 	}
 
@@ -3872,18 +3872,18 @@ ia64_calc_phys_start(void)
 	text_start = symbol_exists("_text") ? symbol_value("_text") : BADADDR;
 
 	if (ACTIVE()) {
-	        if ((iomem = fopen("/proc/iomem", "r")) == NULL)
-	                return;
+					if ((iomem = fopen("/proc/iomem", "r")) == NULL)
+									return;
 
 		errflag = 1;
-	        while (fgets(buf, BUFSIZE, iomem)) {
+					while (fgets(buf, BUFSIZE, iomem)) {
 			if (strstr(buf, ": Kernel code")) {
 				clean_line(buf);
 				errflag = 0;
 				break;
 			}
 		}
-	        fclose(iomem);
+					fclose(iomem);
 
 		if (errflag)
 			return;
@@ -3895,7 +3895,7 @@ ia64_calc_phys_start(void)
 
 		errflag = 0;
 		kernel_code_start = htol(buf, RETURN_ON_ERROR|QUIET, &errflag);
-	        if (errflag)
+					if (errflag)
 			return;
 
 		machdep->machspec->phys_start = kernel_code_start;
@@ -3917,22 +3917,22 @@ ia64_calc_phys_start(void)
 	 *  Get relocation value from whatever dumpfile format is being used.
 	 */
 
-        if (DISKDUMP_DUMPFILE()) {
-                if (diskdump_phys_base(&phys_start)) {
-                        machdep->machspec->phys_start = phys_start;
+				if (DISKDUMP_DUMPFILE()) {
+								if (diskdump_phys_base(&phys_start)) {
+												machdep->machspec->phys_start = phys_start;
 			if (CRASHDEBUG(1))
 				fprintf(fp,
-				    "compressed kdump: phys_start: %lx\n",
+						"compressed kdump: phys_start: %lx\n",
 					phys_start);
 		}
-                return;
-        } else if (LKCD_DUMPFILE()) {
+								return;
+				} else if (LKCD_DUMPFILE()) {
 
 		if (lkcd_get_kernel_start(&phys_start)) {
-                        machdep->machspec->phys_start = phys_start;
+												machdep->machspec->phys_start = phys_start;
 			if (CRASHDEBUG(1))
 				fprintf(fp,
-				    "LKCD dump: phys_start: %lx\n",
+						"LKCD dump: phys_start: %lx\n",
 					phys_start);
 		}
 	}
@@ -3943,7 +3943,7 @@ ia64_calc_phys_start(void)
 		 *  should be equal to "_text".  If not, take whatever
 		 *  region 5 address comes first and hope for the best.
 		 */
-                for (i = found = 0; i < vd->num_pt_load_segments; i++) {
+								for (i = found = 0; i < vd->num_pt_load_segments; i++) {
 			phdr = vd->load64 + i;
 			if (phdr->p_vaddr == text_start) {
 				machdep->machspec->phys_start = phdr->p_paddr;
@@ -3952,7 +3952,7 @@ ia64_calc_phys_start(void)
 			}
 		}
 
-                for (i = 0; !found && (i < vd->num_pt_load_segments); i++) {
+								for (i = 0; !found && (i < vd->num_pt_load_segments); i++) {
 			phdr = vd->load64 + i;
 			if (VADDR_REGION(phdr->p_vaddr) == KERNEL_VMALLOC_REGION) {
 				machdep->machspec->phys_start = phdr->p_paddr;
@@ -3996,7 +3996,7 @@ ia64_xen_kdump_p2m_create(struct xen_kdump_data *xkd)
 		error(FATAL, "cannot malloc p2m_frame_list");
 
 	if (!readmem(PTOB(xkd->p2m_mfn), PHYSADDR, xkd->p2m_mfn_frame_list, PAGESIZE(),
-	    "xen kdump p2m mfn page", RETURN_ON_ERROR))
+			"xen kdump p2m mfn page", RETURN_ON_ERROR))
 		error(FATAL, "cannot read xen kdump p2m mfn page\n");
 
 	xkd->p2m_frames = PAGESIZE()/sizeof(ulong);
@@ -4035,7 +4035,7 @@ ia64_xen_kdump_p2m(struct xen_kdump_data *xkd, physaddr_t pseudo)
 	pmd += ((pseudo >> PMD_SHIFT) & (PTRS_PER_PMD - 1)) * sizeof(ulong);
 	if (pmd != xkd->last_pmd_read) {
 		if (!readmem(pmd, PHYSADDR, &pte, sizeof(ulong),
-		    "ia64_xen_kdump_p2m pmd", RETURN_ON_ERROR)) {
+				"ia64_xen_kdump_p2m pmd", RETURN_ON_ERROR)) {
 			xkd->last_pmd_read = BADADDR;
 			xkd->last_mfn_read = BADADDR;
 			paddr = P2M_FAILURE;
@@ -4054,7 +4054,7 @@ ia64_xen_kdump_p2m(struct xen_kdump_data *xkd, physaddr_t pseudo)
 
 	if (pte != xkd->last_mfn_read) {
 		if (!readmem(pte, PHYSADDR, xkd->page, PAGESIZE(),
-		    "ia64_xen_kdump_p2m pte page", RETURN_ON_ERROR)) {
+				"ia64_xen_kdump_p2m pte page", RETURN_ON_ERROR)) {
 			xkd->last_pmd_read = BADADDR;
 			xkd->last_mfn_read = BADADDR;
 			paddr = P2M_FAILURE;
@@ -4109,18 +4109,18 @@ ia64_xendump_p2m_create(struct xendump_data *xd)
 static void
 ia64_debug_dump_page(FILE *ofp, char *page, char *name)
 {
-        int i;
-        ulong *up;
+				int i;
+				ulong *up;
 
-        fprintf(ofp, "%s\n", name);
+				fprintf(ofp, "%s\n", name);
 
-        up = (ulong *)page;
-        for (i = 0; i < 1024; i++) {
-                fprintf(ofp, "%016lx: %016lx %016lx\n",
-                        (ulong)((i * 2) * sizeof(ulong)),
-                        *up, *(up+1));
-                up += 2;
-        }
+				up = (ulong *)page;
+				for (i = 0; i < 1024; i++) {
+								fprintf(ofp, "%016lx: %016lx %016lx\n",
+												(ulong)((i * 2) * sizeof(ulong)),
+												*up, *(up+1));
+								up += 2;
+				}
 }
 
 /*
@@ -4158,13 +4158,13 @@ ia64_xendump_panic_task(struct xendump_data *xd)
 static void
 ia64_get_xendump_regs(struct xendump_data *xd, struct bt_info *bt, ulong *rip, ulong *rsp)
 {
-        machdep->get_stack_frame(bt, rip, rsp);
+				machdep->get_stack_frame(bt, rip, rsp);
 
 	if (is_task_active(bt->task) &&
-            !(bt->flags & (BT_TEXT_SYMBOLS_ALL|BT_TEXT_SYMBOLS)) &&
-	    STREQ(closest_symbol(*rip), "schedule"))
+						!(bt->flags & (BT_TEXT_SYMBOLS_ALL|BT_TEXT_SYMBOLS)) &&
+			STREQ(closest_symbol(*rip), "schedule"))
 		error(INFO,
-		    "xendump: switch_stack possibly not saved -- try \"bt -t\"\n");
+				"xendump: switch_stack possibly not saved -- try \"bt -t\"\n");
 }
 
 /* for XEN Hypervisor analysis */
@@ -4285,8 +4285,8 @@ ia64_in_mca_stack_hyper(ulong addr, struct bt_info *bt)
 		return 0;
 
 	if (!symbol_exists("__per_cpu_mca") ||
-	    !(plen = get_array_length("__per_cpu_mca", NULL, 0)) ||
-	    (plen < xht->pcpus))
+			!(plen = get_array_length("__per_cpu_mca", NULL, 0)) ||
+			(plen < xht->pcpus))
 		return 0;
 
 	if (!machdep->kvtop(NULL, addr, &paddr, 0))
@@ -4295,7 +4295,7 @@ ia64_in_mca_stack_hyper(ulong addr, struct bt_info *bt)
 	__per_cpu_mca = (ulong *)GETBUF(sizeof(ulong) * plen);
 
 	if (!readmem(symbol_value("__per_cpu_mca"), KVADDR, __per_cpu_mca,
-	    sizeof(ulong) * plen, "__per_cpu_mca", RETURN_ON_ERROR|QUIET))
+			sizeof(ulong) * plen, "__per_cpu_mca", RETURN_ON_ERROR|QUIET))
 		return 0;
 
 	if (CRASHDEBUG(1)) {
@@ -4320,8 +4320,8 @@ ia64_init_hyper(int when)
 {
 	struct syment *sp;
 
-        switch (when)
-        {
+				switch (when)
+				{
 	case SETUP_ENV:
 #if defined(PR_SET_FPEMU) && defined(PR_FPEMU_NOPRINT)
 		prctl(PR_SET_FPEMU, PR_FPEMU_NOPRINT, 0, 0, 0);
@@ -4331,15 +4331,15 @@ ia64_init_hyper(int when)
 #endif
 		break;
 
-        case PRE_SYMTAB:
-                machdep->verify_symbol = ia64_verify_symbol;
+				case PRE_SYMTAB:
+								machdep->verify_symbol = ia64_verify_symbol;
 		machdep->machspec = &ia64_machine_specific;
 		if (pc->flags & KERNEL_DEBUG_QUERY)
 			return;
-                machdep->pagesize = memory_page_size();
-                machdep->pageshift = ffs(machdep->pagesize) - 1;
-                machdep->pageoffset = machdep->pagesize - 1;
-                machdep->pagemask = ~(machdep->pageoffset);
+								machdep->pagesize = memory_page_size();
+								machdep->pageshift = ffs(machdep->pagesize) - 1;
+								machdep->pageoffset = machdep->pagesize - 1;
+								machdep->pagemask = ~(machdep->pageoffset);
 		switch (machdep->pagesize)
 		{
 		case 4096:
@@ -4358,51 +4358,51 @@ ia64_init_hyper(int when)
 			machdep->stacksize = 32*1024;
 			break;
 		}
-                if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pgd space.");
+								if ((machdep->pgd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pgd space.");
 		if ((machdep->pud = (char *)malloc(PAGESIZE())) == NULL)
 			error(FATAL, "cannot malloc pud space.");
-                if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc pmd space.");
-                if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
-                        error(FATAL, "cannot malloc ptbl space.");
-                machdep->last_pgd_read = 0;
-                machdep->last_pud_read = 0;
-                machdep->last_pmd_read = 0;
-                machdep->last_ptbl_read = 0;
+								if ((machdep->pmd = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc pmd space.");
+								if ((machdep->ptbl = (char *)malloc(PAGESIZE())) == NULL)
+												error(FATAL, "cannot malloc ptbl space.");
+								machdep->last_pgd_read = 0;
+								machdep->last_pud_read = 0;
+								machdep->last_pmd_read = 0;
+								machdep->last_ptbl_read = 0;
 		machdep->verify_paddr = ia64_verify_paddr;
 		machdep->ptrs_per_pgd = PTRS_PER_PGD;
-                machdep->machspec->phys_start = UNKNOWN_PHYS_START;
+								machdep->machspec->phys_start = UNKNOWN_PHYS_START;
 		/* ODA: if need make hyper version
-                if (machdep->cmdline_args[0])
+								if (machdep->cmdline_args[0])
 			parse_cmdline_args(); */
-                break;
+								break;
 
-        case PRE_GDB:
+				case PRE_GDB:
 
 		if (pc->flags & KERNEL_DEBUG_QUERY)
 			return;
 
-                machdep->kvbase = HYPERVISOR_VIRT_START;
+								machdep->kvbase = HYPERVISOR_VIRT_START;
 		machdep->identity_map_base = HYPERVISOR_VIRT_START;
-                machdep->is_kvaddr = ia64_is_kvaddr_hyper;
-                machdep->is_uvaddr = generic_is_uvaddr;
-                machdep->eframe_search = ia64_eframe_search;
-                machdep->back_trace = ia64_back_trace_cmd;
-                machdep->processor_speed = xen_hyper_ia64_processor_speed;
-                machdep->uvtop = ia64_uvtop;
-                machdep->kvtop = ia64_kvtop_hyper;
+								machdep->is_kvaddr = ia64_is_kvaddr_hyper;
+								machdep->is_uvaddr = generic_is_uvaddr;
+								machdep->eframe_search = ia64_eframe_search;
+								machdep->back_trace = ia64_back_trace_cmd;
+								machdep->processor_speed = xen_hyper_ia64_processor_speed;
+								machdep->uvtop = ia64_uvtop;
+								machdep->kvtop = ia64_kvtop_hyper;
 		machdep->get_stack_frame = ia64_get_stack_frame;
 		machdep->get_stackbase = ia64_get_stackbase;
 		machdep->get_stacktop = ia64_get_stacktop;
-                machdep->translate_pte = ia64_translate_pte;
-                machdep->memory_size = xen_hyper_ia64_memory_size;
-                machdep->dis_filter = ia64_dis_filter;
+								machdep->translate_pte = ia64_translate_pte;
+								machdep->memory_size = xen_hyper_ia64_memory_size;
+								machdep->dis_filter = ia64_dis_filter;
 		machdep->cmd_mach = ia64_cmd_mach;
 		machdep->get_smp_cpus = xen_hyper_ia64_get_smp_cpus;
 		machdep->line_number_hooks = ia64_line_number_hooks;
 		machdep->value_to_symbol = generic_machdep_value_to_symbol;
-                machdep->init_kernel_pgd = NULL;
+								machdep->init_kernel_pgd = NULL;
 
 		if ((sp = symbol_search("_stext"))) {
 			machdep->machspec->kernel_region =
@@ -4415,9 +4415,9 @@ ia64_init_hyper(int when)
 
 		/* machdep table for Xen Hypervisor */
 		xhmachdep->pcpu_init = xen_hyper_ia64_pcpu_init;
-                break;
+								break;
 
-        case POST_GDB:
+				case POST_GDB:
 		STRUCT_SIZE_INIT(switch_stack, "switch_stack");
 		MEMBER_OFFSET_INIT(thread_struct_fph, "thread_struct", "fph");
 		MEMBER_OFFSET_INIT(switch_stack_b0, "switch_stack", "b0");
@@ -4440,7 +4440,7 @@ ia64_init_hyper(int when)
 		if (!machdep->hz) {
 			machdep->hz = XEN_HYPER_HZ;
 		}
-                break;
+								break;
 
 	case POST_INIT:
 		ia64_post_init_hyper();

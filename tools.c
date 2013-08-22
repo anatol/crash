@@ -43,9 +43,9 @@ int
 __error(int type, char *fmt, ...)
 {
 	int end_of_line, new_line;
-        char buf[BUFSIZE];
+				char buf[BUFSIZE];
 	char *spacebuf;
-        void *retaddr[NUMBER_STACKFRAMES] = { 0 };
+				void *retaddr[NUMBER_STACKFRAMES] = { 0 };
 	va_list ap;
 
 	if (CRASHDEBUG(1) || (pc->flags & DROP_CORE)) {
@@ -56,7 +56,7 @@ __error(int type, char *fmt, ...)
 
 	va_start(ap, fmt);
 	(void)vsnprintf(buf, BUFSIZE, fmt, ap);
-        va_end(ap);
+				va_end(ap);
 
 	if (!fmt && FATAL_ERROR(type)) {
 		fprintf(stdout, "\n");
@@ -95,8 +95,8 @@ __error(int type, char *fmt, ...)
 		fflush(stdout);
 	}
 
-        if ((fp != stdout) && (fp != pc->stdpipe) && (fp != pc->tmpfile)) {
-                fprintf(fp, "%s%s%s %s", new_line ? "\n" : "",
+				if ((fp != stdout) && (fp != pc->stdpipe) && (fp != pc->tmpfile)) {
+								fprintf(fp, "%s%s%s %s", new_line ? "\n" : "",
 			type == WARNING ? "WARNING" :
 			type == NOTE ? "NOTE" :
 			type == CONT ? spacebuf : pc->curcmd,
@@ -111,28 +111,28 @@ __error(int type, char *fmt, ...)
 		drop_core("DROP_CORE flag set: forcing a segmentation fault\n");
 	}
 
-        switch (type)
-        {
-        case FATAL:
-                if (pc->flags & IN_FOREACH)
-                        RESUME_FOREACH();
+				switch (type)
+				{
+				case FATAL:
+								if (pc->flags & IN_FOREACH)
+												RESUME_FOREACH();
 		/* FALLTHROUGH */
 
 	case FATAL_RESTART:
-                if (pc->flags & RUNTIME)
-                        RESTART();
-                else {
+								if (pc->flags & RUNTIME)
+												RESTART();
+								else {
 			if (REMOTE())
 				remote_exit();
-                        clean_exit(1);
+												clean_exit(1);
 		}
 
 	default:
-        case INFO:
-        case NOTE:
+				case INFO:
+				case NOTE:
 	case WARNING:
-                return FALSE;
-        }
+								return FALSE;
+				}
 }
 
 /*
@@ -146,7 +146,7 @@ int
 parse_line(char *str, char *argv[])
 {
 	int i, j, k;
-    	int string;
+			int string;
 	int expression;
 
 	for (i = 0; i < MAXARGS; i++)
@@ -154,11 +154,11 @@ parse_line(char *str, char *argv[])
 
 	clean_line(str);
 
-        if (str == NULL || strlen(str) == 0)
-                return(0);
+				if (str == NULL || strlen(str) == 0)
+								return(0);
 
-        i = j = k = 0;
-        string = expression = FALSE;
+				i = j = k = 0;
+				string = expression = FALSE;
 
 	/*
 	 * Special handling for when the first character is a '"'.
@@ -186,60 +186,60 @@ next:
 	} else
 		argv[j++] = str;
 
-    	while (TRUE) {
+			while (TRUE) {
 		if (j == MAXARGS)
 			error(FATAL, "too many arguments in string!\n");
 
-        	while (str[i] != ' ' && str[i] != '\t' && str[i] != NULLCHAR) {
-            		i++;
-        	}
+					while (str[i] != ' ' && str[i] != '\t' && str[i] != NULLCHAR) {
+								i++;
+					}
 
-	        switch (str[i])
-	        {
-	        case ' ':
-	        case '\t':
-	            str[i++] = NULLCHAR;
+					switch (str[i])
+					{
+					case ' ':
+					case '\t':
+							str[i++] = NULLCHAR;
 
-	            while (str[i] == ' ' || str[i] == '\t') {
-	                i++;
-	            }
+							while (str[i] == ' ' || str[i] == '\t') {
+									i++;
+							}
 
-	            if (str[i] == '"') {
-	                str[i] = ' ';
-	                string = TRUE;
-	                i++;
-	            }
+							if (str[i] == '"') {
+									str[i] = ' ';
+									string = TRUE;
+									i++;
+							}
 
-                    if (!string && str[i] == '(') {
-                        expression = TRUE;
-                    }
+										if (!string && str[i] == '(') {
+												expression = TRUE;
+										}
 
 
-	            if (str[i] != NULLCHAR && str[i] != '\n') {
-	                argv[j++] = &str[i];
-	                if (string) {
-	                        string = FALSE;
-	                        while (str[i] != '"' && str[i] != NULLCHAR)
-	                                i++;
-	                        if (str[i] == '"')
-	                                str[i] = ' ';
-	                }
-                        if (expression) {
-                                expression = FALSE;
-                                while (str[i] != ')' && str[i] != NULLCHAR)
-                                        i++;
-                        }
-	                break;
-	            }
-	                        /* else fall through */
-	        case '\n':
-	            str[i] = NULLCHAR;
-	                        /* keep falling... */
-	        case NULLCHAR:
-	            argv[j] = NULLCHAR;
-	            return(j);
-	        }
-    	}
+							if (str[i] != NULLCHAR && str[i] != '\n') {
+									argv[j++] = &str[i];
+									if (string) {
+													string = FALSE;
+													while (str[i] != '"' && str[i] != NULLCHAR)
+																	i++;
+													if (str[i] == '"')
+																	str[i] = ' ';
+									}
+												if (expression) {
+																expression = FALSE;
+																while (str[i] != ')' && str[i] != NULLCHAR)
+																				i++;
+												}
+									break;
+							}
+													/* else fall through */
+					case '\n':
+							str[i] = NULLCHAR;
+													/* keep falling... */
+					case NULLCHAR:
+							argv[j] = NULLCHAR;
+							return(j);
+					}
+			}
 }
 
 /*
@@ -275,9 +275,9 @@ char *
 clean_line(char *line)
 {
 	strip_beginning_whitespace(line);
-        strip_linefeeds(line);
-        strip_ending_whitespace(line);
-        return(line);
+				strip_linefeeds(line);
+				strip_ending_whitespace(line);
+				return(line);
 }
 
 /*
@@ -308,17 +308,17 @@ strip_linefeeds(char *line)
 char *
 strip_ending_char(char *line, char c)
 {
-        char *p;
+				char *p;
 
-        if (line == NULL || strlen(line) == 0)
-                return(line);
+				if (line == NULL || strlen(line) == 0)
+								return(line);
 
-        p = &LASTCHAR(line);
+				p = &LASTCHAR(line);
 
-        if (*p == c)
-                *p = NULLCHAR;
+				if (*p == c)
+								*p = NULLCHAR;
 
-        return(line);
+				return(line);
 }
 
 /*
@@ -327,13 +327,13 @@ strip_ending_char(char *line, char c)
 char *
 strip_beginning_char(char *line, char c)
 {
-        if (line == NULL || strlen(line) == 0)
-                return(line);
+				if (line == NULL || strlen(line) == 0)
+								return(line);
 
-        if (FIRSTCHAR(line) == c)
-                shift_string_left(line, 1);
+				if (FIRSTCHAR(line) == c)
+								shift_string_left(line, 1);
 
-        return(line);
+				return(line);
 }
 
 
@@ -345,21 +345,21 @@ strip_beginning_char(char *line, char c)
 char *
 strip_ending_whitespace(char *line)
 {
-        char *p;
+				char *p;
 
 	if (line == NULL || strlen(line) == 0)
-                return(line);
+								return(line);
 
-        p = &LASTCHAR(line);
+				p = &LASTCHAR(line);
 
-        while (*p == ' ' || *p == '\t') {
-                *p = NULLCHAR;
-                if (p == line)
-                        break;
-                p--;
-        }
+				while (*p == ' ' || *p == '\t') {
+								*p = NULLCHAR;
+								if (p == line)
+												break;
+								p--;
+				}
 
-        return(line);
+				return(line);
 }
 
 /*
@@ -369,10 +369,10 @@ char *
 strip_beginning_whitespace(char *line)
 {
 	char buf[BUFSIZE];
-        char *p;
+				char *p;
 
 	if (line == NULL || strlen(line) == 0)
-                return(line);
+								return(line);
 
 	strcpy(buf, line);
 	p = &buf[0];
@@ -380,7 +380,7 @@ strip_beginning_whitespace(char *line)
 		p++;
 	strcpy(line, p);
 
-        return(line);
+				return(line);
 }
 
 /*
@@ -436,7 +436,7 @@ upper_case(char *s, char *buf)
 char *
 first_nonspace(char *s)
 {
-        return(s + strspn(s, " \t"));
+				return(s + strspn(s, " \t"));
 }
 
 /*
@@ -446,7 +446,7 @@ first_nonspace(char *s)
 char *
 first_space(char *s)
 {
-        return(s + strcspn(s, " \t"));
+				return(s + strcspn(s, " \t"));
 }
 
 /*
@@ -520,8 +520,8 @@ print_verbatim(FILE *filep, char *line)
 {
 	int i;
 
-        for (i = 0; i < strlen(line); i++) {
-                fputc(line[i], filep);
+				for (i = 0; i < strlen(line); i++) {
+								fputc(line[i], filep);
 		fflush(filep);
 	}
 }
@@ -535,7 +535,7 @@ fixup_percent(char *s)
 		return s;
 
 	s[strlen(s)+1] = NULLCHAR;
-       	memmove(p1+1, p1, strlen(p1));
+			 	memmove(p1+1, p1, strlen(p1));
 	*p1 = '%';
 
 	return s;
@@ -549,27 +549,27 @@ ulong
 stol(char *s, int flags, int *errptr)
 {
 	if ((flags & HEX_BIAS) && hexadecimal(s, 0))
-        	return(htol(s, flags, errptr));
+					return(htol(s, flags, errptr));
 	else {
-        	if (decimal(s, 0))
-                	return(dtol(s, flags, errptr));
-        	else if (hexadecimal(s, 0))
-                	return(htol(s, flags, errptr));
+					if (decimal(s, 0))
+									return(dtol(s, flags, errptr));
+					else if (hexadecimal(s, 0))
+									return(htol(s, flags, errptr));
 	}
 
 	if (!(flags & QUIET))
-        	error(INFO, "not a valid number: %s\n", s);
+					error(INFO, "not a valid number: %s\n", s);
 
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-               	RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+							 	RESTART();
 
-        case RETURN_ON_ERROR:
+				case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
 		break;
-        }
+				}
 
 	return UNUSED;
 }
@@ -577,30 +577,30 @@ stol(char *s, int flags, int *errptr)
 ulonglong
 stoll(char *s, int flags, int *errptr)
 {
-        if ((flags & HEX_BIAS) && hexadecimal(s, 0))
-                return(htoll(s, flags, errptr));
-        else {
-                if (decimal(s, 0))
-                        return(dtoll(s, flags, errptr));
-                else if (hexadecimal(s, 0))
-                        return(htoll(s, flags, errptr));
-        }
+				if ((flags & HEX_BIAS) && hexadecimal(s, 0))
+								return(htoll(s, flags, errptr));
+				else {
+								if (decimal(s, 0))
+												return(dtoll(s, flags, errptr));
+								else if (hexadecimal(s, 0))
+												return(htoll(s, flags, errptr));
+				}
 
 	if (!(flags & QUIET))
-        	error(INFO, "not a valid number: %s\n", s);
+					error(INFO, "not a valid number: %s\n", s);
 
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-                RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+								RESTART();
 
-        case RETURN_ON_ERROR:
-                if (errptr)
-                        *errptr = TRUE;
-                break;
-        }
+				case RETURN_ON_ERROR:
+								if (errptr)
+												*errptr = TRUE;
+								break;
+				}
 
-        return UNUSED;
+				return UNUSED;
 }
 
 /*
@@ -650,34 +650,34 @@ convert(char *s, int flags, int *errptr, ulong numflag)
 	struct syment *sp;
 
 	if ((numflag & NUM_EXPR) && can_eval(s))
-             	return(eval(s, flags, errptr));
+						 	return(eval(s, flags, errptr));
 
 	if ((flags & HEX_BIAS) && (numflag & NUM_HEX) && hexadecimal(s, 0))
-                return(htol(s, flags, errptr));
+								return(htol(s, flags, errptr));
 	else {
 		if ((numflag & NUM_DEC) && decimal(s, 0))
-	        	return(dtol(s, flags, errptr));
+						return(dtol(s, flags, errptr));
 		if ((numflag & NUM_HEX) && hexadecimal(s, 0))
-	        	return(htol(s, flags, errptr));
+						return(htol(s, flags, errptr));
 	}
 
 	if ((sp = symbol_search(s)))
 		return(sp->value);
 
-        error(INFO, "cannot convert \"%s\"\n", s);
+				error(INFO, "cannot convert \"%s\"\n", s);
 
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-                RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+								RESTART();
 
-        case RETURN_ON_ERROR:
-                if (errptr)
-                	*errptr = TRUE;
+				case RETURN_ON_ERROR:
+								if (errptr)
+									*errptr = TRUE;
 		break;
-        }
+				}
 
-        return UNUSED;
+				return UNUSED;
 }
 
 /*
@@ -686,70 +686,70 @@ convert(char *s, int flags, int *errptr, ulong numflag)
 ulong
 htol(char *s, int flags, int *errptr)
 {
-    	long i, j;
+			long i, j;
 	ulong n;
 
-    	if (s == NULL) {
+			if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htol_error;
 	}
 
-    	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-    	if (strlen(s) > MAX_HEXADDR_STRLEN) {
+			if (strlen(s) > MAX_HEXADDR_STRLEN) {
 		if (!(flags & QUIET))
 			error(INFO,
-			    "input string too large: \"%s\" (%d vs %d)\n",
+					"input string too large: \"%s\" (%d vs %d)\n",
 				s, strlen(s), MAX_HEXADDR_STRLEN);
 		goto htol_error;
 	}
 
-    	for (n = i = 0; s[i] != 0; i++) {
-	        switch (s[i])
-	        {
-	            case 'a':
-	            case 'b':
-	            case 'c':
-	            case 'd':
-	            case 'e':
-	            case 'f':
-	                j = (s[i] - 'a') + 10;
-	                break;
-	            case 'A':
-	            case 'B':
-	            case 'C':
-	            case 'D':
-	            case 'E':
-	            case 'F':
-	                j = (s[i] - 'A') + 10;
-	                break;
-	            case '1':
-	            case '2':
-	            case '3':
-	            case '4':
-	            case '5':
-	            case '6':
-	            case '7':
-	            case '8':
-	            case '9':
-	            case '0':
-	                j = s[i] - '0';
-	                break;
-		    case 'x':
-		    case 'X':
-		    case 'h':
+			for (n = i = 0; s[i] != 0; i++) {
+					switch (s[i])
+					{
+							case 'a':
+							case 'b':
+							case 'c':
+							case 'd':
+							case 'e':
+							case 'f':
+									j = (s[i] - 'a') + 10;
+									break;
+							case 'A':
+							case 'B':
+							case 'C':
+							case 'D':
+							case 'E':
+							case 'F':
+									j = (s[i] - 'A') + 10;
+									break;
+							case '1':
+							case '2':
+							case '3':
+							case '4':
+							case '5':
+							case '6':
+							case '7':
+							case '8':
+							case '9':
+							case '0':
+									j = s[i] - '0';
+									break;
+				case 'x':
+				case 'X':
+				case 'h':
 			continue;
-	            default:
+							default:
 			if (!(flags & QUIET))
 				error(INFO, "invalid input: \"%s\"\n", s);
 			goto htol_error;
-	        }
-	        n = (16 * n) + j;
-    	}
+					}
+					n = (16 * n) + j;
+			}
 
-    	return(n);
+			return(n);
 
 htol_error:
 	switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
@@ -772,70 +772,70 @@ htol_error:
 ulonglong
 htoll(char *s, int flags, int *errptr)
 {
-    	long i, j;
+			long i, j;
 	ulonglong n;
 
-    	if (s == NULL) {
+			if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htoll_error;
 	}
 
-    	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-    	if (strlen(s) > LONG_LONG_PRLEN) {
+			if (strlen(s) > LONG_LONG_PRLEN) {
 		if (!(flags & QUIET))
 			error(INFO,
-			    "input string too large: \"%s\" (%d vs %d)\n",
+					"input string too large: \"%s\" (%d vs %d)\n",
 				s, strlen(s), LONG_LONG_PRLEN);
 		goto htoll_error;
 	}
 
-    	for (n = i = 0; s[i] != 0; i++) {
-	        switch (s[i])
-	        {
-	            case 'a':
-	            case 'b':
-	            case 'c':
-	            case 'd':
-	            case 'e':
-	            case 'f':
-	                j = (s[i] - 'a') + 10;
-	                break;
-	            case 'A':
-	            case 'B':
-	            case 'C':
-	            case 'D':
-	            case 'E':
-	            case 'F':
-	                j = (s[i] - 'A') + 10;
-	                break;
-	            case '1':
-	            case '2':
-	            case '3':
-	            case '4':
-	            case '5':
-	            case '6':
-	            case '7':
-	            case '8':
-	            case '9':
-	            case '0':
-	                j = s[i] - '0';
-	                break;
-		    case 'x':
-		    case 'X':
-		    case 'h':
+			for (n = i = 0; s[i] != 0; i++) {
+					switch (s[i])
+					{
+							case 'a':
+							case 'b':
+							case 'c':
+							case 'd':
+							case 'e':
+							case 'f':
+									j = (s[i] - 'a') + 10;
+									break;
+							case 'A':
+							case 'B':
+							case 'C':
+							case 'D':
+							case 'E':
+							case 'F':
+									j = (s[i] - 'A') + 10;
+									break;
+							case '1':
+							case '2':
+							case '3':
+							case '4':
+							case '5':
+							case '6':
+							case '7':
+							case '8':
+							case '9':
+							case '0':
+									j = s[i] - '0';
+									break;
+				case 'x':
+				case 'X':
+				case 'h':
 			continue;
-	            default:
+							default:
 			if (!(flags & QUIET))
 				error(INFO, "invalid input: \"%s\"\n", s);
 			goto htoll_error;
-	        }
-	        n = (16 * n) + j;
-    	}
+					}
+					n = (16 * n) + j;
+			}
 
-    	return(n);
+			return(n);
 
 htoll_error:
 	switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
@@ -859,51 +859,51 @@ htoll_error:
 ulong
 dtol(char *s, int flags, int *errptr)
 {
-        ulong retval;
-        char *p, *orig;
-        int j;
+				ulong retval;
+				char *p, *orig;
+				int j;
 
-        if (s == NULL) {
+				if (s == NULL) {
 		if (!(flags & QUIET))
-                	error(INFO, "received NULL string\n");
-                goto dtol_error;
-        }
+									error(INFO, "received NULL string\n");
+								goto dtol_error;
+				}
 
 	if (strlen(s) == 0)
-                goto dtol_error;
+								goto dtol_error;
 
-        p = orig = &s[0];
-        while (*p++ == ' ')
-                s++;
+				p = orig = &s[0];
+				while (*p++ == ' ')
+								s++;
 
-        for (j = 0; s[j] != '\0'; j++)
-                if ((s[j] < '0' || s[j] > '9'))
-                        break ;
+				for (j = 0; s[j] != '\0'; j++)
+								if ((s[j] < '0' || s[j] > '9'))
+												break ;
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
+									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				orig, s[j]);
-                goto dtol_error;
+								goto dtol_error;
 	} else if (sscanf(s, "%lu", &retval) != 1) {
 		if (!(flags & QUIET))
-                	error(INFO, "invalid expression\n");
-                goto dtol_error;
-        }
+									error(INFO, "invalid expression\n");
+								goto dtol_error;
+				}
 
-        return(retval);
+				return(retval);
 
 dtol_error:
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-                RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+								RESTART();
 
-        case RETURN_ON_ERROR:
+				case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-                break;
-        }
+								break;
+				}
 
 	return UNUSED;
 }
@@ -915,51 +915,51 @@ dtol_error:
 ulonglong
 dtoll(char *s, int flags, int *errptr)
 {
-        ulonglong retval;
-        char *p, *orig;
-        int j;
+				ulonglong retval;
+				char *p, *orig;
+				int j;
 
-        if (s == NULL) {
+				if (s == NULL) {
 		if (!(flags & QUIET))
-                	error(INFO, "received NULL string\n");
-                goto dtoll_error;
-        }
+									error(INFO, "received NULL string\n");
+								goto dtoll_error;
+				}
 
 	if (strlen(s) == 0)
-                goto dtoll_error;
+								goto dtoll_error;
 
-        p = orig = &s[0];
-        while (*p++ == ' ')
-                s++;
+				p = orig = &s[0];
+				while (*p++ == ' ')
+								s++;
 
-        for (j = 0; s[j] != '\0'; j++)
-                if ((s[j] < '0' || s[j] > '9'))
-                        break ;
+				for (j = 0; s[j] != '\0'; j++)
+								if ((s[j] < '0' || s[j] > '9'))
+												break ;
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
+									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				orig, s[j]);
-                goto dtoll_error;
+								goto dtoll_error;
 	} else if (sscanf(s, "%llu", &retval) != 1) {
 		if (!(flags & QUIET))
-                	error(INFO, "invalid expression\n");
-                goto dtoll_error;
-        }
+									error(INFO, "invalid expression\n");
+								goto dtoll_error;
+				}
 
-        return (retval);
+				return (retval);
 
 dtoll_error:
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-                RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+								RESTART();
 
-        case RETURN_ON_ERROR:
+				case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-                break;
-        }
+								break;
+				}
 
 	return ((ulonglong)(-1));
 }
@@ -971,46 +971,46 @@ dtoll_error:
 unsigned int
 dtoi(char *s, int flags, int *errptr)
 {
-        unsigned int retval;
-        char *p;
-        int j;
+				unsigned int retval;
+				char *p;
+				int j;
 
-        if (s == NULL) {
+				if (s == NULL) {
 		if (!(flags & QUIET))
-                	error(INFO, "received NULL string\n");
-                goto dtoi_error;
-        }
+									error(INFO, "received NULL string\n");
+								goto dtoi_error;
+				}
 
-        p = &s[0];
-        while (*p++ == ' ')
-                s++;
+				p = &s[0];
+				while (*p++ == ' ')
+								s++;
 
-        for (j = 0; s[j] != '\0'; j++)
-                if ((s[j] < '0' || s[j] > '9'))
-                        break ;
+				for (j = 0; s[j] != '\0'; j++)
+								if ((s[j] < '0' || s[j] > '9'))
+												break ;
 
-        if (s[j] != '\0' || (sscanf(s, "%d", &retval) != 1)) {
+				if (s[j] != '\0' || (sscanf(s, "%d", &retval) != 1)) {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
+									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				s, s[j]);
-                goto dtoi_error;
-        }
+								goto dtoi_error;
+				}
 
-        return(retval);
+				return(retval);
 
 dtoi_error:
-        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-        {
-        case FAULT_ON_ERROR:
-                RESTART();
+				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+				{
+				case FAULT_ON_ERROR:
+								RESTART();
 
-        case RETURN_ON_ERROR:
+				case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-                break;
-        }
+								break;
+				}
 
-        return((unsigned int)(-1));
+				return((unsigned int)(-1));
 }
 
 /*
@@ -1020,7 +1020,7 @@ dtoi_error:
 int
 decimal(char *s, int count)
 {
-    	char *p;
+			char *p;
 	int cnt;
 
 	if (!count) {
@@ -1029,30 +1029,30 @@ decimal(char *s, int count)
 	} else
 		cnt = count;
 
-    	for (p = &s[0]; *p; p++) {
-	        switch(*p)
-	        {
-	            case '0':
-	            case '1':
-	            case '2':
-	            case '3':
-	            case '4':
-	            case '5':
-	            case '6':
-	            case '7':
-	            case '8':
-	            case '9':
-	            case ' ':
-	                break;
-	            default:
-	                return FALSE;
-	        }
+			for (p = &s[0]; *p; p++) {
+					switch(*p)
+					{
+							case '0':
+							case '1':
+							case '2':
+							case '3':
+							case '4':
+							case '5':
+							case '6':
+							case '7':
+							case '8':
+							case '9':
+							case ' ':
+									break;
+							default:
+									return FALSE;
+					}
 
 		if (count && (--cnt == 0))
 			break;
-    	}
+			}
 
-    	return TRUE;
+			return TRUE;
 }
 
 /*
@@ -1063,8 +1063,8 @@ int
 extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 {
 	int i, found;
-        char *arglist[MAXARGS];
-        int argc;
+				char *arglist[MAXARGS];
+				int argc;
 	ulong value;
 	char *buf;
 
@@ -1080,7 +1080,7 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 			if (found) {
 				FREEBUF(buf);
 				error(FATAL,
-				    "two hexadecimal args in: \"%s\"\n",
+						"two hexadecimal args in: \"%s\"\n",
 					strip_linefeeds(s));
 			}
 			value = htol(arglist[i], FAULT_ON_ERROR, NULL);
@@ -1107,14 +1107,14 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 int
 ascii_string(char *s)
 {
-        char *p;
+				char *p;
 
-        for (p = &s[0]; *p; p++) {
+				for (p = &s[0]; *p; p++) {
 		if (!ascii(*p))
 			return FALSE;
-        }
+				}
 
-        return TRUE;
+				return TRUE;
 }
 
 
@@ -1125,7 +1125,7 @@ ascii_string(char *s)
 int
 hexadecimal(char *s, int count)
 {
-    	char *p;
+			char *p;
 	int cnt;
 
 	if (!count) {
@@ -1135,48 +1135,48 @@ hexadecimal(char *s, int count)
 		cnt = count;
 
 	for (p = &s[0]; *p; p++) {
-        	switch(*p)
+					switch(*p)
 		{
-	        case 'a':
-	        case 'b':
-	        case 'c':
-	        case 'd':
-	        case 'e':
-	        case 'f':
-	        case 'A':
-	        case 'B':
-	        case 'C':
-	        case 'D':
-	        case 'E':
-	        case 'F':
-	        case '1':
-	        case '2':
-	        case '3':
-	        case '4':
-	        case '5':
-	        case '6':
-	        case '7':
-	        case '8':
-	        case '9':
-	        case '0':
-	        case 'x':
-	        case 'X':
-	                break;
+					case 'a':
+					case 'b':
+					case 'c':
+					case 'd':
+					case 'e':
+					case 'f':
+					case 'A':
+					case 'B':
+					case 'C':
+					case 'D':
+					case 'E':
+					case 'F':
+					case '1':
+					case '2':
+					case '3':
+					case '4':
+					case '5':
+					case '6':
+					case '7':
+					case '8':
+					case '9':
+					case '0':
+					case 'x':
+					case 'X':
+									break;
 
-	        case ' ':
-	                if (*(p+1) == NULLCHAR)
-	                    break;
-	                else
-	                    return FALSE;
+					case ' ':
+									if (*(p+1) == NULLCHAR)
+											break;
+									else
+											return FALSE;
 		default:
 			return FALSE;
-        	}
+					}
 
 		if (count && (--cnt == 0))
 			break;
-    	}
+			}
 
-    	return TRUE;
+			return TRUE;
 }
 
 /*
@@ -1187,7 +1187,7 @@ hexadecimal(char *s, int count)
 int
 hexadecimal_only(char *s, int count)
 {
-    	char *p;
+			char *p;
 	int cnt, only;
 
 	if (!count) {
@@ -1199,50 +1199,50 @@ hexadecimal_only(char *s, int count)
 	only = 0;
 
 	for (p = &s[0]; *p; p++) {
-        	switch(*p)
+					switch(*p)
 		{
-	        case 'a':
-	        case 'b':
-	        case 'c':
-	        case 'd':
-	        case 'e':
-	        case 'f':
-	        case 'A':
-	        case 'B':
-	        case 'C':
-	        case 'D':
-	        case 'E':
-	        case 'F':
-                case 'x':
-                case 'X':
+					case 'a':
+					case 'b':
+					case 'c':
+					case 'd':
+					case 'e':
+					case 'f':
+					case 'A':
+					case 'B':
+					case 'C':
+					case 'D':
+					case 'E':
+					case 'F':
+								case 'x':
+								case 'X':
 			only++;
 			break;
-	        case '1':
-	        case '2':
-	        case '3':
-	        case '4':
-	        case '5':
-	        case '6':
-	        case '7':
-	        case '8':
-	        case '9':
-	        case '0':
-	                break;
+					case '1':
+					case '2':
+					case '3':
+					case '4':
+					case '5':
+					case '6':
+					case '7':
+					case '8':
+					case '9':
+					case '0':
+									break;
 
-	        case ' ':
-	                if (*(p+1) == NULLCHAR)
-	                    break;
-	                else
-	                    return FALSE;
+					case ' ':
+									if (*(p+1) == NULLCHAR)
+											break;
+									else
+											return FALSE;
 		default:
 			return FALSE;
-        	}
+					}
 
 		if (count && (--cnt == 0))
 			break;
-    	}
+			}
 
-    	return only;
+			return only;
 }
 
 /*
@@ -1262,7 +1262,7 @@ clean_arg(void)
 	char buf[BUFSIZE];
 
 	if (LASTCHAR(args[optind]) == ',' ||
-	    LASTCHAR(args[optind]) == ':') {
+			LASTCHAR(args[optind]) == ':') {
 		strcpy(buf, args[optind]);
 		LASTCHAR(buf) = NULLCHAR;
 		if (IS_A_NUMBER(buf))
@@ -1280,10 +1280,10 @@ clean_arg(void)
 void
 cmd_ascii(void)
 {
-        int i;
-        ulonglong value;
+				int i;
+				ulonglong value;
 	char *s;
-        int c, prlen, bytes;
+				int c, prlen, bytes;
 
 	optind = 1;
 	if (!args[optind]) {
@@ -1310,13 +1310,13 @@ cmd_ascii(void)
 		return;
 	}
 
-        while (args[optind]) {
+				while (args[optind]) {
 
 		s = args[optind];
-        	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-                	s += 2;
+					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+									s += 2;
 
-                if (strlen(s) > LONG_PRLEN) {
+								if (strlen(s) > LONG_PRLEN) {
 			prlen = LONG_LONG_PRLEN;
 			bytes = sizeof(long long);
 		} else {
@@ -1324,8 +1324,8 @@ cmd_ascii(void)
 			bytes = sizeof(long);
 		}
 
-                value = htoll(s, FAULT_ON_ERROR, NULL);
-                fprintf(fp, "%.*llx: ", prlen, value);
+								value = htoll(s, FAULT_ON_ERROR, NULL);
+								fprintf(fp, "%.*llx: ", prlen, value);
 		for (i = 0; i < bytes; i++) {
 			c = (value >> (8*i)) & 0xff;
 			if ((c >= 0x20) && (c < 0x7f)) {
@@ -1375,8 +1375,8 @@ cmd_ascii(void)
 		}
 		fprintf(fp, "\n");
 
-                optind++;
-        }
+								optind++;
+				}
 
 }
 
@@ -1386,7 +1386,7 @@ cmd_ascii(void)
 int
 count_leading_spaces(char *s)
 {
-        return (strspn(s, " \t"));
+				return (strspn(s, " \t"));
 }
 
 /*
@@ -1455,10 +1455,10 @@ space(int cnt)
 			return (&spacebuf[SPACES-2]);  /* 2 spaces */
 
 	case (MINSPACE+1):
-                if (VADDR_PRLEN > 8)
-                        return (&spacebuf[SPACES-2]);  /* 2 spaces */
-                else
-                        return (&spacebuf[SPACES-3]);  /* 3 spaces */
+								if (VADDR_PRLEN > 8)
+												return (&spacebuf[SPACES-2]);  /* 2 spaces */
+								else
+												return (&spacebuf[SPACES-3]);  /* 3 spaces */
 
 	default:
 		return (&spacebuf[SPACES-cnt]);        /* as requested */
@@ -1482,7 +1482,7 @@ bracketed(char *s, char *s1, int len)
 	}
 
 	if (((s1-s) < 1) || (*(s1-1) != '<') ||
-	    ((s1+len) >= &s[strlen(s)]) || (*(s1+len) != '>'))
+			((s1+len) >= &s[strlen(s)]) || (*(s1+len) != '>'))
 		return FALSE;
 
 	return TRUE;
@@ -1537,12 +1537,12 @@ concat_args(char *buf, int arg, int no_options)
 
 	BZERO(buf, BUFSIZE);
 
-        for (i = arg; i < argcnt; i++) {
+				for (i = arg; i < argcnt; i++) {
 		if (no_options && STRNEQ(args[i], "-"))
 			continue;
-                strcat(buf, args[i]);
-                strcat(buf, " ");
-        }
+								strcat(buf, args[i]);
+								strcat(buf, " ");
+				}
 
 	return(strip_ending_whitespace(buf));
 }
@@ -1572,14 +1572,14 @@ shift_string_left(char *s, int cnt)
 char *
 shift_string_right(char *s, int cnt)
 {
-        int origlen;
+				int origlen;
 
 	if (!cnt)
 		return(s);
 
-        origlen = strlen(s);
-        memmove(s+cnt, s, origlen);
-        s[origlen+cnt] = NULLCHAR;
+				origlen = strlen(s);
+				memmove(s+cnt, s, origlen);
+				s[origlen+cnt] = NULLCHAR;
 	return(memset(s, ' ', cnt));
 }
 
@@ -1742,8 +1742,8 @@ cmd_set(void)
 	runtime = pc->flags & RUNTIME ? TRUE : FALSE;
 	from_rc_file = pc->curcmd_flags & FROM_RCFILE ? TRUE : FALSE;
 
-        while ((c = getopt(argcnt, args, "pvc:a:")) != EOF) {
-                switch(c)
+				while ((c = getopt(argcnt, args, "pvc:a:")) != EOF) {
+								switch(c)
 		{
 		case 'c':
 			if (XEN_HYPER_MODE() || (pc->flags & MINIMAL_MODE))
@@ -1752,8 +1752,8 @@ cmd_set(void)
 			if (!runtime)
 				return;
 
-		        if (ACTIVE()) {
-                		error(INFO, "not allowed on a live system\n");
+						if (ACTIVE()) {
+										error(INFO, "not allowed on a live system\n");
 				argerrs++;
 				break;
 			}
@@ -1775,10 +1775,10 @@ cmd_set(void)
 			}
 
 			if (!tt->panic_task) {
-                		error(INFO, "no panic task found!\n");
+										error(INFO, "no panic task found!\n");
 				return;
 			}
-        		set_context(tt->panic_task, NO_PID);
+						set_context(tt->panic_task, NO_PID);
 			show_context(CURRENT_CONTEXT());
 			return;
 
@@ -1798,32 +1798,32 @@ cmd_set(void)
 
 			if (ACTIVE())
 				error(FATAL,
-				    "-a option not allowed on live systems\n");
+						"-a option not allowed on live systems\n");
 
-	                switch (str_to_context(optarg, &value, &tc))
-	                {
-	                case STR_PID:
+									switch (str_to_context(optarg, &value, &tc))
+									{
+									case STR_PID:
 				if ((i = TASKS_PER_PID(value)) > 1)
 					error(FATAL,
-					    "pid %d has %d tasks: "
-					    "use a task address\n",
+							"pid %d has %d tasks: "
+							"use a task address\n",
 						value, i);
-	                        break;
+													break;
 
-	                case STR_TASK:
-	                        break;
+									case STR_TASK:
+													break;
 
-	                case STR_INVALID:
-	                        error(FATAL, "invalid task or pid value: %s\n",
-	                                optarg);
-	                }
+									case STR_INVALID:
+													error(FATAL, "invalid task or pid value: %s\n",
+																	optarg);
+									}
 
 			cpu = tc->processor;
 			tt->active_set[cpu] = tc->task;
 			if (tt->panic_threads[cpu])
 				tt->panic_threads[cpu] = tc->task;
 			fprintf(fp,
-			    "\"%s\" task %lx has been marked as the active task on cpu %d\n",
+					"\"%s\" task %lx has been marked as the active task on cpu %d\n",
 				tc->comm, tc->task, cpu);
 			return;
 
@@ -1842,7 +1842,7 @@ cmd_set(void)
 	if (!args[optind]) {
 		if (XEN_HYPER_MODE())
 			error(INFO,
-			    "requires an option with the Xen hypervisor\n");
+					"requires an option with the Xen hypervisor\n");
 		else if (pc->flags & MINIMAL_MODE)
 			show_options();
 		else if (runtime)
@@ -1852,73 +1852,73 @@ cmd_set(void)
 
 	while (args[optind]) {
 		if (STREQ(args[optind], "debug")) {
-                        if (args[optind+1]) {
-                                optind++;
+												if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
-                                else if (STREQ(args[optind], "on"))
-                                        pc->debug = 1;
-                                else if (STREQ(args[optind], "off"))
-                                        pc->debug = 0;
+																else if (STREQ(args[optind], "on"))
+																				pc->debug = 1;
+																else if (STREQ(args[optind], "off"))
+																				pc->debug = 0;
 				else if (IS_A_NUMBER(args[optind]))
 					pc->debug = stol(args[optind],
 						FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
-                        }
+												}
 			if (runtime)
-                        	fprintf(fp, "debug: %ld\n", pc->debug);
+													fprintf(fp, "debug: %ld\n", pc->debug);
 
 			set_lkcd_debug(pc->debug);
 			set_vas_debug(pc->debug);
 			return;
 
-                } else if (STREQ(args[optind], "hash")) {
-                        if (args[optind+1]) {
-                                optind++;
+								} else if (STREQ(args[optind], "hash")) {
+												if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
-                                else if (STREQ(args[optind], "on"))
-                                        pc->flags |= HASH;
-                                else if (STREQ(args[optind], "off"))
-                                        pc->flags &= ~HASH;
+																else if (STREQ(args[optind], "on"))
+																				pc->flags |= HASH;
+																else if (STREQ(args[optind], "off"))
+																				pc->flags &= ~HASH;
 				else if (IS_A_NUMBER(args[optind])) {
 					value = stol(args[optind],
-                                    		FAULT_ON_ERROR, NULL);
+																				FAULT_ON_ERROR, NULL);
 					if (value)
 						pc->flags |= HASH;
 					else
 						pc->flags &= ~HASH;
 				} else
 					goto invalid_set_command;
-                        }
+												}
 
 			if (runtime)
-                        	fprintf(fp, "hash: %s\n",
-                                	pc->flags & HASH ? "on" : "off");
+													fprintf(fp, "hash: %s\n",
+																	pc->flags & HASH ? "on" : "off");
 			return;
 
-                } else if (STREQ(args[optind], "unwind")) {
-                        if (args[optind+1]) {
-                                optind++;
+								} else if (STREQ(args[optind], "unwind")) {
+												if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
-                                else if (STREQ(args[optind], "on")) {
-				    	if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
-					    !runtime) {
-                                        	kt->flags |= DWARF_UNWIND;
+																else if (STREQ(args[optind], "on")) {
+							if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
+							!runtime) {
+																					kt->flags |= DWARF_UNWIND;
 						kt->flags &= ~NO_DWARF_UNWIND;
 					}
-                                } else if (STREQ(args[optind], "off")) {
-                                        kt->flags &= ~DWARF_UNWIND;
+																} else if (STREQ(args[optind], "off")) {
+																				kt->flags &= ~DWARF_UNWIND;
 					if (!runtime)
 						kt->flags |= NO_DWARF_UNWIND;
 				} else if (IS_A_NUMBER(args[optind])) {
 					value = stol(args[optind],
-                                    		FAULT_ON_ERROR, NULL);
+																				FAULT_ON_ERROR, NULL);
 					if (value) {
-				    		if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
-						    !runtime) {
+								if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
+								!runtime) {
 							kt->flags |= DWARF_UNWIND;
 							kt->flags &= ~NO_DWARF_UNWIND;
 						}
@@ -1929,87 +1929,87 @@ cmd_set(void)
 					}
 				} else
 					goto invalid_set_command;
-                        }
+												}
 
 			if (runtime)
-                        	fprintf(fp, "unwind: %s\n",
-                                	kt->flags & DWARF_UNWIND ? "on" : "off");
+													fprintf(fp, "unwind: %s\n",
+																	kt->flags & DWARF_UNWIND ? "on" : "off");
 			return;
 
-               } else if (STREQ(args[optind], "refresh")) {
-                        if (args[optind+1]) {
-                                optind++;
+							 } else if (STREQ(args[optind], "refresh")) {
+												if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
-                                else if (STREQ(args[optind], "on"))
-                                        tt->flags |= TASK_REFRESH;
-                                else if (STREQ(args[optind], "off")) {
-                                        tt->flags &= ~TASK_REFRESH;
+																else if (STREQ(args[optind], "on"))
+																				tt->flags |= TASK_REFRESH;
+																else if (STREQ(args[optind], "off")) {
+																				tt->flags &= ~TASK_REFRESH;
 					if (!runtime)
 						tt->flags |= TASK_REFRESH_OFF;
-                                } else if (IS_A_NUMBER(args[optind])) {
-                                        value = stol(args[optind],
-                                                FAULT_ON_ERROR, NULL);
-                                        if (value)
-                                                tt->flags |= TASK_REFRESH;
-                                        else {
-                                                tt->flags &= ~TASK_REFRESH;
+																} else if (IS_A_NUMBER(args[optind])) {
+																				value = stol(args[optind],
+																								FAULT_ON_ERROR, NULL);
+																				if (value)
+																								tt->flags |= TASK_REFRESH;
+																				else {
+																								tt->flags &= ~TASK_REFRESH;
 						if (!runtime)
 							tt->flags |=
-							    TASK_REFRESH_OFF;
+									TASK_REFRESH_OFF;
 					}
-                                } else
+																} else
 					goto invalid_set_command;
-                        }
+												}
 
-                        if (runtime)
-                                fprintf(fp, "refresh: %s\n",
-                               	    tt->flags & TASK_REFRESH ?  "on" : "off");
+												if (runtime)
+																fprintf(fp, "refresh: %s\n",
+															 	    tt->flags & TASK_REFRESH ?  "on" : "off");
 			return;
 
-               } else if (STREQ(args[optind], "gdb")) {
-                        if (args[optind+1]) {
-                                optind++;
+							 } else if (STREQ(args[optind], "gdb")) {
+												if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
-                                else if (STREQ(args[optind], "on")) {
+																else if (STREQ(args[optind], "on")) {
 					if (pc->flags & MINIMAL_MODE)
 						goto invalid_set_command;
 					else
-                                        	pc->flags2 |= GDB_CMD_MODE;
-                                } else if (STREQ(args[optind], "off"))
-                                        pc->flags2 &= ~GDB_CMD_MODE;
-                                else if (IS_A_NUMBER(args[optind])) {
-                                        value = stol(args[optind],
-                                                FAULT_ON_ERROR, NULL);
-                                        if (value) {
+																					pc->flags2 |= GDB_CMD_MODE;
+																} else if (STREQ(args[optind], "off"))
+																				pc->flags2 &= ~GDB_CMD_MODE;
+																else if (IS_A_NUMBER(args[optind])) {
+																				value = stol(args[optind],
+																								FAULT_ON_ERROR, NULL);
+																				if (value) {
 						if (pc->flags & MINIMAL_MODE)
 							goto invalid_set_command;
 						else
-                                                	pc->flags2 |= GDB_CMD_MODE;
-                                        } else
-                                                pc->flags2 &= ~GDB_CMD_MODE;
-                                } else
+																									pc->flags2 |= GDB_CMD_MODE;
+																				} else
+																								pc->flags2 &= ~GDB_CMD_MODE;
+																} else
 					goto invalid_set_command;
 
 				set_command_prompt(pc->flags2 & GDB_CMD_MODE ?
 					"gdb> " : NULL);
-                        }
+												}
 
-                        if (runtime)
-                                fprintf(fp, "gdb: %s\n",
-                               	    pc->flags2 & GDB_CMD_MODE ?  "on" : "off");
+												if (runtime)
+																fprintf(fp, "gdb: %s\n",
+															 	    pc->flags2 & GDB_CMD_MODE ?  "on" : "off");
 			return;
 
-               } else if (STREQ(args[optind], "scroll")) {
-                        if (args[optind+1] && pc->scroll_command) {
-                                optind++;
+							 } else if (STREQ(args[optind], "scroll")) {
+												if (args[optind+1] && pc->scroll_command) {
+																optind++;
 				if (from_rc_file)
 					already_done();
-                                else if (STREQ(args[optind], "on"))
-                                        pc->flags |= SCROLL;
-                                else if (STREQ(args[optind], "off"))
-                                        pc->flags &= ~SCROLL;
+																else if (STREQ(args[optind], "on"))
+																				pc->flags |= SCROLL;
+																else if (STREQ(args[optind], "off"))
+																				pc->flags &= ~SCROLL;
 				else if (STREQ(args[optind], "more"))
 					pc->scroll_command = SCROLL_MORE;
 				else if (STREQ(args[optind], "less"))
@@ -2018,15 +2018,15 @@ cmd_set(void)
 					if (CRASHPAGER_valid())
 						pc->scroll_command = SCROLL_CRASHPAGER;
 				} else if (IS_A_NUMBER(args[optind])) {
-                                        value = stol(args[optind],
-                                                FAULT_ON_ERROR, NULL);
-                                        if (value)
-                                                pc->flags |= SCROLL;
-                                        else
-                                                pc->flags &= ~SCROLL;
-                                } else
+																				value = stol(args[optind],
+																								FAULT_ON_ERROR, NULL);
+																				if (value)
+																								pc->flags |= SCROLL;
+																				else
+																								pc->flags &= ~SCROLL;
+																} else
 					goto invalid_set_command;
-                        }
+												}
 
 			if (runtime) {
 				fprintf(fp, "scroll: %s ",
@@ -2050,39 +2050,39 @@ cmd_set(void)
 
 			return;
 
-               } else if (STREQ(args[optind], "silent")) {
-                        if (args[optind+1]) {
-                                optind++;
-                                if (STREQ(args[optind], "on")) {
-                                        pc->flags |= SILENT;
+							 } else if (STREQ(args[optind], "silent")) {
+												if (args[optind+1]) {
+																optind++;
+																if (STREQ(args[optind], "on")) {
+																				pc->flags |= SILENT;
 					pc->flags &= ~SCROLL;
 				}
-                                else if (STREQ(args[optind], "off"))
-                                        pc->flags &= ~SILENT;
-                                else if (IS_A_NUMBER(args[optind])) {
-                                        value = stol(args[optind],
-                                                FAULT_ON_ERROR, NULL);
-                                        if (value) {
-                                                pc->flags |= SILENT;
+																else if (STREQ(args[optind], "off"))
+																				pc->flags &= ~SILENT;
+																else if (IS_A_NUMBER(args[optind])) {
+																				value = stol(args[optind],
+																								FAULT_ON_ERROR, NULL);
+																				if (value) {
+																								pc->flags |= SILENT;
 						pc->flags &= ~SCROLL;
 					}
-                                        else
-                                                pc->flags &= ~SILENT;
-                                } else
+																				else
+																								pc->flags &= ~SILENT;
+																} else
 					goto invalid_set_command;
 
 				if (!(pc->flags & SILENT))
-                                	fprintf(fp, "silent: off\n");
+																	fprintf(fp, "silent: off\n");
 
-                        } else if (runtime && !(pc->flags & SILENT))
-                               	fprintf(fp, "silent: off\n");
+												} else if (runtime && !(pc->flags & SILENT))
+															 	fprintf(fp, "silent: off\n");
 			return;
 
-                } else if (STREQ(args[optind], "console")) {
+								} else if (STREQ(args[optind], "console")) {
 			int assignment;
 
-                        if (args[optind+1]) {
-                                create_console_device(args[optind+1]);
+												if (args[optind+1]) {
+																create_console_device(args[optind+1]);
 				optind++;
 				assignment = optind;
 			} else
@@ -2095,8 +2095,8 @@ cmd_set(void)
 				else {
 					if (assignment)
 						fprintf(fp,
-					            "assignment to %s failed\n",
-						    	args[assignment]);
+											"assignment to %s failed\n",
+									args[assignment]);
 					else
 						fprintf(fp, "not set\n");
 				}
@@ -2104,22 +2104,22 @@ cmd_set(void)
 			return;
 
 		} else if (STREQ(args[optind], "core")) {
-                        if (args[optind+1]) {
-                                optind++;
-                                if (STREQ(args[optind], "on"))
-                                        pc->flags |= DROP_CORE;
-                                else if (STREQ(args[optind], "off"))
-                                        pc->flags &= ~DROP_CORE;
-                                else if (IS_A_NUMBER(args[optind])) {
-                                        value = stol(args[optind],
-                                                FAULT_ON_ERROR, NULL);
-                                        if (value)
-                                                pc->flags |= DROP_CORE;
-                                        else
-                                                pc->flags &= ~DROP_CORE;
-                                } else
-                                        goto invalid_set_command;
-                        }
+												if (args[optind+1]) {
+																optind++;
+																if (STREQ(args[optind], "on"))
+																				pc->flags |= DROP_CORE;
+																else if (STREQ(args[optind], "off"))
+																				pc->flags &= ~DROP_CORE;
+																else if (IS_A_NUMBER(args[optind])) {
+																				value = stol(args[optind],
+																								FAULT_ON_ERROR, NULL);
+																				if (value)
+																								pc->flags |= DROP_CORE;
+																				else
+																								pc->flags &= ~DROP_CORE;
+																} else
+																				goto invalid_set_command;
+												}
 
 			if (runtime) {
 				fprintf(fp, "core: %s on error message)\n",
@@ -2129,38 +2129,38 @@ cmd_set(void)
 			}
 			return;
 
-                } else if (STREQ(args[optind], "radix")) {
-                       if (args[optind+1]) {
-                                optind++;
+								} else if (STREQ(args[optind], "radix")) {
+											 if (args[optind+1]) {
+																optind++;
 				if (!runtime)
 					defer();
 				else if (from_rc_file &&
-				    (pc->flags2 & RADIX_OVERRIDE))
+						(pc->flags2 & RADIX_OVERRIDE))
 					ignore();
-                                else if (STREQ(args[optind], "10") ||
-				    STRNEQ(args[optind], "dec") ||
-				    STRNEQ(args[optind], "ten"))
+																else if (STREQ(args[optind], "10") ||
+						STRNEQ(args[optind], "dec") ||
+						STRNEQ(args[optind], "ten"))
 					pc->output_radix = 10;
-                                else if (STREQ(args[optind], "16") ||
-			            STRNEQ(args[optind], "hex") ||
-				    STRNEQ(args[optind], "six"))
+																else if (STREQ(args[optind], "16") ||
+									STRNEQ(args[optind], "hex") ||
+						STRNEQ(args[optind], "six"))
 					pc->output_radix = 16;
 				else
 					goto invalid_set_command;
 			}
 
-                        if (runtime) {
+												if (runtime) {
 				sprintf(buf, "set output-radix %d",
 					pc->output_radix);
-                                gdb_pass_through(buf, NULL, GNU_FROM_TTY_OFF);
-                        	fprintf(fp, "output radix: %d (%s)\n",
+																gdb_pass_through(buf, NULL, GNU_FROM_TTY_OFF);
+													fprintf(fp, "output radix: %d (%s)\n",
 					pc->output_radix,
 					pc->output_radix == 10 ?
 					"decimal" : "hex");
 			}
 			return;
 
-                } else if (STREQ(args[optind], "hex")) {
+								} else if (STREQ(args[optind], "hex")) {
 			if (from_rc_file && (pc->flags2 & RADIX_OVERRIDE))
 				ignore();
 			else if (runtime) {
@@ -2171,59 +2171,59 @@ cmd_set(void)
 			}
 			return;
 
-                } else if (STREQ(args[optind], "dec")) {
+								} else if (STREQ(args[optind], "dec")) {
 			if (from_rc_file && (pc->flags2 & RADIX_OVERRIDE))
 				ignore();
 			else if (runtime) {
 				pc->output_radix = 10;
-                                gdb_pass_through("set output-radix 10",
-                                        NULL, GNU_FROM_TTY_OFF);
+																gdb_pass_through("set output-radix 10",
+																				NULL, GNU_FROM_TTY_OFF);
 				fprintf(fp, "output radix: 10 (decimal)\n");
 			}
 			return;
 
-               } else if (STREQ(args[optind], "edit")) {
-                        if (args[optind+1]) {
+							 } else if (STREQ(args[optind], "edit")) {
+												if (args[optind+1]) {
 				if (runtime && !from_rc_file)
 					error(FATAL,
-		                "cannot change editing mode during runtime\n");
-                                optind++;
+										"cannot change editing mode during runtime\n");
+																optind++;
 				if (from_rc_file)
 					already_done();
-                                else if (STREQ(args[optind], "vi"))
-                                        pc->editing_mode = "vi";
-                                else if (STREQ(args[optind], "emacs"))
-                                        pc->editing_mode = "emacs";
+																else if (STREQ(args[optind], "vi"))
+																				pc->editing_mode = "vi";
+																else if (STREQ(args[optind], "emacs"))
+																				pc->editing_mode = "emacs";
 				else
-                                        goto invalid_set_command;
-                        }
+																				goto invalid_set_command;
+												}
 
-                        if (runtime)
-                                fprintf(fp, "edit: %s\n", pc->editing_mode);
-                        return;
+												if (runtime)
+																fprintf(fp, "edit: %s\n", pc->editing_mode);
+												return;
 
-                } else if (STREQ(args[optind], "vi")) {
+								} else if (STREQ(args[optind], "vi")) {
 			if (runtime) {
 				if (!from_rc_file)
 					error(FATAL,
-		               "cannot change editing mode during runtime\n");
+									 "cannot change editing mode during runtime\n");
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
 			} else
 				pc->editing_mode = "vi";
 			return;
 
-                } else if (STREQ(args[optind], "emacs")) {
+								} else if (STREQ(args[optind], "emacs")) {
 			if (runtime) {
 				if (!from_rc_file)
 					error(FATAL,
-		               "cannot change %s editing mode during runtime\n",
+									 "cannot change %s editing mode during runtime\n",
 						pc->editing_mode);
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
 			} else
 				pc->editing_mode = "emacs";
 			return;
 
-                } else if (STREQ(args[optind], "print_max")) {
+								} else if (STREQ(args[optind], "print_max")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2232,7 +2232,7 @@ cmd_set(void)
 					*gdb_print_max = atoi(args[optind]);
 				else if (hexadecimal(args[optind], 0))
 					*gdb_print_max = (unsigned int)
-					    htol(args[optind],
+							htol(args[optind],
 						FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
@@ -2242,7 +2242,7 @@ cmd_set(void)
 				fprintf(fp, "print_max: %d\n", *gdb_print_max);
 			return;
 
-                } else if (STREQ(args[optind], "scope")) {
+								} else if (STREQ(args[optind], "scope")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2273,7 +2273,7 @@ cmd_set(void)
 			}
 			return;
 
-                } else if (STREQ(args[optind], "null-stop")) {
+								} else if (STREQ(args[optind], "null-stop")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2297,27 +2297,27 @@ cmd_set(void)
 					*gdb_stop_print_at_null ? "on" : "off");
 			return;
 
-                } else if (STREQ(args[optind], "namelist")) {
+								} else if (STREQ(args[optind], "namelist")) {
 			optind++;
-                        if (!runtime && args[optind]) {
-                		if (!is_elf_file(args[optind]))
-                                	error(FATAL,
-			       "%s: not a kernel namelist (from .%src file)\n",
-                                        	args[optind],
+												if (!runtime && args[optind]) {
+										if (!is_elf_file(args[optind]))
+																	error(FATAL,
+						 "%s: not a kernel namelist (from .%src file)\n",
+																					args[optind],
 						pc->program_name);
-                                if ((pc->namelist = (char *)
-                                    malloc(strlen(args[optind])+1)) == NULL) {
-                                        error(INFO,
-                                  "cannot malloc memory for namelist: %s: %s\n",
-                                                args[optind], strerror(errno));
-                                } else
-                                        strcpy(pc->namelist, args[optind]);
+																if ((pc->namelist = (char *)
+																		malloc(strlen(args[optind])+1)) == NULL) {
+																				error(INFO,
+																	"cannot malloc memory for namelist: %s: %s\n",
+																								args[optind], strerror(errno));
+																} else
+																				strcpy(pc->namelist, args[optind]);
 			}
 			if (runtime)
 				fprintf(fp, "namelist: %s\n", pc->namelist);
 			return;
 
-                } else if (STREQ(args[optind], "free")) {
+								} else if (STREQ(args[optind], "free")) {
 			if (!runtime)
 				defer();
 			else
@@ -2325,39 +2325,39 @@ cmd_set(void)
 					dumpfile_memory(DUMPFILE_FREE_MEM));
 			return;
 
-                } else if (STREQ(args[optind], "data_debug")) {
+								} else if (STREQ(args[optind], "data_debug")) {
 
 			pc->flags |= DATADEBUG;
 			return;
 
-                } else if (STREQ(args[optind], "zero_excluded")) {
+								} else if (STREQ(args[optind], "zero_excluded")) {
 
-                        if (args[optind+1]) {
-                                optind++;
+												if (args[optind+1]) {
+																optind++;
 				if (from_rc_file)
 					already_done();
-                                else if (STREQ(args[optind], "on")) {
-                                        *diskdump_flags |= ZERO_EXCLUDED;
+																else if (STREQ(args[optind], "on")) {
+																				*diskdump_flags |= ZERO_EXCLUDED;
 					sadump_set_zero_excluded();
-                                } else if (STREQ(args[optind], "off")) {
-                                        *diskdump_flags &= ~ZERO_EXCLUDED;
+																} else if (STREQ(args[optind], "off")) {
+																				*diskdump_flags &= ~ZERO_EXCLUDED;
 					sadump_unset_zero_excluded();
 				} else if (IS_A_NUMBER(args[optind])) {
 					value = stol(args[optind],
-                                    		FAULT_ON_ERROR, NULL);
+																				FAULT_ON_ERROR, NULL);
 					if (value) {
-                                        	*diskdump_flags |= ZERO_EXCLUDED;
+																					*diskdump_flags |= ZERO_EXCLUDED;
 						sadump_set_zero_excluded();
 					} else {
-                                        	*diskdump_flags &= ~ZERO_EXCLUDED;
+																					*diskdump_flags &= ~ZERO_EXCLUDED;
 						sadump_unset_zero_excluded();
 					}
 				} else
 					goto invalid_set_command;
-                        }
+												}
 
 			if (runtime)
-                        	fprintf(fp, "zero_excluded: %s\n",
+													fprintf(fp, "zero_excluded: %s\n",
 					(*diskdump_flags & ZERO_EXCLUDED) ||
 					sadump_is_zero_excluded() ?
 					"on" : "off");
@@ -2370,27 +2370,27 @@ cmd_set(void)
 		} else if (runtime) {
 			ulong pid, task;
 
-	                switch (str_to_context(args[optind], &value, &tc))
-	                {
-	                case STR_PID:
-                                pid = value;
-                                task = NO_TASK;
-                        	if (set_context(task, pid))
-                                	show_context(CURRENT_CONTEXT());
-	                        break;
+									switch (str_to_context(args[optind], &value, &tc))
+									{
+									case STR_PID:
+																pid = value;
+																task = NO_TASK;
+													if (set_context(task, pid))
+																	show_context(CURRENT_CONTEXT());
+													break;
 
-	                case STR_TASK:
-                                task = value;
-                                pid = NO_PID;
-                                if (set_context(task, pid))
-                                        show_context(CURRENT_CONTEXT());
-	                        break;
+									case STR_TASK:
+																task = value;
+																pid = NO_PID;
+																if (set_context(task, pid))
+																				show_context(CURRENT_CONTEXT());
+													break;
 
-	                case STR_INVALID:
-	                        error(INFO, "invalid task or pid value: %s\n",
-	                                args[optind]);
-	                        break;
-	                }
+									case STR_INVALID:
+													error(INFO, "invalid task or pid value: %s\n",
+																	args[optind]);
+													break;
+									}
 		} else
 			console("set: ignoring \"%s\"\n", args[optind]);
 
@@ -2442,9 +2442,9 @@ show_options(void)
 		fprintf(fp, "(CRASHPAGER: %s)\n", getenv("CRASHPAGER"));
 		break;
 	}
-        fprintf(fp, "         radix: %d (%s)\n", pc->output_radix,
-                pc->output_radix == 10 ? "decimal" :
-                pc->output_radix == 16 ? "hexadecimal" : "unknown");
+				fprintf(fp, "         radix: %d (%s)\n", pc->output_radix,
+								pc->output_radix == 10 ? "decimal" :
+								pc->output_radix == 16 ? "hexadecimal" : "unknown");
 	fprintf(fp, "       refresh: %s\n", tt->flags & TASK_REFRESH ? "on" : "off");
 	fprintf(fp, "     print_max: %d\n", *gdb_print_max);
 	fprintf(fp, "       console: %s\n", pc->console ?
@@ -2512,15 +2512,15 @@ cmd_eval(void)
 				longlongflagforce++;
 				optind += 2;
 			} else
-                		cmd_usage(pc->curcmd, SYNOPSIS);
+										cmd_usage(pc->curcmd, SYNOPSIS);
 		} else if (args[optind+1]) {
 			bitflag++;
 			optind++;
 		}
 	}
 
-        if (!args[optind])
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (!args[optind])
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	longlongflag = BITS32() ? TRUE : FALSE;
 	flags = longlongflag ? (LONG_LONG|RETURN_ON_ERROR) : FAULT_ON_ERROR;
@@ -2531,26 +2531,26 @@ cmd_eval(void)
 	BZERO(buf1, BUFSIZE);
 	buf1[0] = '(';
 
-        while (args[optind]) {
-                if (*args[optind] == '(') {
+				while (args[optind]) {
+								if (*args[optind] == '(') {
 			if (eval_common(args[optind], flags, NULL, &nopt))
 				print_number(&nopt, bitflag, longlongflagforce);
 			else
 				error(FATAL, "invalid expression: %s\n",
 					args[optind]);
 			return;
-                }
+								}
 		else {
 			strcat(buf1, args[optind]);
 			strcat(buf1, " ");
 		}
 		optind++;
-        }
+				}
 	clean_line(buf1);
 	strcat(buf1, ")");
 
 	if (eval_common(buf1, flags, NULL, &nopt))
-        	print_number(&nopt, bitflag, longlongflagforce);
+					print_number(&nopt, bitflag, longlongflagforce);
 	else
 		error(FATAL, "invalid expression: %s\n", buf1);
 }
@@ -2574,23 +2574,23 @@ can_eval(char *s)
 	 *  should be sent to eval() regardless.
 	 */
 	if ((FIRSTCHAR(s) == '(') &&
-	    (count_chars(s, '(') == 1) &&
-	    (count_chars(s, ')') == 1) &&
-	    (strlen(s) > 2) &&
-	    (LASTCHAR(s) == ')'))
+			(count_chars(s, '(') == 1) &&
+			(count_chars(s, ')') == 1) &&
+			(strlen(s) > 2) &&
+			(LASTCHAR(s) == ')'))
 		return TRUE;
 
 	/*
 	 *  If the string contains any of the operators except the shifters,
-         *  and has any kind of data on either side, it's also eval-able.
+				 *  and has any kind of data on either side, it's also eval-able.
 	 */
 	strcpy(work, s);
 
-        if (!(op = strpbrk(work, "><+-&|*/%^")))
+				if (!(op = strpbrk(work, "><+-&|*/%^")))
 		return FALSE;
 
-        element1 = &work[0];
-        *op = NULLCHAR;
+				element1 = &work[0];
+				*op = NULLCHAR;
 	element2 = op+1;
 
 	if (!strlen(element1) || !strlen(element2))
@@ -2622,45 +2622,45 @@ eval(char *s, int flags, int *errptr)
 	if (eval_common(s, flags, errptr, &nopt)) {
 		return(nopt.num);
 	} else {
-	        switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-	        {
-	        case FAULT_ON_ERROR:
-	                error(FATAL, "invalid expression: %s\n", s);
+					switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+					{
+					case FAULT_ON_ERROR:
+									error(FATAL, "invalid expression: %s\n", s);
 
-	        case RETURN_ON_ERROR:
-	                error(INFO, "invalid expression: %s\n", s);
-	                if (errptr)
-	                        *errptr = TRUE;
-	                break;
-	        }
-        	return UNUSED;
+					case RETURN_ON_ERROR:
+									error(INFO, "invalid expression: %s\n", s);
+									if (errptr)
+													*errptr = TRUE;
+									break;
+					}
+					return UNUSED;
 	}
 }
 
 ulonglong
 evall(char *s, int flags, int *errptr)
 {
-        struct number_option nopt;
+				struct number_option nopt;
 
 	if (BITS32())
 		flags |= LONG_LONG;
 
-        if (eval_common(s, flags, errptr, &nopt)) {
-                return(nopt.ll_num);
-        } else {
-                switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-                {
-                case FAULT_ON_ERROR:
-                        error(FATAL, "invalid expression: %s\n", s);
+				if (eval_common(s, flags, errptr, &nopt)) {
+								return(nopt.ll_num);
+				} else {
+								switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
+								{
+								case FAULT_ON_ERROR:
+												error(FATAL, "invalid expression: %s\n", s);
 
-                case RETURN_ON_ERROR:
-                        error(INFO, "invalid expression: %s\n", s);
-                        if (errptr)
-                                *errptr = TRUE;
-                        break;
-                }
-                return UNUSED;
-        }
+								case RETURN_ON_ERROR:
+												error(INFO, "invalid expression: %s\n", s);
+												if (errptr)
+																*errptr = TRUE;
+												break;
+								}
+								return UNUSED;
+				}
 }
 
 
@@ -2668,7 +2668,7 @@ int
 eval_common(char *s, int flags, int *errptr, struct number_option *np)
 {
 	char *p1, *p2;
-        char *op, opcode;
+				char *op, opcode;
 	ulong value1;
 	ulong value2;
 	ulonglong ll_value1;
@@ -2700,14 +2700,14 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	} else
 		strcpy(work, s);
 
-        if (work[0] == '-') {
-                shift_string_right(work, 1);
-                work[0] = '0';
-        }
+				if (work[0] == '-') {
+								shift_string_right(work, 1);
+								work[0] = '0';
+				}
 
-        if (!(op = strpbrk(work, "#><+-&|*/%^"))) {
+				if (!(op = strpbrk(work, "#><+-&|*/%^"))) {
 		if (calculate(work, &value1, &ll_value1,
-		    flags & (HEX_BIAS|LONG_LONG))) {
+				flags & (HEX_BIAS|LONG_LONG))) {
 			if (flags & LONG_LONG) {
 				np->ll_num = ll_value1;
 				if (BITS32() && (ll_value1 > 0xffffffff))
@@ -2718,36 +2718,36 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 				return TRUE;
 			}
 		}
-               	goto malformed;
-        }
+							 	goto malformed;
+				}
 
 	switch (*op)
-        {
-        case '+':
+				{
+				case '+':
 		opcode = OP_ADD;
 		break;
 
-        case '-':
+				case '-':
 		opcode = OP_SUB;
 		break;
 
-        case '&':
+				case '&':
 		opcode = OP_AND;
 		break;
 
-        case '|':
+				case '|':
 		opcode = OP_OR;
 		break;
 
-        case '*':
+				case '*':
 		opcode = OP_MUL;
 		break;
 
-        case '%':
+				case '%':
 		opcode = OP_MOD;
 		break;
 
-        case '/':
+				case '/':
 		opcode = OP_DIV;
 		break;
 
@@ -2755,13 +2755,13 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 		if (*(op+1) != '<')
 			goto malformed;
 		opcode = OP_SL;
-	        break;
+					break;
 
 	case '>':
-                if (*(op+1) != '>')
-                        goto malformed;
-                opcode = OP_SR;
-	        break;
+								if (*(op+1) != '>')
+												goto malformed;
+								opcode = OP_SR;
+					break;
 
 	case '^':
 		opcode = OP_EXOR;
@@ -2772,7 +2772,7 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 		break;
 	}
 
-        element1 = &work[0];
+				element1 = &work[0];
 	*op = NULLCHAR;
 	if ((opcode == OP_SL) || (opcode == OP_SR)) {
 		*(op+1) = NULLCHAR;
@@ -2780,68 +2780,68 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	} else
 		element2 = op+1;
 
-        if (strlen(clean_line(element1)) == 0)
-                goto malformed;
+				if (strlen(clean_line(element1)) == 0)
+								goto malformed;
 
-        if (strlen(clean_line(element2)) == 0)
-                goto malformed;
+				if (strlen(clean_line(element2)) == 0)
+								goto malformed;
 
 	if ((sp = symbol_search(element1)))
-                value1 = ll_value1 = sp->value;
+								value1 = ll_value1 = sp->value;
 	else {
 		if (!calculate(element1, &value1, &ll_value1,
-		    flags & (HEX_BIAS|LONG_LONG)))
+				flags & (HEX_BIAS|LONG_LONG)))
 			goto malformed;
-                if (BITS32() && (ll_value1 > 0xffffffff))
-                	np->retflags |= LONG_LONG;
+								if (BITS32() && (ll_value1 > 0xffffffff))
+									np->retflags |= LONG_LONG;
 	}
 
-        if ((sp = symbol_search(element2)))
-                value2 = ll_value2 = sp->value;
-        else if (!calculate(element2, &value2, &ll_value2,
-	    	flags & (HEX_BIAS|LONG_LONG)))
+				if ((sp = symbol_search(element2)))
+								value2 = ll_value2 = sp->value;
+				else if (!calculate(element2, &value2, &ll_value2,
+				flags & (HEX_BIAS|LONG_LONG)))
 		goto malformed;
 
 	if (flags & LONG_LONG) {
 		if (BITS32() && (ll_value2 > 0xffffffff))
 			np->retflags |= LONG_LONG;
 
-                switch (opcode)
-                {
-                case OP_ADD:
-                        np->ll_num = (ll_value1 + ll_value2);
+								switch (opcode)
+								{
+								case OP_ADD:
+												np->ll_num = (ll_value1 + ll_value2);
 			break;
-                case OP_SUB:
-                        np->ll_num = (ll_value1 - ll_value2);
+								case OP_SUB:
+												np->ll_num = (ll_value1 - ll_value2);
 			break;
-                case OP_AND:
-                        np->ll_num = (ll_value1 & ll_value2);
+								case OP_AND:
+												np->ll_num = (ll_value1 & ll_value2);
 			break;
-                case OP_OR:
-                        np->ll_num = (ll_value1 | ll_value2);
+								case OP_OR:
+												np->ll_num = (ll_value1 | ll_value2);
 			break;
-                case OP_MUL:
-                        np->ll_num = (ll_value1 * ll_value2);
+								case OP_MUL:
+												np->ll_num = (ll_value1 * ll_value2);
 			break;
-                case OP_DIV:
-                        np->ll_num = (ll_value1 / ll_value2);
+								case OP_DIV:
+												np->ll_num = (ll_value1 / ll_value2);
 			break;
-                case OP_MOD:
-                        np->ll_num = (ll_value1 % ll_value2);
+								case OP_MOD:
+												np->ll_num = (ll_value1 % ll_value2);
 			break;
-                case OP_SL:
-                        np->ll_num = (ll_value1 << ll_value2);
+								case OP_SL:
+												np->ll_num = (ll_value1 << ll_value2);
 			break;
-                case OP_SR:
-                        np->ll_num = (ll_value1 >> ll_value2);
+								case OP_SR:
+												np->ll_num = (ll_value1 >> ll_value2);
 			break;
-                case OP_EXOR:
-                        np->ll_num = (ll_value1 ^ ll_value2);
+								case OP_EXOR:
+												np->ll_num = (ll_value1 ^ ll_value2);
 			break;
 		case OP_POWER:
 			np->ll_num = ll_power(ll_value1, ll_value2);
 			break;
-                }
+								}
 	} else {
 		switch (opcode)
 		{
@@ -2911,63 +2911,63 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
 	} else
 		ones_complement = FALSE;
 
-        if ((sp = symbol_search(s))) {
+				if ((sp = symbol_search(s))) {
 		if (flags & LONG_LONG) {
 			*llvalue = (ulonglong)sp->value;
 			if (ones_complement)
-                		*llvalue = ~(*llvalue);
+										*llvalue = ~(*llvalue);
 		} else
-                	*value = ones_complement ? ~(sp->value) : sp->value;
+									*value = ones_complement ? ~(sp->value) : sp->value;
 		return TRUE;
 	}
 
 	factor = 1;
 	errflag = 0;
 
-        switch (LASTCHAR(s))
-        {
-        case 'k':
-        case 'K':
-                LASTCHAR(s) = NULLCHAR;
-                if (IS_A_NUMBER(s))
-                        factor = 1024;
+				switch (LASTCHAR(s))
+				{
+				case 'k':
+				case 'K':
+								LASTCHAR(s) = NULLCHAR;
+								if (IS_A_NUMBER(s))
+												factor = 1024;
 		else
 			return FALSE;
-                break;
+								break;
 
-        case 'm':
-        case 'M':
-                LASTCHAR(s) = NULLCHAR;
-                if (IS_A_NUMBER(s))
-                        factor = (1024*1024);
+				case 'm':
+				case 'M':
+								LASTCHAR(s) = NULLCHAR;
+								if (IS_A_NUMBER(s))
+												factor = (1024*1024);
 		else
 			return FALSE;
-                break;
+								break;
 
-        case 'g':
-        case 'G':
-                LASTCHAR(s) = NULLCHAR;
-                if (IS_A_NUMBER(s))
-                        factor = (1024*1024*1024);
+				case 'g':
+				case 'G':
+								LASTCHAR(s) = NULLCHAR;
+								if (IS_A_NUMBER(s))
+												factor = (1024*1024*1024);
 		else
 			return FALSE;
-                break;
+								break;
 
-        default:
+				default:
 		if (!IS_A_NUMBER(s))
 			return FALSE;
 		break;
-        }
+				}
 
 	if (flags & LONG_LONG) {
-                ll_localval = stoll(s, RETURN_ON_ERROR|bias, &errflag);
-                if (errflag)
-                        return FALSE;
+								ll_localval = stoll(s, RETURN_ON_ERROR|bias, &errflag);
+								if (errflag)
+												return FALSE;
 
-                if (ones_complement)
-                        *llvalue = ~(ll_localval * factor);
-                else
-                        *llvalue = ll_localval * factor;
+								if (ones_complement)
+												*llvalue = ~(ll_localval * factor);
+								else
+												*llvalue = ll_localval * factor;
 	} else {
 		localval = stol(s, RETURN_ON_ERROR|bias, &errflag);
 		if (errflag)
@@ -2994,12 +2994,12 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	int i;
 	ulong hibit;
 	ulonglong ll_hibit;
-        int ccnt;
-        ulong mask;
+				int ccnt;
+				ulong mask;
 	ulonglong ll_mask;
-        char *hdr = "   bits set: ";
-        char buf[BUFSIZE];
-        int hdrlen;
+				char *hdr = "   bits set: ";
+				char buf[BUFSIZE];
+				int hdrlen;
 	int longlongformat;
 
 	longlongformat = longlongflagforce;
@@ -3016,64 +3016,64 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	}
 
 	if (longlongformat) {
-                ll_hibit = (ulonglong)(1) << ((sizeof(long long)*8)-1);
+								ll_hibit = (ulonglong)(1) << ((sizeof(long long)*8)-1);
 
-                fprintf(fp, "hexadecimal: %llx  ", np->ll_num);
-                if (np->ll_num >= KILOBYTES(1)) {
-                        if ((np->ll_num % GIGABYTES(1)) == 0)
-                                fprintf(fp, "(%lldGB)",
+								fprintf(fp, "hexadecimal: %llx  ", np->ll_num);
+								if (np->ll_num >= KILOBYTES(1)) {
+												if ((np->ll_num % GIGABYTES(1)) == 0)
+																fprintf(fp, "(%lldGB)",
 					np->ll_num / GIGABYTES(1));
-                        else if ((np->ll_num % MEGABYTES(1)) == 0)
-                                fprintf(fp, "(%lldMB)",
+												else if ((np->ll_num % MEGABYTES(1)) == 0)
+																fprintf(fp, "(%lldMB)",
 					np->ll_num / MEGABYTES(1));
-                        else if ((np->ll_num % KILOBYTES(1)) == 0)
-                                fprintf(fp, "(%lldKB)",
+												else if ((np->ll_num % KILOBYTES(1)) == 0)
+																fprintf(fp, "(%lldKB)",
 					 np->ll_num / KILOBYTES(1));
-                }
-                fprintf(fp, "\n");
+								}
+								fprintf(fp, "\n");
 
-                fprintf(fp, "    decimal: %llu  ", np->ll_num);
-                if ((long long)np->ll_num < 0)
-                        fprintf(fp, "(%lld)\n", (long long)np->ll_num);
-                else
-                        fprintf(fp, "\n");
-                fprintf(fp, "      octal: %llo\n", np->ll_num);
-                fprintf(fp, "     binary: ");
-                for(i = 0, ll_mask = np->ll_num; i < (sizeof(long long)*8);
-		    i++, ll_mask <<= 1)
-                        if (ll_mask & ll_hibit)
-                                fprintf(fp, "1");
-                        else
-                                fprintf(fp, "0");
-                fprintf(fp,"\n");
+								fprintf(fp, "    decimal: %llu  ", np->ll_num);
+								if ((long long)np->ll_num < 0)
+												fprintf(fp, "(%lld)\n", (long long)np->ll_num);
+								else
+												fprintf(fp, "\n");
+								fprintf(fp, "      octal: %llo\n", np->ll_num);
+								fprintf(fp, "     binary: ");
+								for(i = 0, ll_mask = np->ll_num; i < (sizeof(long long)*8);
+				i++, ll_mask <<= 1)
+												if (ll_mask & ll_hibit)
+																fprintf(fp, "1");
+												else
+																fprintf(fp, "0");
+								fprintf(fp,"\n");
 	} else {
 		hibit = (ulong)(1) << ((sizeof(long)*8)-1);
 
-	        fprintf(fp, "hexadecimal: %lx  ", np->num);
-	        if (np->num >= KILOBYTES(1)) {
-	                if ((np->num % GIGABYTES(1)) == 0)
-	                        fprintf(fp, "(%ldGB)", np->num / GIGABYTES(1));
-	                else if ((np->num % MEGABYTES(1)) == 0)
-	                        fprintf(fp, "(%ldMB)", np->num / MEGABYTES(1));
-	                else if ((np->num % KILOBYTES(1)) == 0)
-	                        fprintf(fp, "(%ldKB)", np->num / KILOBYTES(1));
-	        }
-	        fprintf(fp, "\n");
+					fprintf(fp, "hexadecimal: %lx  ", np->num);
+					if (np->num >= KILOBYTES(1)) {
+									if ((np->num % GIGABYTES(1)) == 0)
+													fprintf(fp, "(%ldGB)", np->num / GIGABYTES(1));
+									else if ((np->num % MEGABYTES(1)) == 0)
+													fprintf(fp, "(%ldMB)", np->num / MEGABYTES(1));
+									else if ((np->num % KILOBYTES(1)) == 0)
+													fprintf(fp, "(%ldKB)", np->num / KILOBYTES(1));
+					}
+					fprintf(fp, "\n");
 
-	        fprintf(fp, "    decimal: %lu  ", np->num);
+					fprintf(fp, "    decimal: %lu  ", np->num);
 		if ((long)np->num < 0)
-	                fprintf(fp, "(%ld)\n", (long)np->num);
-	        else
-	                fprintf(fp, "\n");
-	        fprintf(fp, "      octal: %lo\n", np->num);
-	        fprintf(fp, "     binary: ");
-	        for(i = 0, mask = np->num; i < (sizeof(long)*8);
-		    i++, mask <<= 1)
-	                if (mask & hibit)
-	                        fprintf(fp, "1");
-	                else
-	                        fprintf(fp, "0");
-	        fprintf(fp,"\n");
+									fprintf(fp, "(%ld)\n", (long)np->num);
+					else
+									fprintf(fp, "\n");
+					fprintf(fp, "      octal: %lo\n", np->num);
+					fprintf(fp, "     binary: ");
+					for(i = 0, mask = np->num; i < (sizeof(long)*8);
+				i++, mask <<= 1)
+									if (mask & hibit)
+													fprintf(fp, "1");
+									else
+													fprintf(fp, "0");
+					fprintf(fp,"\n");
 	}
 
 	if (!bitflag)
@@ -3084,35 +3084,35 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	fprintf(fp, "%s", hdr);
 
 	if (longlongformat) {
-	        for (i = 63; i >= 0; i--) {
-	                ll_mask = (ulonglong)(1) << i;
-	                if (np->ll_num & ll_mask) {
-	                        sprintf(buf, "%d ", i);
-	                        fprintf(fp, "%s", buf);
-	                        ccnt += strlen(buf);
-	                        if (ccnt >= 77) {
-	                                fprintf(fp, "\n");
-	                                INDENT(strlen(hdr));
-	                                ccnt = hdrlen;
-	                        }
-	                }
-	        }
+					for (i = 63; i >= 0; i--) {
+									ll_mask = (ulonglong)(1) << i;
+									if (np->ll_num & ll_mask) {
+													sprintf(buf, "%d ", i);
+													fprintf(fp, "%s", buf);
+													ccnt += strlen(buf);
+													if (ccnt >= 77) {
+																	fprintf(fp, "\n");
+																	INDENT(strlen(hdr));
+																	ccnt = hdrlen;
+													}
+									}
+					}
 	} else {
-	        for (i = BITS()-1; i >= 0; i--) {
-	                mask = (ulong)(1) << i;
-	                if (np->num & mask) {
-	                        sprintf(buf, "%d ", i);
-	                        fprintf(fp, "%s", buf);
-	                        ccnt += strlen(buf);
-	                        if (ccnt >= 77) {
-	                                fprintf(fp, "\n");
-	                                INDENT(strlen(hdr));
-	                                ccnt = hdrlen;
-	                        }
-	                }
-	        }
+					for (i = BITS()-1; i >= 0; i--) {
+									mask = (ulong)(1) << i;
+									if (np->num & mask) {
+													sprintf(buf, "%d ", i);
+													fprintf(fp, "%s", buf);
+													ccnt += strlen(buf);
+													if (ccnt >= 77) {
+																	fprintf(fp, "\n");
+																	INDENT(strlen(hdr));
+																	ccnt = hdrlen;
+													}
+									}
+					}
 	}
-        fprintf(fp, "\n");
+				fprintf(fp, "\n");
 }
 
 
@@ -3162,8 +3162,8 @@ cmd_list(void)
 	ld = &list_data;
 	BZERO(ld, sizeof(struct list_data));
 
-        while ((c = getopt(argcnt, args, "Hhrs:e:o:xd")) != EOF) {
-                switch(c)
+				while ((c = getopt(argcnt, args, "Hhrs:e:o:xd")) != EOF) {
+								switch(c)
 		{
 		case 'H':
 			ld->flags |= LIST_HEAD_FORMAT;
@@ -3186,9 +3186,9 @@ cmd_list(void)
 
 		case 'o':
 			if (ld->flags & LIST_OFFSET_ENTERED)
-                               error(FATAL,
-                                "offset value %d (0x%lx) already entered\n",
-                                        ld->member_offset, ld->member_offset);
+															 error(FATAL,
+																"offset value %d (0x%lx) already entered\n",
+																				ld->member_offset, ld->member_offset);
 			else if (IS_A_NUMBER(optarg))
 				ld->member_offset = stol(optarg,
 					FAULT_ON_ERROR, NULL);
@@ -3242,10 +3242,10 @@ cmd_list(void)
 
 	while (args[optind]) {
 		if (strstr(args[optind], ".") &&
-		    arg_to_datatype(args[optind], sm, RETURN_ON_ERROR) > 1) {
+				arg_to_datatype(args[optind], sm, RETURN_ON_ERROR) > 1) {
 			if (ld->flags & LIST_OFFSET_ENTERED)
 				error(FATAL,
-			           "offset value %ld (0x%lx) already entered\n",
+								 "offset value %ld (0x%lx) already entered\n",
 					ld->member_offset, ld->member_offset);
 			ld->member_offset = sm->member_offset;
 			ld->flags |= LIST_OFFSET_ENTERED;
@@ -3257,10 +3257,10 @@ cmd_list(void)
 			 */
 			if ((sp = symbol_search(args[optind]))) {
 				if (ld->flags & LIST_START_ENTERED)
-                                        error(FATAL,
-                                            "list start already entered\n");
-                                ld->start = sp->value;
-                                ld->flags |= LIST_START_ENTERED;
+																				error(FATAL,
+																						"list start already entered\n");
+																ld->start = sp->value;
+																ld->flags |= LIST_START_ENTERED;
 				goto next_arg;
 			}
 
@@ -3270,46 +3270,46 @@ cmd_list(void)
 			 */
 			if (!IS_A_NUMBER(args[optind])) {
 				if (can_eval(args[optind])) {
-                        		value = eval(args[optind], FAULT_ON_ERROR, NULL);
+														value = eval(args[optind], FAULT_ON_ERROR, NULL);
 					if (IS_KVADDR(value)) {
-                               			if (ld->flags & LIST_START_ENTERED)
-                                        		error(FATAL,
-                                            		    "list start already entered\n");
-                                		ld->start = value;
-                                		ld->flags |= LIST_START_ENTERED;
+															 			if (ld->flags & LIST_START_ENTERED)
+																						error(FATAL,
+																										"list start already entered\n");
+																		ld->start = value;
+																		ld->flags |= LIST_START_ENTERED;
 						goto next_arg;
 					}
 				}
 
 				error(FATAL, "invalid argument: %s\n",
-                                	args[optind]);
+																	args[optind]);
 			}
 
 			/*
 			 *  If the start is known, it's got to be an offset.
 			 */
-                        if (ld->flags & LIST_START_ENTERED) {
-                                value = stol(args[optind], FAULT_ON_ERROR,
-                                        NULL);
-                                ld->member_offset = value;
-                                ld->flags |= LIST_OFFSET_ENTERED;
-                                break;
-                        }
+												if (ld->flags & LIST_START_ENTERED) {
+																value = stol(args[optind], FAULT_ON_ERROR,
+																				NULL);
+																ld->member_offset = value;
+																ld->flags |= LIST_OFFSET_ENTERED;
+																break;
+												}
 
 			/*
 			 *  If the offset is known, or there's no subsequent
-                         *  argument, then it's got to be a start.
+												 *  argument, then it's got to be a start.
 			 */
 			if ((ld->flags & LIST_OFFSET_ENTERED) ||
-			    !args[optind+1]) {
+					!args[optind+1]) {
 				value = htol(args[optind], FAULT_ON_ERROR,
 					NULL);
 				if (!IS_KVADDR(value))
 					error(FATAL,
-				        "invalid kernel virtual address: %s\n",
+								"invalid kernel virtual address: %s\n",
 						args[optind]);
-                                ld->start = value;
-                                ld->flags |= LIST_START_ENTERED;
+																ld->start = value;
+																ld->flags |= LIST_START_ENTERED;
 				break;
 			}
 
@@ -3319,26 +3319,26 @@ cmd_list(void)
 			 *  If it's a symbol, then this must be an offset.
 			 */
 			if ((sp = symbol_search(args[optind+1]))) {
-                                value = stol(args[optind], FAULT_ON_ERROR,
-                                        NULL);
-                                ld->member_offset = value;
-                                ld->flags |= LIST_OFFSET_ENTERED;
-                                goto next_arg;
+																value = stol(args[optind], FAULT_ON_ERROR,
+																				NULL);
+																ld->member_offset = value;
+																ld->flags |= LIST_OFFSET_ENTERED;
+																goto next_arg;
 			} else if ((!IS_A_NUMBER(args[optind+1]) &&
 				!can_eval(args[optind+1])) &&
 				!strstr(args[optind+1], "."))
 				error(FATAL, "symbol not found: %s\n",
-                                        args[optind+1]);
+																				args[optind+1]);
 			/*
 			 *  Crunch time.  We've got two numbers.  If they're
 			 *  both ambigous we must have zero-based kernel
 			 *  virtual address space.
 			 */
 			if (COMMON_VADDR_SPACE() &&
-			    AMBIGUOUS_NUMBER(args[optind]) &&
-			    AMBIGUOUS_NUMBER(args[optind+1])) {
+					AMBIGUOUS_NUMBER(args[optind]) &&
+					AMBIGUOUS_NUMBER(args[optind+1])) {
 				error(INFO,
-                     "ambiguous arguments: \"%s\" and \"%s\": -o is required\n",
+										 "ambiguous arguments: \"%s\" and \"%s\": -o is required\n",
 					args[optind], args[optind+1]);
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			}
@@ -3346,15 +3346,15 @@ cmd_list(void)
 			if (hexadecimal_only(args[optind], 0)) {
 				value = htol(args[optind], FAULT_ON_ERROR,
 					NULL);
-                                if (IS_KVADDR(value)) {
-                                	ld->start = value;
-                                	ld->flags |= LIST_START_ENTERED;
+																if (IS_KVADDR(value)) {
+																	ld->start = value;
+																	ld->flags |= LIST_START_ENTERED;
 					goto next_arg;
 				}
 			}
 			value = stol(args[optind], FAULT_ON_ERROR, NULL);
-                        ld->member_offset = value;
-                        ld->flags |= LIST_OFFSET_ENTERED;
+												ld->member_offset = value;
+												ld->flags |= LIST_OFFSET_ENTERED;
 		}
 next_arg:
 		optind++;
@@ -3391,7 +3391,7 @@ next_arg:
 	c = do_list(ld);
 	hq_close();
 
-        if (ld->structname_args)
+				if (ld->structname_args)
 		FREEBUF(ld->structname);
 }
 
@@ -3460,8 +3460,8 @@ do_list(struct list_data *ld)
 		(RETURN_ON_ERROR|QUIET) : FAULT_ON_ERROR;
 
 	if (!readmem(next + ld->member_offset, KVADDR, &first, sizeof(void *),
-            "first list entry", readflag)) {
-                error(INFO, "\ninvalid list entry: %lx\n", next);
+						"first list entry", readflag)) {
+								error(INFO, "\ninvalid list entry: %lx\n", next);
 		return -1;
 	}
 
@@ -3485,32 +3485,32 @@ do_list(struct list_data *ld)
 						break;
 					default:
 						error(FATAL,
-						    "invalid structure reference: %s\n",
+								"invalid structure reference: %s\n",
 							ld->structname[i]);
 					}
 				}
 			}
 		}
 
-                if (next && !hq_enter(next - ld->list_head_offset)) {
+								if (next && !hq_enter(next - ld->list_head_offset)) {
 			if (ld->flags &
-			    (RETURN_ON_DUPLICATE|RETURN_ON_LIST_ERROR)) {
-                        	error(INFO, "\nduplicate list entry: %lx\n",
+					(RETURN_ON_DUPLICATE|RETURN_ON_LIST_ERROR)) {
+													error(INFO, "\nduplicate list entry: %lx\n",
 					next);
 				return -1;
 			}
-                        error(FATAL, "\nduplicate list entry: %lx\n", next);
+												error(FATAL, "\nduplicate list entry: %lx\n", next);
 		}
 
 		if ((searchfor == next) ||
-		    (searchfor == (next - ld->list_head_offset)))
+				(searchfor == (next - ld->list_head_offset)))
 			ld->searchfor = searchfor;
 
 		count++;
-                last = next;
+								last = next;
 
-                if (!readmem(next + ld->member_offset, KVADDR, &next,
-		    sizeof(void *), "list entry", readflag)) {
+								if (!readmem(next + ld->member_offset, KVADDR, &next,
+				sizeof(void *), "list entry", readflag)) {
 			error(INFO, "\ninvalid list entry: %lx\n", next);
 			return -1;
 		}
@@ -3544,7 +3544,7 @@ do_list(struct list_data *ld)
 
 		if ((next == first) && (count != 1)) {
 			if (CRASHDEBUG(1))
-		      console("do_list end: next:%lx == first:%lx (count %d)\n",
+					console("do_list end: next:%lx == first:%lx (count %d)\n",
 				next, last, count);
 			break;
 		}
@@ -3712,7 +3712,7 @@ cmd_tree()
 		error(FATAL, "-o option is not applicable to radix trees\n");
 
 	if ((td->flags & TREE_ROOT_OFFSET_ENTERED) &&
-	    (td->flags & TREE_NODE_POINTER))
+			(td->flags & TREE_NODE_POINTER))
 		error(INFO, "-r and -N options are mutually exclusive\n");
 
 	if (!args[optind]) {
@@ -3804,7 +3804,7 @@ next_arg:
 		do_rbtree(td);
 	hq_close();
 
-        if (td->structname_args)
+				if (td->structname_args)
 		FREEBUF(td->structname);
 }
 
@@ -3821,17 +3821,17 @@ do_rdtree(struct tree_data *td)
 	char pos[BUFSIZE];
 
 	if (!VALID_STRUCT(radix_tree_root) || !VALID_STRUCT(radix_tree_node) ||
-	    !VALID_MEMBER(radix_tree_root_height) ||
-	    !VALID_MEMBER(radix_tree_root_rnode) ||
-	    !VALID_MEMBER(radix_tree_node_slots) ||
-	    !ARRAY_LENGTH(height_to_maxindex))
+			!VALID_MEMBER(radix_tree_root_height) ||
+			!VALID_MEMBER(radix_tree_root_rnode) ||
+			!VALID_MEMBER(radix_tree_node_slots) ||
+			!ARRAY_LENGTH(height_to_maxindex))
 		error(FATAL, "radix trees do not exist or have changed "
 			"their format\n");
 
 	if (RADIX_TREE_MAP_SHIFT == UNINITIALIZED) {
 		if (!(nlen = MEMBER_SIZE("radix_tree_node", "slots")))
 			error(FATAL, "cannot determine length of "
-				     "radix_tree_node.slots[] array\n");
+						 "radix_tree_node.slots[] array\n");
 		nlen /= sizeof(void *);
 		RADIX_TREE_MAP_SHIFT = ffsl(nlen) - 1;
 		RADIX_TREE_MAP_SIZE = (1UL << RADIX_TREE_MAP_SHIFT);
@@ -3944,7 +3944,7 @@ rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum,
 						break;
 					default:
 						error(FATAL,
-						  "invalid struct reference: %s\n",
+							"invalid struct reference: %s\n",
 							td->structname[i]);
 					}
 				}
@@ -3961,7 +3961,7 @@ do_rbtree(struct tree_data *td)
 	char pos[BUFSIZE];
 
 	if (!VALID_MEMBER(rb_root_rb_node) || !VALID_MEMBER(rb_node_rb_left) ||
-	    !VALID_MEMBER(rb_node_rb_right))
+			!VALID_MEMBER(rb_node_rb_right))
 		error(FATAL, "red-black trees do not exist or have changed "
 			"their format\n");
 
@@ -4103,9 +4103,9 @@ dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 #define HQ_INDEX(X)      (((X) >> HQ_SHIFT) % NR_HASH_QUEUES)
 
 struct hq_entry {
-        int next;
+				int next;
 	int order;
-        ulong value;
+				ulong value;
 };
 
 struct hq_head {
@@ -4133,8 +4133,8 @@ hq_init(void)
 
 	ht = &hash_table;
 
-        if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK *
-	    sizeof(struct hq_entry))) == NULL) {
+				if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK *
+			sizeof(struct hq_entry))) == NULL) {
 		error(INFO, "cannot malloc memory for hash queues: %s\n",
 			strerror(errno));
 		ht->flags = HASH_QUEUE_NONE;
@@ -4160,10 +4160,10 @@ alloc_hq_entry(void)
 	ht = &hash_table;
 
 	if (++ht->index == ht->count) {
-                if (!(new = (void *)realloc((void *)ht->memptr,
-		    (ht->count+HQ_ENTRY_CHUNK) * sizeof(struct hq_entry)))) {
+								if (!(new = (void *)realloc((void *)ht->memptr,
+				(ht->count+HQ_ENTRY_CHUNK) * sizeof(struct hq_entry)))) {
 			error(INFO,
-			    "cannot realloc memory for hash queues: %s\n",
+					"cannot realloc memory for hash queues: %s\n",
 				strerror(errno));
 			ht->flags |= HASH_QUEUE_FULL;
 			return(-1);
@@ -4185,10 +4185,10 @@ alloc_hq_entry(void)
 static void
 dealloc_hq_entry(struct hq_entry *entry)
 {
-        struct hash_table *ht;
-        long hqi;
+				struct hash_table *ht;
+				long hqi;
 
-        ht = &hash_table;
+				ht = &hash_table;
 	hqi = HQ_INDEX(entry->value);
 
 	ht->index--;
@@ -4301,14 +4301,14 @@ hq_enter(ulong value)
 	list_entry = ht->memptr + ht->queue_heads[hqi].next;
 
 	while (TRUE) {
-	        if (list_entry->value == entry->value) {
+					if (list_entry->value == entry->value) {
 			dealloc_hq_entry(entry);
-                	return FALSE;
+									return FALSE;
 		}
 
 		if (list_entry->next >= ht->count) {
 			error(INFO, corrupt_hq,
-			    	list_entry->value,
+						list_entry->value,
 				list_entry->next,
 				list_entry->order);
 			ht->flags |= HASH_QUEUE_NONE;
@@ -4318,7 +4318,7 @@ hq_enter(ulong value)
 		if (list_entry->next == 0)
 			break;
 
-        	list_entry = ht->memptr + list_entry->next;
+					list_entry = ht->memptr + list_entry->next;
 	}
 
 	list_entry->next = index;
@@ -4344,14 +4344,14 @@ dump_hash_table(int verbose)
 	others = 0;
 
 	fprintf(fp, "              flags: %lx (", ht->flags);
-        if (ht->flags & HASH_QUEUE_NONE)
-                fprintf(fp, "%sHASH_QUEUE_NONE", others++ ? "|" : "");
-        if (ht->flags & HASH_QUEUE_OPEN)
-                fprintf(fp, "%sHASH_QUEUE_OPEN", others++ ? "|" : "");
-        if (ht->flags & HASH_QUEUE_CLOSED)
-                fprintf(fp, "%sHASH_QUEUE_CLOSED", others++ ? "|" : "");
-        if (ht->flags & HASH_QUEUE_FULL)
-                fprintf(fp, "%sHASH_QUEUE_FULL", others++ ? "|" : "");
+				if (ht->flags & HASH_QUEUE_NONE)
+								fprintf(fp, "%sHASH_QUEUE_NONE", others++ ? "|" : "");
+				if (ht->flags & HASH_QUEUE_OPEN)
+								fprintf(fp, "%sHASH_QUEUE_OPEN", others++ ? "|" : "");
+				if (ht->flags & HASH_QUEUE_CLOSED)
+								fprintf(fp, "%sHASH_QUEUE_CLOSED", others++ ? "|" : "");
+				if (ht->flags & HASH_QUEUE_FULL)
+								fprintf(fp, "%sHASH_QUEUE_FULL", others++ ? "|" : "");
 	fprintf(fp, ")\n");
 	fprintf(fp, "   queue_heads[%d]: %lx\n", NR_HASH_QUEUES,
 		(ulong)ht->queue_heads);
@@ -4367,9 +4367,9 @@ dump_hash_table(int verbose)
 	maxq = 0;
 
 	for (i = 0; i < NR_HASH_QUEUES; i++) {
-               	if (ht->queue_heads[i].next == 0) {
+							 	if (ht->queue_heads[i].next == 0) {
 			minq = 0;
-                       	continue;
+											 	continue;
 		}
 
 		if (ht->queue_heads[i].qcnt < minq)
@@ -4377,55 +4377,55 @@ dump_hash_table(int verbose)
 		if (ht->queue_heads[i].qcnt > maxq)
 			maxq = ht->queue_heads[i].qcnt;
 
-               	queues_in_use++;
+							 	queues_in_use++;
 	}
 
 	elements = 0;
 	list_entry = ht->memptr;
-        for (i = 0; i < ht->count; i++, list_entry++) {
-	         if (!list_entry->order) {
-	                if (list_entry->value || list_entry->next)
+				for (i = 0; i < ht->count; i++, list_entry++) {
+					 if (!list_entry->order) {
+									if (list_entry->value || list_entry->next)
 				goto corrupt_list_entry;
-	                continue;
-	         }
+									continue;
+					 }
 
-	         if (list_entry->next >= ht->count)
-	                        goto corrupt_list_entry;
+					 if (list_entry->next >= ht->count)
+													goto corrupt_list_entry;
 
-	         ++elements;
-       	}
+					 ++elements;
+			 	}
 
 	if (elements != ht->index)
-        	fprintf(fp, "     elements found: %ld (expected %ld)\n",
+					fprintf(fp, "     elements found: %ld (expected %ld)\n",
 			elements, ht->index);
-        fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use,
+				fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use,
 		NR_HASH_QUEUES);
 	fprintf(fp, " queue length range: %d to %d\n", minq, maxq);
 
 	if (verbose) {
 		if (!elements) {
-        		fprintf(fp, "            entries: (none)\n");
+						fprintf(fp, "            entries: (none)\n");
 			return;
 		}
 
-        	fprintf(fp, "            entries: ");
+					fprintf(fp, "            entries: ");
 
-        	list_entry = ht->memptr;
-	        for (i = 0; i < ht->count; i++, list_entry++) {
-	                 if (list_entry->order)
-	                        fprintf(fp, "%s%lx (%d)\n",
+					list_entry = ht->memptr;
+					for (i = 0; i < ht->count; i++, list_entry++) {
+									 if (list_entry->order)
+													fprintf(fp, "%s%lx (%d)\n",
 					list_entry->order == 1 ?
 					"" : "                     ",
-	                                list_entry->value, list_entry->order);
-	        }
+																	list_entry->value, list_entry->order);
+					}
 	}
 	return;
 
 corrupt_list_entry:
 
-        error(INFO, corrupt_hq,
-        	list_entry->value, list_entry->next, list_entry->order);
-        ht->flags |= HASH_QUEUE_NONE;
+				error(INFO, corrupt_hq,
+					list_entry->value, list_entry->next, list_entry->order);
+				ht->flags |= HASH_QUEUE_NONE;
 }
 
 /*
@@ -4440,16 +4440,16 @@ corrupt_list_entry:
 int
 retrieve_list(ulong array[], int count)
 {
-        int i;
-        struct hash_table *ht;
-        struct hq_entry *list_entry;
-        int elements;
+				int i;
+				struct hash_table *ht;
+				struct hq_entry *list_entry;
+				int elements;
 
 	if (!(pc->flags & HASH))
 		error(FATAL,
-		    "cannot perform this command with hash turned off\n");
+				"cannot perform this command with hash turned off\n");
 
-        ht = &hash_table;
+				ht = &hash_table;
 
 	list_entry = ht->memptr;
 	for (i = elements = 0; i < ht->count; i++, list_entry++) {
@@ -4459,24 +4459,24 @@ retrieve_list(ulong array[], int count)
 			continue;
 		}
 
-                if (list_entry->next >= ht->count)
+								if (list_entry->next >= ht->count)
 			goto corrupt_list_entry;
 
 		if (array)
 			array[elements] = list_entry->value;
 
-                if (++elements == count)
-                       	break;
+								if (++elements == count)
+											 	break;
 	}
 
 	return elements;
 
 corrupt_list_entry:
 
-        error(INFO, corrupt_hq,
-               list_entry->value, list_entry->next, list_entry->order);
-        ht->flags |= HASH_QUEUE_NONE;
-        return(-1);
+				error(INFO, corrupt_hq,
+							 list_entry->value, list_entry->next, list_entry->order);
+				ht->flags |= HASH_QUEUE_NONE;
+				return(-1);
 }
 
 /*
@@ -4545,14 +4545,14 @@ power(long base, int exp)
 long long
 ll_power(long long base, long long exp)
 {
-        long long i;
-        long long p;
+				long long i;
+				long long p;
 
-        p = 1;
-        for (i = 1; i <= exp; i++)
-                p = p * base;
+				p = 1;
+				for (i = 1; i <= exp; i++)
+								p = p * base;
 
-        return p;
+				return p;
 }
 
 /*
@@ -4577,15 +4577,15 @@ ll_power(long long base, long long exp)
 #define SHARED_32K_BUF_FULL  (0x00001)
 
 #define SHARED_1K_BUF_AVAIL(X) \
-  (NUMBER_1K_BUFS && !(((X) & SHARED_1K_BUF_FULL) == SHARED_1K_BUF_FULL))
+	(NUMBER_1K_BUFS && !(((X) & SHARED_1K_BUF_FULL) == SHARED_1K_BUF_FULL))
 #define SHARED_2K_BUF_AVAIL(X) \
-  (NUMBER_2K_BUFS && !(((X) & SHARED_2K_BUF_FULL) == SHARED_2K_BUF_FULL))
+	(NUMBER_2K_BUFS && !(((X) & SHARED_2K_BUF_FULL) == SHARED_2K_BUF_FULL))
 #define SHARED_4K_BUF_AVAIL(X) \
-  (NUMBER_4K_BUFS && !(((X) & SHARED_4K_BUF_FULL) == SHARED_4K_BUF_FULL))
+	(NUMBER_4K_BUFS && !(((X) & SHARED_4K_BUF_FULL) == SHARED_4K_BUF_FULL))
 #define SHARED_8K_BUF_AVAIL(X) \
-  (NUMBER_8K_BUFS && !(((X) & SHARED_8K_BUF_FULL) == SHARED_8K_BUF_FULL))
+	(NUMBER_8K_BUFS && !(((X) & SHARED_8K_BUF_FULL) == SHARED_8K_BUF_FULL))
 #define SHARED_32K_BUF_AVAIL(X) \
-  (NUMBER_32K_BUFS && !(((X) & SHARED_32K_BUF_FULL) == SHARED_32K_BUF_FULL))
+	(NUMBER_32K_BUFS && !(((X) & SHARED_32K_BUF_FULL) == SHARED_32K_BUF_FULL))
 
 #define B1K  (0)
 #define B2K  (1)
@@ -4608,16 +4608,16 @@ struct shared_bufs {
 	long buf_4K_used;
 	long buf_8K_used;
 	long buf_32K_used;
-        long buf_1K_maxuse;
-        long buf_2K_maxuse;
-        long buf_4K_maxuse;
-        long buf_8K_maxuse;
-        long buf_32K_maxuse;
-        long buf_1K_ovf;
-        long buf_2K_ovf;
-        long buf_4K_ovf;
-        long buf_8K_ovf;
-        long buf_32K_ovf;
+				long buf_1K_maxuse;
+				long buf_2K_maxuse;
+				long buf_4K_maxuse;
+				long buf_8K_maxuse;
+				long buf_32K_maxuse;
+				long buf_1K_ovf;
+				long buf_2K_ovf;
+				long buf_4K_ovf;
+				long buf_8K_ovf;
+				long buf_32K_ovf;
 	int buf_inuse[SHARED_BUF_SIZES];
 	char *malloc_bp[MAX_MALLOC_BUFS];
 	long smallest;
@@ -4654,8 +4654,8 @@ void free_all_bufs(void)
 	bp = &shared_bufs;
 	bp->embedded = 0;
 
-        for (i = 0; i < SHARED_BUF_SIZES; i++)
-                bp->buf_inuse[i] = 0;
+				for (i = 0; i < SHARED_BUF_SIZES; i++)
+								bp->buf_inuse[i] = 0;
 
 	for (i = 0; i < MAX_MALLOC_BUFS; i++) {
 		if (bp->malloc_bp[i]) {
@@ -4680,16 +4680,16 @@ void free_all_bufs(void)
 void
 freebuf(char *addr)
 {
-        int i;
-        struct shared_bufs *bp;
+				int i;
+				struct shared_bufs *bp;
 
-        bp = &shared_bufs;
+				bp = &shared_bufs;
 	bp->embedded--;
 
-        if (CRASHDEBUG(8)) {
+				if (CRASHDEBUG(8)) {
 		INDENT(bp->embedded*2);
-                fprintf(fp, "FREEBUF(%ld)\n", bp->embedded);
-        }
+								fprintf(fp, "FREEBUF(%ld)\n", bp->embedded);
+				}
 
 	for (i = 0; i < NUMBER_1K_BUFS; i++) {
 		if (addr == (char *)&bp->buf_1K[i]) {
@@ -4719,37 +4719,37 @@ freebuf(char *addr)
 		}
 	}
 
-        for (i = 0; i < NUMBER_32K_BUFS; i++) {
-                if (addr == (char *)&bp->buf_32K[i]) {
-                        bp->buf_inuse[B32K] &= ~(1 << i);
-                        return;
-                }
-        }
+				for (i = 0; i < NUMBER_32K_BUFS; i++) {
+								if (addr == (char *)&bp->buf_32K[i]) {
+												bp->buf_inuse[B32K] &= ~(1 << i);
+												return;
+								}
+				}
 
-        for (i = 0; i < MAX_MALLOC_BUFS; i++) {
-                if (bp->malloc_bp[i] == addr) {
-                        free(bp->malloc_bp[i]);
-                        bp->malloc_bp[i] = NULL;
-                        bp->frees++;
-                        return;
-                }
-        }
+				for (i = 0; i < MAX_MALLOC_BUFS; i++) {
+								if (bp->malloc_bp[i] == addr) {
+												free(bp->malloc_bp[i]);
+												bp->malloc_bp[i] = NULL;
+												bp->frees++;
+												return;
+								}
+				}
 
 	error(FATAL,
-	    "freeing an unknown buffer -- shared buffer inconsistency!\n");
+			"freeing an unknown buffer -- shared buffer inconsistency!\n");
 }
 
 /* DEBUG */
 void
 dump_embedded(char *s)
 {
-        struct shared_bufs *bp;
+				struct shared_bufs *bp;
 	char *p1;
 
 	p1 = s ? s : "";
 
-        bp = &shared_bufs;
-        console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n",
+				bp = &shared_bufs;
+				console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n",
 		p1, bp->embedded, bp->mallocs, bp->frees);
 }
 /* DEBUG */
@@ -4758,7 +4758,7 @@ get_embedded(void)
 {
 	struct shared_bufs *bp;
 
-        bp = &shared_bufs;
+				bp = &shared_bufs;
 	return(bp->embedded);
 }
 
@@ -4768,32 +4768,32 @@ get_embedded(void)
 void
 dump_shared_bufs(void)
 {
-        int i;
-        struct shared_bufs *bp;
+				int i;
+				struct shared_bufs *bp;
 
-        bp = &shared_bufs;
+				bp = &shared_bufs;
 
-        fprintf(fp, "   buf_1K_used: %ld\n", bp->buf_1K_used);
-        fprintf(fp, "   buf_2K_used: %ld\n", bp->buf_2K_used);
-        fprintf(fp, "   buf_4K_used: %ld\n", bp->buf_4K_used);
-        fprintf(fp, "   buf_8K_used: %ld\n", bp->buf_8K_used);
-        fprintf(fp, "  buf_32K_used: %ld\n", bp->buf_32K_used);
+				fprintf(fp, "   buf_1K_used: %ld\n", bp->buf_1K_used);
+				fprintf(fp, "   buf_2K_used: %ld\n", bp->buf_2K_used);
+				fprintf(fp, "   buf_4K_used: %ld\n", bp->buf_4K_used);
+				fprintf(fp, "   buf_8K_used: %ld\n", bp->buf_8K_used);
+				fprintf(fp, "  buf_32K_used: %ld\n", bp->buf_32K_used);
 
-        fprintf(fp, "    buf_1K_ovf: %ld\n", bp->buf_1K_ovf);
-        fprintf(fp, "    buf_2K_ovf: %ld\n", bp->buf_2K_ovf);
-        fprintf(fp, "    buf_4K_ovf: %ld\n", bp->buf_4K_ovf);
-        fprintf(fp, "    buf_8K_ovf: %ld\n", bp->buf_8K_ovf);
-        fprintf(fp, "   buf_32K_ovf: %ld\n", bp->buf_32K_ovf);
+				fprintf(fp, "    buf_1K_ovf: %ld\n", bp->buf_1K_ovf);
+				fprintf(fp, "    buf_2K_ovf: %ld\n", bp->buf_2K_ovf);
+				fprintf(fp, "    buf_4K_ovf: %ld\n", bp->buf_4K_ovf);
+				fprintf(fp, "    buf_8K_ovf: %ld\n", bp->buf_8K_ovf);
+				fprintf(fp, "   buf_32K_ovf: %ld\n", bp->buf_32K_ovf);
 
-        fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse,
+				fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse,
 		NUMBER_1K_BUFS);
-        fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse,
+				fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse,
 		NUMBER_2K_BUFS);
-        fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse,
+				fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse,
 		NUMBER_4K_BUFS);
-        fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse,
+				fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse,
 		NUMBER_8K_BUFS);
-        fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse,
+				fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse,
 		NUMBER_32K_BUFS);
 
 	fprintf(fp, "  buf_inuse[%d]: ", SHARED_BUF_SIZES);
@@ -4801,16 +4801,16 @@ dump_shared_bufs(void)
 		fprintf(fp, "[%lx]", (ulong)bp->buf_inuse[i]);
 	fprintf(fp, "\n");
 
-        for (i = 0; i < MAX_MALLOC_BUFS; i++)
+				for (i = 0; i < MAX_MALLOC_BUFS; i++)
 		if (bp->malloc_bp[i])
 			fprintf(fp, "  malloc_bp[%d]: %lx\n",
 				i, (ulong)bp->malloc_bp[i]);
 
 	if (bp->smallest == 0x7fffffff)
-        	fprintf(fp, "      smallest: 0\n");
+					fprintf(fp, "      smallest: 0\n");
 	else
-        	fprintf(fp, "      smallest: %ld\n", bp->smallest);
-        fprintf(fp, "       largest: %ld\n", bp->largest);
+					fprintf(fp, "      smallest: %ld\n", bp->smallest);
+				fprintf(fp, "       largest: %ld\n", bp->largest);
 
 	fprintf(fp, "      embedded: %ld\n", bp->embedded);
 	fprintf(fp, "  max_embedded: %ld\n", bp->max_embedded);
@@ -4826,11 +4826,11 @@ dump_shared_bufs(void)
  */
 
 #define SHARED_BUFSIZE(size) \
-                ((size <= 1024) ? 1024 >> 7 : \
-                    ((size <= 2048) ? 2048 >> 7 : \
-                        ((size <= 4096) ? 4096 >> 7 : \
-                            ((size <= 8192) ? 8192 >> 7 : \
-                                ((size <= 32768) ? 32768 >> 7 : -1)))))
+								((size <= 1024) ? 1024 >> 7 : \
+										((size <= 2048) ? 2048 >> 7 : \
+												((size <= 4096) ? 4096 >> 7 : \
+														((size <= 8192) ? 8192 >> 7 : \
+																((size <= 32768) ? 32768 >> 7 : -1)))))
 
 char *
 getbuf(long reqsize)
@@ -4843,10 +4843,10 @@ getbuf(long reqsize)
 	char *bufp;
 
 	if (!reqsize) {
-                ulong retaddr = (ulong)__builtin_return_address(0);
-                error(FATAL, "zero-size memory allocation! (called from %lx)\n",
-                        retaddr);
-        }
+								ulong retaddr = (ulong)__builtin_return_address(0);
+								error(FATAL, "zero-size memory allocation! (called from %lx)\n",
+												retaddr);
+				}
 
 	bp = &shared_bufs;
 
@@ -4879,74 +4879,74 @@ getbuf(long reqsize)
 		break;
 
 	case 8:
-                if (SHARED_1K_BUF_AVAIL(bp->buf_inuse[B1K])) {
-                        mask = ~(bp->buf_inuse[B1K]);
-                        bdx = ffs(mask) - 1;
-                        bufp = bp->buf_1K[bdx];
-                        bp->buf_1K_used++;
-                        bp->buf_inuse[B1K] |= (1 << bdx);
+								if (SHARED_1K_BUF_AVAIL(bp->buf_inuse[B1K])) {
+												mask = ~(bp->buf_inuse[B1K]);
+												bdx = ffs(mask) - 1;
+												bufp = bp->buf_1K[bdx];
+												bp->buf_1K_used++;
+												bp->buf_inuse[B1K] |= (1 << bdx);
 			bp->buf_1K_maxuse = MAX(bp->buf_1K_maxuse,
 				count_bits_int(bp->buf_inuse[B1K]));
-                        BZERO(bufp, 1024);
-                        return(bufp);
-                }
+												BZERO(bufp, 1024);
+												return(bufp);
+								}
 		bp->buf_1K_ovf++;  /* FALLTHROUGH */
 
 	case 16:
-                if (SHARED_2K_BUF_AVAIL(bp->buf_inuse[B2K])) {
-                        mask = ~(bp->buf_inuse[B2K]);
-                        bdx = ffs(mask) - 1;
-                        bufp = bp->buf_2K[bdx];
-                        bp->buf_2K_used++;
-                        bp->buf_inuse[B2K] |= (1 << bdx);
-                        bp->buf_2K_maxuse = MAX(bp->buf_2K_maxuse,
-                                count_bits_int(bp->buf_inuse[B2K]));
-                        BZERO(bufp, 2048);
-                        return(bufp);
-                }
+								if (SHARED_2K_BUF_AVAIL(bp->buf_inuse[B2K])) {
+												mask = ~(bp->buf_inuse[B2K]);
+												bdx = ffs(mask) - 1;
+												bufp = bp->buf_2K[bdx];
+												bp->buf_2K_used++;
+												bp->buf_inuse[B2K] |= (1 << bdx);
+												bp->buf_2K_maxuse = MAX(bp->buf_2K_maxuse,
+																count_bits_int(bp->buf_inuse[B2K]));
+												BZERO(bufp, 2048);
+												return(bufp);
+								}
 		bp->buf_2K_ovf++;  /* FALLTHROUGH */
 
 	case 32:
-                if (SHARED_4K_BUF_AVAIL(bp->buf_inuse[B4K])) {
-                        mask = ~(bp->buf_inuse[B4K]);
-                        bdx = ffs(mask) - 1;
-                        bufp = bp->buf_4K[bdx];
-                        bp->buf_4K_used++;
-                        bp->buf_inuse[B4K] |= (1 << bdx);
-                        bp->buf_4K_maxuse = MAX(bp->buf_4K_maxuse,
-                                count_bits_int(bp->buf_inuse[B4K]));
-                        BZERO(bufp, 4096);
-                        return(bufp);
-                }
+								if (SHARED_4K_BUF_AVAIL(bp->buf_inuse[B4K])) {
+												mask = ~(bp->buf_inuse[B4K]);
+												bdx = ffs(mask) - 1;
+												bufp = bp->buf_4K[bdx];
+												bp->buf_4K_used++;
+												bp->buf_inuse[B4K] |= (1 << bdx);
+												bp->buf_4K_maxuse = MAX(bp->buf_4K_maxuse,
+																count_bits_int(bp->buf_inuse[B4K]));
+												BZERO(bufp, 4096);
+												return(bufp);
+								}
 		bp->buf_4K_ovf++;  /* FALLTHROUGH */
 
-        case 64:
-                if (SHARED_8K_BUF_AVAIL(bp->buf_inuse[B8K])) {
-                        mask = ~(bp->buf_inuse[B8K]);
-                        bdx = ffs(mask) - 1;
-                        bufp = bp->buf_8K[bdx];
-                        bp->buf_8K_used++;
-                        bp->buf_inuse[B8K] |= (1 << bdx);
-                        bp->buf_8K_maxuse = MAX(bp->buf_8K_maxuse,
-                                count_bits_int(bp->buf_inuse[B8K]));
-                        BZERO(bufp, 8192);
-                        return(bufp);
-                }
+				case 64:
+								if (SHARED_8K_BUF_AVAIL(bp->buf_inuse[B8K])) {
+												mask = ~(bp->buf_inuse[B8K]);
+												bdx = ffs(mask) - 1;
+												bufp = bp->buf_8K[bdx];
+												bp->buf_8K_used++;
+												bp->buf_inuse[B8K] |= (1 << bdx);
+												bp->buf_8K_maxuse = MAX(bp->buf_8K_maxuse,
+																count_bits_int(bp->buf_inuse[B8K]));
+												BZERO(bufp, 8192);
+												return(bufp);
+								}
 		bp->buf_8K_ovf++;  /* FALLTHROUGH */
 
 	case 256:
-               if (SHARED_32K_BUF_AVAIL(bp->buf_inuse[B32K])) {
-                        mask = ~(bp->buf_inuse[B32K]);
-                        bdx = ffs(mask) - 1;
-                        bufp = bp->buf_32K[bdx];
-                        bp->buf_32K_used++;
-                        bp->buf_inuse[B32K] |= (1 << bdx);
-                        bp->buf_32K_maxuse = MAX(bp->buf_32K_maxuse,
-                                count_bits_int(bp->buf_inuse[B32K]));
-                        BZERO(bufp, 32768);
-                        return(bufp);
-                }
-                bp->buf_32K_ovf++;
+							 if (SHARED_32K_BUF_AVAIL(bp->buf_inuse[B32K])) {
+												mask = ~(bp->buf_inuse[B32K]);
+												bdx = ffs(mask) - 1;
+												bufp = bp->buf_32K[bdx];
+												bp->buf_32K_used++;
+												bp->buf_inuse[B32K] |= (1 << bdx);
+												bp->buf_32K_maxuse = MAX(bp->buf_32K_maxuse,
+																count_bits_int(bp->buf_inuse[B32K]));
+												BZERO(bufp, 32768);
+												return(bufp);
+								}
+								bp->buf_32K_ovf++;
 		break;
 	}
 
@@ -5012,55 +5012,55 @@ count_bits_int(int val)
 int
 count_bits_long(ulong val)
 {
-        int i, cnt;
-        int total;
+				int i, cnt;
+				int total;
 
-        cnt = sizeof(long) * 8;
+				cnt = sizeof(long) * 8;
 
-        for (i = total = 0; i < cnt; i++) {
-                if (val & 1)
-                        total++;
-                val >>= 1;
-        }
+				for (i = total = 0; i < cnt; i++) {
+								if (val & 1)
+												total++;
+								val >>= 1;
+				}
 
-        return total;
+				return total;
 }
 
 int
 highest_bit_long(ulong val)
 {
-        int i, cnt;
-        int total;
+				int i, cnt;
+				int total;
 	int highest;
 
 	highest = -1;
-        cnt = sizeof(long) * 8;
+				cnt = sizeof(long) * 8;
 
-        for (i = total = 0; i < cnt; i++) {
-                if (val & 1)
-                        highest = i;
-                val >>= 1;
-        }
+				for (i = total = 0; i < cnt; i++) {
+								if (val & 1)
+												highest = i;
+								val >>= 1;
+				}
 
-        return highest;
+				return highest;
 }
 
 int
 lowest_bit_long(ulong val)
 {
-        int i, cnt;
+				int i, cnt;
 	int lowest;
 
 	lowest = -1;
 	cnt = sizeof(long) * 8;
 
-        for (i = 0; i < cnt; i++) {
-                if (val & 1) {
-                        lowest = i;
+				for (i = 0; i < cnt; i++) {
+								if (val & 1) {
+												lowest = i;
 			break;
 		}
-                val >>= 1;
-        }
+								val >>= 1;
+				}
 
 	return lowest;
 }
@@ -5098,29 +5098,29 @@ drop_core(char *s)
 int
 console(char *fmt, ...)
 {
-        char output[BUFSIZE*2];
+				char output[BUFSIZE*2];
 	va_list ap;
 
-        if (!pc->console || !strlen(pc->console) ||
-            (pc->flags & NO_CONSOLE) || (pc->confd == -1))
-                return 0;
+				if (!pc->console || !strlen(pc->console) ||
+						(pc->flags & NO_CONSOLE) || (pc->confd == -1))
+								return 0;
 
-        if (!fmt || !strlen(fmt))
-                return 0;
+				if (!fmt || !strlen(fmt))
+								return 0;
 
-        va_start(ap, fmt);
-        (void)vsnprintf(output, BUFSIZE*2, fmt, ap);
-        va_end(ap);
+				va_start(ap, fmt);
+				(void)vsnprintf(output, BUFSIZE*2, fmt, ap);
+				va_end(ap);
 
-        if (pc->confd == -2) {
-                if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
-                        error(INFO, "console device %s: %s\n",
-                                pc->console, strerror(errno), 0, 0);
-                        return 0;
-                }
-        }
+				if (pc->confd == -2) {
+								if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
+												error(INFO, "console device %s: %s\n",
+																pc->console, strerror(errno), 0, 0);
+												return 0;
+								}
+				}
 
-        return(write(pc->confd, output, strlen(output)));
+				return(write(pc->confd, output, strlen(output)));
 }
 
 /*
@@ -5130,29 +5130,29 @@ console(char *fmt, ...)
 void
 create_console_device(char *dev)
 {
-        if (pc->console) {
-                if (pc->confd != -1)
-                        close(pc->confd);
-                free(pc->console);
-        }
+				if (pc->console) {
+								if (pc->confd != -1)
+												close(pc->confd);
+								free(pc->console);
+				}
 
-        pc->confd = -2;
+				pc->confd = -2;
 
-        if ((pc->console = (char *)malloc(strlen(dev)+1)) == NULL)
-                fprintf(stderr, "console name malloc: %s\n", strerror(errno));
-        else {
-                strcpy(pc->console, dev);
-                if (console("debug console [%ld]: %s\n",
-		    pc->program_pid, (ulong)pc->console) < 0) {
+				if ((pc->console = (char *)malloc(strlen(dev)+1)) == NULL)
+								fprintf(stderr, "console name malloc: %s\n", strerror(errno));
+				else {
+								strcpy(pc->console, dev);
+								if (console("debug console [%ld]: %s\n",
+				pc->program_pid, (ulong)pc->console) < 0) {
 			close(pc->confd);
-                	free(pc->console);
+									free(pc->console);
 			pc->console = NULL;
 			pc->confd = -1;
 			if (!(pc->flags & RUNTIME))
 				error(INFO, "cannot set console to %s\n", dev);
 
 		}
-        }
+				}
 }
 
 /*
@@ -5162,12 +5162,12 @@ create_console_device(char *dev)
 int
 console_off(void)
 {
-        int orig_no_console;
+				int orig_no_console;
 
-        orig_no_console = pc->flags & NO_CONSOLE;
-        pc->flags |= NO_CONSOLE;
+				orig_no_console = pc->flags & NO_CONSOLE;
+				pc->flags |= NO_CONSOLE;
 
-        return orig_no_console;
+				return orig_no_console;
 }
 
 /*
@@ -5176,10 +5176,10 @@ console_off(void)
 int
 console_on(int orig_no_console)
 {
-        if (!orig_no_console)
-                pc->flags &= ~NO_CONSOLE;
+				if (!orig_no_console)
+								pc->flags &= ~NO_CONSOLE;
 
-        return(pc->flags & NO_CONSOLE);
+				return(pc->flags & NO_CONSOLE);
 }
 
 /*
@@ -5189,29 +5189,29 @@ console_on(int orig_no_console)
 int
 console_verbatim(char *s)
 {
-        char *p;
+				char *p;
 	int cnt;
 
-        if (!pc->console || !strlen(pc->console) ||
-	    (pc->flags & NO_CONSOLE) || (pc->confd == -1))
-                return 0;
+				if (!pc->console || !strlen(pc->console) ||
+			(pc->flags & NO_CONSOLE) || (pc->confd == -1))
+								return 0;
 
-        if (!s || !strlen(s))
-                return 0;
+				if (!s || !strlen(s))
+								return 0;
 
-        if (pc->confd == -2) {
-                if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
-                        fprintf(stderr, "%s: %s\n",
-                                pc->console, strerror(errno));
-                        return 0;
-                }
-        }
+				if (pc->confd == -2) {
+								if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
+												fprintf(stderr, "%s: %s\n",
+																pc->console, strerror(errno));
+												return 0;
+								}
+				}
 
-        for (cnt = 0, p = s; *p; p++) {
-                if (write(pc->confd, p, 1) != 1)
+				for (cnt = 0, p = s; *p; p++) {
+								if (write(pc->confd, p, 1) != 1)
 			break;
 		cnt++;
-        }
+				}
 
 	return cnt;
 }
@@ -5223,9 +5223,9 @@ void
 sigsetup(int sig, void *handler, struct sigaction *act,struct sigaction *oldact)
 {
 	BZERO(act, sizeof(struct sigaction));
-        act->sa_handler = handler;
-        act->sa_flags = SA_NOMASK;
-        sigaction(sig, act, oldact);
+				act->sa_handler = handler;
+				act->sa_flags = SA_NOMASK;
+				sigaction(sig, act, oldact);
 }
 
 /*
@@ -5249,20 +5249,20 @@ convert_time(ulonglong count, char *buf)
 		return buf;
 	}
 
-        total = (count)/(ulonglong)machdep->hz;
+				total = (count)/(ulonglong)machdep->hz;
 
-        days = total / SEC_DAYS;
-        total %= SEC_DAYS;
-        hours = total / SEC_HOURS;
-        total %= SEC_HOURS;
-        minutes = total / SEC_MINUTES;
-        seconds = total % SEC_MINUTES;
+				days = total / SEC_DAYS;
+				total %= SEC_DAYS;
+				hours = total / SEC_HOURS;
+				total %= SEC_HOURS;
+				minutes = total / SEC_MINUTES;
+				seconds = total % SEC_MINUTES;
 
 	buf[0] = NULLCHAR;
 
-        if (days)
-        	sprintf(buf, "%llu days, ", days);
-        sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu",
+				if (days)
+					sprintf(buf, "%llu days, ", days);
+				sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu",
 		hours, minutes, seconds);
 
 	return buf;
@@ -5274,12 +5274,12 @@ convert_time(ulonglong count, char *buf)
 void
 stall(ulong microseconds)
 {
-        struct timeval delay;
+				struct timeval delay;
 
-        delay.tv_sec = 0;
-        delay.tv_usec = (__time_t)microseconds;
+				delay.tv_sec = 0;
+				delay.tv_usec = (__time_t)microseconds;
 
-        (void) select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, &delay);
+				(void) select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, &delay);
 }
 
 
@@ -5299,12 +5299,12 @@ pages_to_size(ulong pages, char *buf)
 
 	total = (double)pages * (double)PAGESIZE();
 
-    	if (total >= GIGABYTES(1))
-        	sprintf(buf, "%.1f GB", total/(double)GIGABYTES(1));
-    	else if (total >= MEGABYTES(1))
-        	sprintf(buf, "%.1f MB", total/(double)MEGABYTES(1));
-        else
-        	sprintf(buf, "%ld KB", (ulong)(total/(double)KILOBYTES(1)));
+			if (total >= GIGABYTES(1))
+					sprintf(buf, "%.1f GB", total/(double)GIGABYTES(1));
+			else if (total >= MEGABYTES(1))
+					sprintf(buf, "%.1f MB", total/(double)MEGABYTES(1));
+				else
+					sprintf(buf, "%ld KB", (ulong)(total/(double)KILOBYTES(1)));
 
 	if ((p1 = strstr(buf, ".0 "))) {
 		p2 = p1 + 3;
@@ -5324,7 +5324,7 @@ empty_list(ulong list_head_addr)
 	ulong next;
 
 	if (!readmem(list_head_addr, KVADDR, &next, sizeof(void *),
-            "list_head next contents", RETURN_ON_ERROR))
+						"list_head next contents", RETURN_ON_ERROR))
 		return TRUE;
 
 	return (next == list_head_addr);
@@ -5357,14 +5357,14 @@ void
 command_not_supported()
 {
 	error(FATAL,
-	    "command not supported or applicable on this architecture or kernel\n");
+			"command not supported or applicable on this architecture or kernel\n");
 }
 
 void
 option_not_supported(int c)
 {
 	error(FATAL,
-	    "-%c option not supported or applicable on this architecture or kernel\n",
+			"-%c option not supported or applicable on this architecture or kernel\n",
 		(char)c);
 }
 
@@ -5381,16 +5381,16 @@ please_wait(char *s)
 
 	if (!(pc->flags & TTY) && KVMDUMP_DUMPFILE()) {
 		if (!isatty(fileno(stdin)) ||
-		    ((fd = open("/dev/tty", O_RDONLY)) < 0))
+				((fd = open("/dev/tty", O_RDONLY)) < 0))
 			return;
 		close(fd);
 	}
 
 	pc->flags |= PLEASE_WAIT;
 
-        please_wait_len = sprintf(buf, "\rplease wait... (%s)", s);
+				please_wait_len = sprintf(buf, "\rplease wait... (%s)", s);
 	fprintf(fp, buf);
-        fflush(fp);
+				fflush(fp);
 }
 
 void
@@ -5413,18 +5413,18 @@ please_wait_done(void)
 int
 pathcmp(char *p1, char *p2)
 {
-        char c1, c2;
+				char c1, c2;
 
-        do {
-                if ((c1 = *p1++) == '/')
-                        while (*p1 == '/') { p1++; }
-                if ((c2 = *p2++) == '/')
-                        while (*p2 == '/') { p2++; }
-                if (c1 == '\0')
-                        return ((c2 == '/') && (*p2 == '\0')) ? 0 : c1 - c2;
-        } while (c1 == c2);
+				do {
+								if ((c1 = *p1++) == '/')
+												while (*p1 == '/') { p1++; }
+								if ((c2 = *p2++) == '/')
+												while (*p2 == '/') { p2++; }
+								if (c1 == '\0')
+												return ((c2 == '/') && (*p2 == '\0')) ? 0 : c1 - c2;
+				} while (c1 == c2);
 
-        return ((c2 == '\0') && (c1 == '/') && (*p1 == '\0')) ? 0 : c1 - c2;
+				return ((c2 == '\0') && (c1 == '/') && (*p1 == '\0')) ? 0 : c1 - c2;
 }
 
 #include <elf.h>
@@ -5457,12 +5457,12 @@ endian_mismatch(char *file, char dumpfile_endian, ulong query)
 	if (query == KDUMP_LOCAL)  /* already printed by NETDUMP_LOCAL */
 		return TRUE;
 
-        error(WARNING, "endian mismatch:\n");
+				error(WARNING, "endian mismatch:\n");
 
-        fprintf(fp, "         crash utility: %s\n",
+				fprintf(fp, "         crash utility: %s\n",
 		(__BYTE_ORDER == __LITTLE_ENDIAN) ?
 		"little-endian" : "big-endian");
-        fprintf(fp, "         %s: %s\n\n", file, endian);
+				fprintf(fp, "         %s: %s\n\n", file, endian);
 
 	return TRUE;
 }
@@ -5471,8 +5471,8 @@ uint16_t
 swap16(uint16_t val, int swap)
 {
 	if (swap)
-        	return (((val & 0x00ff) << 8) |
-                	((val & 0xff00) >> 8));
+					return (((val & 0x00ff) << 8) |
+									((val & 0xff00) >> 8));
 	else
 		return val;
 }
@@ -5481,10 +5481,10 @@ uint32_t
 swap32(uint32_t val, int swap)
 {
 	if (swap)
-        	return (((val & 0x000000ffU) << 24) |
-                	((val & 0x0000ff00U) <<  8) |
-                	((val & 0x00ff0000U) >>  8) |
-                	((val & 0xff000000U) >> 24));
+					return (((val & 0x000000ffU) << 24) |
+									((val & 0x0000ff00U) <<  8) |
+									((val & 0x00ff0000U) >>  8) |
+									((val & 0xff000000U) >> 24));
 	else
 		return val;
 }
@@ -5558,20 +5558,20 @@ strlcpy(char *dest, char *src, size_t size)
 struct rb_node *
 rb_first(struct rb_root *root)
 {
-        struct rb_root rloc;
-        struct rb_node *n;
+				struct rb_root rloc;
+				struct rb_node *n;
 	struct rb_node nloc;
 
 	readmem((ulong)root, KVADDR, &rloc, sizeof(struct rb_root),
 		"rb_root", FAULT_ON_ERROR);
 
-        n = rloc.rb_node;
-        if (!n)
-                return NULL;
-        while (rb_left(n, &nloc))
+				n = rloc.rb_node;
+				if (!n)
+								return NULL;
+				while (rb_left(n, &nloc))
 		n = nloc.rb_left;
 
-        return n;
+				return n;
 }
 
 struct rb_node *
@@ -5605,7 +5605,7 @@ struct rb_node *
 rb_next(struct rb_node *node)
 {
 	struct rb_node nloc;
-        struct rb_node *parent;
+				struct rb_node *parent;
 
 	/* node is destroyed */
 	if (!accessible((ulong)node))
@@ -5616,7 +5616,7 @@ rb_next(struct rb_node *node)
 	if (parent == node)
 		return NULL;
 
-        if (nloc.rb_right) {
+				if (nloc.rb_right) {
 		/* rb_right is destroyed */
 		if (!accessible((ulong)nloc.rb_right))
 			return NULL;
@@ -5633,8 +5633,8 @@ rb_next(struct rb_node *node)
 
 	while ((parent = rb_parent(node, &nloc))) {
 		/* parent is destroyed */
-                if (!accessible((ulong)parent))
-                        return NULL;
+								if (!accessible((ulong)parent))
+												return NULL;
 
 
 		if (node != rb_right(parent, &nloc))
@@ -5643,7 +5643,7 @@ rb_next(struct rb_node *node)
 		node = parent;
 	}
 
-        return parent;
+				return parent;
 }
 
 struct rb_node *

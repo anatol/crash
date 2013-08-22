@@ -241,10 +241,10 @@ typedef struct dump_compress_s {
 	struct list_head list;
 
 	/* the type of compression to use (DUMP_COMPRESS_XXX) */
-        int compress_type;
+				int compress_type;
 
 	/* the compression function to call */
-        int (*compress_func)(char *, int, char *, int);
+				int (*compress_func)(char *, int, char *, int);
 } dump_compress_t;
 
 extern int dump_init(void);

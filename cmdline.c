@@ -61,7 +61,7 @@ process_command_line(void)
 	BZERO(pc->command_line, BUFSIZE);
 
 	if (!(pc->flags &
-	    (READLINE|SILENT|CMDLINE_IFILE|RCHOME_IFILE|RCLOCAL_IFILE)))
+			(READLINE|SILENT|CMDLINE_IFILE|RCHOME_IFILE|RCLOCAL_IFILE)))
 		fprintf(fp, pc->prompt);
 	fflush(fp);
 
@@ -69,7 +69,7 @@ process_command_line(void)
 	 *  Input can come from five possible sources:
 	 *
 	 *    1. an .rc file located in the user's HOME directory.
-         *    2. an .rc file located in the current directory.
+				 *    2. an .rc file located in the current directory.
 	 *    3. an input file that was designated by the -i flag at
 	 *       program invocation.
 	 *    4. from a terminal.
@@ -103,11 +103,11 @@ process_command_line(void)
 			error(FATAL, "invalid input file\n");
 		}
 	} else if (pc->flags & RCHOME_IFILE) {
-                sprintf(pc->command_line, "< %s/.%src",
+								sprintf(pc->command_line, "< %s/.%src",
 			pc->home, pc->program_name);
 		pc->flags |= INIT_IFILE;
 	} else if (pc->flags & RCLOCAL_IFILE) {
-                sprintf(pc->command_line, "< .%src", pc->program_name);
+								sprintf(pc->command_line, "< .%src", pc->program_name);
 		pc->flags |= INIT_IFILE;
 	} else if (pc->flags & CMDLINE_IFILE) {
 		sprintf(pc->command_line, "< %s", pc->input_file);
@@ -130,12 +130,12 @@ process_command_line(void)
 			add_history(pc->command_line);
 
 		check_special_handling(pc->command_line);
-        } else {
-        	if (fgets(pc->command_line, BUFSIZE-1, stdin) == NULL)
+				} else {
+					if (fgets(pc->command_line, BUFSIZE-1, stdin) == NULL)
 			clean_exit(1);
 		clean_line(pc->command_line);
 		strcpy(pc->orig_line, pc->command_line);
-        }
+				}
 
 	/*
 	 *  First clean out all linefeeds and leading/trailing spaces.
@@ -189,10 +189,10 @@ check_special_handling(char *s)
 		return;
 	}
 
-        if ((local[0] == '<') && (!whitespace(local[1]))) {
-                sprintf(s, "< %s", &local[1]);
-                return;
-        }
+				if ((local[0] == '<') && (!whitespace(local[1]))) {
+								sprintf(s, "< %s", &local[1]);
+								return;
+				}
 }
 
 
@@ -210,42 +210,42 @@ check_special_handling(char *s)
 static int
 pseudo_command(char *input)
 {
-        int i;
+				int i;
 	HIST_ENTRY *entry;
 	int idx, found;
 	char *p;
 
-        clean_line(input);
+				clean_line(input);
 
-        /*
-         *  Just dump all commands that have been entered to date.
-         */
-        if (STREQ(input, "h") || STRNEQ(input, "hi")) {
-                dump_history();
-                pc->command_line[0] = NULLCHAR;
-                return TRUE;
-        }
+				/*
+				 *  Just dump all commands that have been entered to date.
+				 */
+				if (STREQ(input, "h") || STRNEQ(input, "hi")) {
+								dump_history();
+								pc->command_line[0] = NULLCHAR;
+								return TRUE;
+				}
 
-        if (STREQ(input, "r") || STREQ(input, "!!")) {
-                if (!history_offset)
-                        error(FATAL, "no commands entered!\n");
-                entry = history_get(history_offset);
-                strcpy(input, entry->line);
-                fprintf(fp, "%s%s\n", pc->prompt, input);
-                return TRUE;
-        }
+				if (STREQ(input, "r") || STREQ(input, "!!")) {
+								if (!history_offset)
+												error(FATAL, "no commands entered!\n");
+								entry = history_get(history_offset);
+								strcpy(input, entry->line);
+								fprintf(fp, "%s%s\n", pc->prompt, input);
+								return TRUE;
+				}
 
-        if ((input[0] == 'r') && decimal(&input[1], 0)) {
-                if (!history_offset)
-                        error(FATAL, "no commands entered!\n");
-                p = &input[1];
-                goto rerun;
-        }
+				if ((input[0] == 'r') && decimal(&input[1], 0)) {
+								if (!history_offset)
+												error(FATAL, "no commands entered!\n");
+								p = &input[1];
+								goto rerun;
+				}
 
 
 	if (STRNEQ(input, "r ")) {
-                if (!history_offset)
-                        error(FATAL, "no commands entered!\n");
+								if (!history_offset)
+												error(FATAL, "no commands entered!\n");
 
 		p = first_nonspace(&input[1]);
 rerun:
@@ -256,22 +256,22 @@ rerun:
 			if (idx > history_offset)
 				error(FATAL, "command %d not entered yet!\n",
 					idx);
-                	entry = history_get(idx);
-               		strcpy(input, entry->line);
-                	fprintf(fp, "%s%s\n", pc->prompt, input);
-                	return TRUE;
+									entry = history_get(idx);
+							 		strcpy(input, entry->line);
+									fprintf(fp, "%s%s\n", pc->prompt, input);
+									return TRUE;
 		}
 
 		idx = -1;
 		found = FALSE;
 
-        	for (i = history_offset; i > 0; i--) {
-                	entry = history_get(i);
+					for (i = history_offset; i > 0; i--) {
+									entry = history_get(i);
 			if (STRNEQ(entry->line, p)) {
 				found = TRUE;
 				break;
 			}
-        	}
+					}
 
 		if (found) {
 			strcpy(input, entry->line);
@@ -294,19 +294,19 @@ invalid_repeat_request:
 void
 dump_history(void)
 {
-        int i;
-        HIST_ENTRY **the_history;
-        HIST_ENTRY *entry;
+				int i;
+				HIST_ENTRY **the_history;
+				HIST_ENTRY *entry;
 
-        if (!history_offset)
-                error(FATAL, "no commands entered!\n");
+				if (!history_offset)
+								error(FATAL, "no commands entered!\n");
 
-        the_history = history_list();
+				the_history = history_list();
 
-        for (i = 0; i < history_offset; i++) {
-                entry = the_history[i];
-                fprintf(fp, "[%d] %s\n", i+1, entry->line);
-        }
+				for (i = 0; i < history_offset; i++) {
+								entry = the_history[i];
+								fprintf(fp, "[%d] %s\n", i+1, entry->line);
+				}
 }
 
 /*
@@ -317,7 +317,7 @@ static char *less_argv[5] = {
 	"/usr/bin/less",
 	"-E",
 	"-X",
-        "-Ps -- MORE --  forward\\: <SPACE>, <ENTER> or j  backward\\: b or k  quit\\: q",
+				"-Ps -- MORE --  forward\\: <SPACE>, <ENTER> or j  backward\\: b or k  quit\\: q",
 	NULL
 };
 
@@ -343,7 +343,7 @@ CRASHPAGER_valid(void)
 
 	if (strstr(env, "|") || strstr(env, "<") || strstr(env, ">")) {
 		error(INFO,
-		    "CRASHPAGER ignored: contains invalid character: \"%s\"\n",
+				"CRASHPAGER ignored: contains invalid character: \"%s\"\n",
 			env);
 		return FALSE;
 	}
@@ -354,12 +354,12 @@ CRASHPAGER_valid(void)
 	strcpy(CRASHPAGER_buf, env);
 
 	if (!(c = parse_line(CRASHPAGER_buf, arglist)) ||
-	    !file_exists(arglist[0], NULL) || access(arglist[0], X_OK) ||
-	    !(CRASHPAGER_argv = (char **)malloc(sizeof(char *) * (c+1)))) {
+			!file_exists(arglist[0], NULL) || access(arglist[0], X_OK) ||
+			!(CRASHPAGER_argv = (char **)malloc(sizeof(char *) * (c+1)))) {
 		free(CRASHPAGER_buf);
 		if (strlen(env))
 			error(INFO,
-		    		"CRASHPAGER ignored: \"%s\"\n", env);
+						"CRASHPAGER ignored: \"%s\"\n", env);
 		return FALSE;
 	}
 
@@ -398,7 +398,7 @@ setup_scroll_command(void)
 
 		buf = GETBUF(len);
 
-        	for  (i = 0; CRASHPAGER_argv[i]; i++) {
+					for  (i = 0; CRASHPAGER_argv[i]; i++) {
 			sprintf(&buf[strlen(buf)], "%s%s",
 				i ? " " : "",
 				CRASHPAGER_argv[i]);
@@ -406,7 +406,7 @@ setup_scroll_command(void)
 		break;
 	default:
 		return NULL;
-        }
+				}
 
 	return buf;
 }
@@ -448,7 +448,7 @@ setup_redirect(int origin)
 
 	p = pc->command_line;
 
-        if (STREQ(p, "|") || STREQ(p, "!")) {
+				if (STREQ(p, "|") || STREQ(p, "!")) {
 		ret = system("/bin/sh");
 		pc->redirect |= REDIRECT_SHELL_ESCAPE;
 		return REDIRECT_SHELL_ESCAPE;
@@ -469,7 +469,7 @@ setup_redirect(int origin)
 			string = !string;
 
 		if (!(expression || string) &&
-		    ((*p == '|') || (*p == '!'))) {
+				((*p == '|') || (*p == '!'))) {
 			which = *p;
 			*p = NULLCHAR;
 			pc->eoc_index = p - pc->command_line;
@@ -489,12 +489,12 @@ setup_redirect(int origin)
 			if (pc->redirect & REDIRECT_SHELL_COMMAND)
 				return shell_command(p);
 
-                        if ((pipe = popen(p, "w")) == NULL) {
-                                error(INFO, "cannot open pipe\n");
+												if ((pipe = popen(p, "w")) == NULL) {
+																error(INFO, "cannot open pipe\n");
 				pc->redirect |= REDIRECT_FAILURE;
 				return REDIRECT_FAILURE;
-                        }
-                        setbuf(pipe, NULL);
+												}
+												setbuf(pipe, NULL);
 
 			switch (origin)
 			{
@@ -529,48 +529,48 @@ setup_redirect(int origin)
 			return REDIRECT_TO_PIPE;
 		}
 
-                if (!(expression || string) && (*p == '>') &&
-		    !((p > pc->command_line) && (*(p-1) == '-'))) {
-                	append = FALSE;
+								if (!(expression || string) && (*p == '>') &&
+				!((p > pc->command_line) && (*(p-1) == '-'))) {
+									append = FALSE;
 
 			*p = NULLCHAR;
 			pc->eoc_index = p - pc->command_line;
-                        if (*(p+1) == '>') {
-                                append = TRUE;
+												if (*(p+1) == '>') {
+																append = TRUE;
 				*p = NULLCHAR;
 				p++;
 			}
 			p++;
 			p = strip_beginning_whitespace(p);
 
-                        if (!strlen(p)) {
-                                error(INFO, "no file name after %s\n",
+												if (!strlen(p)) {
+																error(INFO, "no file name after %s\n",
 					append ? ">>" : ">");
 				pc->redirect |= REDIRECT_FAILURE;
-                                return REDIRECT_FAILURE;
-                        }
+																return REDIRECT_FAILURE;
+												}
 
 			if (pc->flags & IFILE_ERROR)
 				append = TRUE;
 
-        		if ((ofile =
-			    fopen(p, append ? "a+" : "w+")) == NULL) {
-                		error(INFO, "unable to open %s\n", p);
+						if ((ofile =
+					fopen(p, append ? "a+" : "w+")) == NULL) {
+										error(INFO, "unable to open %s\n", p);
 				pc->redirect = REDIRECT_FAILURE;
 				return REDIRECT_FAILURE;
-        		}
+						}
 			setbuf(ofile, NULL);
 
-                        switch (origin)
-                        {
-                        case FROM_COMMAND_LINE:
-                                fp = pc->ofile = ofile;
-                                break;
+												switch (origin)
+												{
+												case FROM_COMMAND_LINE:
+																fp = pc->ofile = ofile;
+																break;
 
-                        case FROM_INPUT_FILE:
-                                fp = pc->ifile_ofile = ofile;
-                                break;
-                        }
+												case FROM_INPUT_FILE:
+																fp = pc->ifile_ofile = ofile;
+																break;
+												}
 
 			pc->redirect |= REDIRECT_TO_FILE;
 			return REDIRECT_TO_FILE;
@@ -580,22 +580,22 @@ setup_redirect(int origin)
 	}
 
 	if ((origin == FROM_COMMAND_LINE) && (pc->flags & TTY) &&
-	    (pc->flags & SCROLL) && pc->scroll_command) {
+			(pc->flags & SCROLL) && pc->scroll_command) {
 		if (!strlen(pc->command_line) ||
-		    STREQ(pc->command_line, "q") ||
-		    STREQ(pc->command_line, "Q") ||
-		    STREQ(pc->command_line, "exit") ||
-		    STRNEQ(pc->command_line, "<")) {
+				STREQ(pc->command_line, "q") ||
+				STREQ(pc->command_line, "Q") ||
+				STREQ(pc->command_line, "exit") ||
+				STRNEQ(pc->command_line, "<")) {
 			pc->redirect |= REDIRECT_NOT_DONE;
 			return REDIRECT_NOT_DONE;
 		}
 
-                if (!setup_stdpipe()) {
-                        error(INFO, "cannot open pipe\n");
+								if (!setup_stdpipe()) {
+												error(INFO, "cannot open pipe\n");
 			pc->redirect |= REDIRECT_FAILURE;
-                        return REDIRECT_FAILURE;
-                }
-                fp = pc->stdpipe;
+												return REDIRECT_FAILURE;
+								}
+								fp = pc->stdpipe;
 
 		pc->redirect |= REDIRECT_TO_STDPIPE;
 
@@ -612,7 +612,7 @@ setup_redirect(int origin)
 			break;
 		}
 
-                return REDIRECT_TO_STDPIPE;
+								return REDIRECT_TO_STDPIPE;
 	}
 
 	pc->redirect |= REDIRECT_NOT_DONE;
@@ -626,38 +626,38 @@ debug_redirect(char *s)
 	int others;
 	int alive;
 
-        others = 0;
-        console("%s: (", s);
-        if (pc->redirect & FROM_COMMAND_LINE)
-                console("%sFROM_COMMAND_LINE", others++ ? "|" : "");
-        if (pc->redirect & FROM_INPUT_FILE)
-                console("%sFROM_INPUT_FILE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_NOT_DONE)
-                console("%sREDIRECT_NOT_DONE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_TO_PIPE)
-                console("%sREDIRECT_TO_PIPE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_TO_STDPIPE)
-                console("%sREDIRECT_TO_STDPIPE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_TO_FILE)
-                console("%sREDIRECT_TO_FILE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_FAILURE)
-                console("%sREDIRECT_FAILURE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_SHELL_ESCAPE)
-                console("%sREDIRECT_SHELL_ESCAPE", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_SHELL_COMMAND)
-                console("%sREDIRECT_SHELL_COMMAND", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_PID_KNOWN)
-                console("%sREDIRECT_PID_KNOWN", others++ ? "|" : "");
-        if (pc->redirect & REDIRECT_MULTI_PIPE)
-                console("%sREDIRECT_MULTI_PIPE", others++ ? "|" : "");
-        console(")\n");
+				others = 0;
+				console("%s: (", s);
+				if (pc->redirect & FROM_COMMAND_LINE)
+								console("%sFROM_COMMAND_LINE", others++ ? "|" : "");
+				if (pc->redirect & FROM_INPUT_FILE)
+								console("%sFROM_INPUT_FILE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_NOT_DONE)
+								console("%sREDIRECT_NOT_DONE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_TO_PIPE)
+								console("%sREDIRECT_TO_PIPE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_TO_STDPIPE)
+								console("%sREDIRECT_TO_STDPIPE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_TO_FILE)
+								console("%sREDIRECT_TO_FILE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_FAILURE)
+								console("%sREDIRECT_FAILURE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_SHELL_ESCAPE)
+								console("%sREDIRECT_SHELL_ESCAPE", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_SHELL_COMMAND)
+								console("%sREDIRECT_SHELL_COMMAND", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_PID_KNOWN)
+								console("%sREDIRECT_PID_KNOWN", others++ ? "|" : "");
+				if (pc->redirect & REDIRECT_MULTI_PIPE)
+								console("%sREDIRECT_MULTI_PIPE", others++ ? "|" : "");
+				console(")\n");
 
 	if (pc->pipe_pid || strlen(pc->pipe_command)) {
 		if (pc->pipe_pid && PID_ALIVE(pc->pipe_pid))
 			alive = TRUE;
 		else
 			alive = FALSE;
-        	console("pipe_pid: %d (%s) pipe_command: %s\n",
+					console("pipe_pid: %d (%s) pipe_command: %s\n",
 			pc->pipe_pid,
 			alive ? "alive" : "dead",
 			pc->pipe_command);
@@ -685,7 +685,7 @@ output_open(void)
 	case (REDIRECT_TO_STDPIPE|FROM_COMMAND_LINE):
 		waitret = waitpid(pc->stdpipe_pid, &waitstatus, WNOHANG);
 		if ((waitret == pc->stdpipe_pid) || (waitret == -1))
-               		return FALSE;
+							 		return FALSE;
 		break;
 
 	case (REDIRECT_TO_PIPE|FROM_INPUT_FILE):
@@ -701,9 +701,9 @@ output_open(void)
 			break;
 
 		default:
-               		waitret = waitpid(pc->pipe_pid, &waitstatus, WNOHANG);
-                	if (waitret == pc->pipe_pid)
-                        	return FALSE;
+							 		waitret = waitpid(pc->pipe_pid, &waitstatus, WNOHANG);
+									if (waitret == pc->pipe_pid)
+													return FALSE;
 			if (waitret == -1) {  /* intervening sh */
 				if (!PID_ALIVE(pc->pipe_pid))
 					return FALSE;
@@ -729,12 +729,12 @@ static int
 output_command_to_pids(void)
 {
 	DIR *dirp;
-        struct dirent *dp;
+				struct dirent *dp;
 	FILE *stp;
-        char buf1[BUFSIZE];
-        char buf2[BUFSIZE];
-        char lookfor[BUFSIZE];
-        char *pid, *name, *status, *p_pid, *pgrp;
+				char buf1[BUFSIZE];
+				char buf2[BUFSIZE];
+				char lookfor[BUFSIZE];
+				char *pid, *name, *status, *p_pid, *pgrp;
 	char *arglist[MAXARGS];
 	int argc;
 	FILE *pipe;
@@ -743,50 +743,50 @@ output_command_to_pids(void)
 	retries = 0;
 	shell_has_exited = FALSE;
 	pc->pipe_pid = pc->pipe_shell_pid = 0;
-        sprintf(lookfor, "(%s)", pc->pipe_command);
+				sprintf(lookfor, "(%s)", pc->pipe_command);
 	stall(1000);
 retry:
-        if (is_directory("/proc") && (dirp = opendir("/proc"))) {
-                for (dp = readdir(dirp); dp && !pc->pipe_pid;
-		     dp = readdir(dirp)) {
+				if (is_directory("/proc") && (dirp = opendir("/proc"))) {
+								for (dp = readdir(dirp); dp && !pc->pipe_pid;
+				 dp = readdir(dirp)) {
 			if (!decimal(dp->d_name, 0))
 				continue;
-                        sprintf(buf1, "/proc/%s/stat", dp->d_name);
-                        if (file_exists(buf1, NULL) &&
-			    (stp = fopen(buf1, "r"))) {
-                                if (fgets(buf2, BUFSIZE, stp)) {
-                                        pid = strtok(buf2, " ");
-                                        name = strtok(NULL, " ");
-                                        status = strtok(NULL, " ");
-                                        p_pid = strtok(NULL, " ");
-                                        pgrp = strtok(NULL, " ");
-				        if (STREQ(name, "(sh)") &&
-					    (atoi(p_pid) == getpid())) {
+												sprintf(buf1, "/proc/%s/stat", dp->d_name);
+												if (file_exists(buf1, NULL) &&
+					(stp = fopen(buf1, "r"))) {
+																if (fgets(buf2, BUFSIZE, stp)) {
+																				pid = strtok(buf2, " ");
+																				name = strtok(NULL, " ");
+																				status = strtok(NULL, " ");
+																				p_pid = strtok(NULL, " ");
+																				pgrp = strtok(NULL, " ");
+								if (STREQ(name, "(sh)") &&
+							(atoi(p_pid) == getpid())) {
 						pc->pipe_shell_pid = atoi(pid);
 						if (STREQ(status, "Z"))
 							shell_has_exited = TRUE;
 					}
-                                        if (STREQ(name, lookfor) &&
-                                            ((atoi(p_pid) == getpid()) ||
-				             (atoi(p_pid) == pc->pipe_shell_pid)
-			                     || (atoi(pgrp) == getpid()))) {
+																				if (STREQ(name, lookfor) &&
+																						((atoi(p_pid) == getpid()) ||
+										 (atoi(p_pid) == pc->pipe_shell_pid)
+													 || (atoi(pgrp) == getpid()))) {
 						pc->pipe_pid = atoi(pid);
 						console(
-                            "FOUND[%d] (%d->%d->%d) %s %s p_pid: %s pgrp: %s\n",
-						    retries, getpid(),
-						    pc->pipe_shell_pid,
-						    pc->pipe_pid,
-						    name, status, p_pid, pgrp);
+														"FOUND[%d] (%d->%d->%d) %s %s p_pid: %s pgrp: %s\n",
+								retries, getpid(),
+								pc->pipe_shell_pid,
+								pc->pipe_pid,
+								name, status, p_pid, pgrp);
 					}
-                                }
+																}
 				fclose(stp);
-                        }
-                }
+												}
+								}
 		closedir(dirp);
-        }
+				}
 
 	if (!pc->pipe_pid && !shell_has_exited &&
-	    ((retries++ < 10) || pc->pipe_shell_pid)) {
+			((retries++ < 10) || pc->pipe_shell_pid)) {
 		stall(1000);
 		goto retry;
 	}
@@ -801,15 +801,15 @@ retry:
 	console("%s: ", buf1);
 
 	if ((pipe = popen(buf1, "r")) == NULL) {
-        	error(INFO, "cannot determine output pid\n");
+					error(INFO, "cannot determine output pid\n");
 		return 0;
 	}
 
 	while (fgets(buf1, BUFSIZE, pipe)) {
 		argc = parse_line(buf1, arglist);
 		if ((argc >= 8) &&
-		    STREQ(arglist[7], pc->pipe_command) &&
-		    STRNEQ(pc->my_tty, arglist[5])) {
+				STREQ(arglist[7], pc->pipe_command) &&
+				STRNEQ(pc->my_tty, arglist[5])) {
 			pc->pipe_pid = atoi(arglist[1]);
 			break;
 		}
@@ -826,10 +826,10 @@ retry:
 void
 close_output(void)
 {
-        if ((pc->flags & TTY) &&
-	    (pc->pipe_pid || strlen(pc->pipe_command)) &&
-            output_open())
-                kill(pc->pipe_pid, 9);
+				if ((pc->flags & TTY) &&
+			(pc->pipe_pid || strlen(pc->pipe_command)) &&
+						output_open())
+								kill(pc->pipe_pid, 9);
 }
 
 /*
@@ -847,22 +847,22 @@ cmdline_init(void)
 
 	/*
 	 *  Stash a copy of the original termios setup.
-         *  Build a raw version for quick use for each command entry.
+				 *  Build a raw version for quick use for each command entry.
 	 */
-        if (isatty(fileno(stdin)) && ((fd = open("/dev/tty", O_RDONLY)) >= 0)) {
+				if (isatty(fileno(stdin)) && ((fd = open("/dev/tty", O_RDONLY)) >= 0)) {
 		if (tcgetattr(fd, &pc->termios_orig) == -1)
 			error(FATAL, "tcgetattr /dev/tty: %s\n",
 				strerror(errno));
 
-                if (tcgetattr(fd, &pc->termios_raw) == -1)
+								if (tcgetattr(fd, &pc->termios_raw) == -1)
 			error(FATAL, "tcgetattr /dev/tty: %s\n",
 				strerror(errno));
 
-                close(fd);
+								close(fd);
 
 		pc->termios_raw.c_lflag &= ~ECHO & ~ICANON;
-        	pc->termios_raw.c_cc[VMIN] = (char)1;
-        	pc->termios_raw.c_cc[VTIME] = (char)0;
+					pc->termios_raw.c_cc[VMIN] = (char)1;
+					pc->termios_raw.c_cc[VTIME] = (char)0;
 
 		restore_sanity();
 
@@ -871,15 +871,15 @@ cmdline_init(void)
 
 		SIGACTION(SIGINT, restart, &pc->sigaction, NULL);
 		readline_init();
-        }
-        else {
+				}
+				else {
 		if (fd < 0)
 			error(INFO, "/dev/tty: %s\n", strerror(errno));
 		if (!(pc->flags & SILENT))
 			fprintf(fp, "NOTE: stdin: not a tty\n\n");
-                fflush(fp);
+								fflush(fp);
 		pc->flags &= ~TTY;
-        }
+				}
 
 	SIGACTION(SIGPIPE, SIG_IGN, &pc->sigaction, NULL);
 
@@ -925,29 +925,29 @@ restart(int sig)
 	if (sig == SIGUSR2)
 		clean_exit(1);
 
-        if (pc->flags & IN_RESTART) {
-                fprintf(stderr,
-		   "\nembedded signal received (%s): recursive restart call\n",
+				if (pc->flags & IN_RESTART) {
+								fprintf(stderr,
+			 "\nembedded signal received (%s): recursive restart call\n",
 			signame(sig));
 		if (++in_restart < MAX_RECURSIVE_SIGNALS)
 			return;
 		fprintf(stderr, "bailing out...\n");
-               	clean_exit(1);
-        } else {
+							 	clean_exit(1);
+				} else {
 		pc->flags |= IN_RESTART;
 		in_restart = 0;
 	}
 
 	switch (sig)
 	{
-        case SIGSEGV:
+				case SIGSEGV:
 		fflush(fp);
-                fprintf(stderr, "   <segmentation violation%s>\n",
-                        pc->flags & IN_GDB ? " in gdb" : "");
-        case 0:
+								fprintf(stderr, "   <segmentation violation%s>\n",
+												pc->flags & IN_GDB ? " in gdb" : "");
+				case 0:
 	case SIGPIPE:
-                restore_sanity();
-                break;
+								restore_sanity();
+								break;
 
 	case SIGINT:
 		SIGACTION(SIGINT, restart, &pc->sigaction, NULL);
@@ -1010,18 +1010,18 @@ static void
 restore_sanity(void)
 {
 	int fd, waitstatus;
-        struct extension_table *ext;
+				struct extension_table *ext;
 	struct command_table_entry *cp;
 
-        if (pc->stdpipe) {
+				if (pc->stdpipe) {
 		close(fileno(pc->stdpipe));
-                pc->stdpipe = NULL;
+								pc->stdpipe = NULL;
 		if (pc->stdpipe_pid && PID_ALIVE(pc->stdpipe_pid)) {
 			while (!waitpid(pc->stdpipe_pid, &waitstatus, WNOHANG))
 				stall(1000);
 		}
 		pc->stdpipe_pid = 0;
-        }
+				}
 	if (pc->pipe) {
 		close(fileno(pc->pipe));
 	 	pc->pipe = NULL;
@@ -1032,9 +1032,9 @@ restore_sanity(void)
 				waitpid(pc->pipe_pid, &waitstatus, WNOHANG);
 				stall(1000);
 			}
-                if (pc->pipe_shell_pid)
-		        while (PID_ALIVE(pc->pipe_shell_pid)) {
-                        	waitpid(pc->pipe_shell_pid,
+								if (pc->pipe_shell_pid)
+						while (PID_ALIVE(pc->pipe_shell_pid)) {
+													waitpid(pc->pipe_shell_pid,
 					&waitstatus, WNOHANG);
 				stall(1000);
 			}
@@ -1044,19 +1044,19 @@ restore_sanity(void)
 		fflush(pc->ifile_pipe);
 		close(fileno(pc->ifile_pipe));
 		pc->ifile_pipe = NULL;
-        	if (pc->pipe_pid &&
-            	    ((pc->redirect & (PIPE_OPTIONS|REDIRECT_PID_KNOWN)) ==
-                    (FROM_INPUT_FILE|REDIRECT_TO_PIPE|REDIRECT_PID_KNOWN))) {
+					if (pc->pipe_pid &&
+									((pc->redirect & (PIPE_OPTIONS|REDIRECT_PID_KNOWN)) ==
+										(FROM_INPUT_FILE|REDIRECT_TO_PIPE|REDIRECT_PID_KNOWN))) {
 			console("wait for redirect %d->%d to finish...\n",
 				pc->pipe_shell_pid, pc->pipe_pid);
-                	while (PID_ALIVE(pc->pipe_pid)) {
+									while (PID_ALIVE(pc->pipe_pid)) {
 				waitpid(pc->pipe_pid, &waitstatus, WNOHANG);
 				stall(1000);
 			}
-                        if (pc->pipe_shell_pid)
-                                while (PID_ALIVE(pc->pipe_shell_pid)) {
-                                        waitpid(pc->pipe_shell_pid,
-                                                &waitstatus, WNOHANG);
+												if (pc->pipe_shell_pid)
+																while (PID_ALIVE(pc->pipe_shell_pid)) {
+																				waitpid(pc->pipe_shell_pid,
+																								&waitstatus, WNOHANG);
 					stall(1000);
 				}
 			if (pc->redirect & (REDIRECT_MULTI_PIPE))
@@ -1078,10 +1078,10 @@ restore_sanity(void)
 		pc->ifile = NULL;
 	}
 
-        if (pc->args_ifile) {
-                fclose(pc->args_ifile);
-                pc->args_ifile = NULL;
-        }
+				if (pc->args_ifile) {
+								fclose(pc->args_ifile);
+								pc->args_ifile = NULL;
+				}
 
 	if (pc->tmpfile)
 		close_tmpfile();
@@ -1098,9 +1098,9 @@ restore_sanity(void)
 			clean_exit(1);
 		}
 
-	        if (tcsetattr(fd, TCSANOW, &pc->termios_orig) == -1)
-                        error(FATAL, "tcsetattr /dev/tty: %s\n",
-                                strerror(errno));
+					if (tcsetattr(fd, TCSANOW, &pc->termios_orig) == -1)
+												error(FATAL, "tcsetattr /dev/tty: %s\n",
+																strerror(errno));
 
 		close(fd);
 	}
@@ -1117,8 +1117,8 @@ restore_sanity(void)
 	if ((pc->curcmd_flags & (UD2A_INSTRUCTION|BAD_INSTRUCTION)) ==
 		(UD2A_INSTRUCTION|BAD_INSTRUCTION))
 		error(WARNING, "A (bad) instruction was noted in last disassembly.\n"
-                     "         Use \"dis -b [number]\" to set/restore the number of\n"
-                     "         encoded bytes to skip after a ud2a (BUG) instruction.\n");
+										 "         Use \"dis -b [number]\" to set/restore the number of\n"
+										 "         encoded bytes to skip after a ud2a (BUG) instruction.\n");
 	pc->curcmd_flags = 0;
 	pc->curcmd_private = 0;
 
@@ -1144,15 +1144,15 @@ restore_sanity(void)
 	/*
 	 *  Call the cleanup() function of any extension.
 	 */
-        for (ext = extension_table; ext; ext = ext->next) {
-                for (cp = ext->command_table; cp->name; cp++) {
-                        if (cp->flags & CLEANUP)
-                                (*cp->func)();
+				for (ext = extension_table; ext; ext = ext->next) {
+								for (cp = ext->command_table; cp->name; cp++) {
+												if (cp->flags & CLEANUP)
+																(*cp->func)();
 		}
-        }
+				}
 
 	if (CRASHDEBUG(5)) {
-                dump_filesys_table(0);
+								dump_filesys_table(0);
 		dump_vma_cache(0);
 		dump_text_value_cache(0);
 	}
@@ -1170,32 +1170,32 @@ restore_sanity(void)
 static void
 restore_ifile_sanity(void)
 {
-        int fd;
+				int fd;
 
 	pc->flags &= ~IFILE_ERROR;
 
-        if (pc->ifile_pipe) {
+				if (pc->ifile_pipe) {
 		close(fileno(pc->ifile_pipe));
-                pc->ifile_pipe = NULL;
-        }
+								pc->ifile_pipe = NULL;
+				}
 
-        if (pc->ifile_ofile) {
-                fclose(pc->ifile_ofile);
-                pc->ifile_ofile = NULL;
-        }
+				if (pc->ifile_ofile) {
+								fclose(pc->ifile_ofile);
+								pc->ifile_ofile = NULL;
+				}
 
-        if (pc->flags & TTY) {
-                if ((fd = open("/dev/tty", O_RDONLY)) < 0) {
-                        console("/dev/tty: %s\n", strerror(errno));
-                        clean_exit(1);
-                }
+				if (pc->flags & TTY) {
+								if ((fd = open("/dev/tty", O_RDONLY)) < 0) {
+												console("/dev/tty: %s\n", strerror(errno));
+												clean_exit(1);
+								}
 
-                if (tcsetattr(fd, TCSANOW, &pc->termios_orig) == -1)
+								if (tcsetattr(fd, TCSANOW, &pc->termios_orig) == -1)
 			error(FATAL, "tcsetattr /dev/tty: %s\n",
-                                strerror(errno));
+																strerror(errno));
 
-                close(fd);
-        }
+								close(fd);
+				}
 
 	if (pc->tmpfile2) {
 		close_tmpfile2();
@@ -1235,35 +1235,35 @@ received_SIGINT(void)
 static int
 is_shell_script(char *s)
 {
-        int fd;
-        char interp[2];
-        struct stat sbuf;
+				int fd;
+				char interp[2];
+				struct stat sbuf;
 
-        if ((fd = open(s, O_RDONLY)) < 0)
-                return FALSE;
+				if ((fd = open(s, O_RDONLY)) < 0)
+								return FALSE;
 
-        if (isatty(fd))
-                return FALSE;
+				if (isatty(fd))
+								return FALSE;
 
-        if (read(fd, interp, 2) != 2) {
-                close(fd);
-                return FALSE;
-        }
+				if (read(fd, interp, 2) != 2) {
+								close(fd);
+								return FALSE;
+				}
 
-        if (!STRNEQ(interp, "#!")) {
-                close(fd);
-                return FALSE;
-        }
+				if (!STRNEQ(interp, "#!")) {
+								close(fd);
+								return FALSE;
+				}
 
-        close(fd);
+				close(fd);
 
-        if (stat(s, &sbuf) == -1)
+				if (stat(s, &sbuf) == -1)
 		return FALSE;
 
-        if (!(sbuf.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
+				if (!(sbuf.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
 		return FALSE;
 
-        return TRUE;
+				return TRUE;
 }
 
 /*
@@ -1277,9 +1277,9 @@ is_shell_script(char *s)
 void
 exec_input_file(void)
 {
-        char *file;
+				char *file;
 	FILE *incoming_fp;
-        char buf[BUFSIZE];
+				char buf[BUFSIZE];
 	ulong this;
 
 	/*
@@ -1297,38 +1297,38 @@ exec_input_file(void)
 	} else
 		this = 0;
 
-        if (pc->flags & RUNTIME_IFILE) {
-                error(INFO, "embedded input files not allowed!\n");
-                return;
-        }
+				if (pc->flags & RUNTIME_IFILE) {
+								error(INFO, "embedded input files not allowed!\n");
+								return;
+				}
 
-        if (argcnt < 2) {
-                error(INFO, "no input file entered!\n");
-                return;
-        } else
-                file = args[1];
+				if (argcnt < 2) {
+								error(INFO, "no input file entered!\n");
+								return;
+				} else
+								file = args[1];
 
-        if (!file_exists(file, NULL)) {
-                error(INFO, "%s: %s\n", file, strerror(ENOENT));
-                return;
-        }
+				if (!file_exists(file, NULL)) {
+								error(INFO, "%s: %s\n", file, strerror(ENOENT));
+								return;
+				}
 
-        if (is_elf_file(file)) {
-                error(INFO, "input from executable files not supported yet!\n");
-                return;
-        }
+				if (is_elf_file(file)) {
+								error(INFO, "input from executable files not supported yet!\n");
+								return;
+				}
 
-        if (is_shell_script(file)) {
-                error(INFO, "input from shell scripts not supported yet!\n");
-                return;
-        }
+				if (is_shell_script(file)) {
+								error(INFO, "input from shell scripts not supported yet!\n");
+								return;
+				}
 
-        if ((pc->ifile = fopen(file, "r")) == NULL) {
-                error(INFO, "%s: %s\n", file, strerror(errno));
-                return;
-        }
+				if ((pc->ifile = fopen(file, "r")) == NULL) {
+								error(INFO, "%s: %s\n", file, strerror(errno));
+								return;
+				}
 
-        pc->flags |= RUNTIME_IFILE;
+				pc->flags |= RUNTIME_IFILE;
 	incoming_fp = fp;
 
 	/*
@@ -1338,7 +1338,7 @@ exec_input_file(void)
 		if (!pc->runtime_ifile_cmd) {
 			if (!(pc->runtime_ifile_cmd = (char *)malloc(BUFSIZE))) {
 				error(INFO,
-				    "cannot malloc input file command line buffer\n");
+						"cannot malloc input file command line buffer\n");
 				return;
 			}
 			BZERO(pc->runtime_ifile_cmd, BUFSIZE);
@@ -1355,14 +1355,14 @@ exec_input_file(void)
 	if (pc->ifile_offset)
 		fseek(pc->ifile, (long)pc->ifile_offset, SEEK_SET);
 
-        while (fgets(buf, BUFSIZE-1, pc->ifile)) {
-                /*
-                 *  Restore normal environment.
-                 */
-                fp = incoming_fp;
+				while (fgets(buf, BUFSIZE-1, pc->ifile)) {
+								/*
+								 *  Restore normal environment.
+								 */
+								fp = incoming_fp;
 		restore_ifile_sanity();
-        	BZERO(pc->command_line, BUFSIZE);
-        	BZERO(pc->orig_line, BUFSIZE);
+					BZERO(pc->command_line, BUFSIZE);
+					BZERO(pc->orig_line, BUFSIZE);
 		if (this & (RCHOME_IFILE|RCLOCAL_IFILE))
 			pc->curcmd_flags |= FROM_RCFILE;
 
@@ -1371,27 +1371,27 @@ exec_input_file(void)
 		if (STRNEQ(buf, "#") || STREQ(buf, "\n"))
 			continue;
 
-                check_special_handling(buf);
-                strcpy(pc->command_line, buf);
-                clean_line(pc->command_line);
-                strcpy(pc->orig_line, pc->command_line);
+								check_special_handling(buf);
+								strcpy(pc->command_line, buf);
+								clean_line(pc->command_line);
+								strcpy(pc->orig_line, pc->command_line);
 		strip_linefeeds(pc->orig_line);
 		resolve_aliases();
 
-	        switch (setup_redirect(FROM_INPUT_FILE))
-	        {
-	        case REDIRECT_NOT_DONE:
-	        case REDIRECT_TO_PIPE:
-	        case REDIRECT_TO_FILE:
-	                break;
+					switch (setup_redirect(FROM_INPUT_FILE))
+					{
+					case REDIRECT_NOT_DONE:
+					case REDIRECT_TO_PIPE:
+					case REDIRECT_TO_FILE:
+									break;
 
 		case REDIRECT_SHELL_ESCAPE:
 		case REDIRECT_SHELL_COMMAND:
 			continue;
 
-	        case REDIRECT_FAILURE:
-	                goto done_input;
-	        }
+					case REDIRECT_FAILURE:
+									goto done_input;
+					}
 
 		if (CRASHDEBUG(1))
 			console(buf);
@@ -1399,19 +1399,19 @@ exec_input_file(void)
 		if (!(argcnt = parse_line(pc->command_line, args)))
 			continue;
 
-                if (!(pc->flags & SILENT)) {
-                        fprintf(fp, "%s%s", pc->prompt, buf);
-                        fflush(fp);
-                }
+								if (!(pc->flags & SILENT)) {
+												fprintf(fp, "%s%s", pc->prompt, buf);
+												fflush(fp);
+								}
 
-                exec_command();
-        }
+								exec_command();
+				}
 
 done_input:
 
-        fclose(pc->ifile);
-        pc->ifile = NULL;
-        pc->flags &= ~RUNTIME_IFILE;
+				fclose(pc->ifile);
+				pc->ifile = NULL;
+				pc->flags &= ~RUNTIME_IFILE;
 	pc->ifile_offset = 0;
 	if (pc->runtime_ifile_cmd)
 		BZERO(pc->runtime_ifile_cmd, BUFSIZE);
@@ -1437,57 +1437,57 @@ alias_init(char *inbuf)
 	argcnt = parse_line(buf, args);
 	allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias ? help");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias ? help");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias quit q");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias quit q");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
 	strcpy(buf, "alias sf set scroll off");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
 	strcpy(buf, "alias sn set scroll on");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
 	strcpy(buf, "alias hex set radix 16");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias dec set radix 10");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias dec set radix 10");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias g gdb");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias g gdb");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias px p -x");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias px p -x");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias pd p -d");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias pd p -d");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
 	strcpy(buf, "alias for foreach");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
 	strcpy(buf, "alias size *");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias dmesg log");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias dmesg log");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 
-        strcpy(buf, "alias lsmod mod");
-        argcnt = parse_line(buf, args);
-        allocate_alias(ALIAS_BUILTIN);
+				strcpy(buf, "alias lsmod mod");
+				argcnt = parse_line(buf, args);
+				allocate_alias(ALIAS_BUILTIN);
 }
 
 /*
@@ -1520,8 +1520,8 @@ resolve_aliases(void)
 	found = FALSE;
 	for (ad = alias_head.next; ad; ad = ad->next) {
 		if (STREQ(ad->alias, args[0])) {
-                        for (i = 0; i < ad->argcnt; i++)
-                                args[i] = ad->args[i];
+												for (i = 0; i < ad->argcnt; i++)
+																args[i] = ad->args[i];
 			found = TRUE;
 			break;
 		}
@@ -1537,16 +1537,16 @@ resolve_aliases(void)
 		snprintf(p1, BUFSIZE - (p1-pc->command_line), "%s ", args[i]);
 		while (*p1)
 			p1++;
-                if ((p1 - pc->command_line) >= BUFSIZE)
-                        break;
+								if ((p1 - pc->command_line) >= BUFSIZE)
+												break;
 	}
-        if (remainder) {
-                if ((strlen(remainder)+strlen(pc->command_line)) < BUFSIZE)
-                        strcat(pc->command_line, remainder);
-                else
-                        error(INFO, "command line overflow.\n");
-        } else if (strlen(pc->command_line) >= (BUFSIZE-1))
-                error(INFO, "command line overflow.\n");
+				if (remainder) {
+								if ((strlen(remainder)+strlen(pc->command_line)) < BUFSIZE)
+												strcat(pc->command_line, remainder);
+								else
+												error(INFO, "command line overflow.\n");
+				} else if (strlen(pc->command_line) >= (BUFSIZE-1))
+								error(INFO, "command line overflow.\n");
 
 	clean_line(pc->command_line);
 }
@@ -1557,9 +1557,9 @@ resolve_aliases(void)
 struct alias_data *
 is_alias(char *s)
 {
-        struct alias_data *ad;
+				struct alias_data *ad;
 
-        for (ad = alias_head.next; ad; ad = ad->next) {
+				for (ad = alias_head.next; ad; ad = ad->next) {
 		if (STREQ(ad->alias, s))
 			return(ad);
 	}
@@ -1639,7 +1639,7 @@ static void
 list_aliases(char *s)
 {
 	int i;
-        struct alias_data *ad;
+				struct alias_data *ad;
 	int found, precision;
 	char buf[BUFSIZE];
 
@@ -1652,16 +1652,16 @@ list_aliases(char *s)
 	found = FALSE;
 	precision = 7;
 
-        for (ad = alias_head.next; ad; ad = ad->next) {
-                switch (ad->origin)
+				for (ad = alias_head.next; ad; ad = ad->next) {
+								switch (ad->origin)
 		{
-                case ALIAS_RCLOCAL:
-                        sprintf(buf, ".%src", pc->program_name);
+								case ALIAS_RCLOCAL:
+												sprintf(buf, ".%src", pc->program_name);
 			if (strlen(buf) > precision)
 				precision = strlen(buf);
-                        break;
-                case ALIAS_RCHOME:
-                        sprintf(buf, "$HOME/.%src", pc->program_name);
+												break;
+								case ALIAS_RCHOME:
+												sprintf(buf, "$HOME/.%src", pc->program_name);
 			if (strlen(buf) > precision)
 				precision = strlen(buf);
 			break;
@@ -1674,32 +1674,32 @@ list_aliases(char *s)
 	BZERO(buf, BUFSIZE);
 	fprintf(fp, "  ALIAS    COMMAND\n");
 
-        for (ad = alias_head.next; ad; ad = ad->next) {
+				for (ad = alias_head.next; ad; ad = ad->next) {
 		if (s && !STREQ(s, ad->alias))
 			continue;
 
 		found = TRUE;
 
-                switch (ad->origin)
-                {
-                case ALIAS_RUNTIME:
-                        sprintf(buf, "runtime");
-                        break;
-                case ALIAS_RCLOCAL:
-                        sprintf(buf, ".%src", pc->program_name);
-                        break;
-                case ALIAS_RCHOME:
-                        sprintf(buf, "$HOME/.%src", pc->program_name);
-                        break;
-                case ALIAS_BUILTIN:
-                        sprintf(buf, "builtin");
-                        break;
-                }
+								switch (ad->origin)
+								{
+								case ALIAS_RUNTIME:
+												sprintf(buf, "runtime");
+												break;
+								case ALIAS_RCLOCAL:
+												sprintf(buf, ".%src", pc->program_name);
+												break;
+								case ALIAS_RCHOME:
+												sprintf(buf, "$HOME/.%src", pc->program_name);
+												break;
+								case ALIAS_BUILTIN:
+												sprintf(buf, "builtin");
+												break;
+								}
 
 		fprintf(fp, "%s  ", buf);
 		pad_line(fp, precision-strlen(buf), ' ');
 
-                fprintf(fp, "%-7s  ", ad->alias);
+								fprintf(fp, "%-7s  ", ad->alias);
 
 		for (i = 0; i < ad->argcnt; i++) {
 			fprintf(fp, "%s ", ad->args[i]);
@@ -1725,8 +1725,8 @@ allocate_alias(int origin)
 {
 	int i;
 	int size;
-        struct alias_data *ad;
-        struct alias_data *newad;
+				struct alias_data *ad;
+				struct alias_data *newad;
 	char *p1, *enclosed_string;
 	int found;
 
@@ -1736,9 +1736,9 @@ allocate_alias(int origin)
 	found = FALSE;
 
 	if (get_command_table_entry(args[1])) {
-                error(INFO, "cannot alias existing command name: %s\n",
+								error(INFO, "cannot alias existing command name: %s\n",
 			args[1]);
-                return FALSE;
+								return FALSE;
 	}
 
 	if (get_command_table_entry(args[2]))
@@ -1752,7 +1752,7 @@ allocate_alias(int origin)
 			}
 		} else {
 			error(INFO,
-		          "invalid alias attempt on non-existent command: %s\n",
+							"invalid alias attempt on non-existent command: %s\n",
 				args[2]);
 		}
 		return FALSE;
@@ -1768,10 +1768,10 @@ allocate_alias(int origin)
 	for (i = 0; i < argcnt; i++)
 		size += strlen(args[i]);
 
-        if ((newad = (struct alias_data *)malloc(size+1)) == NULL) {
-                error(INFO, "alias_data malloc: %s\n", strerror(errno));
-                return FALSE;
-        }
+				if ((newad = (struct alias_data *)malloc(size+1)) == NULL) {
+								error(INFO, "alias_data malloc: %s\n", strerror(errno));
+								return FALSE;
+				}
 
 	BZERO(newad, size);
 	newad->next = NULL;
@@ -1780,7 +1780,7 @@ allocate_alias(int origin)
 
 	p1 = newad->argbuf;
 	for (i = 1; i < argcnt; i++) {
-                sprintf(p1, "%s ", args[i]);
+								sprintf(p1, "%s ", args[i]);
 		while (*p1)
 			p1++;
 	}
@@ -1804,12 +1804,12 @@ allocate_alias(int origin)
 static int
 alias_exists(char *s)
 {
-        struct alias_data *ad;
+				struct alias_data *ad;
 
-        if (!alias_head.next)
-                return FALSE;
+				if (!alias_head.next)
+								return FALSE;
 
-        for (ad = alias_head.next; ad; ad = ad->next)
+				for (ad = alias_head.next; ad; ad = ad->next)
 		if (STREQ(ad->alias, s))
 			return TRUE;
 
@@ -1822,12 +1822,12 @@ alias_exists(char *s)
 void
 deallocate_alias(char *s)
 {
-        struct alias_data *ad, *lastad;
+				struct alias_data *ad, *lastad;
 
-        for (ad = alias_head.next, lastad = &alias_head; ad; ad = ad->next) {
-                if (!STREQ(ad->alias, s)) {
+				for (ad = alias_head.next, lastad = &alias_head; ad; ad = ad->next) {
+								if (!STREQ(ad->alias, s)) {
 			lastad = ad;
-                        continue;
+												continue;
 		}
 
 		lastad->next = ad->next;
@@ -1842,16 +1842,16 @@ deallocate_alias(char *s)
 void
 dump_alias_data(void)
 {
-        int i;
-        struct alias_data *ad;
+				int i;
+				struct alias_data *ad;
 
 	fprintf(fp, "alias_head.next: %lx\n\n", (ulong)alias_head.next);
 
-        for (ad = alias_head.next; ad; ad = ad->next) {
-        	fprintf(fp, "      next: %lx\n", (ulong)ad->next);
-        	fprintf(fp, "     alias: %s\n", ad->alias);
-        	fprintf(fp, "      size: %d\n", ad->size);
-        	fprintf(fp, "    origin: ");
+				for (ad = alias_head.next; ad; ad = ad->next) {
+					fprintf(fp, "      next: %lx\n", (ulong)ad->next);
+					fprintf(fp, "     alias: %s\n", ad->alias);
+					fprintf(fp, "      size: %d\n", ad->size);
+					fprintf(fp, "    origin: ");
 		switch (ad->origin)
 		{
 		case ALIAS_RUNTIME:
@@ -1867,12 +1867,12 @@ dump_alias_data(void)
 			fprintf(fp, "builtin\n");
 			break;
 		}
-        	fprintf(fp, "    argcnt: %d\n", ad->argcnt);
-        	for (i = 0; i < ad->argcnt; i++)
-                	fprintf(fp, "   args[%d]: %lx: %s\n",
+					fprintf(fp, "    argcnt: %d\n", ad->argcnt);
+					for (i = 0; i < ad->argcnt; i++)
+									fprintf(fp, "   args[%d]: %lx: %s\n",
 				i, (ulong)ad->args[i], ad->args[i]);
-                fprintf(fp, "\n");
-        }
+								fprintf(fp, "\n");
+				}
 }
 
 
@@ -1930,7 +1930,7 @@ cmd_repeat(void)
 		return;
 
 	if (STREQ(args[0], "<") && (pc->flags & TTY) &&
-            (pc->flags & SCROLL) && pc->scroll_command)
+						(pc->flags & SCROLL) && pc->scroll_command)
 		error(FATAL,
 		"scrolling must be turned off when repeating an input file\n");
 
@@ -1968,7 +1968,7 @@ cmd_repeat(void)
 static void
 readline_init(void)
 {
-        rl_initialize();
+				rl_initialize();
 
 	if (STREQ(pc->editing_mode, "vi")) {
 		rl_editing_mode = vi_mode;
@@ -1988,7 +1988,7 @@ readline_init(void)
 	}
 
 	if (STREQ(pc->editing_mode, "emacs")) {
-        	rl_editing_mode = emacs_mode;
+					rl_editing_mode = emacs_mode;
 	}
 }
 
@@ -1998,19 +1998,19 @@ readline_init(void)
 static void
 set_my_tty(void)
 {
-        char buf[BUFSIZE];
-        char *arglist[MAXARGS];
-        int argc;
-        FILE *pipe;
+				char buf[BUFSIZE];
+				char *arglist[MAXARGS];
+				int argc;
+				FILE *pipe;
 
-        strcpy(pc->my_tty, "?");
+				strcpy(pc->my_tty, "?");
 
 	if (file_exists("/usr/bin/tty", NULL)) {
-	        sprintf(buf, "/usr/bin/tty");
-	        if ((pipe = popen(buf, "r")) == NULL)
-	                return;
+					sprintf(buf, "/usr/bin/tty");
+					if ((pipe = popen(buf, "r")) == NULL)
+									return;
 
-	        while (fgets(buf, BUFSIZE, pipe)) {
+					while (fgets(buf, BUFSIZE, pipe)) {
 			if (STRNEQ(buf, "/dev/")) {
 				strcpy(pc->my_tty, strip_line_end(&buf[strlen("/dev/")]));
 				break;
@@ -2020,24 +2020,24 @@ set_my_tty(void)
 		return;
 	}
 
-        sprintf(buf, "ps -ef | grep ' %d '", getpid());
+				sprintf(buf, "ps -ef | grep ' %d '", getpid());
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "popen(%s)\n", buf);
 
-        if ((pipe = popen(buf, "r")) == NULL)
-                return;
+				if ((pipe = popen(buf, "r")) == NULL)
+								return;
 
-        while (fgets(buf, BUFSIZE, pipe)) {
-                argc = parse_line(buf, arglist);
-                if ((argc >= 8) && (atoi(arglist[1]) == getpid())) {
+				while (fgets(buf, BUFSIZE, pipe)) {
+								argc = parse_line(buf, arglist);
+								if ((argc >= 8) && (atoi(arglist[1]) == getpid())) {
 			if (strlen(arglist[5]) < 9)
 				strcpy(pc->my_tty, arglist[5]);
 			else
 				strncpy(pc->my_tty, arglist[5], 9);
-                }
-        }
-        pclose(pipe);
+								}
+				}
+				pclose(pipe);
 }
 
 /*
@@ -2053,7 +2053,7 @@ interruptible(void)
 		return FALSE;
 
 	if ((pc->redirect & (FROM_INPUT_FILE|REDIRECT_NOT_DONE)) ==
-	    (FROM_INPUT_FILE|REDIRECT_NOT_DONE))
+			(FROM_INPUT_FILE|REDIRECT_NOT_DONE))
 		return TRUE;
 
 	if (strlen(pc->pipe_command))
@@ -2096,18 +2096,18 @@ setup_stdpipe(void)
 		}
 		setbuf(pc->stdpipe, NULL);
 
-                switch (pc->scroll_command)
-                {
-                case SCROLL_LESS:
-                        strcpy(pc->pipe_command, less_argv[0]);
-                        break;
-                case SCROLL_MORE:
-                        strcpy(pc->pipe_command, more_argv[0]);
-                        break;
+								switch (pc->scroll_command)
+								{
+								case SCROLL_LESS:
+												strcpy(pc->pipe_command, less_argv[0]);
+												break;
+								case SCROLL_MORE:
+												strcpy(pc->pipe_command, more_argv[0]);
+												break;
 		case SCROLL_CRASHPAGER:
-                        strcpy(pc->pipe_command, CRASHPAGER_argv[0]);
-                        break;
-                }
+												strcpy(pc->pipe_command, CRASHPAGER_argv[0]);
+												break;
+								}
 
 		if (CRASHDEBUG(2))
 			console("pipe: %lx\n", pc->stdpipe);
@@ -2124,14 +2124,14 @@ setup_stdpipe(void)
 		if (CRASHDEBUG(2))
 			console("execv: %d\n", getpid());
 
-                switch (pc->scroll_command)
+								switch (pc->scroll_command)
 		{
 		case SCROLL_LESS:
 			path = less_argv[0];
 			execv(path, less_argv);
 			break;
 
-                case SCROLL_MORE:
+								case SCROLL_MORE:
 			path = more_argv[0];
 			execv(path, more_argv);
 			break;
@@ -2151,30 +2151,30 @@ setup_stdpipe(void)
 static void
 wait_for_children(ulong waitflag)
 {
-        int status, pid;
+				int status, pid;
 
 	while (TRUE) {
-        	switch (pid = waitpid(-1, &status, WNOHANG))
-        	{
-        	case  0:
+					switch (pid = waitpid(-1, &status, WNOHANG))
+					{
+					case  0:
 			if (CRASHDEBUG(2))
-			    console("wait_for_children: child running...\n");
+					console("wait_for_children: child running...\n");
 			if (waitflag == ZOMBIES_ONLY)
 				return;
 			break;
 
-        	case -1:
+					case -1:
 			if (CRASHDEBUG(2))
-			    console("wait_for_children: no children alive\n");
-                	return;
+					console("wait_for_children: no children alive\n");
+									return;
 
-        	default:
+					default:
 			console("wait_for_children(%d): reaped %d\n",
 				waitflag, pid);
 			if (CRASHDEBUG(2))
-			    fprintf(fp, "wait_for_children: reaped %d\n", pid);
-                	break;
-        	}
+					fprintf(fp, "wait_for_children: reaped %d\n", pid);
+									break;
+					}
 		stall(1000);
 	}
 }
@@ -2192,13 +2192,13 @@ shell_command(char *cmd)
 	if ((pipe = popen(cmd, "r")) == NULL) {
 		error(INFO, "cannot open pipe: %s\n", cmd);
 		pc->redirect &= ~REDIRECT_SHELL_COMMAND;
-                pc->redirect |= REDIRECT_FAILURE;
-                return REDIRECT_FAILURE;
-        }
+								pc->redirect |= REDIRECT_FAILURE;
+								return REDIRECT_FAILURE;
+				}
 
-        while (fgets(buf, BUFSIZE, pipe))
+				while (fgets(buf, BUFSIZE, pipe))
 		fputs(buf, fp);
-        pclose(pipe);
+				pclose(pipe);
 
 	return REDIRECT_SHELL_COMMAND;
 }
@@ -2252,7 +2252,7 @@ next_gdb:
 		if ((p1 = strstr(curptr, "<"))) {
 			while (STRNEQ(p1, "<<")) {
 				p2 = p1+2;
-			        if (!(p1 = strstr(p2, "<")))
+							if (!(p1 = strstr(p2, "<")))
 					return retval;
 			}
 		}
@@ -2281,8 +2281,8 @@ next_gdb:
 			if (verify_args_input_file(fileptr)) {
 				if (retval == TRUE) {
 					error(INFO,
-					    "ignoring multiple argument input files: "
-					    "%s and %s\n",
+							"ignoring multiple argument input files: "
+							"%s and %s\n",
 						aif->fileptr, fileptr);
 					return FALSE;
 				}
@@ -2305,9 +2305,9 @@ next_gdb:
 				fileptr = &args[c][1];
 				args_used = 1;
 			} else {
-		    		if ((c+1) == argcnt)
+						if ((c+1) == argcnt)
 					error(FATAL,
-					    "< requires a file argument\n");
+							"< requires a file argument\n");
 				fileptr = args[c+1];
 				args_used = 2;
 			}
@@ -2317,7 +2317,7 @@ next_gdb:
 
 			if (retval == TRUE)
 				error(FATAL,
-				    "multiple input files are not supported\n");
+						"multiple input files are not supported\n");
 
 			aif->index = c;
 			aif->fileptr = GETBUF(strlen(fileptr)+1);
@@ -2365,8 +2365,8 @@ next_expr:
 
 				if (retval == TRUE) {
 					error(INFO,
-					    "ignoring multiple argument input files: "
-					    "%s and %s\n",
+							"ignoring multiple argument input files: "
+							"%s and %s\n",
 						aif->fileptr, fileptr);
 					return FALSE;
 				}
@@ -2471,8 +2471,8 @@ exec_args_input_file(struct command_table_entry *ct, struct args_input_file *aif
 			for (i = aif->index, c = 0; c < aif_cnt; c++, i++)
 				new_args[i] = aif_args[c];
 			for (i = aif->index + aif_cnt,
-			     c = aif->index + aif->args_used;
-			     c < orig_argcnt; c++, i++)
+					 c = aif->index + aif->args_used;
+					 c < orig_argcnt; c++, i++)
 				new_args[i] = orig_args[c];
 
 			argcnt = orig_argcnt - aif->args_used + aif_cnt;

@@ -225,7 +225,7 @@ arm_init(int when)
 		/*
 		 * Kernel text starts 16k after PAGE_OFFSET.
 		 */
-	        machdep->kvbase = symbol_value("_stext") & 0xffff0000UL;
+					machdep->kvbase = symbol_value("_stext") & 0xffff0000UL;
 		machdep->identity_map_base = machdep->kvbase;
 		machdep->is_kvaddr = arm_is_kvaddr;
 		machdep->is_uvaddr = arm_is_uvaddr;
@@ -263,11 +263,11 @@ arm_init(int when)
 		 * hardware page tables).
 		 */
 		if (THIS_KERNEL_VERSION > LINUX(2,6,37) ||
-		    STRUCT_EXISTS("pteval_t"))
+				STRUCT_EXISTS("pteval_t"))
 			machdep->flags |= PGTABLE_V2;
 
 		if (THIS_KERNEL_VERSION >= LINUX(3,3,0) ||
-		    symbol_exists("idmap_pgd"))
+				symbol_exists("idmap_pgd"))
 			machdep->flags |= IDMAP_PGD;
 
 		machdep->section_size_bits = _SECTION_SIZE_BITS;
@@ -275,7 +275,7 @@ arm_init(int when)
 
 		if (symbol_exists("irq_desc"))
 			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
-					  "irq_desc", NULL, 0);
+						"irq_desc", NULL, 0);
 		else if (kernel_symbol_exists("nr_irqs"))
 			get_symbol_data("nr_irqs", sizeof(unsigned int),
 				&machdep->nr_irqs);
@@ -302,9 +302,9 @@ arm_init(int when)
 
 		STRUCT_SIZE_INIT(elf_prstatus, "elf_prstatus");
 		MEMBER_OFFSET_INIT(elf_prstatus_pr_pid, "elf_prstatus",
-				   "pr_pid");
+					 "pr_pid");
 		MEMBER_OFFSET_INIT(elf_prstatus_pr_reg, "elf_prstatus",
-				   "pr_reg");
+					 "pr_reg");
 		break;
 
 	case POST_VM:
@@ -352,8 +352,8 @@ arm_dump_machdep_table(ulong arg)
 	const struct machine_specific *ms;
 	int others, i;
 
-        others = 0;
-        fprintf(fp, "              flags: %lx (", machdep->flags);
+				others = 0;
+				fprintf(fp, "              flags: %lx (", machdep->flags);
 	if (machdep->flags & KSYMS_START)
 		fprintf(fp, "%sKSYMS_START", others++ ? "|" : "");
 	if (machdep->flags & PHYS_BASE)
@@ -362,7 +362,7 @@ arm_dump_machdep_table(ulong arg)
 		fprintf(fp, "%sPGTABLE_V2", others++ ? "|" : "");
 	if (machdep->flags & IDMAP_PGD)
 		fprintf(fp, "%sIDMAP_PGD", others++ ? "|" : "");
-        fprintf(fp, ")\n");
+				fprintf(fp, ")\n");
 
 	fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
 	fprintf(fp, "  identity_map_base: %lx\n", machdep->kvbase);
@@ -399,7 +399,7 @@ arm_dump_machdep_table(ulong arg)
 	fprintf(fp, "          is_uvaddr: arm_is_uvaddr()\n");
 	fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
 	fprintf(fp, "    show_interrupts: generic_show_interrupts()\n");
-        fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
+				fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
 
 	fprintf(fp, " xendump_p2m_create: NULL\n");
 	fprintf(fp, "xen_kdump_p2m_create: NULL\n");
@@ -480,7 +480,7 @@ arm_parse_cmdline_args(void)
 				int flags = RETURN_ON_ERROR | QUIET;
 
 				if ((LASTCHAR(arglist[i]) == 'm') ||
-				    (LASTCHAR(arglist[i]) == 'M')) {
+						(LASTCHAR(arglist[i]) == 'M')) {
 					LASTCHAR(arglist[i]) = NULLCHAR;
 					megabytes = TRUE;
 				}
@@ -540,8 +540,8 @@ arm_get_crash_notes(void)
 	 * note format.
 	 */
 	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1],
-	    sizeof(notes_ptrs[kt->cpus-1]), "crash_notes",
-		     RETURN_ON_ERROR)) {
+			sizeof(notes_ptrs[kt->cpus-1]), "crash_notes",
+				 RETURN_ON_ERROR)) {
 		error(WARNING, "cannot read crash_notes\n");
 		FREEBUF(notes_ptrs);
 		return FALSE;
@@ -562,7 +562,7 @@ arm_get_crash_notes(void)
 	for  (i=0;i<kt->cpus;i++) {
 
 		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf), "note_buf_t",
-			     RETURN_ON_ERROR)) {
+					 RETURN_ON_ERROR)) {
 			error(WARNING, "failed to read note_buf_t\n");
 			goto fail;
 		}
@@ -591,7 +591,7 @@ arm_get_crash_notes(void)
 		p = buf + offset; /* start of elf_prstatus */
 
 		BCOPY(p + OFFSET(elf_prstatus_pr_reg), &panic_task_regs[i],
-		      sizeof(panic_task_regs[i]));
+					sizeof(panic_task_regs[i]));
 
 	}
 
@@ -1072,7 +1072,7 @@ arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
 
 	*paddr = 0;
 
-        if (is_kernel_thread(tc->task) && IS_KVADDR(uvaddr)) {
+				if (is_kernel_thread(tc->task) && IS_KVADDR(uvaddr)) {
 		ulong active_mm;
 
 		readmem(tc->task + OFFSET(task_struct_active_mm),
@@ -1081,7 +1081,7 @@ arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
 
 		if (!active_mm)
 			error(FATAL,
-			     "no active_mm for this kernel thread\n");
+					 "no active_mm for this kernel thread\n");
 
 		readmem(active_mm + OFFSET(mm_struct_pgd),
 			KVADDR, &pgd, sizeof(long),
@@ -1224,7 +1224,7 @@ arm_dump_exception_stack(ulong start, ulong end)
 	char buf[64];
 
 	if (!readmem(start, KVADDR, &regs, sizeof(regs),
-		     "exception regs", RETURN_ON_ERROR)) {
+				 "exception regs", RETURN_ON_ERROR)) {
 		error(WARNING, "failed to read exception registers\n");
 		return;
 	}
@@ -1422,7 +1422,7 @@ arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	argc = parse_line(buf1, argv);
 
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-	    (LASTCHAR(argv[argc-1]) == '>')) {
+			(LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
@@ -1531,7 +1531,7 @@ arm_init_machspec(void)
 	ulong phys_base;
 
 	if (symbol_exists("__exception_text_start") &&
-	    symbol_exists("__exception_text_end")) {
+			symbol_exists("__exception_text_end")) {
 		ms->exception_text_start = symbol_value("__exception_text_start");
 		ms->exception_text_end = symbol_value("__exception_text_end");
 	}

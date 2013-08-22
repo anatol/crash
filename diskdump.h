@@ -39,12 +39,12 @@ struct disk_dump_header {
 	unsigned int		status; 	/* Above flags */
 	int			block_size;	/* Size of a block in byte */
 	int			sub_hdr_size;	/* Size of arch dependent
-						   header in blocks */
+							 header in blocks */
 	unsigned int		bitmap_blocks;	/* Size of Memory bitmap in
-						   block */
+							 block */
 	unsigned int		max_mapnr;	/* = max_mapnr */
 	unsigned int		total_ram_blocks;/* Number of blocks should be
-						   written */
+							 written */
 	unsigned int		device_blocks;	/* Number of total blocks in
 						 * the dump device */
 	unsigned int		written_blocks; /* Number of written blocks */

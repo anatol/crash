@@ -465,7 +465,7 @@ out_fail:
 
 static int ftrace_init(void)
 {
-        struct syment *sym_global_trace;
+				struct syment *sym_global_trace;
 	struct syment *sym_max_tr_trace;
 	struct syment *sym_ftrace_events;
 	struct syment *sym_current_trace;
@@ -1022,7 +1022,7 @@ again:
 		cnt1 = MIN_PAGE_SIZE - (kp & (MIN_PAGE_SIZE-1));
 
 		if (!readmem(kp, KVADDR, strbuf, cnt1,
-		    "readstring characters", QUIET|RETURN_ON_ERROR))
+				"readstring characters", QUIET|RETURN_ON_ERROR))
 			return -1;
 
 		cnt2 = strnlen(strbuf, cnt1);
@@ -1123,9 +1123,9 @@ static int ftrace_init_event_types(void)
 
 		/* Read a event type from the core */
 		if (ftrace_get_event_type_id(call, &id) < 0 ||
-		    ftrace_get_event_type_name(call, name, 128) < 0 ||
-		    ftrace_get_event_type_system(call, system, 128) < 0 ||
-		    ftrace_get_event_type_print_fmt(call, &print_fmt) < 0)
+				ftrace_get_event_type_name(call, name, 128) < 0 ||
+				ftrace_get_event_type_system(call, system, 128) < 0 ||
+				ftrace_get_event_type_print_fmt(call, &print_fmt) < 0)
 			goto out_fail;
 
 		/* Enlarge event types array when need */
@@ -1311,7 +1311,7 @@ static int dump_saved_cmdlines(const char *dump_tracing_dir)
 		return -1;
 
 	tc = FIRST_CONTEXT();
-        for (i = 0; i < RUNNING_TASKS(); i++)
+				for (i = 0; i < RUNNING_TASKS(); i++)
 		fprintf(out, "%d %s\n", (int)tc[i].pid, tc[i].comm);
 
 	fclose(out);
@@ -1360,8 +1360,8 @@ static void ftrace_dump(int argc, char *argv[])
 	char path[PATH_MAX];
 	int ret;
 
-        while ((c = getopt(argc, argv, "smt")) != EOF) {
-                switch(c)
+				while ((c = getopt(argc, argv, "smt")) != EOF) {
+								switch(c)
 		{
 		case 's':
 			dump_symbols = 1;
@@ -1985,8 +1985,8 @@ static int save_ftrace_printk(int fd)
 
 	mod_fmt = (struct kernel_list_head *)GETBUF(SIZE(list_head));
 	if (!readmem(b->value, KVADDR, mod_fmt,
-		     SIZE(list_head), "trace_bprintk_fmt_list contents",
-		     RETURN_ON_ERROR))
+				 SIZE(list_head), "trace_bprintk_fmt_list contents",
+				 RETURN_ON_ERROR))
 		goto out_free;
 
 	while ((unsigned long)mod_fmt->next != b->value) {
@@ -1995,14 +1995,14 @@ static int save_ftrace_printk(int fd)
 		addr = (unsigned long)mod_fmt->next + SIZE(list_head);
 		if (!addr_is_array) {
 			if (!readmem(addr, KVADDR, &addr, sizeof(addr),
-				     "trace_bprintk_fmt_list fmt field",
-				     RETURN_ON_ERROR))
+						 "trace_bprintk_fmt_list fmt field",
+						 RETURN_ON_ERROR))
 				goto out_free;
 		}
 
 		if (!readmem((unsigned long)mod_fmt->next, KVADDR, mod_fmt,
-			     SIZE(list_head), "trace_bprintk_fmt_list contents",
-			     RETURN_ON_ERROR))
+					 SIZE(list_head), "trace_bprintk_fmt_list contents",
+					 RETURN_ON_ERROR))
 			goto out_free;
 
 		if (add_print_address(addr) < 0)

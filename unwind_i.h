@@ -158,10 +158,10 @@ enum unw_insn_opcode {
 	UNW_INSN_MOVE2,			/* s[dst] = s[val]; s[dst+1] = s[val+1] */
 	UNW_INSN_MOVE_STACKED,		/* s[dst] = ia64_rse_skip(*s.bsp, val) */
 	UNW_INSN_SETNAT_MEMSTK,		/* s[dst+1].nat.type = MEMSTK;
-					   s[dst+1].nat.off = *s.pri_unat - s[dst] */
+						 s[dst+1].nat.off = *s.pri_unat - s[dst] */
 	UNW_INSN_SETNAT_TYPE,		/* s[dst+1].nat.type = val */
 	UNW_INSN_LOAD,			/* s[dst] = *s[val] */
-        UNW_INSN_MOVE_SCRATCH,          /* s[dst] = scratch reg "val" */
+				UNW_INSN_MOVE_SCRATCH,          /* s[dst] = scratch reg "val" */
 };
 
 struct unw_insn {

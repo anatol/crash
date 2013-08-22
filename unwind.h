@@ -33,9 +33,9 @@
 #define _ASM_IA64_FPU_H
 
 struct ia64_fpreg {
-        union {
-                unsigned long bits[2];
-        } u;
+				union {
+								unsigned long bits[2];
+				} u;
 } __attribute__ ((aligned (16)));
 
 #endif /* _ASM_IA64_FPU_H */
@@ -66,8 +66,8 @@ enum unw_application_register {
 	UNW_AR_FPSR,
 	UNW_AR_RSC,
 	UNW_AR_CCV,
-        UNW_AR_CSD,
-        UNW_AR_SSD
+				UNW_AR_CSD,
+				UNW_AR_SSD
 };
 
 /*
@@ -141,7 +141,7 @@ extern void unw_init (void);
 extern void unw_create_gate_table (void);
 
 extern void *unw_add_unwind_table (const char *name, unsigned long segment_base, unsigned long gp,
-				   const void *table_start, const void *table_end);
+					 const void *table_start, const void *table_end);
 
 extern void unw_remove_unwind_table (void *handle);
 

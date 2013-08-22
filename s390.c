@@ -28,7 +28,7 @@
 /* Flags used in entries of page dirs and page tables.
  */
 #define S390_PAGE_PRESENT       0x001    /* set: loaded in physical memory
-                                         * clear: not loaded in physical mem */
+																				 * clear: not loaded in physical mem */
 #define S390_RO_S390            0x200    /* HW read-only */
 #define S390_PAGE_INVALID       0x400    /* HW invalid */
 #define S390_PAGE_INVALID_MASK  0x601ULL /* for linux 2.6 */
@@ -83,10 +83,10 @@ static void s390_offsets_init(void)
 		lc_struct = "_lowcore";
 	if (MEMBER_EXISTS(lc_struct, "st_status_fixed_logout"))
 		MEMBER_OFFSET_INIT(s390_lowcore_psw_save_area, lc_struct,
-				   "st_status_fixed_logout");
+					 "st_status_fixed_logout");
 	else
 		MEMBER_OFFSET_INIT(s390_lowcore_psw_save_area, lc_struct,
-				   "psw_save_area");
+					 "psw_save_area");
 }
 
 /*
@@ -259,13 +259,13 @@ s390_kvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose)
 	}
 
 	if (!vt->vmalloc_start) {
-	       *paddr = VTOP(vaddr);
-	       return TRUE;
+				 *paddr = VTOP(vaddr);
+				 return TRUE;
 	}
 
 	if (!IS_VMALLOC_ADDR(vaddr)) {
-	       *paddr = VTOP(vaddr);
-	       return TRUE;
+				 *paddr = VTOP(vaddr);
+				 return TRUE;
 	}
 
 	pgd_base = (unsigned long)vt->kernel_pgd[0];
@@ -381,7 +381,7 @@ s390_vmalloc_start(void)
 {
 	unsigned long highmem_addr,high_memory;
 	highmem_addr=symbol_value("high_memory");
-       	readmem(highmem_addr, PHYSADDR, &high_memory,sizeof(long),
+			 	readmem(highmem_addr, PHYSADDR, &high_memory,sizeof(long),
 		"highmem",FAULT_ON_ERROR);
 	return high_memory;
 }
@@ -433,7 +433,7 @@ s390_verify_symbol(const char *name, ulong value, char type)
 
 	/* reject L2^B symbols */
 	if (strstr(name, "L2\002") == name)
-	    	return FALSE;
+				return FALSE;
 
 	/* throw away all symbols containing a '.' */
 	for(i = 0; i < strlen(name);i++){
@@ -518,10 +518,10 @@ s390_eframe_search(struct bt_info *bt)
 {
 	if(bt->flags & BT_EFRAME_SEARCH2)
 		return (error(FATAL,
-		     "Option '-E' is not implemented for this architecture\n"));
+				 "Option '-E' is not implemented for this architecture\n"));
 	else
 		return (error(FATAL,
-		     "Option '-e' is not implemented for this architecture\n"));
+				 "Option '-e' is not implemented for this architecture\n"));
 }
 
 /*
@@ -532,12 +532,12 @@ s390_cpu_of_task(unsigned long task)
 {
 	int cpu;
 
-       if(VALID_MEMBER(task_struct_processor)){
-                /* linux 2.4 */
-                readmem(task + OFFSET(task_struct_processor),KVADDR,
-                        &cpu, sizeof(cpu), "task_struct_processor",
-                        FAULT_ON_ERROR);
-        } else {
+			 if(VALID_MEMBER(task_struct_processor)){
+								/* linux 2.4 */
+								readmem(task + OFFSET(task_struct_processor),KVADDR,
+												&cpu, sizeof(cpu), "task_struct_processor",
+												FAULT_ON_ERROR);
+				} else {
 		char thread_info[8192];
 		unsigned long thread_info_addr;
 		readmem(task + OFFSET(task_struct_thread_info),KVADDR,
@@ -583,7 +583,7 @@ s390_get_lowcore(int cpu, char* lowcore)
  * Read interrupt stack (either "async_stack" or "panic_stack");
  */
 static void s390_get_int_stack(char *stack_name, char* lc, char* int_stack,
-			       unsigned long* start, unsigned long* end)
+						 unsigned long* start, unsigned long* end)
 {
 	unsigned long stack_addr;
 
@@ -643,9 +643,9 @@ s390_back_trace_cmd(struct bt_info *bt)
 				return;
 		}
 		s390_get_int_stack("async_stack", lowcore, async_stack,
-				   &async_start, &async_end);
+					 &async_start, &async_end);
 		s390_get_int_stack("panic_stack", lowcore, panic_stack,
-				   &panic_start, &panic_end);
+					 &panic_start, &panic_end);
 		s390_print_lowcore(lowcore,bt,1);
 		fprintf(fp,"\n");
 		skip_first_frame=1;
@@ -666,7 +666,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 		bc_offset=0;
 	} else {
 		r14_offset = MEMBER_OFFSET("stack_frame","gprs") +
-			     8 * S390_WORD_SIZE;
+					 8 * S390_WORD_SIZE;
 		bc_offset  = MEMBER_OFFSET("stack_frame","back_chain");
 	}
 	backchain = ksp;
@@ -683,11 +683,11 @@ s390_back_trace_cmd(struct bt_info *bt)
 			stack = bt->stackbuf;
 			stack_base = stack_start;
 		} else if((backchain > async_start) && (backchain < async_end)
-			  && s390_has_cpu(bt)){
+				&& s390_has_cpu(bt)){
 			stack = async_stack;
 			stack_base = async_start;
 		} else if((backchain > panic_start) && (backchain < panic_end)
-			  && s390_has_cpu(bt)){
+				&& s390_has_cpu(bt)){
 			stack = panic_stack;
 			stack_base = panic_start;
 		} else {
@@ -734,7 +734,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 			int frame_size;
 			if(backchain == 0){
 				frame_size = stack_base - old_backchain
-					     + KERNEL_STACK_SIZE;
+							 + KERNEL_STACK_SIZE;
 			} else {
 				frame_size = MIN((backchain - old_backchain),
 					(stack_base - old_backchain +
@@ -755,18 +755,18 @@ s390_back_trace_cmd(struct bt_info *bt)
 			unsigned long psw_flags,r15;
 
 			psw_flags = ULONG(&stack[old_backchain - stack_base
-					  +96 +MEMBER_OFFSET("pt_regs","psw")]);
+						+96 +MEMBER_OFFSET("pt_regs","psw")]);
 			if(psw_flags & 0x10000UL){
 				/* User psw: should not happen */
 				break;
 			}
 			r15 = ULONG(&stack[old_backchain - stack_base +
-				    96 + MEMBER_OFFSET("pt_regs",
-				    "gprs") + 15 * S390_WORD_SIZE]);
+						96 + MEMBER_OFFSET("pt_regs",
+						"gprs") + 15 * S390_WORD_SIZE]);
 			backchain=r15;
 			fprintf(fp," - Interrupt -\n");
 		}
-      } while(backchain != 0);
+			} while(backchain != 0);
 }
 
 /*
@@ -797,10 +797,10 @@ s390_print_lowcore(char* lc, struct bt_info *bt, int show_symbols)
 		tmp[1]);
 	if(show_symbols){
 		fprintf(fp,"  -function : %s at %lx\n",
-	       		closest_symbol(tmp[1] & S390_ADDR_MASK),
+				 		closest_symbol(tmp[1] & S390_ADDR_MASK),
 			tmp[1] & S390_ADDR_MASK);
 		if (bt->flags & BT_LINE_NUMBERS)
-	       		s390_dump_line_number(tmp[1] & S390_ADDR_MASK);
+				 		s390_dump_line_number(tmp[1] & S390_ADDR_MASK);
 	}
 	ptr = lc + MEMBER_OFFSET(lc_struct, "cpu_timer_save_area");
 	tmp[0]=UINT(ptr);
@@ -945,10 +945,10 @@ s390_get_stack_frame(struct bt_info *bt, ulong *eip, ulong *esp)
 			r14_offset = 56;
 		} else {
 			r14_offset = MEMBER_OFFSET("stack_frame","gprs") +
-				     8 * S390_WORD_SIZE;
+						 8 * S390_WORD_SIZE;
 		}
 		readmem(ksp + r14_offset,KVADDR,&r14,sizeof(void*),"eip",
-	       		FAULT_ON_ERROR);
+				 		FAULT_ON_ERROR);
 		*eip=r14 & S390_ADDR_MASK;
 	}
 }
@@ -997,7 +997,7 @@ s390_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	argc = parse_line(buf1, argv);
 
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-	    (LASTCHAR(argv[argc-1]) == '>')) {
+			(LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
@@ -1096,26 +1096,26 @@ static const char *hook_files[] = {
 #define HEAD_S       ((char **)&hook_files[1])
 
 static struct line_number_hook s390_line_number_hooks[] = {
-       {"startup",HEAD_S},
-       {"_stext",HEAD_S},
-       {"_pstart",HEAD_S},
-       {"system_call",ENTRY_S},
-       {"sysc_do_svc",ENTRY_S},
-       {"sysc_do_restart",ENTRY_S},
-       {"sysc_return",ENTRY_S},
-       {"sysc_sigpending",ENTRY_S},
-       {"sysc_restart",ENTRY_S},
-       {"sysc_singlestep",ENTRY_S},
-       {"sysc_tracesys",ENTRY_S},
-       {"ret_from_fork",ENTRY_S},
-       {"pgm_check_handler",ENTRY_S},
-       {"io_int_handler",ENTRY_S},
-       {"io_return",ENTRY_S},
-       {"ext_int_handler",ENTRY_S},
-       {"mcck_int_handler",ENTRY_S},
-       {"mcck_return",ENTRY_S},
-       {"restart_int_handler",ENTRY_S},
-       {NULL, NULL}    /* list must be NULL-terminated */
+			 {"startup",HEAD_S},
+			 {"_stext",HEAD_S},
+			 {"_pstart",HEAD_S},
+			 {"system_call",ENTRY_S},
+			 {"sysc_do_svc",ENTRY_S},
+			 {"sysc_do_restart",ENTRY_S},
+			 {"sysc_return",ENTRY_S},
+			 {"sysc_sigpending",ENTRY_S},
+			 {"sysc_restart",ENTRY_S},
+			 {"sysc_singlestep",ENTRY_S},
+			 {"sysc_tracesys",ENTRY_S},
+			 {"ret_from_fork",ENTRY_S},
+			 {"pgm_check_handler",ENTRY_S},
+			 {"io_int_handler",ENTRY_S},
+			 {"io_return",ENTRY_S},
+			 {"ext_int_handler",ENTRY_S},
+			 {"mcck_int_handler",ENTRY_S},
+			 {"mcck_return",ENTRY_S},
+			 {"restart_int_handler",ENTRY_S},
+			 {NULL, NULL}    /* list must be NULL-terminated */
 };
 
 static void
@@ -1138,7 +1138,7 @@ try_closest:
 	} else {
 		if (retries) {
 			fprintf(fp, GDB_PATCHED() ?
-			  "" : "    (cannot determine file and line number)\n");
+				"" : "    (cannot determine file and line number)\n");
 		} else {
 			retries++;
 			callpc = closest_symbol_value(callpc);

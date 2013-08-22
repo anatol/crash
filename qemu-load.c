@@ -28,8 +28,8 @@
 
 struct qemu_device *
 device_alloc (struct qemu_device_list *dl, size_t sz,
-	     struct qemu_device_vtbl *vtbl,
-             uint32_t section_id, uint32_t instance_id, uint32_t version_id)
+			 struct qemu_device_vtbl *vtbl,
+						 uint32_t section_id, uint32_t instance_id, uint32_t version_id)
 {
 	struct qemu_device *d = calloc (1, sz);
 	d->vtbl = vtbl;
@@ -61,7 +61,7 @@ device_find (struct qemu_device_list *dl, uint32_t section_id)
 
 struct qemu_device *
 device_find_instance (struct qemu_device_list *dl, const char *name,
-		      uint32_t instance_id)
+					uint32_t instance_id)
 {
 	struct qemu_device *d;
 	d = dl->head;
@@ -214,7 +214,7 @@ ram_read_blocks (FILE *fp, uint64_t size)
 {
 	char name[257];
 	/* The RAM block table is a list of block names followed by
-	   their sizes.  Read it until the sizes sum up to SIZE bytes.  */
+		 their sizes.  Read it until the sizes sum up to SIZE bytes.  */
 	while (size) {
 		get_string (fp, name);
 		size -= get_be64 (fp);
@@ -261,13 +261,13 @@ ram_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 		if (header & RAM_SAVE_FLAG_COMPRESS) {
 			entry = RAM_OFFSET_COMPRESSED | getc(fp);
 			if ((d->version_id == 3) ||
-			    (d->version_id >= 4 && pc_ram))
+					(d->version_id >= 4 && pc_ram))
 				store_mapfile_offset(addr, &entry);
 		}
 		else if (header & RAM_SAVE_FLAG_PAGE) {
 			entry = ftell(fp);
 			if ((d->version_id == 3) ||
-			    (d->version_id >= 4 && pc_ram))
+					(d->version_id >= 4 && pc_ram))
 				store_mapfile_offset(addr, &entry);
 			fseek (fp, 4096, SEEK_CUR);
 		}
@@ -290,23 +290,23 @@ ram_read_phys_page (struct qemu_device_ram *dram, void *buf, uint64_t addr)
 	off_t ofs;
 	ssize_t bytes ATTRIBUTE_UNUSED;
 
-        if (addr >= dram->last_ram_offset)
-                return false;
-        assert ((addr & 0xfff) == 0);
+				if (addr >= dram->last_ram_offset)
+								return false;
+				assert ((addr & 0xfff) == 0);
 //	ofs = dram->offsets[addr / 4096];
 	if (load_mapfile_offset(addr, &ofs) < 0)
 		return 0;
 	if ((ofs & RAM_OFFSET_COMPRESSED) == RAM_OFFSET_COMPRESSED)
 		memset (buf, ofs & 255, 4096);
 	else
-	        bytes = pread (fileno (dram->fp), buf, 4096, ofs);
+					bytes = pread (fileno (dram->fp), buf, 4096, ofs);
 	return true;
 }
 
 static struct qemu_device *
 ram_init_load (struct qemu_device_list *dl,
-	       uint32_t section_id, uint32_t instance_id,
-	       uint32_t version_id, bool live, FILE *fp)
+				 uint32_t section_id, uint32_t instance_id,
+				 uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl ram = {
 		"ram",
@@ -317,7 +317,7 @@ ram_init_load (struct qemu_device_list *dl,
 	assert (version_id == 3 || version_id == 4);
 	kvm->mapinfo.ram_version_id = version_id;
 	return device_alloc (dl, sizeof (struct qemu_device_ram),
-			     &ram, section_id, instance_id, version_id);
+					 &ram, section_id, instance_id, version_id);
 }
 
 
@@ -345,7 +345,7 @@ block_init_load (struct qemu_device_list *dl,
 	};
 
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &block, section_id, instance_id, version_id);
+					 &block, section_id, instance_id, version_id);
 }
 
 /* RHEL5 marker.  */
@@ -358,8 +358,8 @@ rhel5_marker_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 rhel5_marker_init_load (struct qemu_device_list *dl,
-		      uint32_t section_id, uint32_t instance_id,
-		      uint32_t version_id, bool live, FILE *fp)
+					uint32_t section_id, uint32_t instance_id,
+					uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl rhel5_marker = {
 		"__rhel5",
@@ -369,8 +369,8 @@ rhel5_marker_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &rhel5_marker, section_id, instance_id,
-			     version_id);
+					 &rhel5_marker, section_id, instance_id,
+					 version_id);
 }
 
 
@@ -394,8 +394,8 @@ cpu_common_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 cpu_common_init_load (struct qemu_device_list *dl,
-		      uint32_t section_id, uint32_t instance_id,
-		      uint32_t version_id, bool live, FILE *fp)
+					uint32_t section_id, uint32_t instance_id,
+					uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl cpu_common = {
 		"cpu_common",
@@ -405,7 +405,7 @@ cpu_common_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device_cpu_common),
-			     &cpu_common, section_id, instance_id, version_id);
+					 &cpu_common, section_id, instance_id, version_id);
 }
 
 
@@ -462,7 +462,7 @@ retry:
 		version_id = 7;
 	} else {
 		rhel5_version_id = 0;
-	       	version_id = dx86->dev_base.version_id;
+				 	version_id = dx86->dev_base.version_id;
 	}
 
 	dprintf("cpu_load: rhel5_version_id: %d (effective) version_id: %d\n",
@@ -642,8 +642,8 @@ cpu_load_32 (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 cpu_init_load_32 (struct qemu_device_list *dl,
-		  uint32_t section_id, uint32_t instance_id,
-		  uint32_t version_id, bool live, FILE *fp)
+			uint32_t section_id, uint32_t instance_id,
+			uint32_t version_id, bool live, FILE *fp)
 {
 	struct qemu_device_x86 *dx86;
 	static struct qemu_device_vtbl cpu = {
@@ -658,7 +658,7 @@ cpu_init_load_32 (struct qemu_device_list *dl,
 	kvm->mapinfo.cpu_version_id = version_id;
 	dx86 = (struct qemu_device_x86 *)
 		device_alloc (dl, sizeof (struct qemu_device_x86),
-			      &cpu, section_id, instance_id, version_id);
+						&cpu, section_id, instance_id, version_id);
 	return (struct qemu_device *) dx86;
 }
 
@@ -670,8 +670,8 @@ cpu_load_64 (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 cpu_init_load_64 (struct qemu_device_list *dl,
-		  uint32_t section_id, uint32_t instance_id,
-		  uint32_t version_id, bool live, FILE *fp)
+			uint32_t section_id, uint32_t instance_id,
+			uint32_t version_id, bool live, FILE *fp)
 {
 	struct qemu_device_x86 *dx86;
 	static struct qemu_device_vtbl cpu = {
@@ -686,7 +686,7 @@ cpu_init_load_64 (struct qemu_device_list *dl,
 	kvm->mapinfo.cpu_version_id = version_id;
 	dx86 = (struct qemu_device_x86 *)
 		device_alloc (dl, sizeof (struct qemu_device_x86),
-			      &cpu, section_id, instance_id, version_id);
+						&cpu, section_id, instance_id, version_id);
 	return (struct qemu_device *) dx86;
 }
 
@@ -707,8 +707,8 @@ apic_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 apic_init_load (struct qemu_device_list *dl,
-		       uint32_t section_id, uint32_t instance_id,
-		       uint32_t version_id, bool live, FILE *fp)
+					 uint32_t section_id, uint32_t instance_id,
+					 uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl apic = {
 		"apic",
@@ -718,7 +718,7 @@ apic_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &apic, section_id, instance_id, version_id);
+					 &apic, section_id, instance_id, version_id);
 }
 
 
@@ -734,8 +734,8 @@ timer_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 timer_init_load (struct qemu_device_list *dl,
-		       uint32_t section_id, uint32_t instance_id,
-		       uint32_t version_id, bool live, FILE *fp)
+					 uint32_t section_id, uint32_t instance_id,
+					 uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl timer = {
 		"timer",
@@ -745,7 +745,7 @@ timer_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &timer, section_id, instance_id, version_id);
+					 &timer, section_id, instance_id, version_id);
 }
 
 
@@ -760,8 +760,8 @@ kvmclock_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 kvmclock_init_load (struct qemu_device_list *dl,
-		       uint32_t section_id, uint32_t instance_id,
-		       uint32_t version_id, bool live, FILE *fp)
+					 uint32_t section_id, uint32_t instance_id,
+					 uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl kvmclock = {
 		"kvmclock",
@@ -771,7 +771,7 @@ kvmclock_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &kvmclock, section_id, instance_id, version_id);
+					 &kvmclock, section_id, instance_id, version_id);
 }
 
 
@@ -786,8 +786,8 @@ kvm_tpr_opt_load (struct qemu_device *d, FILE *fp, enum qemu_save_section sec)
 
 static struct qemu_device *
 kvm_tpr_opt_init_load (struct qemu_device_list *dl,
-		       uint32_t section_id, uint32_t instance_id,
-		       uint32_t version_id, bool live, FILE *fp)
+					 uint32_t section_id, uint32_t instance_id,
+					 uint32_t version_id, bool live, FILE *fp)
 {
 	static struct qemu_device_vtbl kvm_tpr_opt = {
 		"kvm-tpr-opt",
@@ -797,7 +797,7 @@ kvm_tpr_opt_init_load (struct qemu_device_list *dl,
 
 	assert (!live);
 	return device_alloc (dl, sizeof (struct qemu_device),
-			     &kvm_tpr_opt, section_id, instance_id, version_id);
+					 &kvm_tpr_opt, section_id, instance_id, version_id);
 }
 
 
@@ -845,7 +845,7 @@ static long device_search(const struct qemu_device_loader *, FILE *);
 
 static struct qemu_device *
 device_get (const struct qemu_device_loader *devices,
-	    struct qemu_device_list *dl, enum qemu_save_section sec, FILE *fp)
+			struct qemu_device_list *dl, enum qemu_save_section sec, FILE *fp)
 {
 	char name[257];
 	uint32_t section_id, instance_id, version_id;
@@ -857,7 +857,7 @@ next_device:
 	devp = devices;
 	section_id = get_be32 (fp);
 	if (sec != QEMU_VM_SECTION_START &&
-	    sec != QEMU_VM_SECTION_FULL)
+			sec != QEMU_VM_SECTION_FULL)
 		return device_find (dl, section_id);
 
 	get_string(fp, name);
@@ -880,12 +880,12 @@ next_device:
 	}
 
 	return devp->init_load (dl, section_id, instance_id, version_id,
-				   sec == QEMU_VM_SECTION_START, fp);
+					 sec == QEMU_VM_SECTION_START, fp);
 }
 
 struct qemu_device_list *
 qemu_load (const struct qemu_device_loader *devices, uint32_t required_features,
-	   FILE *fp)
+		 FILE *fp)
 {
 	struct qemu_device_list *result = NULL;
 	struct qemu_device *last = NULL;;
@@ -946,7 +946,7 @@ qemu_load (const struct qemu_device_loader *devices, uint32_t required_features,
 	}
 
 	if (ferror (fp) ||
-	    (result->features & required_features) != required_features)
+			(result->features & required_features) != required_features)
 		goto fail;
 
 	return result;
@@ -1082,13 +1082,13 @@ device_search(const struct qemu_device_loader *devices, FILE *fp)
 	}
 	fseeko(fp, current, SEEK_SET);
 
-        while (devices->name) {
+				while (devices->name) {
 		for (p1 = buf, remaining = 4096;
-	     	    (p2 = memchr(p1, devices->name[0], remaining));
-	     	     p1 = p2+1, remaining = 4096 - (p1-buf)) {
+			 	    (p2 = memchr(p1, devices->name[0], remaining));
+			 	     p1 = p2+1, remaining = 4096 - (p1-buf)) {
 			sz = *((unsigned char *)p2-1);
 			if (STRNEQ(p2, devices->name) &&
-			    (strlen(devices->name) == sz)) {
+					(strlen(devices->name) == sz)) {
 				*(p2+sz) = '\0';
 				dprintf("device_search: %s\n", p2);
 				next_device_offset = (p2-buf) - 6;

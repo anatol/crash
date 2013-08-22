@@ -54,10 +54,10 @@ xen_hyper_init(void)
 #endif
 
 	if (machine_type("X86_64") &&
-	    symbol_exists("xen_phys_start") && !xen_phys_start())
+			symbol_exists("xen_phys_start") && !xen_phys_start())
 		error(WARNING,
 	 	    "This hypervisor is relocatable; if initialization fails below, try\n"
-                    "         using the \"--xen_phys_start <address>\" command line option.\n\n");
+										"         using the \"--xen_phys_start <address>\" command line option.\n\n");
 
 	if (symbol_exists("crashing_cpu")) {
 		get_symbol_data("crashing_cpu", sizeof(xht->crashing_cpu),
@@ -1228,7 +1228,7 @@ xen_hyper_id_to_domain_context(domid_t id)
  */
 struct xen_hyper_domain_context *
 xen_hyper_store_domain_context(struct xen_hyper_domain_context *dc,
-	       ulong domain, char *dp)
+				 ulong domain, char *dp)
 {
 	char *vcpup;
 	unsigned int max_vcpus;
@@ -1278,7 +1278,7 @@ xen_hyper_store_domain_context(struct xen_hyper_domain_context *dc,
 	}
 	if (!(dc->vcpu = malloc(sizeof(ulong) * max_vcpus))) {
 		error(FATAL, "cannot malloc vcpu array (%d VCPUs).",
-		      max_vcpus);
+					max_vcpus);
 	}
 	if (MEMBER_TYPE("domain", "vcpu") == TYPE_CODE_ARRAY)
 		vcpup = dp + XEN_HYPER_OFFSET(domain_vcpu);
@@ -1348,7 +1348,7 @@ xen_hyper_fill_domain_struct(ulong domain, char *domain_struct)
 {
 	if (!readmem(domain, KVADDR, domain_struct,
 		XEN_HYPER_SIZE(domain), "fill_domain_struct",
-	       	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
+				 	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
 		error(WARNING, "cannot fill domain struct.\n");
 		return NULL;
 	}
@@ -1372,7 +1372,7 @@ xen_hyper_alloc_domain_context_space(int domains)
 		struct xen_hyper_domain_context *dc;
 		int i;
 		for (dc = xhdt->context_array, i = 0;
-		     i < xhdt->context_array_cnt; ++dc, ++i) {
+				 i < xhdt->context_array_cnt; ++dc, ++i) {
 			if (dc->vcpu)
 				free(dc->vcpu);
 		}
@@ -1524,7 +1524,7 @@ xen_hyper_domid_to_vcpu_context_array(domid_t id)
  */
 struct xen_hyper_vcpu_context *
 xen_hyper_store_vcpu_context(struct xen_hyper_vcpu_context *vcc,
-       ulong vcpu, char *vcp)
+			 ulong vcpu, char *vcp)
 {
 	vcc->vcpu = vcpu;
 	vcc->vcpu_id = INT(vcp + XEN_HYPER_OFFSET(vcpu_vcpu_id));
@@ -1583,7 +1583,7 @@ xen_hyper_fill_vcpu_struct(ulong vcpu, char *vcpu_struct)
 {
 	if (!readmem(vcpu, KVADDR, vcpu_struct,
 		XEN_HYPER_SIZE(vcpu), "fill_vcpu_struct",
-	       	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
+				 	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
 		error(WARNING, "cannot fill vcpu struct.\n");
 		return NULL;
 	}
@@ -1700,7 +1700,7 @@ xen_hyper_pcpu_to_pcpu_context(ulong pcpu)
  */
 struct xen_hyper_pcpu_context *
 xen_hyper_store_pcpu_context(struct xen_hyper_pcpu_context *pcc,
-       ulong pcpu, char *pcp)
+			 ulong pcpu, char *pcp)
 {
 	pcc->pcpu = pcpu;
 	pcc->processor_id =
@@ -1717,7 +1717,7 @@ xen_hyper_store_pcpu_context(struct xen_hyper_pcpu_context *pcc,
  */
 struct xen_hyper_pcpu_context *
 xen_hyper_store_pcpu_context_tss(struct xen_hyper_pcpu_context *pcc,
-       ulong init_tss, char *tss)
+			 ulong init_tss, char *tss)
 {
 	int i;
 	uint64_t *ist_p;
@@ -1752,7 +1752,7 @@ xen_hyper_fill_pcpu_struct(ulong pcpu, char *pcpu_struct)
 {
 	if (!readmem(pcpu, KVADDR, pcpu_struct,
 		XEN_HYPER_SIZE(cpu_info), "fill_pcpu_struct",
-	       	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
+				 	ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
 		error(WARNING, "cannot fill pcpu_struct.\n");
 		return NULL;
 	}
@@ -1865,7 +1865,7 @@ xen_hyper_get_uptime_hyper(void)
 			wrapped -= 0x100000000ULL;
 			jiffies_64 &= 0x00000000ffffffffULL;
 			jiffies_64 |= wrapped;
-               		jiffies_64 += (ulonglong)(300*machdep->hz);
+							 		jiffies_64 += (ulonglong)(300*machdep->hz);
 		} else {
 			tmp1 = (ulong)(uint)(-300*machdep->hz);
 			tmp2 = (ulong)jiffies_64;
@@ -2008,14 +2008,14 @@ xen_hyper_ia64_processor_speed(void)
 	mhz = 0;
 
 	if (!xht->cpu_data_address ||
-	    !XEN_HYPER_VALID_STRUCT(cpuinfo_ia64) ||
-	    XEN_HYPER_INVALID_MEMBER(cpuinfo_ia64_proc_freq))
+			!XEN_HYPER_VALID_STRUCT(cpuinfo_ia64) ||
+			XEN_HYPER_INVALID_MEMBER(cpuinfo_ia64_proc_freq))
 		return (machdep->mhz = mhz);
 
-        readmem(xen_hyper_per_cpu(xht->cpu_data_address, xht->cpu_idxs[0]) +
+				readmem(xen_hyper_per_cpu(xht->cpu_data_address, xht->cpu_idxs[0]) +
 		XEN_HYPER_OFFSET(cpuinfo_ia64_proc_freq),
-        	KVADDR, &proc_freq, sizeof(ulong),
-                "cpuinfo_ia64 proc_freq", FAULT_ON_ERROR);
+					KVADDR, &proc_freq, sizeof(ulong),
+								"cpuinfo_ia64 proc_freq", FAULT_ON_ERROR);
 
 	mhz = proc_freq/1000000;
 

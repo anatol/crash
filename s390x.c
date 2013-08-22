@@ -27,7 +27,7 @@
 /* Flags used in entries of page dirs and page tables.
  */
 #define S390X_PAGE_PRESENT   0x001ULL    /* set: loaded in physical memory
-                                          * clear: not loaded in physical mem */
+																					* clear: not loaded in physical mem */
 #define S390X_PAGE_RO           0x200ULL /* HW read-only */
 #define S390X_PAGE_INVALID      0x400ULL /* HW invalid */
 #define S390X_PAGE_INVALID_MASK 0x601ULL /* for linux 2.6 */
@@ -144,10 +144,10 @@ static void s390x_offsets_init(void)
 
 	if (MEMBER_EXISTS(lc_struct, "st_status_fixed_logout"))
 		MEMBER_OFFSET_INIT(s390_lowcore_psw_save_area, lc_struct,
-				   "st_status_fixed_logout");
+					 "st_status_fixed_logout");
 	else
 		MEMBER_OFFSET_INIT(s390_lowcore_psw_save_area, lc_struct,
-				   "psw_save_area");
+					 "psw_save_area");
 	if (!STRUCT_EXISTS("stack_frame")) {
 		ASSIGN_OFFSET(s390_stack_frame_back_chain) = 0;
 		ASSIGN_OFFSET(s390_stack_frame_r14) = 112;
@@ -232,7 +232,7 @@ static struct s390x_cpu *s390x_cpu_get(struct bt_info *bt)
  * ELF core dump fuctions for storing CPU data
  */
 static void s390x_elf_nt_prstatus_add(struct s390x_cpu *cpu,
-				      struct s390x_nt_prstatus *prstatus)
+							struct s390x_nt_prstatus *prstatus)
 {
 	memcpy(&cpu->psw, &prstatus->psw, sizeof(cpu->psw));
 	memcpy(&cpu->gprs, &prstatus->gprs, sizeof(cpu->gprs));
@@ -240,7 +240,7 @@ static void s390x_elf_nt_prstatus_add(struct s390x_cpu *cpu,
 }
 
 static void s390x_elf_nt_fpregset_add(struct s390x_cpu *cpu,
-				      struct s390x_nt_fpregset *fpregset)
+							struct s390x_nt_fpregset *fpregset)
 {
 	memcpy(&cpu->fpc, &fpregset->fpc, sizeof(cpu->fpc));
 	memcpy(&cpu->fprs, &fpregset->fprs, sizeof(cpu->fprs));
@@ -530,13 +530,13 @@ s390x_kvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 	}
 
 	if (!vt->vmalloc_start) {
-	       *paddr = VTOP(vaddr);
-	       return TRUE;
+				 *paddr = VTOP(vaddr);
+				 return TRUE;
 	}
 
 	if (!IS_VMALLOC_ADDR(vaddr)) {
-	       *paddr = VTOP(vaddr);
-	       return TRUE;
+				 *paddr = VTOP(vaddr);
+				 return TRUE;
 	}
 
 	pgd_base = (unsigned long)vt->kernel_pgd[0];
@@ -689,7 +689,7 @@ s390x_vmalloc_start(void)
 {
 	unsigned long highmem_addr,high_memory;
 	highmem_addr=symbol_value("high_memory");
-       	readmem(highmem_addr, PHYSADDR, &high_memory,sizeof(long),
+			 	readmem(highmem_addr, PHYSADDR, &high_memory,sizeof(long),
 		"highmem",FAULT_ON_ERROR);
 	return high_memory;
 }
@@ -739,9 +739,9 @@ s390x_verify_symbol(const char *name, ulong value, char type)
 	if (STREQ(name, "Letext") || STREQ(name, "gcc2_compiled."))
 		return FALSE;
 
-        /* reject L2^B symbols */
+				/* reject L2^B symbols */
 	if (strstr(name, "L2\002") == name)
-	    	return FALSE;
+				return FALSE;
 
 	/* throw away all symbols containing a '.' */
 	for(i = 0; i < strlen(name);i++){
@@ -826,10 +826,10 @@ s390x_eframe_search(struct bt_info *bt)
 {
 	if(bt->flags & BT_EFRAME_SEARCH2)
 		return (error(FATAL,
-		    "Option '-E' is not implemented for this architecture\n"));
+				"Option '-E' is not implemented for this architecture\n"));
 	else
 		return (error(FATAL,
-		    "Option '-e' is not implemented for this architecture\n"));
+				"Option '-e' is not implemented for this architecture\n"));
 }
 
 #ifdef DEPRECATED
@@ -844,15 +844,15 @@ s390x_cpu_of_task(unsigned long task)
 	if(VALID_MEMBER(task_struct_processor)){
 		/* linux 2.4 */
 		readmem(task + OFFSET(task_struct_processor),KVADDR,
-                        &cpu, sizeof(cpu), "task_struct_processor",
+												&cpu, sizeof(cpu), "task_struct_processor",
 			FAULT_ON_ERROR);
 	} else {
 		/* linux 2.6 */
 		char thread_info[8192];
 		unsigned long thread_info_addr;
 		readmem(task + OFFSET(task_struct_thread_info),KVADDR,
-                        &thread_info_addr, sizeof(thread_info_addr),
-                        "thread info addr", FAULT_ON_ERROR);
+												&thread_info_addr, sizeof(thread_info_addr),
+												"thread info addr", FAULT_ON_ERROR);
 		readmem(thread_info_addr,KVADDR,thread_info,sizeof(thread_info),
 			"thread info", FAULT_ON_ERROR);
 		cpu = *((int*) &thread_info[OFFSET(thread_info_cpu)]);
@@ -940,7 +940,7 @@ static unsigned long get_int_stack_lc(char *stack_name, char *lc)
  * Read interrupt stack (either "async_stack" or "panic_stack");
  */
 static void get_int_stack(char *stack_name, int cpu, char *lc,
-			  unsigned long *start, unsigned long *end)
+				unsigned long *start, unsigned long *end)
 {
 	unsigned long stack_addr;
 
@@ -1137,7 +1137,7 @@ static unsigned long show_trace(struct bt_info *bt, int cnt, unsigned long sp,
 				 15 * sizeof(long));
 		/* Get address of interrupted function */
 		psw_addr = readmem_ul(sp + MEMBER_OFFSET("pt_regs", "psw") +
-				      sizeof(long));
+							sizeof(long));
 		/* Check for loop (kernel_thread_starter) of second zero bc */
 		if (low == reg || reg == 0)
 			return reg;
@@ -1160,7 +1160,7 @@ static void s390x_back_trace_cmd(struct bt_info *bt)
 
 	if (bt->hp && bt->hp->eip) {
 		error(WARNING,
-	        "instruction pointer argument ignored on this architecture!\n");
+					"instruction pointer argument ignored on this architecture!\n");
 	}
 	if (is_task_active(bt->task) && !(kt->cpu_flags[cpu] & ONLINE)) {
 		fprintf(fp, " CPU offline\n");
@@ -1183,7 +1183,7 @@ static void s390x_back_trace_cmd(struct bt_info *bt)
 		fprintf(fp,"\n");
 		if (symbol_exists("restart_stack")) {
 			get_int_stack("restart_stack",
-				      cpu, lowcore, &low, &high);
+							cpu, lowcore, &low, &high);
 			sp = show_trace(bt, cnt, sp, low, high);
 		}
 		get_int_stack("panic_stack", cpu, lowcore, &low, &high);
@@ -1399,7 +1399,7 @@ s390x_get_stack_frame(struct bt_info *bt, ulong *eip, ulong *esp)
 			r14_offset = 112;
 		} else {
 			r14_offset = MEMBER_OFFSET("stack_frame","gprs") +
-						   8 * S390X_WORD_SIZE;
+							 8 * S390X_WORD_SIZE;
 		}
 		readmem(ksp + r14_offset,KVADDR,&r14,sizeof(void*),"eip",
 			FAULT_ON_ERROR);
@@ -1451,7 +1451,7 @@ s390x_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	argc = parse_line(buf1, argv);
 
 	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-	    (LASTCHAR(argv[argc-1]) == '>')) {
+			(LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
@@ -1550,26 +1550,26 @@ static const char *hook_files[] = {
 #define HEAD_S       ((char **)&hook_files[1])
 
 static struct line_number_hook s390x_line_number_hooks[] = {
-       {"startup",HEAD_S},
-       {"_stext",HEAD_S},
-       {"_pstart",HEAD_S},
-       {"system_call",ENTRY_S},
-       {"sysc_do_svc",ENTRY_S},
-       {"sysc_do_restart",ENTRY_S},
-       {"sysc_return",ENTRY_S},
-       {"sysc_sigpending",ENTRY_S},
-       {"sysc_restart",ENTRY_S},
-       {"sysc_singlestep",ENTRY_S},
-       {"sysc_tracesys",ENTRY_S},
-       {"ret_from_fork",ENTRY_S},
-       {"pgm_check_handler",ENTRY_S},
-       {"io_int_handler",ENTRY_S},
-       {"io_return",ENTRY_S},
-       {"ext_int_handler",ENTRY_S},
-       {"mcck_int_handler",ENTRY_S},
-       {"mcck_return",ENTRY_S},
-       {"restart_int_handler",ENTRY_S},
-       {NULL, NULL}    /* list must be NULL-terminated */
+			 {"startup",HEAD_S},
+			 {"_stext",HEAD_S},
+			 {"_pstart",HEAD_S},
+			 {"system_call",ENTRY_S},
+			 {"sysc_do_svc",ENTRY_S},
+			 {"sysc_do_restart",ENTRY_S},
+			 {"sysc_return",ENTRY_S},
+			 {"sysc_sigpending",ENTRY_S},
+			 {"sysc_restart",ENTRY_S},
+			 {"sysc_singlestep",ENTRY_S},
+			 {"sysc_tracesys",ENTRY_S},
+			 {"ret_from_fork",ENTRY_S},
+			 {"pgm_check_handler",ENTRY_S},
+			 {"io_int_handler",ENTRY_S},
+			 {"io_return",ENTRY_S},
+			 {"ext_int_handler",ENTRY_S},
+			 {"mcck_int_handler",ENTRY_S},
+			 {"mcck_return",ENTRY_S},
+			 {"restart_int_handler",ENTRY_S},
+			 {NULL, NULL}    /* list must be NULL-terminated */
 };
 
 static void
@@ -1592,7 +1592,7 @@ try_closest:
 	} else {
 		if (retries) {
 			fprintf(fp, GDB_PATCHED() ?
-			  "" : "    (cannot determine file and line number)\n");
+				"" : "    (cannot determine file and line number)\n");
 		} else {
 			retries++;
 			callpc = closest_symbol_value(callpc);
@@ -1621,8 +1621,8 @@ s390x_get_kvaddr_ranges(struct vaddr_range *vrp)
 	phys1 = (physaddr_t)(0);
 	phys2 = (physaddr_t)VTOP(vt->high_memory - PAGESIZE());
 	if (phys_to_page(phys1, &pp1) &&
-	    phys_to_page(phys2, &pp2) &&
-	    (pp1 >= vrp[cnt-1].end)) {
+			phys_to_page(phys2, &pp2) &&
+			(pp1 >= vrp[cnt-1].end)) {
 		vrp[cnt].type = KVADDR_VMEMMAP;
 		vrp[cnt].start = pp1;
 		vrp[cnt++].end = pp2;

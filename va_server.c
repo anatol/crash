@@ -137,7 +137,7 @@ size_t vas_write(void *buf_in, size_t count)
 	}
 	va = vas_base_va;
 	if(!find_data(va, &buf, &len, &offset))
-	   *(u_long *)(buf+offset) = *(u_long *)buf_in;
+		 *(u_long *)(buf+offset) = *(u_long *)buf_in;
 
 	vas_base_va += count;
 	return count;
@@ -235,7 +235,7 @@ void load_data(struct crash_map_entry *m)
 	if(m->exp_data)
 		goto out;
 	ret = fseek(vas_file_p, (long)(m->start_blk * Page_Size),
-		    SEEK_SET);
+				SEEK_SET);
 
 	if(ret == -1) {
 		printf("load_data: unable to fseek, errno = %d\n", ferror(vas_file_p));
@@ -261,13 +261,13 @@ load_data_retry1:
 	}
 load_data_retry2:
 	m->exp_data = exp_buf =
-	    (char *)malloc((CRASH_SOURCE_PAGES+CRASH_SUB_MAP_PAGES) * Page_Size);
+			(char *)malloc((CRASH_SOURCE_PAGES+CRASH_SUB_MAP_PAGES) * Page_Size);
 	if(!exp_buf) {
-                if (retries++ == 0) {
+								if (retries++ == 0) {
 			vas_free_memory("malloc failure: out of memory");
-                        goto load_data_retry2;
-                }
-                fprintf(stderr, "FATAL ERROR: malloc failure: out of memory\n");
+												goto load_data_retry2;
+								}
+								fprintf(stderr, "FATAL ERROR: malloc failure: out of memory\n");
 		clean_exit(1);
 	}
 	destLen = (uLongf)((CRASH_SOURCE_PAGES+CRASH_SUB_MAP_PAGES) * Page_Size);
@@ -286,7 +286,7 @@ load_data_retry2:
 		clean_exit(1);
 	}
 	free((void *)compr_buf);
-  out:
+	out:
 	return;
 }
 
@@ -334,7 +334,7 @@ int read_map(char *crash_file)
 	hdr->map = (struct crash_map_entry *)malloc(disk_hdr->map_blocks * disk_hdr->blk_size);
 
 	items = fread((void *)hdr->map, hdr->blk_size, disk_hdr->map_blocks,
-		      vas_file_p);
+					vas_file_p);
 	if(items != disk_hdr->map_blocks) {
 		printf("unable to read map entries, err = %d\n", errno);
 		return -1;
@@ -348,31 +348,31 @@ int read_map(char *crash_file)
 int
 vas_free_memory(char *s)
 {
-        struct crash_map_entry *m;
+				struct crash_map_entry *m;
 	long swap_usage;
 	int blks;
 
-        if (vas_version < 2)
-                return 0;
+				if (vas_version < 2)
+								return 0;
 
 	if (s) {
-        	fprintf(stderr, "\nWARNING: %s  ", s);
+					fprintf(stderr, "\nWARNING: %s  ", s);
 
-        	if (monitor_memory(NULL, NULL, NULL, &swap_usage))
-        		fprintf(stderr, "(swap space usage: %ld%%)",
+					if (monitor_memory(NULL, NULL, NULL, &swap_usage))
+						fprintf(stderr, "(swap space usage: %ld%%)",
 				swap_usage);
 
 		fprintf(stderr,
-     "\nWARNING: memory/swap exhaustion may cause this session to be killed\n");
+		 "\nWARNING: memory/swap exhaustion may cause this session to be killed\n");
 	}
 
-        for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
+				for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
 		if (m->exp_data) {
 			free((void *)m->exp_data);
 			m->exp_data = 0;
 			blks += m->num_blks;
 		}
-        }
+				}
 
 	return blks;
 }
@@ -380,16 +380,16 @@ vas_free_memory(char *s)
 int
 vas_memory_used(void)
 {
-        struct crash_map_entry *m;
+				struct crash_map_entry *m;
 	int blks;
 
 	if (vas_version < 2)
 		return 0;
 
-        for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
+				for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
 		if (m->exp_data)
 			blks += m->num_blks;
-        }
+				}
 
 	return blks;
 }
@@ -397,13 +397,13 @@ vas_memory_used(void)
 char *memory_dump_hdr_32 = "START_VA  EXP_DATA  START_BLK  NUM_BLKS\n";
 char *memory_dump_fmt_32 = "%8lx  %8lx  %9d  %8d\n";
 char *memory_dump_hdr_64 = \
-    "    START_VA          EXP_DATA      START_BLK  NUM_BLKS\n";
+		"    START_VA          EXP_DATA      START_BLK  NUM_BLKS\n";
 char *memory_dump_fmt_64 = "%16lx  %16lx  %9d  %8d\n";
 
 int
 vas_memory_dump(FILE *fp)
 {
-        struct crash_map_entry *m;
+				struct crash_map_entry *m;
 	char *hdr, *fmt;
 	int blks;
 
@@ -418,12 +418,12 @@ vas_memory_dump(FILE *fp)
 
 	fprintf(fp, hdr);
 
-        for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
+				for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
 		fprintf(fp, fmt,
 			m->start_va, m->exp_data, m->start_blk, m->num_blks);
 		if (m->exp_data)
 			blks += m->num_blks;
-        }
+				}
 
 	fprintf(fp, "total blocks: %d\n", blks);
 

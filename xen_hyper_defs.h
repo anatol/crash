@@ -67,7 +67,7 @@
 #define PAGE_OFFSET_XEN_HYPER DIRECTMAP_VIRT_START
 #define XEN_VIRT_START        (xht->xen_virt_start)
 #define XEN_VIRT_ADDR(vaddr) \
-    (((vaddr) >= XEN_VIRT_START) && ((vaddr) < DIRECTMAP_VIRT_START))
+		(((vaddr) >= XEN_VIRT_START) && ((vaddr) < DIRECTMAP_VIRT_START))
 #endif
 
 #ifdef IA64
@@ -81,10 +81,10 @@
 #define VIRT_FRAME_TABLE_SIZE     (0x0100000000000000)
 
 #define PERCPU_VIRT_ADDR(vaddr) \
-    (((vaddr) >= PERCPU_ADDR) && ((vaddr) < PERCPU_ADDR + PERCPU_PAGE_SIZE))
+		(((vaddr) >= PERCPU_ADDR) && ((vaddr) < PERCPU_ADDR + PERCPU_PAGE_SIZE))
 
 #define FRAME_TABLE_VIRT_ADDR(vaddr) \
-    ((vaddr) >= xhmachdep->frame_table && (vaddr) < xhmachdep->frame_table + VIRT_FRAME_TABLE_SIZE)
+		((vaddr) >= xhmachdep->frame_table && (vaddr) < xhmachdep->frame_table + VIRT_FRAME_TABLE_SIZE)
 
 #undef IA64_RBS_OFFSET
 #define IA64_RBS_OFFSET   ((XEN_HYPER_SIZE(vcpu) + 15) & ~15)
@@ -92,7 +92,7 @@
 #endif /* IA64 */
 
 #define DIRECTMAP_VIRT_ADDR(vaddr) \
-    (((vaddr) >= DIRECTMAP_VIRT_START) && ((vaddr) < DIRECTMAP_VIRT_END))
+		(((vaddr) >= DIRECTMAP_VIRT_START) && ((vaddr) < DIRECTMAP_VIRT_END))
 
 typedef uint16_t	domid_t;
 typedef uint32_t	Elf_Word;
@@ -137,12 +137,12 @@ typedef uint32_t	Elf_Word;
 #if defined(X86) || defined(X86_64)
 #define xen_hyper_per_cpu(var, cpu)  \
 	({ ulong __var_addr; \
-	   if (xht->__per_cpu_offset) \
+		 if (xht->__per_cpu_offset) \
 		__var_addr = (xht->flags & XEN_HYPER_SMP) ? \
 			((ulong)(var) + xht->__per_cpu_offset[cpu]) : (ulong)(var); \
-	   else \
+		 else \
 		__var_addr = (ulong)(var) + ((ulong)(cpu) << xht->percpu_shift); \
-	   __var_addr; })
+		 __var_addr; })
 #elif defined(IA64)
 #define xen_hyper_per_cpu(var, cpu)  \
 	((xht->flags & XEN_HYPER_SMP) ? \
@@ -983,6 +983,6 @@ void xen_hyper_fpr_indent(FILE *fp, int len, char *str1, char *str2, int flag);
 #else
 
 #define XEN_HYPERVISOR_NOT_SUPPORTED \
-    "Xen hypervisor mode not supported on this architecture\n"
+		"Xen hypervisor mode not supported on this architecture\n"
 
 #endif

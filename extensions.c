@@ -31,14 +31,14 @@ static char *get_extensions_directory(char *);
 void
 cmd_extend(void)
 {
-        int c;
+				int c;
 	int flag;
 
 	flag = DUMP_EXTENSIONS;
 
-        while ((c = getopt(argcnt, args, "lu")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args, "lu")) != EOF) {
+								switch(c)
+								{
 		case 'l':
 			if (flag & UNLOAD_EXTENSION) {
 				error(INFO,
@@ -49,22 +49,22 @@ cmd_extend(void)
 			break;
 
 		case 'u':
-                        if (flag & LOAD_EXTENSION) {
-                                error(INFO,
-                                        "-u and -l are mutually exclusive\n");
-                                argerrs++;
-                        } else
-                                flag |= UNLOAD_EXTENSION;
+												if (flag & LOAD_EXTENSION) {
+																error(INFO,
+																				"-u and -l are mutually exclusive\n");
+																argerrs++;
+												} else
+																flag |= UNLOAD_EXTENSION;
 			break;
 
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	switch (flag)
 	{
@@ -78,12 +78,12 @@ cmd_extend(void)
 	case LOAD_EXTENSION:
 		if (!args[optind]) {
 			error(INFO,
-		       "-l requires one or more extension library arguments\n");
+					 "-l requires one or more extension library arguments\n");
 			cmd_usage(pc->curcmd, SYNOPSIS);
 			break;
 		}
 
-        	while (args[optind]) {
+					while (args[optind]) {
 			load_extension(args[optind]);
 			optind++;
 		}
@@ -95,7 +95,7 @@ cmd_extend(void)
 			break;
 		}
 
-        	while (args[optind]) {
+					while (args[optind]) {
 			unload_extension(args[optind]);
 			optind++;
 		}
@@ -120,9 +120,9 @@ dump_extension_table(int verbose)
 		return;
 
 	if (verbose) {
-       		for (ext = extension_table; ext; ext = ext->next) {
-                        fprintf(fp, "        filename: %s\n", ext->filename);
-                        fprintf(fp, "          handle: %lx\n", (ulong)ext->handle);
+			 		for (ext = extension_table; ext; ext = ext->next) {
+												fprintf(fp, "        filename: %s\n", ext->filename);
+												fprintf(fp, "          handle: %lx\n", (ulong)ext->handle);
 
 
 			fprintf(fp, "           flags: %lx (", ext->flags);
@@ -131,11 +131,11 @@ dump_extension_table(int verbose)
 				fprintf(fp, "%sREGISTERED", others++ ?
 					"|" : "");
 			fprintf(fp, ")\n");
-                        fprintf(fp, "            next: %lx\n", (ulong)ext->next);
-                        fprintf(fp, "            prev: %lx\n", (ulong)ext->prev);
+												fprintf(fp, "            next: %lx\n", (ulong)ext->next);
+												fprintf(fp, "            prev: %lx\n", (ulong)ext->prev);
 
-                        for (i = 0, cp = ext->command_table; cp->name; cp++, i++) {
-                        	fprintf(fp, "command_table[%d]: %lx\n", i, (ulong)cp);
+												for (i = 0, cp = ext->command_table; cp->name; cp++, i++) {
+													fprintf(fp, "command_table[%d]: %lx\n", i, (ulong)cp);
 				fprintf(fp, "                  name: %s\n", cp->name);
 				fprintf(fp, "                  func: %lx\n", (ulong)cp->func);
 				fprintf(fp, "             help_data: %lx\n", (ulong)cp->help_data);
@@ -157,7 +157,7 @@ dump_extension_table(int verbose)
 	}
 
 
-       /*
+			 /*
 	*  Print them out in the order they were loaded.
 	*/
 	for (longest = 0, ext = extension_table; ext; ext = ext->next) {
@@ -174,10 +174,10 @@ dump_extension_table(int verbose)
 			break;
 
 	do {
-                fprintf(fp, "%s  ",
-                        mkstring(buf, longest, LJUST, ext->filename));
-                for (cp = ext->command_table; cp->name; cp++)
-                        fprintf(fp, "%s ", cp->name);
+								fprintf(fp, "%s  ",
+												mkstring(buf, longest, LJUST, ext->filename));
+								for (cp = ext->command_table; cp->name; cp++)
+												fprintf(fp, "%s ", cp->name);
 		fprintf(fp, "\n");
 	} while ((ext = ext->prev));
 }
@@ -210,12 +210,12 @@ load_extension(char *lib)
 
 	ext->filename = (char *)((ulong)ext + sizeof(struct extension_table));
 
-       /*
+			 /*
 	*  If the library is not specified by an absolute pathname, dlopen()
-        *  does not look in the current directory, so modify the filename.
+				*  does not look in the current directory, so modify the filename.
 	*  If it's not in the current directory, check the extensions library
 	*  directory.
-        */
+				*/
 	if ((*lib != '.') && (*lib != '/')) {
 		if (file_exists(lib, NULL))
 			sprintf(ext->filename, "./%s", lib);
@@ -245,9 +245,9 @@ load_extension(char *lib)
 		}
 	}
 
-       /*
-        *  register_extension() will be called by the shared object's
-        *  _init() function before dlopen() returns below.
+			 /*
+				*  register_extension() will be called by the shared object's
+				*  _init() function before dlopen() returns below.
 	*/
 	pc->curext = ext;
 	ext->handle = dlopen(ext->filename, RTLD_NOW|RTLD_GLOBAL);
@@ -268,10 +268,10 @@ load_extension(char *lib)
 		dlclose(ext->handle);
 		if (ext->flags & (DUPLICATE_COMMAND_NAME | NO_MINIMAL_COMMANDS))
 			error(INFO,
-		         "%s: shared object unloaded\n", ext->filename);
+						 "%s: shared object unloaded\n", ext->filename);
 		else
 			error(INFO,
-		         "%s: no commands registered: shared object unloaded\n",
+						 "%s: no commands registered: shared object unloaded\n",
 				ext->filename);
 		free(ext);
 		return;
@@ -281,7 +281,7 @@ load_extension(char *lib)
 
 	/*
 	 *  Put new libraries at the head of the list.
-         */
+				 */
 	if (extension_table) {
 		extension_table->prev = ext;
 		ext->next = extension_table;
@@ -313,11 +313,11 @@ in_extensions_library(char *lib, char *buf)
 			return TRUE;
 	}
 
-       	sprintf(buf, "/usr/lib/crash/extensions/%s", lib);
+			 	sprintf(buf, "/usr/lib/crash/extensions/%s", lib);
 	if (file_exists(buf, NULL))
 		return TRUE;
 
-       	sprintf(buf, "./extensions/%s", lib);
+			 	sprintf(buf, "./extensions/%s", lib);
 	if (file_exists(buf, NULL))
 		return TRUE;
 
@@ -345,11 +345,11 @@ get_extensions_directory(char *dirbuf)
 			return dirbuf;
 	}
 
-       	sprintf(dirbuf, "/usr/lib/crash/extensions");
+			 	sprintf(dirbuf, "/usr/lib/crash/extensions");
 	if (is_directory(dirbuf))
 		return dirbuf;
 
-       	sprintf(dirbuf, "./extensions");
+			 	sprintf(dirbuf, "./extensions");
 	if (is_directory(dirbuf))
 		return dirbuf;
 
@@ -369,7 +369,7 @@ preload_extensions(void)
 	if (!get_extensions_directory(dirbuf))
 		return;
 
-        dirp = opendir(dirbuf);
+				dirp = opendir(dirbuf);
 	if (!dirp) {
 		error(INFO, "%s: %s\n", dirbuf, strerror(errno));
 		return;
@@ -377,7 +377,7 @@ preload_extensions(void)
 
 	pc->curcmd = pc->program_name;
 
-        for (found = 0, dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
+				for (found = 0, dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
 		sprintf(filename, "%s%s%s", dirbuf,
 			LASTCHAR(dirbuf) == '/' ? "" : "/",
 			dp->d_name);
@@ -396,7 +396,7 @@ preload_extensions(void)
 		fprintf(fp, "\n");
 	else
 		error(NOTE,
-		    "%s: no extension modules found in directory\n\n",
+				"%s: no extension modules found in directory\n\n",
 			dirbuf);
 }
 
@@ -406,17 +406,17 @@ preload_extensions(void)
 void
 unload_extension(char *lib)
 {
-        struct extension_table *ext;
+				struct extension_table *ext;
 	int found;
 	char buf[BUFSIZE];
 
 	if (!lib) {
 		while (extension_table) {
 			ext = extension_table;
-                        if (dlclose(ext->handle))
-                                error(FATAL,
-                                    "dlclose: %s: shared object not open\n",
-                                        ext->filename);
+												if (dlclose(ext->handle))
+																error(FATAL,
+																		"dlclose: %s: shared object not open\n",
+																				ext->filename);
 
 			fprintf(fp, "%s: shared object unloaded\n",
 				ext->filename);
@@ -431,7 +431,7 @@ unload_extension(char *lib)
 
 	if ((*lib != '.') && (*lib != '/')) {
 		if (!file_exists(lib, NULL) &&
-		    in_extensions_library(lib, buf))
+				in_extensions_library(lib, buf))
 			lib = buf;
 	}
 
@@ -440,12 +440,12 @@ unload_extension(char *lib)
 		return;
 	}
 
-        for (ext = extension_table, found = FALSE; ext; ext = ext->next) {
-                if (same_file(lib, ext->filename)) {
+				for (ext = extension_table, found = FALSE; ext; ext = ext->next) {
+								if (same_file(lib, ext->filename)) {
 			found = TRUE;
 			if (dlclose(ext->handle))
 				error(INFO,
-				    "dlclose: %s: shared object not open\n",
+						"dlclose: %s: shared object not open\n",
 					ext->filename);
 			else {
 				fprintf(fp, "%s: shared object unloaded\n",
@@ -472,7 +472,7 @@ unload_extension(char *lib)
 				lib, ext->filename);
 			found = TRUE;
 		}
-        }
+				}
 
 	if (!found)
 		error(INFO, "%s: not loaded\n", lib);
@@ -495,10 +495,10 @@ register_extension(struct command_table_entry *command_table)
 
 	pc->curext->flags |= NO_MINIMAL_COMMANDS;
 
-        for (cp = command_table; cp->name; cp++) {
+				for (cp = command_table; cp->name; cp++) {
 		if (get_command_table_entry(cp->name)) {
 			error(INFO,
-                  "%s: \"%s\" is a duplicate of a currently-existing command\n",
+									"%s: \"%s\" is a duplicate of a currently-existing command\n",
 				pc->curext->filename, cp->name);
 			pc->curext->flags |= DUPLICATE_COMMAND_NAME;
 			return;
@@ -509,8 +509,8 @@ register_extension(struct command_table_entry *command_table)
 
 	if ((pc->flags & MINIMAL_MODE) && (pc->curext->flags & NO_MINIMAL_COMMANDS)) {
 		error(INFO,
-		      "%s: does not contain any commands which support minimal mode\n",
-		      pc->curext->filename);
+					"%s: does not contain any commands which support minimal mode\n",
+					pc->curext->filename);
 		return;
 	}
 
@@ -518,16 +518,16 @@ register_extension(struct command_table_entry *command_table)
 		for (cp = command_table; cp->name; cp++) {
 			if (!(cp->flags & MINIMAL)) {
 				error(WARNING,
-				      "%s: command \"%s\" does not support minimal mode\n",
-				      pc->curext->filename, cp->name);
+							"%s: command \"%s\" does not support minimal mode\n",
+							pc->curext->filename, cp->name);
 			}
 		}
 	}
 
-        for (cp = command_table; cp->name; cp++) {
+				for (cp = command_table; cp->name; cp++) {
 		if (is_alias(cp->name)) {
 			error(INFO,
-               "alias \"%s\" deleted: name clash with extension command\n",
+							 "alias \"%s\" deleted: name clash with extension command\n",
 				cp->name);
 			deallocate_alias(cp->name);
 		}

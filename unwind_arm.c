@@ -116,16 +116,16 @@ int
 init_unwind_tables(void)
 {
 	if (!symbol_exists("__start_unwind_idx") ||
-	    !symbol_exists("__stop_unwind_idx") ||
-	    !symbol_exists("__start_unwind_tab") ||
-	    !symbol_exists("__stop_unwind_tab") ||
-	    !symbol_exists("unwind_tables")) {
+			!symbol_exists("__stop_unwind_idx") ||
+			!symbol_exists("__start_unwind_tab") ||
+			!symbol_exists("__stop_unwind_tab") ||
+			!symbol_exists("unwind_tables")) {
 		return FALSE;
 	}
 
 	if (!init_kernel_unwind_table()) {
 		error(WARNING,
-		      "UNWIND: failed to initialize kernel unwind table\n");
+					"UNWIND: failed to initialize kernel unwind table\n");
 		return FALSE;
 	}
 
@@ -138,7 +138,7 @@ init_unwind_tables(void)
 	MEMBER_OFFSET_INIT(unwind_table_start, "unwind_table", "start");
 	MEMBER_OFFSET_INIT(unwind_table_stop, "unwind_table", "stop");
 	MEMBER_OFFSET_INIT(unwind_table_begin_addr, "unwind_table",
-			   "begin_addr");
+				 "begin_addr");
 	MEMBER_OFFSET_INIT(unwind_table_end_addr, "unwind_table", "end_addr");
 
 	STRUCT_SIZE_INIT(unwind_idx, "unwind_idx");
@@ -147,7 +147,7 @@ init_unwind_tables(void)
 
 	if (!init_module_unwind_tables()) {
 		error(WARNING,
-		      "UNWIND: failed to initialize module unwind tables\n");
+					"UNWIND: failed to initialize module unwind tables\n");
 	}
 
 	/*
@@ -183,7 +183,7 @@ init_kernel_unwind_table(void)
 
 	/* now read in the index table */
 	if (!readmem(idx_start, KVADDR, kernel_unwind_table->idx, idx_size,
-		     "master kernel unwind table", RETURN_ON_ERROR)) {
+				 "master kernel unwind table", RETURN_ON_ERROR)) {
 		free(kernel_unwind_table->idx);
 		goto fail;
 	}
@@ -247,7 +247,7 @@ read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 	 * pointers to the index table which we will read later.
 	 */
 	if (!readmem(addr, KVADDR, buf, SIZE(unwind_table),
-		     "module unwind table", RETURN_ON_ERROR)) {
+				 "module unwind table", RETURN_ON_ERROR)) {
 		error(WARNING, "UNWIND: cannot read unwind table\n");
 		goto fail;
 	}
@@ -267,7 +267,7 @@ read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 		goto fail;
 
 	if (!readmem(idx_start, KVADDR, tbl->idx, idx_size,
-		     "module unwind index table", RETURN_ON_ERROR)) {
+				 "module unwind index table", RETURN_ON_ERROR)) {
 		free(tbl->idx);
 		goto fail;
 	}
@@ -335,8 +335,8 @@ init_module_unwind_tables(void)
 	module_unwind_tables = calloc(sizeof(struct unwind_table), cnt);
 	if (!module_unwind_tables) {
 		error(WARNING,
-		      "UNWIND: failed to allocate memory for (%d tables)\n",
-		      cnt);
+					"UNWIND: failed to allocate memory for (%d tables)\n",
+					cnt);
 		FREEBUF(table_list);
 		return FALSE;
 	}
@@ -376,7 +376,7 @@ static int
 unwind_get_insn(struct unwind_ctrl_block *ctrl)
 {
 	if (readmem(ctrl->insn_kvaddr, KVADDR, &ctrl->insn, sizeof(ctrl->insn),
-		    "unwind insn", RETURN_ON_ERROR)) {
+				"unwind insn", RETURN_ON_ERROR)) {
 		ctrl->insn_kvaddr += sizeof(ctrl->insn);
 		return TRUE;
 	}
@@ -476,7 +476,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		if (!load_sp)
 			ctrl->vrs[SP] = (ulong)vsp;
 	} else if ((insn & 0xf0) == 0x90 &&
-		   (insn & 0x0d) != 0x0d) {
+			 (insn & 0x0d) != 0x0d) {
 		/* 1001 nnnn: set vsp = r[nnnn] */
 		ctrl->vrs[SP] = ctrl->vrs[insn & 0x0f];
 	} else if ((insn & 0xf0) == 0xa0) {
@@ -624,7 +624,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 	tbl = search_table(frame->pc);
 	if (!tbl) {
 		error(WARNING, "UNWIND: cannot find unwind table for %lx\n",
-		      frame->pc);
+					frame->pc);
 		return FALSE;
 	}
 	idx = search_index(tbl, frame->pc);
@@ -670,7 +670,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 		ctrl.insn = idx->insn;
 	} else {
 		error(WARNING, "UNWIND: unsupported instruction %lx\n",
-		      idx->insn);
+					idx->insn);
 		return FALSE;
 	}
 

@@ -28,9 +28,9 @@
  */
 struct net_table {
 	ulong flags;
-        char *netdevice;    /* name of net device */
+				char *netdevice;    /* name of net device */
 	char *dev_name_t;   /* readmem ID's */
-        char *dev_type_t;
+				char *dev_type_t;
 	char *dev_addr_t;
 	long dev_name;
 	long dev_next;
@@ -109,7 +109,7 @@ net_init(void)
 			"net_device", "name");
 		net->dev_type = MEMBER_OFFSET_INIT(net_device_type,
 			"net_device", "type");
-                net->dev_addr_len = MEMBER_OFFSET_INIT(net_device_addr_len,
+								net->dev_addr_len = MEMBER_OFFSET_INIT(net_device_addr_len,
 			"net_device", "addr_len");
 		net->dev_ip_ptr = MEMBER_OFFSET_INIT(net_device_ip_ptr,
 			"net_device", "ip_ptr");
@@ -126,11 +126,11 @@ net_init(void)
 				"device", "next");
 			net->dev_name = MEMBER_OFFSET_INIT(device_name,
 				"device", "name");
-	                net->dev_type = MEMBER_OFFSET_INIT(device_type,
+									net->dev_type = MEMBER_OFFSET_INIT(device_type,
 				"device", "type");
 			net->dev_ip_ptr = MEMBER_OFFSET_INIT(device_ip_ptr,
 				"device", "ip_ptr");
-	                net->dev_addr_len = MEMBER_OFFSET_INIT(device_addr_len,
+									net->dev_addr_len = MEMBER_OFFSET_INIT(device_addr_len,
 				"device", "addr_len");
 			net->flags |= (NETDEV_INIT|STRUCT_DEVICE);
 		} else
@@ -145,11 +145,11 @@ net_init(void)
 
 		MEMBER_OFFSET_INIT(socket_sk, "socket", "sk");
 		MEMBER_OFFSET_INIT(neighbour_next, "neighbour", "next");
-        	MEMBER_OFFSET_INIT(neighbour_primary_key,
+					MEMBER_OFFSET_INIT(neighbour_primary_key,
 			"neighbour", "primary_key");
-        	MEMBER_OFFSET_INIT(neighbour_ha, "neighbour", "ha");
-        	MEMBER_OFFSET_INIT(neighbour_dev, "neighbour", "dev");
-        	MEMBER_OFFSET_INIT(neighbour_nud_state,
+					MEMBER_OFFSET_INIT(neighbour_ha, "neighbour", "ha");
+					MEMBER_OFFSET_INIT(neighbour_dev, "neighbour", "dev");
+					MEMBER_OFFSET_INIT(neighbour_nud_state,
 			"neighbour", "nud_state");
 		MEMBER_OFFSET_INIT(neigh_table_nht_ptr, "neigh_table", "nht");
 		if (VALID_MEMBER(neigh_table_nht_ptr)) {
@@ -168,29 +168,29 @@ net_init(void)
 		MEMBER_OFFSET_INIT(neigh_table_key_len,
 			"neigh_table", "key_len");
 
-        	MEMBER_OFFSET_INIT(in_device_ifa_list,
+					MEMBER_OFFSET_INIT(in_device_ifa_list,
 			"in_device", "ifa_list");
-        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_next,
+					MEMBER_OFFSET_INIT(in_ifaddr_ifa_next,
 			"in_ifaddr", "ifa_next");
-        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_address,
+					MEMBER_OFFSET_INIT(in_ifaddr_ifa_address,
 			"in_ifaddr", "ifa_address");
 
 		STRUCT_SIZE_INIT(sock, "sock");
 
-                MEMBER_OFFSET_INIT(sock_family, "sock", "family");
+								MEMBER_OFFSET_INIT(sock_family, "sock", "family");
 		if (VALID_MEMBER(sock_family)) {
-                	MEMBER_OFFSET_INIT(sock_daddr, "sock", "daddr");
-                	MEMBER_OFFSET_INIT(sock_rcv_saddr, "sock", "rcv_saddr");
-                	MEMBER_OFFSET_INIT(sock_dport, "sock", "dport");
-                	MEMBER_OFFSET_INIT(sock_sport, "sock", "sport");
-                	MEMBER_OFFSET_INIT(sock_num, "sock", "num");
-                	MEMBER_OFFSET_INIT(sock_type, "sock", "type");
+									MEMBER_OFFSET_INIT(sock_daddr, "sock", "daddr");
+									MEMBER_OFFSET_INIT(sock_rcv_saddr, "sock", "rcv_saddr");
+									MEMBER_OFFSET_INIT(sock_dport, "sock", "dport");
+									MEMBER_OFFSET_INIT(sock_sport, "sock", "sport");
+									MEMBER_OFFSET_INIT(sock_num, "sock", "num");
+									MEMBER_OFFSET_INIT(sock_type, "sock", "type");
 			net->flags |= SOCK_V1;
 
 		} else {
 			/*
 			 * struct sock {
-        		 *	struct sock_common      __sk_common;
+						 *	struct sock_common      __sk_common;
 			 * #define sk_family __sk_common.skc_family
 			 *      ...
 			 */
@@ -199,9 +199,9 @@ net_init(void)
 			MEMBER_OFFSET_INIT(sock_sk_type, "sock", "sk_type");
 			/*
 			 *  struct inet_sock {
-        		 *	struct sock       sk;
-        		 *	struct ipv6_pinfo *pinet6;
-        		 *	struct inet_opt   inet;
+						 *	struct sock       sk;
+						 *	struct ipv6_pinfo *pinet6;
+						 *	struct inet_opt   inet;
 			 *  };
 			 */
 			STRUCT_SIZE_INIT(inet_sock, "inet_sock");
@@ -229,7 +229,7 @@ net_init(void)
 					MEMBER_OFFSET_INIT(inet_opt_sport, "inet_sock", "inet_sport");
 					MEMBER_OFFSET_INIT(inet_opt_num, "inet_sock", "inet_num");
 				} else if ((MEMBER_OFFSET("inet_sock", "sk") == 0) &&
-				    (MEMBER_OFFSET("sock", "__sk_common") == 0)) {
+						(MEMBER_OFFSET("sock", "__sk_common") == 0)) {
 					MEMBER_OFFSET_INIT(inet_opt_daddr, "sock_common", "skc_daddr");
 					MEMBER_OFFSET_INIT(inet_opt_rcv_saddr, "sock_common", "skc_rcv_saddr");
 					MEMBER_OFFSET_INIT(inet_opt_dport, "inet_sock", "inet_dport");
@@ -239,22 +239,22 @@ net_init(void)
 			}
 
 			if (VALID_STRUCT(inet_sock) &&
-			    INVALID_MEMBER(inet_sock_inet)) {
+					INVALID_MEMBER(inet_sock_inet)) {
 				/*
 				 *  gdb can't seem to figure out the inet_sock
 				 *  in later 2.6 kernels, returning this:
 				 *
 				 *  struct inet_sock {
 				 *      <no data fields>
-			         *  }
+							 *  }
 				 *
 				 *  It does know the struct size, so kludge it
-			         *  to subtract the size of the inet_opt struct
+							 *  to subtract the size of the inet_opt struct
 				 *  from the size of the containing inet_sock.
 				 */
 				net->flags |= NO_INET_SOCK;
 				ASSIGN_OFFSET(inet_sock_inet) =
-				    SIZE(inet_sock) - STRUCT_SIZE("inet_opt");
+						SIZE(inet_sock) - STRUCT_SIZE("inet_opt");
 			}
 
 			/*
@@ -266,7 +266,7 @@ net_init(void)
 			if (!VALID_STRUCT(inet_sock))
 			{
 				if (symbol_exists("tcpv6_protocol") &&
-				    symbol_exists("udpv6_protocol")) {
+						symbol_exists("udpv6_protocol")) {
 					ASSIGN_SIZE(inet_sock) = SIZE(sock) +
 						sizeof(void *) + STRUCT_SIZE("inet_opt");
 					ASSIGN_OFFSET(inet_sock_inet) = SIZE(sock) +
@@ -348,18 +348,18 @@ cmd_net(void)
 		case 's':
 			if (sflag & S_FLAG)
 				error(INFO,
-				    "only one -s or -S option allowed\n");
+						"only one -s or -S option allowed\n");
 			else
 				sflag |= s_FLAG;
-		        break;
+						break;
 
 		case 'S':
 			if (sflag & s_FLAG)
 				error(INFO,
-				    "only one -s or -S option allowed\n");
+						"only one -s or -S option allowed\n");
 			else
 				sflag |= S_FLAG;
-            		break;
+								break;
 
 		case 'x':
 			if (sflag & d_FLAG)
@@ -425,8 +425,8 @@ show_net_devices(void)
 			flen, CENTER|LJUST, NULL));
 
 	do {
-                fprintf(fp, "%s  ",
-                    mkstring(buf, flen, CENTER|RJUST|LONG_HEX, MKSTR(next)));
+								fprintf(fp, "%s  ",
+										mkstring(buf, flen, CENTER|RJUST|LONG_HEX, MKSTR(next)));
 
 		get_device_name(next, buf);
 		fprintf(fp, "%-6s ", buf);
@@ -434,7 +434,7 @@ show_net_devices(void)
 		get_device_address(next, buf);
 		fprintf(fp, "%s\n", buf);
 
-        	readmem(next+net->dev_next, KVADDR, &next,
+					readmem(next+net->dev_next, KVADDR, &next,
 			sizeof(void *), "(net_)device.next", FAULT_ON_ERROR);
 	} while (next);
 }
@@ -477,7 +477,7 @@ show_net_devices_v2(void)
 			SIZE(net_device), "net_device buffer",
 			FAULT_ON_ERROR);
 
-                fprintf(fp, "%s  ",
+								fprintf(fp, "%s  ",
 			mkstring(buf, flen, CENTER|RJUST|LONG_HEX,
 			MKSTR(ndevlist[i])));
 
@@ -533,7 +533,7 @@ show_net_devices_v3(void)
 			SIZE(net_device), "net_device buffer",
 			FAULT_ON_ERROR);
 
-                fprintf(fp, "%s  ",
+								fprintf(fp, "%s  ",
 			mkstring(buf, flen, CENTER|RJUST|LONG_HEX,
 			MKSTR(ndevlist[i])));
 
@@ -802,20 +802,20 @@ get_device_name(ulong devaddr, char *buf)
 	{
 	case STRUCT_NET_DEVICE:
 		if (net->net_device_name_index > 0) {
-                	readmem(devaddr + net->dev_name, KVADDR,
-                        	buf, net->net_device_name_index,
+									readmem(devaddr + net->dev_name, KVADDR,
+													buf, net->net_device_name_index,
 				net->dev_name_t, FAULT_ON_ERROR);
 			return;
 		}
 
 		/* fallthrough */
 
-        case STRUCT_DEVICE:
-                readmem(devaddr + net->dev_name, KVADDR,
-                        &name_addr, sizeof(name_addr), net->dev_name_t,
-                        FAULT_ON_ERROR);
-                read_string(name_addr, buf, DEV_NAME_MAX);
-                break;
+				case STRUCT_DEVICE:
+								readmem(devaddr + net->dev_name, KVADDR,
+												&name_addr, sizeof(name_addr), net->dev_name_t,
+												FAULT_ON_ERROR);
+								read_string(name_addr, buf, DEV_NAME_MAX);
+								break;
 	}
 }
 
@@ -836,26 +836,26 @@ get_device_address(ulong devaddr, char *buf)
 
 	BZERO(buf, BUFSIZE);
 
-        readmem(devaddr + net->dev_ip_ptr, KVADDR,
-        	&ip_ptr, sizeof(ulong), "ip_ptr", FAULT_ON_ERROR);
+				readmem(devaddr + net->dev_ip_ptr, KVADDR,
+					&ip_ptr, sizeof(ulong), "ip_ptr", FAULT_ON_ERROR);
 
 	if (!ip_ptr)
 		return;
 
-        readmem(ip_ptr + OFFSET(in_device_ifa_list), KVADDR,
-        	&ifa_list, sizeof(ulong), "ifa_list", FAULT_ON_ERROR);
+				readmem(ip_ptr + OFFSET(in_device_ifa_list), KVADDR,
+					&ifa_list, sizeof(ulong), "ifa_list", FAULT_ON_ERROR);
 
 	while (ifa_list) {
-        	readmem(ifa_list + OFFSET(in_ifaddr_ifa_address), KVADDR,
-        		&ifa_address, sizeof(struct in_addr), "ifa_address",
+					readmem(ifa_list + OFFSET(in_ifaddr_ifa_address), KVADDR,
+						&ifa_address, sizeof(struct in_addr), "ifa_address",
 			FAULT_ON_ERROR);
 
 		sprintf(&buf[strlen(buf)], "%s%s",
 			strlen(buf) ? ", " : "",
 			inet_ntoa(ifa_address));
 
-        	readmem(ifa_list + OFFSET(in_ifaddr_ifa_next), KVADDR,
-        		&ifa_list, sizeof(ulong), "ifa_next", FAULT_ON_ERROR);
+					readmem(ifa_list + OFFSET(in_ifaddr_ifa_next), KVADDR,
+						&ifa_list, sizeof(ulong), "ifa_next", FAULT_ON_ERROR);
 	}
 }
 
@@ -889,7 +889,7 @@ get_sock_info(ulong sock, char *buf)
 	{
 	case SOCK_V1:
 		sockbuf = GETBUF(SIZE(sock));
-	        readmem(sock, KVADDR, sockbuf, SIZE(sock),
+					readmem(sock, KVADDR, sockbuf, SIZE(sock),
 			"sock buffer", FAULT_ON_ERROR);
 
 		daddr = UINT(sockbuf + OFFSET(sock_daddr));
@@ -903,7 +903,7 @@ get_sock_info(ulong sock, char *buf)
 
 	case SOCK_V2:
 		inet_sockbuf = GETBUF(SIZE(inet_sock));
-	        readmem(sock, KVADDR, inet_sockbuf, SIZE(inet_sock),
+					readmem(sock, KVADDR, inet_sockbuf, SIZE(inet_sock),
 			"inet_sock buffer", FAULT_ON_ERROR);
 
 		daddr = UINT(inet_sockbuf + OFFSET(inet_sock_inet) +
@@ -1017,13 +1017,13 @@ get_sock_info(ulong sock, char *buf)
 				space(1));
 		} else {
 			in_addr.s_addr = rcv_saddr;
-	                sprintf(&buf[strlen(buf)], " %s-%d ",
-	                        inet_ntoa(in_addr),
-	                        ntohs(sport));
+									sprintf(&buf[strlen(buf)], " %s-%d ",
+													inet_ntoa(in_addr),
+													ntohs(sport));
 			in_addr.s_addr = daddr;
-	                sprintf(&buf[strlen(buf)], "%s-%d",
-	                        inet_ntoa(in_addr),
-	                        ntohs(dport));
+									sprintf(&buf[strlen(buf)], "%s-%d",
+													inet_ntoa(in_addr),
+													ntohs(dport));
 		}
 	}
 
@@ -1042,17 +1042,17 @@ get_sock_info(ulong sock, char *buf)
 
 	case SOCK_V2:
 		if (INVALID_MEMBER(ipv6_pinfo_rcv_saddr) ||
-		    INVALID_MEMBER(ipv6_pinfo_daddr))
+				INVALID_MEMBER(ipv6_pinfo_daddr))
 			break;
 
-        	ipv6_rcv_saddr = ipv6_pinfo + OFFSET(ipv6_pinfo_rcv_saddr);
+					ipv6_rcv_saddr = ipv6_pinfo + OFFSET(ipv6_pinfo_rcv_saddr);
 		ipv6_daddr = ipv6_pinfo + OFFSET(ipv6_pinfo_daddr);
 
 		if (!readmem(ipv6_rcv_saddr, KVADDR, u6_addr16_src, SIZE(in6_addr),
-                    "ipv6_rcv_saddr buffer", QUIET|RETURN_ON_ERROR))
+										"ipv6_rcv_saddr buffer", QUIET|RETURN_ON_ERROR))
 			break;
-                if (!readmem(ipv6_daddr, KVADDR, u6_addr16_dest, SIZE(in6_addr),
-                    "ipv6_daddr buffer", QUIET|RETURN_ON_ERROR))
+								if (!readmem(ipv6_daddr, KVADDR, u6_addr16_dest, SIZE(in6_addr),
+										"ipv6_daddr buffer", QUIET|RETURN_ON_ERROR))
 			break;
 
 		sprintf(&buf[strlen(buf)], "%*s ", BITS32() ? 22 : 12,
@@ -1071,15 +1071,15 @@ static char *
 dump_in6_addr_port(uint16_t *addr, uint16_t port, char *buf, int *len)
 {
 	sprintf(buf, "%x:%x:%x:%x:%x:%x:%x:%x-%d",
-                ntohs(addr[0]),
-                ntohs(addr[1]),
-                ntohs(addr[2]),
-                ntohs(addr[3]),
-                ntohs(addr[4]),
-                ntohs(addr[5]),
-                ntohs(addr[6]),
-                ntohs(addr[7]),
-                ntohs(port));
+								ntohs(addr[0]),
+								ntohs(addr[1]),
+								ntohs(addr[2]),
+								ntohs(addr[3]),
+								ntohs(addr[4]),
+								ntohs(addr[5]),
+								ntohs(addr[6]),
+								ntohs(addr[7]),
+								ntohs(port));
 
 	if (len)
 		*len = strlen(buf);
@@ -1243,11 +1243,11 @@ dump_net_table(void)
 	fprintf(fp, "           dev_name_t: \"%s\"\n", net->dev_name_t);
 	fprintf(fp, "           dev_type_t: \"%s\"\n", net->dev_type_t);
 	fprintf(fp, "           dev_addr_t: \"%s\"\n", net->dev_addr_t);
-        fprintf(fp, "             dev_name: %ld\n", net->dev_name);
+				fprintf(fp, "             dev_name: %ld\n", net->dev_name);
 	fprintf(fp, "             dev_next: %ld\n", net->dev_next);
-        fprintf(fp, "             dev_type: %ld\n", net->dev_type);
-        fprintf(fp, "           dev_ip_ptr: %ld\n", net->dev_ip_ptr);
-        fprintf(fp, "         dev_addr_len: %ld\n", net->dev_addr_len);
+				fprintf(fp, "             dev_type: %ld\n", net->dev_type);
+				fprintf(fp, "           dev_ip_ptr: %ld\n", net->dev_ip_ptr);
+				fprintf(fp, "         dev_addr_len: %ld\n", net->dev_addr_len);
 	fprintf(fp, "net_device_name_index: %d\n", net->net_device_name_index);
 }
 
@@ -1258,42 +1258,42 @@ dump_net_table(void)
 static void
 dump_sockets(ulong flag, struct reference *ref)
 {
-    	struct task_context *tc;
-    	ulong value;
-    	int subsequent;
+			struct task_context *tc;
+			ulong value;
+			int subsequent;
 
-    	if (!args[optind]) {
+			if (!args[optind]) {
 		if (!NET_REFERENCE_CHECK(ref))
-            		print_task_header(fp, CURRENT_CONTEXT(), 0);
-        	dump_sockets_workhorse(CURRENT_TASK(), flag, ref);
-        	return;
-    	}
+								print_task_header(fp, CURRENT_CONTEXT(), 0);
+					dump_sockets_workhorse(CURRENT_TASK(), flag, ref);
+					return;
+			}
 
 	subsequent = 0;
 
 	while (args[optind]) {
 
-                switch (str_to_context(args[optind], &value, &tc))
-                {
-                case STR_PID:
-                        for (tc = pid_to_context(value); tc; tc = tc->tc_next) {
-                                if (!NET_REFERENCE_CHECK(ref))
-                                        print_task_header(fp, tc, subsequent++);
-                                dump_sockets_workhorse(tc->task, flag, ref);
-                        }
-                        break;
+								switch (str_to_context(args[optind], &value, &tc))
+								{
+								case STR_PID:
+												for (tc = pid_to_context(value); tc; tc = tc->tc_next) {
+																if (!NET_REFERENCE_CHECK(ref))
+																				print_task_header(fp, tc, subsequent++);
+																dump_sockets_workhorse(tc->task, flag, ref);
+												}
+												break;
 
-                case STR_TASK:
-                        if (!NET_REFERENCE_CHECK(ref))
-                                print_task_header(fp, tc, subsequent++);
-                        dump_sockets_workhorse(tc->task, flag, ref);
-                        break;
+								case STR_TASK:
+												if (!NET_REFERENCE_CHECK(ref))
+																print_task_header(fp, tc, subsequent++);
+												dump_sockets_workhorse(tc->task, flag, ref);
+												break;
 
-                case STR_INVALID:
-                        error(INFO, "%sinvalid task or pid value: %s\n",
+								case STR_INVALID:
+												error(INFO, "%sinvalid task or pid value: %s\n",
 				subsequent++ ? "\n" : "", args[optind]);
-                        break;
-                }
+												break;
+								}
 
 		optind++;
 	}
@@ -1317,53 +1317,53 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
 	int sockets_found = 0;
 	ulong value;
 
-       /*
-        * Steps to getting open sockets:
-        *
-        * 1)  task->files (struct files_struct)
-        * 2)  files->fd   (struct file **)
-        * 3)  cycle through from 0 to files->open_fds offset from *fd
-        *     i.e.    fd[0], fd[1], fd[2]  are pointers to the first three
-        *     open file descriptors.  Thus, we have:
-        *         struct file *fd[0], *fd[1], *fd[2],...
-        *
-        * 4) file->f_dentry (struct dentry)
-        * 5) dentry->d_inode (struct inode)
-        * 6) S_ISSOCK(inode.mode)
-        *      Assuming it _is_ a socket:
-        * 7) inode.u (struct socket)   -- offset 0xdc from inode pointer
-        */
+			 /*
+				* Steps to getting open sockets:
+				*
+				* 1)  task->files (struct files_struct)
+				* 2)  files->fd   (struct file **)
+				* 3)  cycle through from 0 to files->open_fds offset from *fd
+				*     i.e.    fd[0], fd[1], fd[2]  are pointers to the first three
+				*     open file descriptors.  Thus, we have:
+				*         struct file *fd[0], *fd[1], *fd[2],...
+				*
+				* 4) file->f_dentry (struct dentry)
+				* 5) dentry->d_inode (struct inode)
+				* 6) S_ISSOCK(inode.mode)
+				*      Assuming it _is_ a socket:
+				* 7) inode.u (struct socket)   -- offset 0xdc from inode pointer
+				*/
 
 	readmem(task + OFFSET(task_struct_files), KVADDR, &files_struct_addr,
-            sizeof(void *), "task files contents", FAULT_ON_ERROR);
+						sizeof(void *), "task files contents", FAULT_ON_ERROR);
 
-        if (files_struct_addr) {
-                if (VALID_MEMBER(files_struct_max_fdset)) {
+				if (files_struct_addr) {
+								if (VALID_MEMBER(files_struct_max_fdset)) {
 		 	readmem(files_struct_addr + OFFSET(files_struct_max_fdset),
-		          	KVADDR, &max_fdset, sizeof(int),
+								KVADDR, &max_fdset, sizeof(int),
 				"files_struct max_fdset", FAULT_ON_ERROR);
-		      	readmem(files_struct_addr + OFFSET(files_struct_max_fds),
-        	        	KVADDR, &max_fds, sizeof(int), "files_struct max_fds",
-                	   	FAULT_ON_ERROR);
-                }
+						readmem(files_struct_addr + OFFSET(files_struct_max_fds),
+										KVADDR, &max_fds, sizeof(int), "files_struct max_fds",
+										 	FAULT_ON_ERROR);
+								}
 		else if (VALID_MEMBER(files_struct_fdt)) {
 			readmem(files_struct_addr + OFFSET(files_struct_fdt), KVADDR,
 				&fdtable_addr, sizeof(void *), "fdtable buffer",
 				FAULT_ON_ERROR);
 			if (VALID_MEMBER(fdtable_max_fdset))
-		      		readmem(fdtable_addr + OFFSET(fdtable_max_fdset),
-        	         		KVADDR, &max_fdset, sizeof(int),
+							readmem(fdtable_addr + OFFSET(fdtable_max_fdset),
+									 		KVADDR, &max_fdset, sizeof(int),
 					"fdtable_struct max_fdset", FAULT_ON_ERROR);
 			else
 				max_fdset = -1;
-		      	readmem(fdtable_addr + OFFSET(fdtable_max_fds),
-	      	            	KVADDR, &max_fds, sizeof(int), "fdtable_struct max_fds",
-	               	    	FAULT_ON_ERROR);
-    		}
+						readmem(fdtable_addr + OFFSET(fdtable_max_fds),
+												KVADDR, &max_fds, sizeof(int), "fdtable_struct max_fds",
+								 	    	FAULT_ON_ERROR);
+				}
 	}
 
 	if ((VALID_MEMBER(files_struct_fdt) && !fdtable_addr) ||
-	    !files_struct_addr || (max_fdset == 0) || (max_fds == 0)) {
+			!files_struct_addr || (max_fdset == 0) || (max_fds == 0)) {
 		if (!NET_REFERENCE_CHECK(ref))
 			fprintf(fp, "No open sockets.\n");
 		return;
@@ -1371,74 +1371,74 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
 
 	if (VALID_MEMBER(fdtable_open_fds)){
 		readmem(fdtable_addr + OFFSET(fdtable_open_fds), KVADDR,
-     	  		&open_fds_addr, sizeof(void *), "files_struct open_fds addr",
-	            	FAULT_ON_ERROR);
+		 	  		&open_fds_addr, sizeof(void *), "files_struct open_fds addr",
+								FAULT_ON_ERROR);
 		readmem(fdtable_addr + OFFSET(fdtable_fd), KVADDR, &fd,
-           		sizeof(void *), "files_struct fd addr", FAULT_ON_ERROR);
+					 		sizeof(void *), "files_struct fd addr", FAULT_ON_ERROR);
 	} else {
 		readmem(files_struct_addr + OFFSET(files_struct_open_fds), KVADDR,
-            		&open_fds_addr, sizeof(void *), "files_struct open_fds addr",
-	          	FAULT_ON_ERROR);
+								&open_fds_addr, sizeof(void *), "files_struct open_fds addr",
+							FAULT_ON_ERROR);
 		readmem(files_struct_addr + OFFSET(files_struct_fd), KVADDR, &fd,
-            		sizeof(void *), "files_struct fd addr", FAULT_ON_ERROR);
+								sizeof(void *), "files_struct fd addr", FAULT_ON_ERROR);
 	}
 
 	if (open_fds_addr)
 		readmem(open_fds_addr, KVADDR, &open_fds, sizeof(fd_set),
-	               	"files_struct open_fds", FAULT_ON_ERROR);
-    	if (!open_fds_addr || !fd) {
+								 	"files_struct open_fds", FAULT_ON_ERROR);
+			if (!open_fds_addr || !fd) {
 		if (!NET_REFERENCE_CHECK(ref))
 			fprintf(fp, "No open sockets.\n");
-        	return;
+					return;
 	}
 
 	if (NET_REFERENCE_CHECK(ref)) {
-                if (IS_A_NUMBER(ref->str)) {
-	                if (hexadecimal_only(ref->str, 0)) {
-	                        ref->hexval = htol(ref->str,
-	                        	FAULT_ON_ERROR, NULL);
-	                        ref->cmdflags |= NET_REF_HEXNUM;
-	                } else {
-	                        value = dtol(ref->str, FAULT_ON_ERROR, NULL);
-	                        if (value <= MAX(max_fdset, max_fds)) {
-	                                ref->decval = value;
-	                                ref->cmdflags |= NET_REF_DECNUM;
-	                        } else {
-	                                ref->hexval = htol(ref->str,
+								if (IS_A_NUMBER(ref->str)) {
+									if (hexadecimal_only(ref->str, 0)) {
+													ref->hexval = htol(ref->str,
+														FAULT_ON_ERROR, NULL);
+													ref->cmdflags |= NET_REF_HEXNUM;
+									} else {
+													value = dtol(ref->str, FAULT_ON_ERROR, NULL);
+													if (value <= MAX(max_fdset, max_fds)) {
+																	ref->decval = value;
+																	ref->cmdflags |= NET_REF_DECNUM;
+													} else {
+																	ref->hexval = htol(ref->str,
 						FAULT_ON_ERROR, NULL);
-	                                ref->cmdflags |= NET_REF_HEXNUM;
-	                        }
-	                }
-                }
+																	ref->cmdflags |= NET_REF_HEXNUM;
+													}
+									}
+								}
 		ref->ref1 = task;
 	}
 
-    	j = 0;
-    	for (;;) {
-	        unsigned long set;
-	        i = j * __NFDBITS;
-	        if (((max_fdset >= 0) && (i >= max_fdset)) || (i >= max_fds))
-	            	break;
-	        set = open_fds.__fds_bits[j++];
-	        while (set) {
-	            	if (set & 1) {
-		                readmem(fd + i*sizeof(struct file *), KVADDR,
-		                        &file, sizeof(struct file *),
-		                        "fd file", FAULT_ON_ERROR);
-		                if (file) {
-		                    	if (sym_socket_dump(file, i,
-					    sockets_found, flag, ref)) {
-		                        	sockets_found++;
+			j = 0;
+			for (;;) {
+					unsigned long set;
+					i = j * __NFDBITS;
+					if (((max_fdset >= 0) && (i >= max_fdset)) || (i >= max_fds))
+								break;
+					set = open_fds.__fds_bits[j++];
+					while (set) {
+								if (set & 1) {
+										readmem(fd + i*sizeof(struct file *), KVADDR,
+														&file, sizeof(struct file *),
+														"fd file", FAULT_ON_ERROR);
+										if (file) {
+													if (sym_socket_dump(file, i,
+							sockets_found, flag, ref)) {
+															sockets_found++;
 					}
-		                }
-	            	}
-	            	i++;
-	            	set >>= 1;
-	        }
-        }
+										}
+								}
+								i++;
+								set >>= 1;
+					}
+				}
 
-    	if (!sockets_found && !NET_REFERENCE_CHECK(ref))
-        	fprintf(fp, "No open sockets.\n");
+			if (!sockets_found && !NET_REFERENCE_CHECK(ref))
+					fprintf(fp, "No open sockets.\n");
 
 	if (NET_REFERENCE_FOUND(ref))
 		fprintf(fp, "\n");
@@ -1465,9 +1465,9 @@ sym_socket_dump(ulong file,
 {
 	uint16_t umode16 = 0;
 	uint32_t umode32 = 0;
-    	uint mode = 0;
-    	ulong dentry = 0, inode = 0,
-        struct_socket = 0;
+			uint mode = 0;
+			ulong dentry = 0, inode = 0,
+				struct_socket = 0;
 	ulong sock = 0;
 	char *file_buf, *dentry_buf, *inode_buf, *socket_buf;
 	char buf1[BUFSIZE];
@@ -1485,14 +1485,14 @@ sym_socket_dump(ulong file,
 	else
 		radix = 0;
 
-    	if (!dentry)
-        	return FALSE;
+			if (!dentry)
+					return FALSE;
 
 	dentry_buf = fill_dentry_cache(dentry);
 	inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
 
-    	if (!inode)
-        	return FALSE;
+			if (!inode)
+					return FALSE;
 
 	inode_buf = fill_inode_cache(inode);
 
@@ -1513,8 +1513,8 @@ sym_socket_dump(ulong file,
 	else
 		mode = (uint)umode16;
 
-    	if (!S_ISSOCK(mode))
-        	return FALSE;
+			if (!S_ISSOCK(mode))
+					return FALSE;
 
 	/*
 	 * 2.6 (SOCK_V2) -- socket is inode addr minus sizeof(struct socket)
@@ -1522,18 +1522,18 @@ sym_socket_dump(ulong file,
 	switch (net->flags & (SOCK_V1|SOCK_V2))
 	{
 	case SOCK_V1:
-    		struct_socket = inode + OFFSET(inode_u);
+				struct_socket = inode + OFFSET(inode_u);
 		sock = ULONG(inode_buf + OFFSET(inode_u) + OFFSET(socket_sk));
 		break;
 
 	case SOCK_V2:
 		if (!VALID_SIZE(inet_sock))
 			error(FATAL,
-              	           "cannot determine what an inet_sock structure is\n");
-    		struct_socket = inode - OFFSET(socket_alloc_vfs_inode);
+													 "cannot determine what an inet_sock structure is\n");
+				struct_socket = inode - OFFSET(socket_alloc_vfs_inode);
 		socket_buf = GETBUF(SIZE(socket));
-                readmem(struct_socket, KVADDR, socket_buf,
-                        SIZE(socket), "socket buffer", FAULT_ON_ERROR);
+								readmem(struct_socket, KVADDR, socket_buf,
+												SIZE(socket), "socket buffer", FAULT_ON_ERROR);
 		sock = ULONG(socket_buf + OFFSET(socket_sk));
 		FREEBUF(socket_buf);
 		break;
@@ -1541,14 +1541,14 @@ sym_socket_dump(ulong file,
 
 	if (NET_REFERENCE_CHECK(ref)) {
 		if ((ref->cmdflags & NET_REF_HEXNUM) &&
-		    ((ref->hexval == sock) || (ref->hexval == struct_socket)))
+				((ref->hexval == sock) || (ref->hexval == struct_socket)))
 			ref->cmdflags |= NET_REF_FOUND_ITEM;
 		else if ((ref->cmdflags & NET_REF_DECNUM) &&
 			(ref->decval == (ulong)fd))
 			ref->cmdflags |= NET_REF_FOUND_ITEM;
-                else if ((ref->cmdflags & NET_REF_HEXNUM) &&
-                        (ref->hexval == (ulong)fd))
-                        ref->cmdflags |= NET_REF_FOUND_ITEM;
+								else if ((ref->cmdflags & NET_REF_HEXNUM) &&
+												(ref->hexval == (ulong)fd))
+												ref->cmdflags |= NET_REF_FOUND_ITEM;
 
 		if (!(ref->cmdflags & NET_REF_FOUND_ITEM))
 			return FALSE;
@@ -1580,11 +1580,11 @@ sym_socket_dump(ulong file,
 			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX,
 			MKSTR(sock)));
 
-    		dump_struct("socket", struct_socket, radix);
+				dump_struct("socket", struct_socket, radix);
 		switch (net->flags & (SOCK_V1|SOCK_V2))
 		{
 		case SOCK_V1:
-    			dump_struct("sock", sock, radix);
+					dump_struct("sock", sock, radix);
 			break;
 		case SOCK_V2:
 			if (STRUCT_EXISTS("inet_sock") && !(net->flags & NO_INET_SOCK))
@@ -1607,8 +1607,8 @@ sym_socket_dump(ulong file,
 			MKSTR(struct_socket)),
 			space(MINSPACE),
 			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX,
-                        MKSTR(sock)),
-		        space(MINSPACE));
+												MKSTR(sock)),
+						space(MINSPACE));
 
 		buf1[0] = NULLCHAR;
 		get_sock_info(sock, buf1);
@@ -1620,5 +1620,5 @@ sym_socket_dump(ulong file,
 		error(FATAL, "illegal flag: %lx\n", flag);
 	}
 
-    	return TRUE;
+			return TRUE;
 }

@@ -38,26 +38,26 @@ void vas_free_data_v1(u_long va);
 /* in-memory formats */
 
 struct map_hdr {
-     struct crash_map_entry *map;   /* array of map entries */
-     int blk_size;                  /* blocksize for this map */
+		 struct crash_map_entry *map;   /* array of map entries */
+		 int blk_size;                  /* blocksize for this map */
 };
 
 
 
 struct map_hdr_v1 {
-     u_long start_va;
-     u_long end_va;
+		 u_long start_va;
+		 u_long end_va;
 
-     struct crash_map_entry_v1 *map;   /* array of map entries */
-     int map_entries;               /* entries in array pointed to by map */
-     u_long va_per_entry;           /* va covered by each map_entry */
-     int blk_offset;                /* add this to start_blk in map_entry
-			             * this allows relocation of compressed data
-				     * while using original maps
-				     */
-     int blk_size;                  /* blocksize for this map */
+		 struct crash_map_entry_v1 *map;   /* array of map entries */
+		 int map_entries;               /* entries in array pointed to by map */
+		 u_long va_per_entry;           /* va covered by each map_entry */
+		 int blk_offset;                /* add this to start_blk in map_entry
+									 * this allows relocation of compressed data
+						 * while using original maps
+						 */
+		 int blk_size;                  /* blocksize for this map */
 
-     struct map_hdr_v1 *next;
+		 struct map_hdr_v1 *next;
 };
 
 extern int clean_exit(int);

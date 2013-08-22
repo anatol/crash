@@ -213,4 +213,4 @@ struct sadump_data *sadump_get_sadump_data(void);
 int sadump_cleanup_sadump_data(void);
 ulong sadump_identify_format(int *block_size);
 int sadump_get_smram_cpu_state(int apicid,
-			       struct sadump_smram_cpu_state *smram);
+						 struct sadump_smram_cpu_state *smram);

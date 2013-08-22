@@ -19,11 +19,11 @@
 #include <elf.h>
 
 #define MIN_NETDUMP_ELF32_HEADER_SIZE \
-        sizeof(Elf32_Ehdr)+sizeof(Elf32_Phdr)+sizeof(Elf32_Phdr)
+				sizeof(Elf32_Ehdr)+sizeof(Elf32_Phdr)+sizeof(Elf32_Phdr)
 #define MIN_NETDUMP_ELF64_HEADER_SIZE \
-        sizeof(Elf64_Ehdr)+sizeof(Elf64_Phdr)+sizeof(Elf64_Phdr)
+				sizeof(Elf64_Ehdr)+sizeof(Elf64_Phdr)+sizeof(Elf64_Phdr)
 #define MIN_NETDUMP_ELF_HEADER_SIZE \
-        MAX(MIN_NETDUMP_ELF32_HEADER_SIZE, MIN_NETDUMP_ELF64_HEADER_SIZE)
+				MAX(MIN_NETDUMP_ELF32_HEADER_SIZE, MIN_NETDUMP_ELF64_HEADER_SIZE)
 
 #define NT_TASKSTRUCT 4
 #define NT_DISKDUMP   0x70000001
@@ -54,15 +54,15 @@ struct vmcore_data {
 	char *elf_header;
 	uint num_pt_load_segments;
 	struct pt_load_segment *pt_load_segments;
-        Elf32_Ehdr *elf32;
-        Elf32_Phdr *notes32;
-        Elf32_Phdr *load32;
-        Elf64_Ehdr *elf64;
-        Elf64_Phdr *notes64;
-        Elf64_Phdr *load64;
-        void *nt_prstatus;
-        void *nt_prpsinfo;
-        void *nt_taskstruct;
+				Elf32_Ehdr *elf32;
+				Elf32_Phdr *notes32;
+				Elf32_Phdr *load32;
+				Elf64_Ehdr *elf64;
+				Elf64_Phdr *notes64;
+				Elf64_Phdr *load64;
+				void *nt_prstatus;
+				void *nt_prpsinfo;
+				void *nt_taskstruct;
 	ulong task_struct;
 	uint page_size;
 	ulong switch_stack;
@@ -120,7 +120,7 @@ struct xen_kdump_data {
 	ulong cache_hits;
 	ulong accesses;
 	int p2m_frames;
-        ulong *p2m_mfn_frame_list;
+				ulong *p2m_mfn_frame_list;
 	ulong xen_phys_start;
 	int xen_major_version;
 	int xen_minor_version;
@@ -173,31 +173,31 @@ struct proc_kcore_data {
 	uint flags;
 	uint segments;
 	char *elf_header;
-        Elf64_Ehdr *elf64;
+				Elf64_Ehdr *elf64;
 	Elf64_Phdr *load64;
-        Elf32_Ehdr *elf32;
+				Elf32_Ehdr *elf32;
 	Elf32_Phdr *load32;
 };
 
 struct QEMUCPUSegment {
-    uint32_t selector;
-    uint32_t limit;
-    uint32_t flags;
-    uint32_t pad;
-    uint64_t base;
+		uint32_t selector;
+		uint32_t limit;
+		uint32_t flags;
+		uint32_t pad;
+		uint64_t base;
 };
 
 typedef struct QEMUCPUSegment QEMUCPUSegment;
 
 struct QEMUCPUState {
-    uint32_t version;
-    uint32_t size;
-    uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp;
-    uint64_t r8, r9, r10, r11, r12, r13, r14, r15;
-    uint64_t rip, rflags;
-    QEMUCPUSegment cs, ds, es, fs, gs, ss;
-    QEMUCPUSegment ldt, tr, gdt, idt;
-    uint64_t cr[5];
+		uint32_t version;
+		uint32_t size;
+		uint64_t rax, rbx, rcx, rdx, rsi, rdi, rsp, rbp;
+		uint64_t r8, r9, r10, r11, r12, r13, r14, r15;
+		uint64_t rip, rflags;
+		QEMUCPUSegment cs, ds, es, fs, gs, ss;
+		QEMUCPUSegment ldt, tr, gdt, idt;
+		uint64_t cr[5];
 };
 
 typedef struct QEMUCPUState QEMUCPUState;

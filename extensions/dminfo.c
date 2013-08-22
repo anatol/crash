@@ -1321,9 +1321,9 @@ static char *help_dminfo[] = {
 	"device mapper (dm) information",	/* short description */
 	"[-b bio | -d | -l | -q | -s | -t]",	/* argument synopsis */
 	"  This command displays information about device-mapper mapped ",
-        "  devices (dm devices).",
-        "  If no argument is entered, displays lists of existing dm devices.",
-        "  It's same as -l option.",
+				"  devices (dm devices).",
+				"  If no argument is entered, displays lists of existing dm devices.",
+				"  It's same as -l option.",
 	"",
 	"    -b bio  displays the information of the dm device which the bio",
 	"            is submitted in.  If the bio isn't for dm devices,",

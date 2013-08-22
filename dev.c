@@ -34,7 +34,7 @@ static const char *pci_strdev(uint, uint, char *);
 static void diskio_option(void);
 
 static struct dev_table {
-        ulong flags;
+				ulong flags;
 } dev_table = { 0 };
 
 struct dev_table *dt = &dev_table;
@@ -45,25 +45,25 @@ struct dev_table *dt = &dev_table;
 void
 dev_init(void)
 {
-        MEMBER_OFFSET_INIT(pci_dev_global_list, "pci_dev", "global_list");
-        MEMBER_OFFSET_INIT(pci_dev_next, "pci_dev", "next");
-        MEMBER_OFFSET_INIT(pci_dev_bus, "pci_dev", "bus");
-        MEMBER_OFFSET_INIT(pci_dev_devfn, "pci_dev", "devfn");
-        MEMBER_OFFSET_INIT(pci_dev_class, "pci_dev", "class");
-        MEMBER_OFFSET_INIT(pci_dev_device, "pci_dev", "device");
-        MEMBER_OFFSET_INIT(pci_dev_vendor, "pci_dev", "vendor");
+				MEMBER_OFFSET_INIT(pci_dev_global_list, "pci_dev", "global_list");
+				MEMBER_OFFSET_INIT(pci_dev_next, "pci_dev", "next");
+				MEMBER_OFFSET_INIT(pci_dev_bus, "pci_dev", "bus");
+				MEMBER_OFFSET_INIT(pci_dev_devfn, "pci_dev", "devfn");
+				MEMBER_OFFSET_INIT(pci_dev_class, "pci_dev", "class");
+				MEMBER_OFFSET_INIT(pci_dev_device, "pci_dev", "device");
+				MEMBER_OFFSET_INIT(pci_dev_vendor, "pci_dev", "vendor");
 	MEMBER_OFFSET_INIT(pci_bus_number, "pci_bus", "number");
 
-        STRUCT_SIZE_INIT(resource, "resource");
+				STRUCT_SIZE_INIT(resource, "resource");
 	if ((VALID_STRUCT(resource) && symbol_exists("do_resource_list")) ||
-	    (VALID_STRUCT(resource) &&
-             symbol_exists("iomem_resource") &&
-             symbol_exists("ioport_resource"))) {
-        	MEMBER_OFFSET_INIT(resource_name, "resource", "name");
-        	MEMBER_OFFSET_INIT(resource_start, "resource", "start");
-        	MEMBER_OFFSET_INIT(resource_end, "resource", "end");
-        	MEMBER_OFFSET_INIT(resource_sibling, "resource", "sibling");
-        	MEMBER_OFFSET_INIT(resource_child, "resource", "child");
+			(VALID_STRUCT(resource) &&
+						 symbol_exists("iomem_resource") &&
+						 symbol_exists("ioport_resource"))) {
+					MEMBER_OFFSET_INIT(resource_name, "resource", "name");
+					MEMBER_OFFSET_INIT(resource_start, "resource", "start");
+					MEMBER_OFFSET_INIT(resource_end, "resource", "end");
+					MEMBER_OFFSET_INIT(resource_sibling, "resource", "sibling");
+					MEMBER_OFFSET_INIT(resource_child, "resource", "child");
 	} else {
 		STRUCT_SIZE_INIT(resource_entry_t, "resource_entry_t");
 		if (VALID_SIZE(resource_entry_t)) {
@@ -88,14 +88,14 @@ dev_init(void)
 void
 cmd_dev(void)
 {
-        int c;
+				int c;
 	ulong flags;
 
 	flags = 0;
 
-        while ((c = getopt(argcnt, args, "dpi")) != EOF) {
-                switch(c)
-                {
+				while ((c = getopt(argcnt, args, "dpi")) != EOF) {
+								switch(c)
+								{
 		case 'd':
 			diskio_option();
 			return;
@@ -108,19 +108,19 @@ cmd_dev(void)
 
 		case 'p':
 			if (machine_type("S390X") ||
-			    (THIS_KERNEL_VERSION >= LINUX(2,6,26)))
+					(THIS_KERNEL_VERSION >= LINUX(2,6,26)))
 				option_not_supported(c);
 			do_pci();
 			return;
 
-                default:
-                        argerrs++;
-                        break;
-                }
-        }
+								default:
+												argerrs++;
+												break;
+								}
+				}
 
-        if (argerrs)
-                cmd_usage(pc->curcmd, SYNOPSIS);
+				if (argerrs)
+								cmd_usage(pc->curcmd, SYNOPSIS);
 
 	dump_chrdevs(flags);
 	fprintf(fp, "\n");
@@ -166,8 +166,8 @@ dump_chrdevs(ulong flags)
 	size = VALID_STRUCT(char_device_struct) ?
 		sizeof(void *) : sizeof(struct chrdevs);
 
-        readmem(addr, KVADDR, &chrdevs[0], size * MAX_DEV,
-        	"chrdevs array", FAULT_ON_ERROR);
+				readmem(addr, KVADDR, &chrdevs[0], size * MAX_DEV,
+					"chrdevs array", FAULT_ON_ERROR);
 
 	fprintf(fp, "%s  %s", chrdev_hdr, VADDR_PRLEN == 8 ? " " : "");
 	fprintf(fp, "%s  ", mkstring(buf, VADDR_PRLEN, CENTER, "CDEV"));
@@ -182,13 +182,13 @@ dump_chrdevs(ulong flags)
 
 		fprintf(fp, " %3d      ", i);
 		if (cp->name) {
-                	if (read_string(cp->name, buf, BUFSIZE-1))
-                        	fprintf(fp, "%-11s ", buf);
-                	else
-                        	fprintf(fp, "%-11s ", "(unknown)");
+									if (read_string(cp->name, buf, BUFSIZE-1))
+													fprintf(fp, "%-11s ", buf);
+									else
+													fprintf(fp, "%-11s ", "(unknown)");
 
 		} else
-                      	fprintf(fp, "%-11s ", "(unknown)");
+												fprintf(fp, "%-11s ", "(unknown)");
 
 		sprintf(buf, "%s%%%dlx  ",
 			strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
@@ -213,9 +213,9 @@ char_device_struct:
 		if (!(*cdp))
 			continue;
 
-       		readmem(*cdp, KVADDR, char_device_struct_buf,
+			 		readmem(*cdp, KVADDR, char_device_struct_buf,
 			SIZE(char_device_struct),
-                	"char_device_struct", FAULT_ON_ERROR);
+									"char_device_struct", FAULT_ON_ERROR);
 
 		next = ULONG(char_device_struct_buf +
 			OFFSET(char_device_struct_next));
@@ -225,7 +225,7 @@ char_device_struct:
 		{
 		case TYPE_CODE_ARRAY:
 			snprintf(buf, name_size, char_device_struct_buf +
-			    OFFSET(char_device_struct_name));
+					OFFSET(char_device_struct_name));
 			break;
 		case TYPE_CODE_PTR:
 		default:
@@ -279,23 +279,23 @@ char_device_struct:
 
 		if (CRASHDEBUG(1))
 			fprintf(fp,
-		    	    "%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
+							"%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
 				*cdp, major, minor, buf, next, cdev, fops);
 
 		while (next) {
-       			readmem(savenext = next, KVADDR, char_device_struct_buf,
+			 			readmem(savenext = next, KVADDR, char_device_struct_buf,
 				SIZE(char_device_struct),
-                		"char_device_struct", FAULT_ON_ERROR);
+										"char_device_struct", FAULT_ON_ERROR);
 
-	                next = ULONG(char_device_struct_buf +
-	                        OFFSET(char_device_struct_next));
-	                name = ULONG(char_device_struct_buf +
-	                        OFFSET(char_device_struct_name));
+									next = ULONG(char_device_struct_buf +
+													OFFSET(char_device_struct_next));
+									name = ULONG(char_device_struct_buf +
+													OFFSET(char_device_struct_name));
 			switch (name_typecode)
 			{
 			case TYPE_CODE_ARRAY:
 				snprintf(buf, name_size, char_device_struct_buf +
-			    		OFFSET(char_device_struct_name));
+							OFFSET(char_device_struct_name));
 				break;
 			case TYPE_CODE_PTR:
 			default:
@@ -304,10 +304,10 @@ char_device_struct:
 				break;
 			}
 
-	                major = INT(char_device_struct_buf +
-	                        OFFSET(char_device_struct_major));
-	                minor = INT(char_device_struct_buf +
-	                        OFFSET(char_device_struct_baseminor));
+									major = INT(char_device_struct_buf +
+													OFFSET(char_device_struct_major));
+									minor = INT(char_device_struct_buf +
+													OFFSET(char_device_struct_baseminor));
 
 			fops = cdev = 0;
 			if (VALID_MEMBER(char_device_struct_cdev) &&
@@ -349,9 +349,9 @@ char_device_struct:
 			}
 
 			if (CRASHDEBUG(1))
-	                	fprintf(fp,
-	                        "%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
-	                        	savenext, major, minor, buf, next, cdev, fops);
+										fprintf(fp,
+													"%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
+														savenext, major, minor, buf, next, cdev, fops);
 		}
 	}
 
@@ -379,7 +379,7 @@ search_cdev_map_probes(char *name, int major, int minor, ulong *cdev)
 
 	addr = cdev_map + OFFSET(kobj_map_probes);
 	if (!readmem(addr, KVADDR, &probes[0], sizeof(void *) * MAX_DEV,
-	    "cdev_map.probes[]", QUIET|RETURN_ON_ERROR))
+			"cdev_map.probes[]", QUIET|RETURN_ON_ERROR))
 		return 0;
 
 	ops = 0;
@@ -388,17 +388,17 @@ search_cdev_map_probes(char *name, int major, int minor, ulong *cdev)
 
 	while (next) {
 		if (!readmem(next, KVADDR, probe_buf, SIZE(probe),
-		    "struct probe", QUIET|RETURN_ON_ERROR))
+				"struct probe", QUIET|RETURN_ON_ERROR))
 			break;
 
 		probe_dev = UINT(probe_buf + OFFSET(probe_dev));
 
 		if ((MAJOR(probe_dev) == major) &&
-		    (MINOR(probe_dev) == minor)) {
+				(MINOR(probe_dev) == minor)) {
 			probe_data = ULONG(probe_buf + OFFSET(probe_data));
 			addr = probe_data + OFFSET(cdev_ops);
 			if (!readmem(addr, KVADDR, &ops, sizeof(void *),
-	    		    "cdev ops", QUIET|RETURN_ON_ERROR))
+							"cdev ops", QUIET|RETURN_ON_ERROR))
 				ops = 0;
 			else
 				*cdev = probe_data;
@@ -421,28 +421,28 @@ dump_blkdevs(ulong flags)
 	int i;
 	ulong addr;
 	char buf[BUFSIZE];
-        struct blkdevs {
-                ulong name;
-                ulong ops;
-        } blkdevs[MAX_DEV], *bp;
+				struct blkdevs {
+								ulong name;
+								ulong ops;
+				} blkdevs[MAX_DEV], *bp;
 
 	if (kernel_symbol_exists("major_names") &&
-	    kernel_symbol_exists("bdev_map")) {
-                dump_blkdevs_v3(flags);
+			kernel_symbol_exists("bdev_map")) {
+								dump_blkdevs_v3(flags);
 		return;
 	}
 
-        if (symbol_exists("all_bdevs")) {
-                dump_blkdevs_v2(flags);
-                return;
-        }
+				if (symbol_exists("all_bdevs")) {
+								dump_blkdevs_v2(flags);
+								return;
+				}
 
 	if (!symbol_exists("blkdevs"))
 		error(FATAL, "blkdevs or all_bdevs: symbols do not exist\n");
 
 	addr = symbol_value("blkdevs");
-        readmem(addr, KVADDR, &blkdevs[0], sizeof(struct blkdevs) * MAX_DEV,
-                "blkdevs array", FAULT_ON_ERROR);
+				readmem(addr, KVADDR, &blkdevs[0], sizeof(struct blkdevs) * MAX_DEV,
+								"blkdevs array", FAULT_ON_ERROR);
 
 	fprintf(fp, "%s%s\n", blkdev_hdr,
 		mkstring(buf, VADDR_PRLEN, CENTER, "OPERATIONS"));
@@ -452,14 +452,14 @@ dump_blkdevs(ulong flags)
 			continue;
 
 		fprintf(fp, " %3d      ", i);
-                if (bp->name) {
-                        if (read_string(bp->name, buf, BUFSIZE-1))
-                                fprintf(fp, "%-11s ", buf);
-                        else
-                                fprintf(fp, "%-11s ", "(unknown)");
+								if (bp->name) {
+												if (read_string(bp->name, buf, BUFSIZE-1))
+																fprintf(fp, "%-11s ", buf);
+												else
+																fprintf(fp, "%-11s ", "(unknown)");
 
-                } else
-                        fprintf(fp, "%-11s ", "(unknown)");
+								} else
+												fprintf(fp, "%-11s ", "(unknown)");
 
 		sprintf(buf, "%s%%%dlx  ",
 			strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
@@ -480,7 +480,7 @@ dump_blkdevs(ulong flags)
 static void
 dump_blkdevs_v2(ulong flags)
 {
-        struct list_data list_data, *ld;
+				struct list_data list_data, *ld;
 	ulong *major_fops, *bdevlist, *gendisklist, *majorlist;
 	int i, j, bdevcnt, len;
 	char *block_device_buf, *gendisk_buf, *blk_major_name_buf;
@@ -497,19 +497,19 @@ dump_blkdevs_v2(ulong flags)
 	block_device_buf = GETBUF(SIZE(block_device));
 	gendisk_buf = GETBUF(SIZE(gendisk));
 
-        ld = &list_data;
-        BZERO(ld, sizeof(struct list_data));
+				ld = &list_data;
+				BZERO(ld, sizeof(struct list_data));
 
 	get_symbol_data("all_bdevs", sizeof(void *), &ld->start);
 	ld->end = symbol_value("all_bdevs");
-        ld->list_head_offset = OFFSET(block_device_bd_list);
+				ld->list_head_offset = OFFSET(block_device_bd_list);
 
-        hq_open();
-        bdevcnt = do_list(ld);
-        bdevlist = (ulong *)GETBUF(bdevcnt * sizeof(ulong));
-        gendisklist = (ulong *)GETBUF(bdevcnt * sizeof(ulong));
-        bdevcnt = retrieve_list(bdevlist, bdevcnt);
-        hq_close();
+				hq_open();
+				bdevcnt = do_list(ld);
+				bdevlist = (ulong *)GETBUF(bdevcnt * sizeof(ulong));
+				gendisklist = (ulong *)GETBUF(bdevcnt * sizeof(ulong));
+				bdevcnt = retrieve_list(bdevlist, bdevcnt);
+				hq_close();
 
 	total = MAX(len, bdevcnt);
 	major_fops = (ulong *)GETBUF(sizeof(void *) * total);
@@ -520,7 +520,7 @@ dump_blkdevs_v2(ulong flags)
 	 *      ret += bdev->bd_inode->i_mapping->nrpages;
 	 */
 	for (i = 0; i < bdevcnt; i++) {
-                readmem(bdevlist[i], KVADDR, block_device_buf,
+								readmem(bdevlist[i], KVADDR, block_device_buf,
 			SIZE(block_device), "block_device buffer",
 			FAULT_ON_ERROR);
 		gendisklist[i] = ULONG(block_device_buf +
@@ -540,7 +540,7 @@ dump_blkdevs_v2(ulong flags)
 	for (i = 0; i < bdevcnt; i++) {
 		if (!gendisklist[i])
 			continue;
-                readmem(gendisklist[i], KVADDR, gendisk_buf,
+								readmem(gendisklist[i], KVADDR, gendisk_buf,
 			SIZE(gendisk), "gendisk buffer",
 			FAULT_ON_ERROR);
 		fops = ULONG(gendisk_buf + OFFSET(gendisk_fops));
@@ -573,7 +573,7 @@ dump_blkdevs_v2(ulong flags)
 		if (!majorlist[i])
 			continue;
 
-                readmem(majorlist[i], KVADDR, blk_major_name_buf,
+								readmem(majorlist[i], KVADDR, blk_major_name_buf,
 			SIZE(blk_major_name), "blk_major_name buffer",
 			FAULT_ON_ERROR);
 
@@ -583,55 +583,55 @@ dump_blkdevs_v2(ulong flags)
 		strncpy(buf, blk_major_name_buf +
 			OFFSET(blk_major_name_name), 16);
 		next = ULONG(blk_major_name_buf +
-                        OFFSET(blk_major_name_next));
+												OFFSET(blk_major_name_next));
 		if (CRASHDEBUG(1))
 			fprintf(fp,
-		    	    "[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
+							"[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
 				i, majorlist[i], major, buf, next,
 				major_fops[major]);
 
-                fprintf(fp, " %3d      ", major);
-                fprintf(fp, "%-12s ", strlen(buf) ? buf : "(unknown)");
+								fprintf(fp, " %3d      ", major);
+								fprintf(fp, "%-12s ", strlen(buf) ? buf : "(unknown)");
 		if (major_fops[major]) {
-                	sprintf(buf, "%s%%%dlx  ",
-                        	strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
-                        	VADDR_PRLEN);
-                	fprintf(fp, buf, major_fops[major]);
-                	value_to_symstr(major_fops[major], buf, 0);
-                	if (strlen(buf))
-                        	fprintf(fp, "<%s>", buf);
+									sprintf(buf, "%s%%%dlx  ",
+													strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
+													VADDR_PRLEN);
+									fprintf(fp, buf, major_fops[major]);
+									value_to_symstr(major_fops[major], buf, 0);
+									if (strlen(buf))
+													fprintf(fp, "<%s>", buf);
 		} else
 			fprintf(fp, " (unknown)");
-                fprintf(fp, "\n");
+								fprintf(fp, "\n");
 
 		while (next) {
-                	readmem(savenext = next, KVADDR, blk_major_name_buf,
+									readmem(savenext = next, KVADDR, blk_major_name_buf,
 				SIZE(blk_major_name), "blk_major_name buffer",
 				FAULT_ON_ERROR);
-                	major = UINT(blk_major_name_buf +
-                        	OFFSET(blk_major_name_major));
-                	strncpy(buf, blk_major_name_buf +
-                        	OFFSET(blk_major_name_name), 16);
-                	next = ULONG(blk_major_name_buf +
-                        	OFFSET(blk_major_name_next));
+									major = UINT(blk_major_name_buf +
+													OFFSET(blk_major_name_major));
+									strncpy(buf, blk_major_name_buf +
+													OFFSET(blk_major_name_name), 16);
+									next = ULONG(blk_major_name_buf +
+													OFFSET(blk_major_name_next));
 			if (CRASHDEBUG(1))
-                		fprintf(fp,
-			    "[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
-                        		i, savenext, major, buf, next,
+										fprintf(fp,
+					"[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
+														i, savenext, major, buf, next,
 					major_fops[major]);
 
-                	fprintf(fp, " %3d      ", major);
-                	fprintf(fp, "%-12s ", strlen(buf) ? buf : "(unknown)");
-                	if (major_fops[major]) {
-                        	sprintf(buf, "%s%%%dlx  ",
-                                	strlen("OPERATIONS") < VADDR_PRLEN ?
+									fprintf(fp, " %3d      ", major);
+									fprintf(fp, "%-12s ", strlen(buf) ? buf : "(unknown)");
+									if (major_fops[major]) {
+													sprintf(buf, "%s%%%dlx  ",
+																	strlen("OPERATIONS") < VADDR_PRLEN ?
 						" " : "  ", VADDR_PRLEN);
-                        	fprintf(fp, buf, major_fops[major]);
-                        	value_to_symstr(major_fops[major], buf, 0);
-                        	if (strlen(buf))
-                                	fprintf(fp, "<%s>", buf);
-                	} else
-                        	fprintf(fp, " (unknown)");
+													fprintf(fp, buf, major_fops[major]);
+													value_to_symstr(major_fops[major], buf, 0);
+													if (strlen(buf))
+																	fprintf(fp, "<%s>", buf);
+									} else
+													fprintf(fp, " (unknown)");
 			fprintf(fp, "\n");
 		}
 	}
@@ -721,7 +721,7 @@ search_bdev_map_probes(char *name, int major, int minor, ulong *gendisk)
 
 	addr = bdev_map + OFFSET(kobj_map_probes);
 	if (!readmem(addr, KVADDR, &probes[0], sizeof(void *) * MAX_DEV,
-	    "bdev_map.probes[]", QUIET|RETURN_ON_ERROR))
+			"bdev_map.probes[]", QUIET|RETURN_ON_ERROR))
 		return 0;
 
 	probe_buf = GETBUF(SIZE(probe));
@@ -730,10 +730,10 @@ search_bdev_map_probes(char *name, int major, int minor, ulong *gendisk)
 	fops = 0;
 
 	for (next = probes[major]; next;
-	     next = ULONG(probe_buf + OFFSET(probe_next))) {
+			 next = ULONG(probe_buf + OFFSET(probe_next))) {
 
 		if (!readmem(next, KVADDR, probe_buf, SIZE(probe),
-		    "struct probe", QUIET|RETURN_ON_ERROR))
+				"struct probe", QUIET|RETURN_ON_ERROR))
 			break;
 
 		probe_data = ULONG(probe_buf + OFFSET(probe_data));
@@ -745,8 +745,8 @@ search_bdev_map_probes(char *name, int major, int minor, ulong *gendisk)
 			continue;
 
 		if (!readmem(probe_data, KVADDR, gendisk_buf,
-		    SIZE(gendisk), "gendisk buffer",
-		    QUIET|RETURN_ON_ERROR))
+				SIZE(gendisk), "gendisk buffer",
+				QUIET|RETURN_ON_ERROR))
 			break;
 
 		fops = ULONG(gendisk_buf + OFFSET(gendisk_fops));
@@ -811,22 +811,22 @@ ioport_list:
 
 	wrap = VADDR_PRLEN + 2 + 9 + 2;
 
-        resource_buf = GETBUF(SIZE(resource_entry_t));
+				resource_buf = GETBUF(SIZE(resource_entry_t));
 	ld = &list_data;
-        BZERO(ld, sizeof(struct list_data));
-        ld->start = 0xc026cf20;
+				BZERO(ld, sizeof(struct list_data));
+				ld->start = 0xc026cf20;
 	readmem(symbol_value("iolist") + OFFSET(resource_entry_t_next),
 		KVADDR, &ld->start, sizeof(void *), "iolist.next",
 		FAULT_ON_ERROR);
-        ld->member_offset = OFFSET(resource_entry_t_next);
+				ld->member_offset = OFFSET(resource_entry_t_next);
 
-        hq_open();
-        cnt = do_list(ld);
-        if (!cnt)
-            	return;
-        resource_list = (ulong *)GETBUF(cnt * sizeof(ulong));
-        cnt = retrieve_list(resource_list, cnt);
-        hq_close();
+				hq_open();
+				cnt = do_list(ld);
+				if (!cnt)
+							return;
+				resource_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+				cnt = retrieve_list(resource_list, cnt);
+				hq_close();
 
 	for (i = 0; i < cnt; i++) {
 		fprintf(fp, "%lx  ", resource_list[i]);
@@ -838,60 +838,60 @@ ioport_list:
 		end += start;
 		fprintf(fp, "%04lx-%04lx  ", start, end);
 		name = ULONG(resource_buf + OFFSET(resource_entry_t_name));
-                if (!read_string(name, buf1, BUFSIZE-1))
-                        sprintf(buf1, "(unknown)");
+								if (!read_string(name, buf1, BUFSIZE-1))
+												sprintf(buf1, "(unknown)");
 
 		if (wrap + strlen(buf1) <= 80)
 			fprintf(fp, "%s\n", buf1);
-                else {
-                        len = wrap + strlen(buf1) - 80;
-                        for (c = 0, p1 = &buf1[strlen(buf1)-1];
-                             p1 > buf1; p1--, c++) {
-                                if (*p1 != ' ')
-                                        continue;
-                                if (c >= len) {
-                                        *p1 = NULLCHAR;
-                                        break;
-                                }
-                        }
-                        fprintf(fp, "%s\n", buf1);
-                        if (*p1 == NULLCHAR) {
-                                pad_line(fp, wrap, ' ');
-                                fprintf(fp, "%s\n", p1+1);
-                        }
-                }
+								else {
+												len = wrap + strlen(buf1) - 80;
+												for (c = 0, p1 = &buf1[strlen(buf1)-1];
+														 p1 > buf1; p1--, c++) {
+																if (*p1 != ' ')
+																				continue;
+																if (c >= len) {
+																				*p1 = NULLCHAR;
+																				break;
+																}
+												}
+												fprintf(fp, "%s\n", buf1);
+												if (*p1 == NULLCHAR) {
+																pad_line(fp, wrap, ' ');
+																fprintf(fp, "%s\n", p1+1);
+												}
+								}
 	}
 
 	return;
 
 resource_list:
-        resource_buf = GETBUF(SIZE(resource));
+				resource_buf = GETBUF(SIZE(resource));
 	/*
 	 * ioport
 	 */
-        readmem(symbol_value("ioport_resource") + OFFSET(resource_end),
-                KVADDR, &end, sizeof(long), "ioport_resource.end",
-                FAULT_ON_ERROR);
+				readmem(symbol_value("ioport_resource") + OFFSET(resource_end),
+								KVADDR, &end, sizeof(long), "ioport_resource.end",
+								FAULT_ON_ERROR);
 
 	size = (end > 0xffff) ? 8 : 4;
 
-        fprintf(fp, "%s  %s  NAME\n",
-                mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "RESOURCE"),
-                mkstring(buf2, (size*2) + 1,
+				fprintf(fp, "%s  %s  NAME\n",
+								mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "RESOURCE"),
+								mkstring(buf2, (size*2) + 1,
 		CENTER|LJUST, "RANGE"));
 	do_resource_list(symbol_value("ioport_resource"), resource_buf, size);
 
 	/*
 	 * iomem
 	 */
-        readmem(symbol_value("iomem_resource") + OFFSET(resource_end),
-                KVADDR, &end, sizeof(long), "iomem_resource.end",
-                FAULT_ON_ERROR);
+				readmem(symbol_value("iomem_resource") + OFFSET(resource_end),
+								KVADDR, &end, sizeof(long), "iomem_resource.end",
+								FAULT_ON_ERROR);
 	size = (end > 0xffff) ? 8 : 4;
-        fprintf(fp, "\n%s  %s  NAME\n",
-                mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "RESOURCE"),
-                mkstring(buf2, (size*2) + 1,
-                CENTER|LJUST, "RANGE"));
+				fprintf(fp, "\n%s  %s  NAME\n",
+								mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "RESOURCE"),
+								mkstring(buf2, (size*2) + 1,
+								CENTER|LJUST, "RANGE"));
 	do_resource_list(symbol_value("iomem_resource"), resource_buf, size);
 
 	return;
@@ -920,17 +920,17 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 
 	entry = first_entry;
 
-        while (entry) {
-                readmem(entry, KVADDR, resource_buf,
-                        SIZE(resource), "resource", FAULT_ON_ERROR);
+				while (entry) {
+								readmem(entry, KVADDR, resource_buf,
+												SIZE(resource), "resource", FAULT_ON_ERROR);
 
-                start = ULONG(resource_buf + OFFSET(resource_start));
-                end = ULONG(resource_buf + OFFSET(resource_end));
-                name = ULONG(resource_buf + OFFSET(resource_name));
-                child = ULONG(resource_buf + OFFSET(resource_child));
-                sibling = ULONG(resource_buf + OFFSET(resource_sibling));
+								start = ULONG(resource_buf + OFFSET(resource_start));
+								end = ULONG(resource_buf + OFFSET(resource_end));
+								name = ULONG(resource_buf + OFFSET(resource_name));
+								child = ULONG(resource_buf + OFFSET(resource_child));
+								sibling = ULONG(resource_buf + OFFSET(resource_sibling));
 
-                if (!read_string(name, buf1, BUFSIZE-1))
+								if (!read_string(name, buf1, BUFSIZE-1))
 			sprintf(buf1, "(unknown)");
 
 		fprintf(fp, fmt, entry, start, end);
@@ -939,7 +939,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 		else {
 			len = wrap + strlen(buf1) - 80;
 			for (c = 0, p1 = &buf1[strlen(buf1)-1];
-			     p1 > buf1; p1--, c++) {
+					 p1 > buf1; p1--, c++) {
 				if (*p1 != ' ')
 					continue;
 				if (c >= len) {
@@ -957,8 +957,8 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 		if (child && (child != entry))
 			do_resource_list(child, resource_buf, size);
 
-                entry = sibling;
-        }
+								entry = sibling;
+				}
 }
 
 
@@ -1018,7 +1018,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 #define  PCI_STATUS_DETECTED_PARITY 0x8000 /* Set on parity error */
 
 #define PCI_CLASS_REVISION	0x08	/* High 24 bits are class, low 8
-					   revision */
+						 revision */
 #define PCI_REVISION_ID         0x08    /* Revision ID */
 #define PCI_CLASS_PROG          0x09    /* Reg. Level Programming Interface */
 #define PCI_CLASS_DEVICE        0x0a    /* Device class */
@@ -2227,13 +2227,13 @@ do_pci(void)
 	BZERO(&pcilist_data, sizeof(struct list_data));
 
 	if (VALID_MEMBER(pci_dev_global_list)) {
-                get_symbol_data("pci_devices", sizeof(void *), &pcilist_data.start);
-                pcilist_data.end = symbol_value("pci_devices");
-                pcilist_data.list_head_offset = OFFSET(pci_dev_global_list);
+								get_symbol_data("pci_devices", sizeof(void *), &pcilist_data.start);
+								pcilist_data.end = symbol_value("pci_devices");
+								pcilist_data.list_head_offset = OFFSET(pci_dev_global_list);
 		readmem(symbol_value("pci_devices") + OFFSET(list_head_prev),
 			KVADDR, &prev, sizeof(void *), "list head prev",
 			FAULT_ON_ERROR);
-                /*
+								/*
 		 * Check if this system does not have any PCI devices.
 		 */
 		if ((pcilist_data.start == pcilist_data.end) &&
@@ -2244,7 +2244,7 @@ do_pci(void)
 		get_symbol_data("pci_devices", sizeof(void *),
 				&pcilist_data.start);
 		pcilist_data.member_offset = OFFSET(pci_dev_next);
-                /*
+								/*
 		 * Check if this system does not have any PCI devices.
 		 */
 		readmem(pcilist_data.start + pcilist_data.member_offset,
@@ -2307,15 +2307,15 @@ do_pci(void)
  * Taken from drivers/pci/oldproc.c, kernel ver 2.2.17
  */
 struct pci_dev_info {
-        unsigned short  vendor;         /* vendor id */
-        unsigned short  device;         /* device id */
+				unsigned short  vendor;         /* vendor id */
+				unsigned short  device;         /* device id */
 
-        const char      *name;          /* device name */
+				const char      *name;          /* device name */
 };
 
 
 #define DEVICE(vid,did,name) \
-  {PCI_VENDOR_ID_##vid, PCI_DEVICE_ID_##did, (name)}
+	{PCI_VENDOR_ID_##vid, PCI_DEVICE_ID_##did, (name)}
 
 /*
  * Sorted in ascending order by vendor and device.
@@ -2896,7 +2896,7 @@ struct pci_dev_info dev_info[] = {
 	DEVICE( ADAPTEC2,	ADAPTEC2_7899B,	"AIC-7899"),
 	DEVICE( ADAPTEC2,	ADAPTEC2_7899D,	"AIC-7899"),
 	DEVICE( ADAPTEC2,	ADAPTEC2_7899P,	"AIC-7899"),
-  	DEVICE( ATRONICS,	ATRONICS_2015,	"IDE-2015PL"),
+		DEVICE( ATRONICS,	ATRONICS_2015,	"IDE-2015PL"),
 	DEVICE( TIGERJET,	TIGERJET_300,	"Tiger300 ISDN"),
 	DEVICE( ARK,		ARK_STING,	"Stingray"),
 	DEVICE( ARK,		ARK_STINGARK,	"Stingray ARK 2000PV"),
@@ -2911,34 +2911,34 @@ static struct pci_dev_info *
 pci_lookup_dev(unsigned int vendor, unsigned int dev)
 {
 	int min = 0,
-	    max = sizeof(dev_info)/sizeof(dev_info[0]) - 1;
+			max = sizeof(dev_info)/sizeof(dev_info[0]) - 1;
 
 	for ( ; ; )
 	{
-	    int i = (min + max) >> 1;
-	    long order;
+			int i = (min + max) >> 1;
+			long order;
 
-	    order = dev_info[i].vendor - (long) vendor;
-	    if (!order)
+			order = dev_info[i].vendor - (long) vendor;
+			if (!order)
 		order = dev_info[i].device - (long) dev;
 
-	    if (order < 0)
-	    {
-		    min = i + 1;
-		    if ( min > max )
-		       return 0;
-		    continue;
-	    }
+			if (order < 0)
+			{
+				min = i + 1;
+				if ( min > max )
+					 return 0;
+				continue;
+			}
 
-	    if (order > 0)
-	    {
-		    max = i - 1;
-		    if ( min > max )
-		       return 0;
-		    continue;
-	    }
+			if (order > 0)
+			{
+				max = i - 1;
+				if ( min > max )
+					 return 0;
+				continue;
+			}
 
-	    return & dev_info[ i ];
+			return & dev_info[ i ];
 	}
 }
 
@@ -3567,7 +3567,7 @@ pci_strvendor(unsigned int vendor, char *buf)
 		s = "SysKonnect";
 		break;
 
-        default:
+				default:
 		sprintf(buf, "[PCI_VENDOR %x]", vendor);
 		s = buf;
 		break;
@@ -3615,8 +3615,8 @@ is_skipped_disk(char *name)
 }
 
 struct diskio {
-    int read;
-    int write;
+		int read;
+		int write;
 };
 
 struct iter {
@@ -3882,8 +3882,8 @@ init_iter(struct iter *i)
 
 		i->type_address = symbol_value("disk_type");
 		if (VALID_MEMBER(class_devices) ||
-		   (VALID_MEMBER(class_private_devices) &&
-		      SIZE(class_private_devices) == SIZE(list_head))) {
+			 (VALID_MEMBER(class_private_devices) &&
+					SIZE(class_private_devices) == SIZE(list_head))) {
 			/* 2.6.24 < kernel version <= 2.6.27, list */
 			if (!VALID_STRUCT(class_private)) {
 				/* 2.6.24 < kernel version <= 2.6.26 */

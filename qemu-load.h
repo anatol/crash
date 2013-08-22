@@ -24,18 +24,18 @@
 #include <unistd.h>
 
 enum qemu_save_section {
-  QEMU_VM_EOF,
-  QEMU_VM_SECTION_START,
-  QEMU_VM_SECTION_PART,
-  QEMU_VM_SECTION_END,
-  QEMU_VM_SECTION_FULL
+	QEMU_VM_EOF,
+	QEMU_VM_SECTION_START,
+	QEMU_VM_SECTION_PART,
+	QEMU_VM_SECTION_END,
+	QEMU_VM_SECTION_FULL
 };
 
 enum qemu_features {
-  QEMU_FEATURE_RAM = 1,
-  QEMU_FEATURE_CPU = 2,
-  QEMU_FEATURE_TIMER = 4,
-  QEMU_FEATURE_KVM = 8
+	QEMU_FEATURE_RAM = 1,
+	QEMU_FEATURE_CPU = 2,
+	QEMU_FEATURE_TIMER = 4,
+	QEMU_FEATURE_KVM = 8
 };
 
 struct qemu_device_list {
@@ -46,15 +46,15 @@ struct qemu_device_list {
 struct qemu_device_loader {
 	const char	   *name;
 	struct qemu_device *(*init_load) (struct qemu_device_list *, uint32_t,
-					  uint32_t, uint32_t, bool, FILE *);
+						uint32_t, uint32_t, bool, FILE *);
 };
 
 struct qemu_device_vtbl {
 	const char	   *name;
 	uint32_t	   (*load) (struct qemu_device *, FILE *,
-				    enum qemu_save_section);
+						enum qemu_save_section);
 	void		   (*free) (struct qemu_device *,
-				    struct qemu_device_list *);
+						struct qemu_device_list *);
 };
 
 struct qemu_device {
@@ -201,16 +201,16 @@ struct qemu_timer {
 };
 
 struct qemu_device *device_alloc (struct qemu_device_list *, size_t,
-				  struct qemu_device_vtbl *, uint32_t,
-				  uint32_t, uint32_t);
+					struct qemu_device_vtbl *, uint32_t,
+					uint32_t, uint32_t);
 void device_free (struct qemu_device *);
 void device_list_free (struct qemu_device_list *);
 struct qemu_device *device_find (struct qemu_device_list *, uint32_t);
 struct qemu_device *device_find_instance (struct qemu_device_list *,
-					  const char *, uint32_t);
+						const char *, uint32_t);
 
 struct qemu_device_list *qemu_load (const struct qemu_device_loader *,
-				    uint32_t, FILE *);
+						uint32_t, FILE *);
 
 int ram_read_phys_page (struct qemu_device_ram *, void *, uint64_t);
 
