@@ -105,7 +105,7 @@ struct vmcore_data {
 #define XEN_ELFNOTE_CRASH_REGS 0x1000002
 
 
-/* 
+/*
  * For (temporary) backwards compatibility.
  */
 #define NT_XEN_KDUMP_CR3 0x10000001

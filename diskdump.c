@@ -1,9 +1,9 @@
-/* 
- * diskdump.c 
- * 
- * The diskdump module optionally creates either ELF vmcore 
+/*
+ * diskdump.c
+ *
+ * The diskdump module optionally creates either ELF vmcore
  * dumpfiles, or compressed dumpfiles derived from the LKCD format.
- * In the case of ELF vmcore files, since they are identical to 
+ * In the case of ELF vmcore files, since they are identical to
  * netdump dumpfiles, the facilities in netdump.c are used.  For
  * compressed dumpfiles, the facilities in this file are used.
  *
@@ -119,7 +119,7 @@ map_cpus_to_prstatus_kdump_cmprs(void)
 	for (i = 0, j = 0; i < nrcpus; i++) {
 		if (in_cpu_map(ONLINE, i)) {
 			dd->nt_prstatus_percpu[i] = nt_ptr[j++];
-			dd->num_prstatus_notes = 
+			dd->num_prstatus_notes =
 				MAX(dd->num_prstatus_notes, i+1);
 		}
 	}
@@ -127,7 +127,7 @@ map_cpus_to_prstatus_kdump_cmprs(void)
 	FREEBUF(nt_ptr);
 }
 
-static void 
+static void
 add_diskdump_data(char* name)
 {
 #define DDL_SIZE 16
@@ -142,13 +142,13 @@ add_diskdump_data(char* name)
 		for (i = 0; i < num_dumpfiles; i++) {
 			ddp = dd_list[i];
                 	if (same_file(ddp->filename, name))
-				error(FATAL, 
+				error(FATAL,
 				    "split dumpfiles are identical:\n"
 				    "  %s\n  %s\n",
 					ddp->filename, name);
 			if (memcmp(ddp->header, dd->header,
 			    sizeof(struct disk_dump_header)))
-				error(FATAL, 
+				error(FATAL,
 				    "split dumpfiles derived from different vmcores:\n"
 				    "  %s\n  %s\n",
 					ddp->filename, name);
@@ -175,7 +175,7 @@ add_diskdump_data(char* name)
 			dd->sub_header_kdump->end_pfn);
 }
 
-static void 
+static void
 clean_diskdump_data(void)
 {
 	int i;
@@ -192,32 +192,32 @@ clean_diskdump_data(void)
 	dd = &diskdump_data;
 }
 
-static inline int 
+static inline int
 get_bit(char *map, int byte, int bit)
 {
 	return map[byte] & (1<<bit);
 }
 
-static inline int 
+static inline int
 page_is_ram(unsigned int nr)
 {
 	return get_bit(dd->bitmap, nr >> 3, nr & 7);
 }
 
-static inline int 
+static inline int
 page_is_dumpable(unsigned int nr)
 {
 	return dd->dumpable_bitmap[nr>>3] & (1 << (nr & 7));
 }
 
-static inline int 
+static inline int
 dump_is_partial(const struct disk_dump_header *header)
 {
 	return header->bitmap_blocks >=
 	    divideup(divideup(header->max_mapnr, 8), dd->block_size) * 2;
 }
 
-static int 
+static int
 open_dump_file(char *file)
 {
 	int fd;
@@ -288,7 +288,7 @@ process_elf64_notes(void *note_buf, unsigned long size_note)
 	return;
 }
 
-void 
+void
 x86_process_elf_notes(void *note_ptr, unsigned long size_note)
 {
 	if (machine_type("X86_64"))
@@ -299,16 +299,16 @@ x86_process_elf_notes(void *note_ptr, unsigned long size_note)
 
 #if defined(__i386__) && defined(ARM)
 /*
- * The kdump_sub_header member offsets are different when the crash 
- * binary is built natively on an ARM host vs. when built with  
+ * The kdump_sub_header member offsets are different when the crash
+ * binary is built natively on an ARM host vs. when built with
  * "make target=ARM" on an x86/x86_64 host.  This is because the
  * off_t structure members will be aligned on an 8-byte boundary when
- * compiled as an ARM binary -- which will be reflected in the 
- * kdump_sub_header in a compressed ARM kdump.  
+ * compiled as an ARM binary -- which will be reflected in the
+ * kdump_sub_header in a compressed ARM kdump.
  *
- * When crash is compiled as an x86 binary, these are the 
+ * When crash is compiled as an x86 binary, these are the
  * structure's offsets:
- * 
+ *
  * struct kdump_sub_header {
  * [0]     unsigned long   phys_base;
  * [4]     int             dump_level;         /  header_version 1 and later  /
@@ -322,10 +322,10 @@ x86_process_elf_notes(void *note_ptr, unsigned long size_note)
  * [44]    off_t           offset_eraseinfo;   /  header_version 5 and later  /
  * [52]    unsigned long   size_eraseinfo;     /  header_version 5 and later  /
  * };
- * 
+ *
  * But when compiled on an ARM processor, each 64-bit "off_t" would be pushed
  * up to an 8-byte boundary:
- * 
+ *
  * struct kdump_sub_header {
  * [0]     unsigned long   phys_base;
  * [4]     int             dump_level;         /  header_version 1 and later  /
@@ -339,7 +339,7 @@ x86_process_elf_notes(void *note_ptr, unsigned long size_note)
  * [56]    off_t           offset_eraseinfo;   /  header_version 5 and later  /
  * [62]    unsigned long   size_eraseinfo;     /  header_version 5 and later  /
  * };
- * 
+ *
  */
 
 struct kdump_sub_header_ARM_target {
@@ -351,10 +351,10 @@ struct kdump_sub_header_ARM_target {
 	int		pad1;
         off_t           offset_vmcoreinfo;  /* header_version 3 and later */
         unsigned long   size_vmcoreinfo;    /* header_version 3 and later */
-	int 		pad2;	
+	int 		pad2;
         off_t           offset_note;        /* header_version 4 and later */
         unsigned long   size_note;          /* header_version 4 and later */
-	int 		pad3;	
+	int 		pad3;
         off_t           offset_eraseinfo;   /* header_version 5 and later */
         unsigned long   size_eraseinfo;     /* header_version 5 and later */
 };
@@ -369,7 +369,7 @@ arm_kdump_header_adjust(int header_version)
 	kdsh_ARM_target = (struct kdump_sub_header_ARM_target *)kdsh;
 
 	if (header_version >= 3) {
-		kdsh->offset_vmcoreinfo = kdsh_ARM_target->offset_vmcoreinfo; 
+		kdsh->offset_vmcoreinfo = kdsh_ARM_target->offset_vmcoreinfo;
 		kdsh->size_vmcoreinfo = kdsh_ARM_target->size_vmcoreinfo;
 	}
 	if (header_version >= 4) {
@@ -383,7 +383,7 @@ arm_kdump_header_adjust(int header_version)
 }
 #endif  /* __i386__ && ARM */
 
-static int 
+static int
 read_dump_header(char *file)
 {
 	struct disk_dump_header *header = NULL;
@@ -434,13 +434,13 @@ restart:
 			dd->flags |= ERROR_EXCLUDED;
 	} else {
 		if (CRASHDEBUG(1))
-			error(INFO, 
+			error(INFO,
 			    "diskdump / compressed kdump: dump does not have panic dump header\n");
 		goto err;
 	}
 
 	if (CRASHDEBUG(1))
-		fprintf(fp, "%s: header->utsname.machine: %s\n", 
+		fprintf(fp, "%s: header->utsname.machine: %s\n",
 			DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
 			header->utsname.machine);
 
@@ -472,8 +472,8 @@ restart:
 	if (header->block_size != block_size) {
 		block_size = header->block_size;
 		if (CRASHDEBUG(1))
-			fprintf(fp, 
-			    "retrying with different block/page size: %d\n", 
+			fprintf(fp,
+			    "retrying with different block/page size: %d\n",
 				header->block_size);
 		goto restart;
 	}
@@ -607,7 +607,7 @@ restart:
 	else if (machine_type("ARM64"))
 		dd->machine_type = EM_AARCH64;
 	else {
-		error(INFO, "%s: unsupported machine type: %s\n", 
+		error(INFO, "%s: unsupported machine type: %s\n",
 			DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
 			MACHINE_TYPE);
 		goto err;
@@ -731,8 +731,8 @@ pfn_to_pos(ulong pfn)
 		p2 = round(p1, BITMAP_SECT_LEN) + dd->sub_header_kdump->start_pfn;
 	}
 	else {
-		p1 = pfn; 
-		p2 = round(pfn, BITMAP_SECT_LEN); 
+		p1 = pfn;
+		p2 = round(pfn, BITMAP_SECT_LEN);
 	}
 
 	valid = dd->valid_pages[p1 / BITMAP_SECT_LEN];
@@ -774,7 +774,7 @@ is_diskdump(char *file)
 	if (CRASHDEBUG(1))
 		__diskdump_memory_dump(fp);
 
-	if (pc->flags2 & GET_OSRELEASE) 
+	if (pc->flags2 & GET_OSRELEASE)
 		diskdump_get_osrelease();
 
 #ifdef LZO
@@ -954,7 +954,7 @@ cache_page(physaddr_t paddr)
 		                 (unsigned char *)dd->compressed_page,
 		                 pd.size);
 		if ((ret != Z_OK) || (retlen != block_size)) {
-			error(INFO, "%s: uncompress failed: %d\n", 
+			error(INFO, "%s: uncompress failed: %d\n",
 				DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
 				ret);
 			return READ_ERROR;
@@ -975,7 +975,7 @@ cache_page(physaddr_t paddr)
 					    &retlen,
 					    LZO1X_MEM_DECOMPRESS);
 		if ((ret != LZO_E_OK) || (retlen != block_size)) {
-			error(INFO, "%s: uncompress failed: %d\n", 
+			error(INFO, "%s: uncompress failed: %d\n",
 				DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
 				ret);
 			return READ_ERROR;
@@ -1003,7 +1003,7 @@ cache_page(physaddr_t paddr)
 					(char *)dd->page_cache_hdr[i].pg_bufptr,
 					&retlen);
 		if ((ret != SNAPPY_OK) || (retlen != block_size)) {
-			error(INFO, "%s: uncompress failed: %d\n", 
+			error(INFO, "%s: uncompress failed: %d\n",
 			      DISKDUMP_VALID() ? "diskdump" : "compressed kdump",
 			      ret);
 			return READ_ERROR;
@@ -1098,18 +1098,18 @@ read_diskdump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 
 		if ((ret = cache_page(curpaddr)) < 0) {
 			if (CRASHDEBUG(8))
-				fprintf(fp, "read_diskdump: " 
+				fprintf(fp, "read_diskdump: "
 				    "%s: cannot cache page: %llx\n",
-					ret == SEEK_ERROR ?  
+					ret == SEEK_ERROR ?
 					"SEEK_ERROR" : "READ_ERROR",
 					(ulonglong)curpaddr);
 			return ret;
 		}
 	} else if (CRASHDEBUG(8))
 		fprintf(fp, "read_diskdump: paddr/pfn: %llx/%lx"
-		    " -> physical page is cached: %llx\n", 
+		    " -> physical page is cached: %llx\n",
 			(ulonglong)paddr, pfn, (ulonglong)curpaddr);
-	
+
 	memcpy(bufptr, dd->curbufptr + page_offset, cnt);
 	return cnt;
 }
@@ -1142,7 +1142,7 @@ get_diskdump_panic_task(void)
 			if ((i >= 0) && in_cpu_map(ONLINE, i)) {
 				if (CRASHDEBUG(1))
 					error(INFO, "get_diskdump_panic_task: "
-					    "active_set[%d]: %lx\n", 
+					    "active_set[%d]: %lx\n",
 						i, tt->active_set[i]);
 				return (tt->active_set[i]);
 			}
@@ -1165,7 +1165,7 @@ get_diskdump_regs_ppc(struct bt_info *bt, ulong *eip, ulong *esp)
 		ppc_relocate_nt_prstatus_percpu(dd->nt_prstatus_percpu,
 						&dd->num_prstatus_notes);
 	if (KDUMP_CMPRS_VALID() &&
-		(bt->task == tt->panic_task || 
+		(bt->task == tt->panic_task ||
 		(is_task_active(bt->task) && dd->num_prstatus_notes > 1))) {
 		note  = (Elf32_Nhdr*) dd->nt_prstatus_percpu[bt->tc->processor];
 		if (!note)
@@ -1211,7 +1211,7 @@ get_diskdump_regs_arm64(struct bt_info *bt, ulong *eip, ulong *esp)
 void
 get_diskdump_regs(struct bt_info *bt, ulong *eip, ulong *esp)
 {
-	switch (dd->machine_type) 
+	switch (dd->machine_type)
 	{
 	case EM_ARM:
 		get_diskdump_regs_arm(bt, eip, esp);
@@ -1270,7 +1270,7 @@ diskdump_page_size(void)
 }
 
 /*
- *  diskdump_free_memory(), and diskdump_memory_used() 
+ *  diskdump_free_memory(), and diskdump_memory_used()
  *  are debug only, and probably unnecessary to implement.
  */
 int
@@ -1279,13 +1279,13 @@ diskdump_free_memory(void)
         return 0;
 }
 
-int 
+int
 diskdump_memory_used(void)
 {
         return 0;
 }
 
-static void 
+static void
 dump_vmcoreinfo(FILE *fp)
 {
 	char *buf = NULL;
@@ -1329,7 +1329,7 @@ err:
 	return;
 }
 
-static void 
+static void
 dump_eraseinfo(FILE *fp)
 {
 	char *buf = NULL;
@@ -1532,12 +1532,12 @@ __diskdump_memory_dump(FILE *fp)
         fprintf(fp, "\n");
 	fprintf(fp, "        sub_header: %lx ", (ulong)dd->sub_header);
 	if ((dsh = dd->sub_header)) {
-		fprintf(fp, "\n            elf_regs: %lx\n", 
+		fprintf(fp, "\n            elf_regs: %lx\n",
 			(ulong)&dsh->elf_regs);
 		fprintf(fp, "          dump_level: ");
-		if ((pc->flags & RUNTIME) && 
+		if ((pc->flags & RUNTIME) &&
 		    ((dump_level = get_dump_level()) >= 0)) {
-			fprintf(fp, "%d (0x%x) %s", dump_level, dump_level, 
+			fprintf(fp, "%d (0x%x) %s", dump_level, dump_level,
 				dump_level ? "(" : "");
 
 #define DUMP_EXCLUDE_CACHE 0x00000001   /* Exclude LRU & SwapCache pages*/
@@ -1548,23 +1548,23 @@ __diskdump_memory_dump(FILE *fp)
 
 		        others = 0;
         		if (dump_level & DUMP_EXCLUDE_CACHE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
 					others++ ? "|" : "");
         		if (dump_level & DUMP_EXCLUDE_CLEAN)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CLEAN", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_CLEAN",
 					others++ ? "|" : "");
         		if (dump_level & DUMP_EXCLUDE_FREE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_FREE", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_FREE",
 					others++ ? "|" : "");
         		if (dump_level & DUMP_EXCLUDE_ANON)
-                		fprintf(fp, "%sDUMP_EXCLUDE_ANON", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_ANON",
 					others++ ? "|" : "");
         		if (dump_level & DUMP_SAVE_PRIVATE)
-                		fprintf(fp, "%sDUMP_SAVE_PRIVATE", 
+                		fprintf(fp, "%sDUMP_SAVE_PRIVATE",
 					others++ ? "|" : "");
 			fprintf(fp, "%s\n\n", dump_level ? ")" : "");
 		} else
-			fprintf(fp, "%s\n\n", pc->flags & RUNTIME ? 
+			fprintf(fp, "%s\n\n", pc->flags & RUNTIME ?
 				"(unknown)" : "(undetermined)");
 
 	} else
@@ -1572,11 +1572,11 @@ __diskdump_memory_dump(FILE *fp)
 
 	fprintf(fp, "  sub_header_kdump: %lx ", (ulong)dd->sub_header_kdump);
 	if ((kdsh = dd->sub_header_kdump)) {
-		fprintf(fp, "\n           phys_base: %lx\n", 
+		fprintf(fp, "\n           phys_base: %lx\n",
 			(ulong)kdsh->phys_base);
 		fprintf(fp, "          dump_level: ");
 		if ((dump_level = get_dump_level()) >= 0) {
-			fprintf(fp, "%d (0x%x) %s", dump_level, dump_level, 
+			fprintf(fp, "%d (0x%x) %s", dump_level, dump_level,
 				dump_level ? "(" : "");
 
 #define DL_EXCLUDE_ZERO         (0x001) /* Exclude Pages filled with Zeros */
@@ -1586,19 +1586,19 @@ __diskdump_memory_dump(FILE *fp)
 #define DL_EXCLUDE_FREE         (0x010) /* Exclude Free Pages */
 
         		if (dump_level & DL_EXCLUDE_ZERO)
-                		fprintf(fp, "%sDUMP_EXCLUDE_ZERO", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_ZERO",
 					others++ ? "|" : "");
         		if (dump_level & DL_EXCLUDE_CACHE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE",
 					others++ ? "|" : "");
         		if (dump_level & DL_EXCLUDE_CACHE_PRI)
-                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE_PRI", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_CACHE_PRI",
 					others++ ? "|" : "");
         		if (dump_level & DL_EXCLUDE_USER_DATA)
-                		fprintf(fp, "%sDUMP_EXCLUDE_USER_DATA", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_USER_DATA",
 					others++ ? "|" : "");
         		if (dump_level & DL_EXCLUDE_FREE)
-                		fprintf(fp, "%sDUMP_EXCLUDE_FREE", 
+                		fprintf(fp, "%sDUMP_EXCLUDE_FREE",
 					others++ ? "|" : "");
 			others = 0;
 
@@ -1610,13 +1610,13 @@ __diskdump_memory_dump(FILE *fp)
 			fprintf(fp, "               split: %d\n", kdsh->split);
 			fprintf(fp, "           start_pfn: ");
 			if (KDUMP_SPLIT())
-				fprintf(fp, "%ld (0x%lx)\n", 
+				fprintf(fp, "%ld (0x%lx)\n",
 					kdsh->start_pfn, kdsh->start_pfn);
 			else
 				fprintf(fp, "(unused)\n");
 			fprintf(fp, "             end_pfn: ");
 			if (KDUMP_SPLIT())
-				fprintf(fp, "%ld (0x%lx)\n", 
+				fprintf(fp, "%ld (0x%lx)\n",
 					kdsh->end_pfn, kdsh->end_pfn);
 			else
 				fprintf(fp, "(unused)\n");
@@ -1726,7 +1726,7 @@ diskdump_memory_dump(FILE *fp)
 
 
 /*
- *  Get the switch_stack address of the passed-in task.  
+ *  Get the switch_stack address of the passed-in task.
  */
 ulong
 get_diskdump_switch_stack(ulong task)
@@ -1739,7 +1739,7 @@ get_diskdump_switch_stack(ulong task)
  *  Version 1 and later compressed kdump dumpfiles contain the dump level
  *  in an additional field of the sub_header_kdump structure.
  */
-static int 
+static int
 get_dump_level(void)
 {
 	int dump_level;
@@ -1758,11 +1758,11 @@ get_dump_level(void)
 }
 
 /*
- *  Used by the "sys" command to display [PARTIAL DUMP] 
+ *  Used by the "sys" command to display [PARTIAL DUMP]
  *  after the dumpfile name.
  */
-int 
-is_partial_diskdump(void) 
+int
+is_partial_diskdump(void)
 {
 	return (get_dump_level() > 0 ? TRUE : FALSE);
 }
@@ -1778,9 +1778,9 @@ show_split_dumpfiles(void)
 
         for (i = 0; i < num_dumpfiles; i++) {
         	ddp = dd_list[i];
-		fprintf(fp, "%s%s %s", 
-			i ? "              " : "", 
-			ddp->filename, 
+		fprintf(fp, "%s%s %s",
+			i ? "              " : "",
+			ddp->filename,
 			is_partial_diskdump() ? "[PARTIAL DUMP]" : "");
 		if ((i+1) < num_dumpfiles)
 			fprintf(fp, "\n");

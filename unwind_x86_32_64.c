@@ -495,7 +495,7 @@ static int processCFI(const u8 *start,
 
 /* Unwind to previous to frame.  Returns 0 if successful, negative
  * number in case of an error. */
-int 
+int
 unwind(struct unwind_frame_info *frame, int is_ehframe)
 {
 #define FRAME_REG(r, t) (((t *)frame)[reg_info[r].offs])
@@ -733,8 +733,8 @@ unwind(struct unwind_frame_info *frame, int is_ehframe)
  *   1. Use the in-memory kernel and module unwind tables.
  *   2. Use the in-memory kernel-only .eh_frame data. (possible?)
  *   3. Use the kernel-only .eh_frame data from the vmlinux file.
- */ 
-void 
+ */
+void
 init_unwind_table(void)
 {
 	ulong unwind_table_size;
@@ -758,7 +758,7 @@ init_unwind_table(void)
 
 	if (symbol_exists("__start_unwind") &&
 	    symbol_exists("__end_unwind")) {
-		unwind_table_size = symbol_value("__end_unwind") - 
+		unwind_table_size = symbol_value("__end_unwind") -
 			symbol_value("__start_unwind");
 
 		if (!(unwind_table = malloc(unwind_table_size))) {
@@ -780,7 +780,7 @@ init_unwind_table(void)
 		default_unwind_table.size = unwind_table_size;
 		default_unwind_table.address = unwind_table;
 
-		if (CRASHDEBUG(1)) 
+		if (CRASHDEBUG(1))
 			fprintf(fp, "init_unwind_table: DWARF_UNWIND_MEMORY\n");
 
 		return;
@@ -831,7 +831,7 @@ try_eh_frame:
 		if (!(kt->flags & NO_DWARF_UNWIND))
 			kt->flags |= DWARF_UNWIND;
 
-		if (CRASHDEBUG(1)) 
+		if (CRASHDEBUG(1))
 			fprintf(fp, "init_unwind_table: DWARF_UNWIND_EH_FRAME\n");
 
 		return;
@@ -842,7 +842,7 @@ try_eh_frame:
  *  Find the appropriate kernel-only "root_table" unwind_table,
  *  and pass it to populate_local_tables() to do the heavy lifting.
  */
-static int 
+static int
 gather_in_memory_unwind_tables(void)
 {
 	int i, cnt, found;
@@ -866,8 +866,8 @@ gather_in_memory_unwind_tables(void)
 	    INVALID_MEMBER(unwind_table_size) ||
 	    INVALID_MEMBER(unwind_table_link) ||
 	    INVALID_MEMBER(unwind_table_name)) {
-		if (CRASHDEBUG(1)) 
-			error(NOTE, 
+		if (CRASHDEBUG(1))
+			error(NOTE,
 	    "unwind_table structure has changed, or does not exist in this kernel\n");
 		return 0;
 	}
@@ -882,16 +882,16 @@ gather_in_memory_unwind_tables(void)
 	for (i = found = 0; i < cnt; i++) {
 		sp = root_tables[i];
 		if (!readmem(sp->value, KVADDR, root_table_buf,
-                    SIZE(unwind_table), "root unwind_table", 
+                    SIZE(unwind_table), "root unwind_table",
 		    RETURN_ON_ERROR|QUIET))
 			goto gather_failed;
 
 		name = ULONG(root_table_buf + OFFSET(unwind_table_name));
-		if (read_string(name, buf, strlen("kernel")+1) && 
+		if (read_string(name, buf, strlen("kernel")+1) &&
 		    STREQ("kernel", buf)) {
 			found++;
 			if (CRASHDEBUG(1))
-				fprintf(fp, "root_table name: %lx [%s]\n", 
+				fprintf(fp, "root_table name: %lx [%s]\n",
 					name, buf);
 			break;
 		}
@@ -942,7 +942,7 @@ populate_local_tables(ulong root, char *buf)
 	cnt = retrieve_list(table_list, cnt);
 	hq_close();
 
-	if (!(local_unwind_tables = 
+	if (!(local_unwind_tables =
 	    malloc(sizeof(struct local_unwind_table) * cnt))) {
 		error(WARNING, "cannot malloc unwind_table space (%d tables)\n",
 			cnt);
@@ -1024,10 +1024,10 @@ find_table(unsigned long pc)
         return table;
 }
 
-static void 
+static void
 dump_local_unwind_tables(void)
 {
-	int i, others; 
+	int i, others;
 	struct local_unwind_table *tp;
 
 	others = 0;
@@ -1064,7 +1064,7 @@ dump_local_unwind_tables(void)
 }
 
 
-int 
+int
 dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 {
 	unsigned long bp, offset;
@@ -1090,7 +1090,7 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 	sp = value_search(UNW_PC(frame), &offset);
 	if (!sp) {
 		if (CRASHDEBUG(1))
-		    fprintf(fp, "unwind: cannot find symbol for PC: %lx\n", 
+		    fprintf(fp, "unwind: cannot find symbol for PC: %lx\n",
 			UNW_PC(frame));
 		goto bailout;
 	}
@@ -1103,20 +1103,20 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 		sp = value_search(UNW_PC(frame) - 1, &offset);
 		if (!sp) {
 			if (CRASHDEBUG(1))
-				fprintf(fp, 
+				fprintf(fp,
 				    "unwind: cannot find symbol for PC: %lx\n",
 					UNW_PC(frame)-1);
 			goto bailout;
 		}
 	}
-		
+
 
 
         name = sp->name;
 	fprintf(fp, " #%d [%016lx] %s at %016lx \n", level, UNW_SP(frame), name, UNW_PC(frame));
 
 	if (CRASHDEBUG(2))
-		fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame), 
+		fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame),
 			UNW_PC(frame), frame->regs.rbp);
 
        	while ((UNW_SP(frame) < stacktop)
@@ -1130,7 +1130,7 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 		sp = value_search(UNW_PC(frame), &offset);
 		if (!sp) {
 			if (CRASHDEBUG(1))
-				fprintf(fp, 
+				fprintf(fp,
 				    "unwind: cannot find symbol for PC: %lx\n",
 					UNW_PC(frame));
 			break;
@@ -1155,7 +1155,7 @@ dwarf_backtrace(struct bt_info *bt, int level, ulong stacktop)
 			level, UNW_SP(frame), name, UNW_PC(frame));
 
 		if (CRASHDEBUG(2))
-			fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame), 
+			fprintf(fp, "    < SP: %lx PC: %lx FP: %lx >\n", UNW_SP(frame),
 				UNW_PC(frame), frame->regs.rbp);
        	}
 
@@ -1164,7 +1164,7 @@ bailout:
 	return ++level;
 }
 
-int 
+int
 dwarf_print_stack_entry(struct bt_info *bt, int level)
 {
 	unsigned long offset;
@@ -1229,7 +1229,7 @@ dwarf_debug(struct bt_info *bt)
 	 *  XXX: This only works for the first PC/SP pair seen in a normal
 	 *  backtrace, so it's not particularly helpful.  Ideally it should
          *  be capable to take any PC/SP pair in a stack, but it appears to
-	 *  related to the rbp value. 
+	 *  related to the rbp value.
 	 */
 
 	UNW_PC(frame) = bt->hp->eip;
@@ -1241,11 +1241,11 @@ dwarf_debug(struct bt_info *bt)
 
 	unwind(frame, is_ehframe);
 
-	fprintf(fp, "frame size: %lx (%lx)\n", 
+	fprintf(fp, "frame size: %lx (%lx)\n",
 		(ulong)UNW_SP(frame), (ulong)UNW_SP(frame) - bt->hp->esp);
 
 	FREEBUF(frame);
 }
 
 
-#endif 
+#endif

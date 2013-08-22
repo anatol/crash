@@ -52,7 +52,7 @@ xen_hyper_cmd_help(void)
 
 	oflag = 0;
 
-        while ((c = getopt(argcnt, args, 
+        while ((c = getopt(argcnt, args,
 	        "aBbcDgHhM:mnOopszX:")) != EOF) {
                 switch(c)
                 {
@@ -165,7 +165,7 @@ xen_hyper_cmd_help(void)
 			fprintf(fp, " -X siz - size table data\n");
 			fprintf(fp, " -X ofs - offset table data\n");
 			return;
-                default:  
+                default:
 			argerrs++;
                         break;
                 }
@@ -175,17 +175,17 @@ xen_hyper_cmd_help(void)
                 cmd_usage(pc->curcmd, COMPLETE_HELP);
 
 	if (!args[optind]) {
-		if (oflag) 
+		if (oflag)
 			dump_offset_table(NULL, FALSE);
-		else 
+		else
 			display_help_screen("");
 		return;
 	}
 
         do {
-		if (oflag) 
+		if (oflag)
 			dump_offset_table(args[optind], FALSE);
-		else	
+		else
         		cmd_usage(args[optind], COMPLETE_HELP);
 		optind++;
         } while (args[optind]);
@@ -926,7 +926,7 @@ xen_hyper_dump_mem(void *mem, ulong len, int dsz)
 	long i, max;
 	void *mem_w = mem;
 
-	if (!len || 
+	if (!len ||
 	(dsz != SIZEOF_8BIT && dsz != SIZEOF_16BIT &&
 	 dsz != SIZEOF_32BIT && dsz != SIZEOF_64BIT))
 		return;

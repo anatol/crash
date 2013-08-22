@@ -43,7 +43,7 @@ typedef struct syment syment_t;
 #define s_addr value
 #define s_name name
 
-typedef uint32_t kaddr_t; 
+typedef uint32_t kaddr_t;
 
 extern int INT_EFRAME_SS;
 extern int INT_EFRAME_ESP;
@@ -102,7 +102,7 @@ typedef uint64_t        k_error_t;
 typedef struct instr_buf_s {
 	kaddr_t 	addr;
 	int		size;
-	unsigned char  *ptr;	
+	unsigned char  *ptr;
 	unsigned char	buf[256];
 } instr_buf_t;
 
@@ -125,15 +125,15 @@ typedef struct op_s {
 	int		op_index;
 	int		op_scale;
 	kaddr_t         op_addr;
-} op_t; 
+} op_t;
 
 typedef struct instr_rec_s {
 	struct instr_rec_s	*next;
 	struct instr_rec_s	*prev;
-	kaddr_t			 addr;	    /* start address of instruction */ 
+	kaddr_t			 addr;	    /* start address of instruction */
 	opcode_rec_t    	*opcodep;
 	int		 	 size;
-	int		 	 aflag; 
+	int		 	 aflag;
 	int		 	 dflag;
 	unsigned int     	 prefixes;
 	unsigned int     	 opcode;
@@ -393,20 +393,20 @@ typedef struct instr_rec_s {
 #ifndef REDHAT
 /* Function prototypes
  */
-int get_instr_info(	
-	kaddr_t 	/* pc */, 
+int get_instr_info(
+	kaddr_t 	/* pc */,
 	instr_rec_t * 	/* pointer to instr_rec_s struct */);
 
 instr_rec_t *get_instr_stream(
-	kaddr_t 	/* program counter */, 
-	int 		/* before count */, 
+	kaddr_t 	/* program counter */,
+	int 		/* before count */,
 	int 		/* after count */);
 
 void free_instr_stream(
 	instr_rec_t *);
 #endif /* !REDHAT */
 
-/* 
+/*
  *  lkcdutils-4.1/lcrash/include/asm-i386/lc_trace.h
  */
 
@@ -427,7 +427,7 @@ void free_instr_stream(
 
 #ifdef INCLUDE_REGINFO
 
-#define NUM_REGS	8	
+#define NUM_REGS	8
 #define REGVAL_UNKNOWN  0
 #define REGVAL_VALID    1
 #define REGVAL_BAD      2  /* Value loaded into register before it was saved */
@@ -464,8 +464,8 @@ typedef struct sframe_rec {
 } sframe_t;
 
 /* flag field of sframe_t */
-#define EX_FRAME	0x1	/* this frame is an interrupt or exception 
-				   frame, pt_regs field of sframe_t is valid 
+#define EX_FRAME	0x1	/* this frame is an interrupt or exception
+				   frame, pt_regs field of sframe_t is valid
 				   in this case */
 #define INCOMPLETE_EX_FRAME  0x2
 #define SET_EX_FRAME_ADDR    0x4
@@ -497,7 +497,7 @@ typedef struct trace_rec {
 #define TF_TRACEREC_VALID  0x01 /* The trace_rec_s has been setup already!   */
 #define TF_SUPPRESS_HEADER 0x02 /* Suppress header output from trace cmds    */
 
-/* Stack types 
+/* Stack types
  */
 #define S_USERSTACK	0
 #define S_KERNELSTACK	1
@@ -523,7 +523,7 @@ typedef struct trace_rec {
 /* Function prototypes
  */
 void print_pc(
-	kaddr_t 	/* PC */, 
+	kaddr_t 	/* PC */,
 	FILE *		/* output file pointer */);
 
 trace_t *alloc_trace_rec(
@@ -592,43 +592,43 @@ typedef struct list_of_ptrs {
 		(list_of_ptrs_t *)elem, compare)
 
 #ifndef REDHAT
-/** 
+/**
  ** Function prototypes
  **/
 
 /* Add a new element to the tail of a doubly linked list.
  */
 void kl_enqueue(
-	element_t**	/* ptr to head of list */, 
+	element_t**	/* ptr to head of list */,
 	element_t*	/* ptr to element to add to the list */);
 
-/* Remove an element from the head of a doubly linked list. A pointer 
- * to the element will be returned. In the event that the list is 
+/* Remove an element from the head of a doubly linked list. A pointer
+ * to the element will be returned. In the event that the list is
  * empty, a NULL pointer will be returned.
  */
 element_t *kl_dequeue(
 	element_t**	/* ptr to list head (first item removed) */);
 
-/* Checks to see if a particular element is in a list. If it is, a 
- * value of one (1) will be returned. Otherwise, a value of zero (0) 
+/* Checks to see if a particular element is in a list. If it is, a
+ * value of one (1) will be returned. Otherwise, a value of zero (0)
  * will be returned.
  */
 int kl_findqueue(
-	element_t**	/* ptr to head of list */, 
+	element_t**	/* ptr to head of list */,
 	element_t*	/* ptr to element to find on list */);
 
-/* Walks through a list of pointers to queues and looks for a 
+/* Walks through a list of pointers to queues and looks for a
  * particular list.
  */
 int kl_findlist_queue(
-	list_of_ptrs_t** 	/* ptr to list of lists */,  
+	list_of_ptrs_t** 	/* ptr to list of lists */,
 	list_of_ptrs_t* 	/* ptr to list to look for */,
 	int(*)(void *, void *)	/* ptr to compare function */);
 
 /* Remove specified element from doubly linked list.
  */
 void kl_remqueue(
-	element_t**		/* ptr to head of list */, 
+	element_t**		/* ptr to head of list */,
 	element_t*		/* ptr to element to remove from list */);
 #endif  /* !REDHAT */
 
@@ -675,8 +675,8 @@ extern uint64_t klib_error;
 void kl_reset_error(void);
 void kl_print_error(void);
 
-/** 
- ** Some macros for accessing data in klib_error 
+/**
+ ** Some macros for accessing data in klib_error
  **/
 #define KLIB_ERROR		klib_error
 #define KL_ERROR 		klib_error
@@ -687,15 +687,15 @@ void kl_print_error(void);
  *
  * There are basically two types of error codes -- with each type
  * residing in a single word in a two word error code value. The lower
- * 32-bits contains an error class and code that represents exactly 
- * WHAT error occurred (e.g., non-numeric text in a numeric value 
- * entered by a user, bad virtual address, etc.). 
- * 
- * The upper 32-bits represents what type of data was being referenced 
- * when the error occurred (e.g., bad proc struct). Having two tiers of 
- * error codes makes it easier to generate useful and specific error 
- * messages. Note that is possible to have situations where one or the 
- * other type of error codes is not set. This is OK as long as at least 
+ * 32-bits contains an error class and code that represents exactly
+ * WHAT error occurred (e.g., non-numeric text in a numeric value
+ * entered by a user, bad virtual address, etc.).
+ *
+ * The upper 32-bits represents what type of data was being referenced
+ * when the error occurred (e.g., bad proc struct). Having two tiers of
+ * error codes makes it easier to generate useful and specific error
+ * messages. Note that is possible to have situations where one or the
+ * other type of error codes is not set. This is OK as long as at least
  * one type s set.
  */
 
@@ -704,16 +704,16 @@ void kl_print_error(void);
 #define KLE_KLIB (KLEC_KLIB << KLEC_CLASS_SHIFT)
 #define KLE_NO_MEMORY				(KLE_KLIB|1)
 #define KLE_OPEN_ERROR				(KLE_KLIB|2)
-#define KLE_ZERO_BLOCK 				(KLE_KLIB|3)  
-#define KLE_INVALID_VALUE 			(KLE_KLIB|4)  
-#define KLE_NULL_BUFF 				(KLE_KLIB|5)  
-#define KLE_ZERO_SIZE 				(KLE_KLIB|6)  
-#define KLE_ACTIVE 				(KLE_KLIB|7)  
+#define KLE_ZERO_BLOCK 				(KLE_KLIB|3)
+#define KLE_INVALID_VALUE 			(KLE_KLIB|4)
+#define KLE_NULL_BUFF 				(KLE_KLIB|5)
+#define KLE_ZERO_SIZE 				(KLE_KLIB|6)
+#define KLE_ACTIVE 				(KLE_KLIB|7)
 
 
 #define KLE_MISC_ERROR 				(KLE_KLIB|97)
-#define KLE_NOT_SUPPORTED 			(KLE_KLIB|98)  
-#define KLE_UNKNOWN_ERROR 			(KLE_KLIB|99)  
+#define KLE_NOT_SUPPORTED 			(KLE_KLIB|98)
+#define KLE_UNKNOWN_ERROR 			(KLE_KLIB|99)
 
 /** memory error codes
  **/
@@ -721,15 +721,15 @@ void kl_print_error(void);
 #define KLE_BAD_MAP_FILE			(KLE_MEM|1)
 #define KLE_BAD_DUMP	  			(KLE_MEM|2)
 #define KLE_BAD_DUMPTYPE			(KLE_MEM|3)
-#define KLE_INVALID_LSEEK 			(KLE_MEM|4) 
-#define KLE_INVALID_READ 			(KLE_MEM|5) 
-#define KLE_BAD_MEMINFO 			(KLE_MEM|6) 
-#define KLE_INVALID_PADDR 			(KLE_MEM|7)  
-#define KLE_INVALID_VADDR 			(KLE_MEM|8)  
-#define KLE_INVALID_VADDR_ALIGN 		(KLE_MEM|9)  
-#define KLE_INVALID_MAPPING 		        (KLE_MEM|10)  
-#define KLE_CMP_ERROR 		        	(KLE_MEM|11)  
-#define KLE_INVALID_DUMP_MAGIC 		        (KLE_MEM|12)  
+#define KLE_INVALID_LSEEK 			(KLE_MEM|4)
+#define KLE_INVALID_READ 			(KLE_MEM|5)
+#define KLE_BAD_MEMINFO 			(KLE_MEM|6)
+#define KLE_INVALID_PADDR 			(KLE_MEM|7)
+#define KLE_INVALID_VADDR 			(KLE_MEM|8)
+#define KLE_INVALID_VADDR_ALIGN 		(KLE_MEM|9)
+#define KLE_INVALID_MAPPING 		        (KLE_MEM|10)
+#define KLE_CMP_ERROR 		        	(KLE_MEM|11)
+#define KLE_INVALID_DUMP_MAGIC 		        (KLE_MEM|12)
 #define KLE_KERNEL_MAGIC_MISMATCH               (KLE_MEM|13)
 #define KLE_NO_END_SYMBOL                       (KLE_MEM|14)
 #define KLE_INVALID_DUMP_HEADER			(KLE_MEM|15)
@@ -747,19 +747,19 @@ void kl_print_error(void);
 /** kernel data error codes
  **/
 #define KLE_KERN (KLEC_KERN << KLEC_CLASS_SHIFT)
-#define KLE_INVALID_KERNELSTACK 		(KLE_KERN|1)  
-#define KLE_INVALID_STRUCT_SIZE 		(KLE_KERN|2)  
-#define KLE_BEFORE_RAM_OFFSET	 		(KLE_KERN|3)  
-#define KLE_AFTER_MAXPFN 			(KLE_KERN|4)  
-#define KLE_AFTER_PHYSMEM  			(KLE_KERN|5)  
-#define KLE_AFTER_MAXMEM 			(KLE_KERN|6)  
-#define KLE_PHYSMEM_NOT_INSTALLED 		(KLE_KERN|7)  
-#define KLE_NO_DEFTASK	 			(KLE_KERN|8)  
-#define KLE_PID_NOT_FOUND 			(KLE_KERN|9)  
-#define KLE_DEFTASK_NOT_ON_CPU 			(KLE_KERN|10)  
-#define KLE_NO_CURCPU 				(KLE_KERN|11)  
-#define KLE_NO_CPU 				(KLE_KERN|12)  
-#define KLE_SIG_ERROR 				(KLE_KERN|13)  
+#define KLE_INVALID_KERNELSTACK 		(KLE_KERN|1)
+#define KLE_INVALID_STRUCT_SIZE 		(KLE_KERN|2)
+#define KLE_BEFORE_RAM_OFFSET	 		(KLE_KERN|3)
+#define KLE_AFTER_MAXPFN 			(KLE_KERN|4)
+#define KLE_AFTER_PHYSMEM  			(KLE_KERN|5)
+#define KLE_AFTER_MAXMEM 			(KLE_KERN|6)
+#define KLE_PHYSMEM_NOT_INSTALLED 		(KLE_KERN|7)
+#define KLE_NO_DEFTASK	 			(KLE_KERN|8)
+#define KLE_PID_NOT_FOUND 			(KLE_KERN|9)
+#define KLE_DEFTASK_NOT_ON_CPU 			(KLE_KERN|10)
+#define KLE_NO_CURCPU 				(KLE_KERN|11)
+#define KLE_NO_CPU 				(KLE_KERN|12)
+#define KLE_SIG_ERROR 				(KLE_KERN|13)
 
 /** Error codes that indicate what type of data was bad. These are
  ** placed in the upper 32-bits of klib_error.

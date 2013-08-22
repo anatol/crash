@@ -810,7 +810,7 @@ crypt_show_table(unsigned long target)
 	if (MEMBER_EXISTS("struct crypt_config", "iv_mode")) {
 		if (cit_mode == DMINFO_CRYPTO_TFM_MODE_CBC)
 			chainmode = "cbc";
-		else if (cit_mode == DMINFO_CRYPTO_TFM_MODE_ECB) 
+		else if (cit_mode == DMINFO_CRYPTO_TFM_MODE_ECB)
 			chainmode = "ecb";
 		else
 			chainmode = "unknown";
@@ -827,7 +827,7 @@ crypt_show_table(unsigned long target)
 		/* Compatibility mode for old dm-crypt cipher strings */
 		if (cit_mode == DMINFO_CRYPTO_TFM_MODE_CBC)
 			chainmode = "plain";
-		else if (cit_mode == DMINFO_CRYPTO_TFM_MODE_ECB) 
+		else if (cit_mode == DMINFO_CRYPTO_TFM_MODE_ECB)
 			chainmode = "ecb";
 		else
 			chainmode = "unknown";

@@ -32,7 +32,7 @@ static void mclx_cache_page_headers_v3(void);
 int
 lkcd_dump_init_v2_v3(FILE *fp, int fd)
 {
-	int i; 
+	int i;
 	int eof;
 	uint32_t pgcnt;
 	dump_header_t *dh;
@@ -52,7 +52,7 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 	    sizeof(dump_header_t))
 		return FALSE;
 
-	if (dh->dh_version & LKCD_DUMP_MCLX_V1) 
+	if (dh->dh_version & LKCD_DUMP_MCLX_V1)
 		lseek(lkcd->fd, MCLX_V1_PAGE_HEADER_CACHE, SEEK_CUR);
 
         if (read(lkcd->fd, dha, sizeof(dump_header_asm_t)) !=
@@ -62,7 +62,7 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
         lkcd->dump_page = dp;
         lkcd->dump_header = dh;
 	lkcd->dump_header_asm = dha;
-	if (lkcd->debug) 
+	if (lkcd->debug)
 		dump_lkcd_environment(LKCD_DUMP_HEADER_ONLY);
 
 	/*
@@ -95,14 +95,14 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 		case LKCD_DUMPFILE_OK:
 		case LKCD_DUMPFILE_END:
 			break;
-		
+
 		case LKCD_DUMPFILE_EOF:
 			lkcd_print("reached EOF\n");
 			eof = TRUE;
 			continue;
 		}
 
-		if (dp->dp_flags & 
+		if (dp->dp_flags &
                     ~(DUMP_COMPRESSED|DUMP_RAW|DUMP_END|LKCD_DUMP_MCLX_V0)) {
 			lkcd_print("unknown page flag in dump: %lx\n",
 				dp->dp_flags);
@@ -122,8 +122,8 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 
         	lseek(lkcd->fd, dp->dp_size, SEEK_CUR);
 
-		if (!LKCD_DEBUG(2)) 
-			break; 
+		if (!LKCD_DEBUG(2))
+			break;
 	}
 
         /*
@@ -139,7 +139,7 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 	 */
 	lkcd_free_memory();
 	for (i = 0; i < LKCD_CACHED_PAGES; i++) {
-		lkcd->page_cache_hdr[i].pg_bufptr = 
+		lkcd->page_cache_hdr[i].pg_bufptr =
 			&lkcd->page_cache_buf[i * dh->dh_page_size];
 	}
 
@@ -155,7 +155,7 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 	lkcd->panic_task = (ulong)dh->dh_current_task;
 	lkcd->panic_string = (char *)&dh->dh_panic_string[0];
 
-	if (dh->dh_version & LKCD_DUMP_MCLX_V1) 
+	if (dh->dh_version & LKCD_DUMP_MCLX_V1)
 		mclx_cache_page_headers_v3();
 
         if (!fp)
@@ -166,9 +166,9 @@ lkcd_dump_init_v2_v3(FILE *fp, int fd)
 }
 
 /*
- *  Return the current page's dp_size. 
+ *  Return the current page's dp_size.
  */
-uint32_t 
+uint32_t
 get_dp_size_v2_v3(void)
 {
         dump_page_t *dp;
@@ -216,7 +216,7 @@ dump_dump_page_v2_v3(char *s, void *dpp)
         dp = (dump_page_t *)dpp;
         others = 0;
 
-        console(BITS32() ? "dp_address: %llx " : "dp_address: %lx ", 
+        console(BITS32() ? "dp_address: %llx " : "dp_address: %lx ",
 		dp->dp_address);
         console("dp_size: %ld ", dp->dp_size);
         console("dp_flags: %lx (", flags = dp->dp_flags);
@@ -332,7 +332,7 @@ dump_header_only:
 	lkcd_print(BITS32() ? "%ld\n" : "%d\n", dha->dha_version);
 	lkcd_print(" dha_header_size: ");
 	lkcd_print(BITS32() ? "%ld\n" : "%d\n", dha->dha_header_size);
-#ifdef X86 
+#ifdef X86
         lkcd_print("         dha_esp: %lx\n", dha->dha_esp);
         lkcd_print("         dha_eip: %lx\n", dha->dha_eip);
 #endif
@@ -421,7 +421,7 @@ dump_page_only:
 
 /*
  *  Read the MCLX-enhanced page header cache.  Verify the first one, which
- *  is a pointer to the page header for address 1MB, and take the rest at 
+ *  is a pointer to the page header for address 1MB, and take the rest at
  *  blind faith.  Note that the page headers do not include the 64K dump
  *  header offset, which must be added to the values found.
  */
@@ -451,18 +451,18 @@ mclx_cache_page_headers_v3(void)
 	/*
 	 *  Determine the granularity between offsets.
 	 */
-        if (lseek(lkcd->fd, page_headers[0] + LKCD_OFFSET_TO_FIRST_PAGE, 
-	    SEEK_SET) == -1) 
+        if (lseek(lkcd->fd, page_headers[0] + LKCD_OFFSET_TO_FIRST_PAGE,
+	    SEEK_SET) == -1)
 		return;
-        if (read(lkcd->fd, dp, lkcd->page_header_size) != 
-	    lkcd->page_header_size) 
+        if (read(lkcd->fd, dp, lkcd->page_header_size) !=
+	    lkcd->page_header_size)
                 return;
         physaddr1 = (dp->dp_address - lkcd->kvbase) << lkcd->page_shift;
 
         if (lseek(lkcd->fd, page_headers[1] + LKCD_OFFSET_TO_FIRST_PAGE,
             SEEK_SET) == -1)
                 return;
-        if (read(lkcd->fd, dp, lkcd->page_header_size) != 
+        if (read(lkcd->fd, dp, lkcd->page_header_size) !=
 	    lkcd->page_header_size)
                 return;
         physaddr2 = (dp->dp_address - lkcd->kvbase) << lkcd->page_shift;

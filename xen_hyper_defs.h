@@ -532,7 +532,7 @@ struct xen_hyper_pcpu_context {
 	ulong init_tss;
 	union {
 		uint32_t esp0;
-		uint64_t rsp0;	
+		uint64_t rsp0;
 	} sp;
 	uint64_t ist[XEN_HYPER_TSS_IST_MAX];	/* This is valid on x86_64 */
 };

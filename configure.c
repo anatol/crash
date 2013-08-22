@@ -16,17 +16,17 @@
  */
 
 /*
- *  define, clear and undef dynamically update the top-level Makefile: 
+ *  define, clear and undef dynamically update the top-level Makefile:
  *
- *   -b  define: TARGET, GDB, GDB_FILES, GDB_OFILES, GDB_PATCH_FILES, 
+ *   -b  define: TARGET, GDB, GDB_FILES, GDB_OFILES, GDB_PATCH_FILES,
  *               TARGET_CFLAGS, LDFLAGS, GDB_CONF_FLAGS and GPL_FILES
  *       create: build_data.c
  *
- *   -d  define: TARGET, GDB, GDB_FILES, GDB_OFILES, GDB_PATCH_FILES, 
+ *   -d  define: TARGET, GDB, GDB_FILES, GDB_OFILES, GDB_PATCH_FILES,
  *               TARGET_CFLAGS, LDFLAGS, GDB_CONF_FLAGS and PROGRAM (for daemon)
  *       create: build_data.c
  *
- *   -u   clear: TARGET, GDB, GDB_FILES, GDB_OFILES, VERSION, GDB_PATCH_FILES, 
+ *   -u   clear: TARGET, GDB, GDB_FILES, GDB_OFILES, VERSION, GDB_PATCH_FILES,
  *               TARGET_CFLAGS, LDFLAGS, GDB_CONF_FLAGS and GPL_FILES
  *        undef: WARNING_ERROR, WARNING_OPTIONS
  *
@@ -41,7 +41,7 @@
  *
  *   -g  define: GDB
  *
- *   -p  Create or remove .rh_rpm_package file 
+ *   -p  Create or remove .rh_rpm_package file
  *
  *   -q  Don't print configuration
  *
@@ -177,13 +177,13 @@ struct supported_gdb_version {
 	{
 	    "GDB=gdb-5.3post-0.20021129.36rh",
 	    "Red Hat Linux (5.3post-0.20021129.36rh)",
-	    "GDB_FILES=${GDB_5.3post-0.20021129.36rh_FILES}",	   
+	    "GDB_FILES=${GDB_5.3post-0.20021129.36rh_FILES}",
 	    "GDB_OFILES=${GDB_5.3post-0.20021129.36rh_OFILES}",
 	    "GDB_PATCH_FILES=",
 	    "GDB_FLAGS=-DGDB_5_3",
 	    "GPLv2"
 	},
-	{ 
+	{
 	    "GDB=gdb-6.0",
 	    "6.0",
 	    "GDB_FILES=${GDB_6.0_FILES}",
@@ -233,7 +233,7 @@ struct supported_gdb_version {
 #define DAEMON  0x1
 #define QUIET   0x2
 
-#define MAXSTRLEN 256 
+#define MAXSTRLEN 256
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 struct target_data {
@@ -246,7 +246,7 @@ struct target_data {
 	char release[MAXSTRLEN];
 	struct stat statbuf;
 	const char *target_as_param;
-} target_data = { 0 }; 
+} target_data = { 0 };
 
 int
 main(int argc, char **argv)
@@ -301,7 +301,7 @@ main(int argc, char **argv)
 void
 target_rebuild_instructions(struct supported_gdb_version *sp, char *target)
 {
-	fprintf(stderr, 
+	fprintf(stderr,
 	    "\nIn order to build a crash binary for the %s architecture:\n",
 		target);
 
@@ -363,7 +363,7 @@ get_current_configuration(struct supported_gdb_version *sp)
 
 	set_initial_target(sp);
 
-        /* 
+        /*
 	 * Override target if specified on command line.
 	 */
 	target_data.host = target_data.target;
@@ -371,7 +371,7 @@ get_current_configuration(struct supported_gdb_version *sp)
 	if (target_data.target_as_param) {
 		if ((target_data.target == X86 || target_data.target == X86_64) &&
 		    (name_to_target((char *)target_data.target_as_param) == ARM)) {
-			/* 
+			/*
 			 *  Debugging of ARM core files supported on X86, and on
 			 *  X86_64 when built as a 32-bit executable.
 			 */
@@ -412,11 +412,11 @@ get_current_configuration(struct supported_gdb_version *sp)
 	 *  Impose implied (sticky) target if an initial build has been
 	 *  done in the source tree.
 	 */
-	if (target_data.initial_gdb_target && 
+	if (target_data.initial_gdb_target &&
 	    (target_data.target != target_data.initial_gdb_target)) {
 		if ((target_data.initial_gdb_target == ARM) &&
 		    (target_data.target != ARM)) {
-			if ((target_data.target == X86) || 
+			if ((target_data.target == X86) ||
 			    (target_data.target == X86_64))
 				target_data.target = ARM;
 			else
@@ -428,7 +428,7 @@ get_current_configuration(struct supported_gdb_version *sp)
 
 		if ((target_data.initial_gdb_target == X86) &&
 		    (target_data.target != X86)) {
-			if (target_data.target == X86_64) 
+			if (target_data.target == X86_64)
 				target_data.target = X86;
 			else
 				arch_mismatch(sp);
@@ -439,7 +439,7 @@ get_current_configuration(struct supported_gdb_version *sp)
 
 		if ((target_data.initial_gdb_target == ARM64) &&
 		    (target_data.target != ARM64)) {
-			if (target_data.target == X86_64) 
+			if (target_data.target == X86_64)
 				target_data.target = ARM64;
 			else
 				arch_mismatch(sp);
@@ -450,7 +450,7 @@ get_current_configuration(struct supported_gdb_version *sp)
 
 		if ((target_data.initial_gdb_target == PPC) &&
 		    (target_data.target != PPC)) {
-			if (target_data.target == PPC64) 
+			if (target_data.target == PPC64)
 				target_data.target = PPC;
 			else
 				arch_mismatch(sp);
@@ -491,19 +491,19 @@ get_release:
 				if (strlen(buf)) {
 					buf[MAXSTRLEN-1] = '\0';
 					strcpy(target_data.release, buf);
-				} else 
-					fprintf(stderr, 
+				} else
+					fprintf(stderr,
 				   "WARNING: .rh_rpm_package file is empty!\n");
 			} else
-				fprintf(stderr, 
+				fprintf(stderr,
 				   "WARNING: .rh_rpm_package file is empty!\n");
 			fclose(fp);
 
 			if (strlen(target_data.release))
 				return;
-		} 
-	} else 
-		fprintf(stderr, 
+		}
+	} else
+		fprintf(stderr,
 			"WARNING: .rh_rpm_package file does not exist!\n");
 
         if ((fp = fopen("defs.h", "r")) == NULL) {
@@ -512,7 +512,7 @@ get_release:
         }
 
         while (fgets(buf, 512, fp)) {
-                if (strncmp(buf, "#define BASELEVEL_REVISION", 
+                if (strncmp(buf, "#define BASELEVEL_REVISION",
 		    strlen("#define BASELEVEL_REVISION")) == 0) {
 			p = strstr(buf, "\"") + 1;
 			strip_linefeeds(p);
@@ -525,7 +525,7 @@ get_release:
 	fclose(fp);
 }
 
-void 
+void
 show_configuration(void)
 {
 	int i;
@@ -535,16 +535,16 @@ show_configuration(void)
 
 	switch (target_data.target)
 	{
-	case X86:    
+	case X86:
 		printf("TARGET: X86\n");
 		break;
-	case ALPHA: 
+	case ALPHA:
 		printf("TARGET: ALPHA\n");
 		break;
-	case PPC:    
+	case PPC:
 		printf("TARGET: PPC\n");
 		break;
-	case IA64:   
+	case IA64:
 		printf("TARGET: IA64\n");
 		break;
 	case S390:
@@ -568,7 +568,7 @@ show_configuration(void)
 	}
 
 	if (strlen(target_data.program)) {
-		for (i = 0; i < (strlen("TARGET")-strlen(target_data.program)); 
+		for (i = 0; i < (strlen("TARGET")-strlen(target_data.program));
 		     i++)
 			printf(" ");
 		printf("%s: ", target_data.program);
@@ -578,7 +578,7 @@ show_configuration(void)
 			printf("???\n");
 	}
 
-	if (strlen(target_data.gdb_version)) 
+	if (strlen(target_data.gdb_version))
 		printf("   GDB: %s\n\n", &target_data.gdb_version[4]);
 }
 
@@ -686,7 +686,7 @@ build_configure(struct supported_gdb_version *sp)
 		else if (strncmp(buf, "GDB_FLAGS=",strlen("GDB_FLAGS=")) == 0)
                         fprintf(fp2, "%s\n", sp->GDB_FLAGS);
 		else if (strncmp(buf, "GPL_FILES=", strlen("GPL_FILES=")) == 0)
-			fprintf(fp2, "GPL_FILES=%s\n", strcmp(sp->GPL, "GPLv2") == 0 ? 
+			fprintf(fp2, "GPL_FILES=%s\n", strcmp(sp->GPL, "GPLv2") == 0 ?
 				"COPYING" : "COPYING3");
                 else if (strncmp(buf, "GDB=", strlen("GDB=")) == 0) {
                         fprintf(fp2, "%s\n", sp->GDB);
@@ -718,7 +718,7 @@ release_configure(char *gdb_version, struct supported_gdb_version *sp)
 		fprintf(stderr, "make release: no such directory: %s\n", buf);
 		exit(1);
 	}
-	sprintf(gdb_files, "GDB_%s_FILES", 
+	sprintf(gdb_files, "GDB_%s_FILES",
 		&gdb_version[strlen("gdb-")]);
 
 	makefile_setup(&fp1, &fp2);
@@ -730,12 +730,12 @@ release_configure(char *gdb_version, struct supported_gdb_version *sp)
 		if (strncmp(buf, "GDB_FILES=", strlen("GDB_FILES=")) == 0)
 			fprintf(fp2, "GDB_FILES=${%s}\n", gdb_files);
 		else if (strncmp(buf, "VERSION=", strlen("VERSION=")) == 0)
-                        fprintf(fp2, "VERSION=%s\n", 
+                        fprintf(fp2, "VERSION=%s\n",
 				target_data.release);
 		else if (strncmp(buf, "GDB_PATCH_FILES=", strlen("GDB_PATCH_FILES=")) == 0)
 			fprintf(fp2, "%s\n", sp->GDB_PATCH_FILES);
 		else if (strncmp(buf, "GPL_FILES=", strlen("GPL_FILES=")) == 0)
-			fprintf(fp2, "GPL_FILES=%s\n", strcmp(sp->GPL, "GPLv2") == 0 ? 
+			fprintf(fp2, "GPL_FILES=%s\n", strcmp(sp->GPL, "GPLv2") == 0 ?
 				"COPYING" : "COPYING3");
 		else
 			fprintf(fp2, "%s", buf);
@@ -753,7 +753,7 @@ release_configure(char *gdb_version, struct supported_gdb_version *sp)
 /*
  *  Create an .rh_rpm_package file if the passed-in variable is set.
  */
-void 
+void
 make_rh_rpm_package(char *package, int release)
 {
 	char *p, *cur;
@@ -764,7 +764,7 @@ make_rh_rpm_package(char *package, int release)
 		if (file_exists(".rh_rpm_package")) {
 			if (unlink(".rh_rpm_package")) {
 				perror("unlink");
-                		fprintf(stderr, 
+                		fprintf(stderr,
 					"cannot remove .rh_rpm_package\n");
 				exit(1);
 			}
@@ -774,7 +774,7 @@ make_rh_rpm_package(char *package, int release)
 
 	if (!(p = strstr(package, "=")))
 		return;
-	
+
 	if (!strlen(++p))
 		return;
 
@@ -788,14 +788,14 @@ make_rh_rpm_package(char *package, int release)
 			if (strncmp(buf, "crash ", 6) == 0) {
 				cur = &buf[6];
 				break;
-			} 
+			}
 		}
 		fclose(fp);
-	
+
 		if (!cur) {
 			fprintf(stderr, "cannot get version from \"crash -v\"\n");
 			exit(1);
-		} 
+		}
 		strip_linefeeds(cur);
 
 		if (strcmp(cur, p) != 0) {
@@ -862,15 +862,15 @@ unconfigure(void)
                         fprintf(fp2, "GDB_PATCH_FILES=\n");
                 else if (strncmp(buf, "GDB_FLAGS=",strlen("GDB_FLAGS=")) == 0)
                         fprintf(fp2, "GDB_FLAGS=\n");
-                else if (strncmp(buf, "GDB=", strlen("GDB=")) == 0) 
+                else if (strncmp(buf, "GDB=", strlen("GDB=")) == 0)
                         fprintf(fp2, "GDB=\n");
-                else if (strncmp(buf, "VERSION=", strlen("VERSION=")) == 0) 
+                else if (strncmp(buf, "VERSION=", strlen("VERSION=")) == 0)
                         fprintf(fp2, "VERSION=\n");
-                else if (strncmp(buf, "GPL_FILES=", strlen("GPL_FILES=")) == 0) 
+                else if (strncmp(buf, "GPL_FILES=", strlen("GPL_FILES=")) == 0)
                         fprintf(fp2, "GPL_FILES=\n");
-                else if (strncmp(buf, "LDFLAGS=", strlen("LDFLAGS=")) == 0) 
+                else if (strncmp(buf, "LDFLAGS=", strlen("LDFLAGS=")) == 0)
                         fprintf(fp2, "LDFLAGS=\n");
-                else if (strncmp(buf, "WARNING_ERROR=", 
+                else if (strncmp(buf, "WARNING_ERROR=",
 			strlen("WARNING_ERROR=")) == 0) {
                         shift_string_right(buf, 1);
 			buf[0] = '#';
@@ -894,9 +894,9 @@ set_warnings(int w)
         char buf[512];
 
         makefile_setup(&fp1, &fp2);
- 
+
         while (fgets(buf, 512, fp1)) {
-		if (strncmp(buf, "#WARNING_ERROR=", 
+		if (strncmp(buf, "#WARNING_ERROR=",
 		    strlen("#WARNING_ERROR=")) == 0) {
 			switch (w)
 			{
@@ -909,9 +909,9 @@ set_warnings(int w)
 			}
 		}
 
-                if (strncmp(buf, "WARNING_ERROR=", 
+                if (strncmp(buf, "WARNING_ERROR=",
 		    strlen("WARNING_ERROR=")) == 0) {
-			switch (w) 
+			switch (w)
 			{
 			case 'n':
 			case 'w':
@@ -922,9 +922,9 @@ set_warnings(int w)
 				break;
 			}
 		}
-		
+
                 if (strncmp(buf, "#WARNING_OPTIONS=",
-                    strlen("#WARNING_OPTIONS=")) == 0) { 
+                    strlen("#WARNING_OPTIONS=")) == 0) {
 			switch (w)
 			{
 			case 'W':
@@ -938,7 +938,7 @@ set_warnings(int w)
 
                 if (strncmp(buf, "WARNING_OPTIONS=",
                     strlen("WARNING_OPTIONS=")) == 0) {
-			switch (w) 
+			switch (w)
 			{
 			case 'w':
 			case 'W':
@@ -990,7 +990,7 @@ makefile_create(FILE **fp1, FILE **fp2)
                 exit(1);
         }
 
-        if (chown("Makefile", target_data.statbuf.st_uid, 
+        if (chown("Makefile", target_data.statbuf.st_uid,
 	    target_data.statbuf.st_gid) == -1) {
                 fprintf(stderr,
                     "Makefile: cannot restore original owner/group\n");
@@ -1017,7 +1017,7 @@ strip_linefeeds(char *line)
         return(line);
 }
 
-/*      
+/*
  *  Turn a string into upper-case.
  */
 char *
@@ -1026,36 +1026,36 @@ upper_case(char *s, char *buf)
         char *p1, *p2;
 
         p1 = s;
-        p2 = buf; 
- 
+        p2 = buf;
+
         while (*p1) {
                 *p2 = toupper(*p1);
                 p1++, p2++;
         }
-                
+
         *p2 = '\0';
-        
+
         return(buf);
 }
 
-/*      
+/*
  *  Turn a string into lower-case.
  */
 char *
 lower_case(char *s, char *buf)
 {
         char *p1, *p2;
- 
+
         p1 = s;
-        p2 = buf;   
- 
+        p2 = buf;
+
         while (*p1) {
                 *p2 = tolower(*p1);
                 p1++, p2++;
         }
-  
-        *p2 = '\0'; 
-  
+
+        *p2 = '\0';
+
         return(buf);
 }
 
@@ -1202,7 +1202,7 @@ make_build_data(char *target)
                 fprintf(fp4, "char *build_data = \"%s by %s on %s\";\n",
                         strip_linefeeds(inbuf1), inbuf2, hostname);
         else
-                fprintf(fp4, "char *build_data = \"%s by %s\";\n", 
+                fprintf(fp4, "char *build_data = \"%s by %s\";\n",
 			strip_linefeeds(inbuf1), inbuf2);
 
         bzero(inbuf1, MAXSTRLEN);
@@ -1212,7 +1212,7 @@ make_build_data(char *target)
 
         fprintf(fp4, "char *build_version = \"%s\";\n", inbuf1);
 
-	fprintf(fp4, "char *compiler_version = \"%s\";\n", 
+	fprintf(fp4, "char *compiler_version = \"%s\";\n",
 		strip_linefeeds(inbuf3));
 
         pclose(fp1);
@@ -1232,9 +1232,9 @@ make_spec_file(struct supported_gdb_version *sp)
 	Release = strstr(target_data.release, "-");
 	if (!Release) {
 		Version = target_data.release;
-		Release = "0";		
+		Release = "0";
 	} else {
-		fprintf(stderr, 
+		fprintf(stderr,
 		    "crash.spec: obsolete src.rpm build manner -- no dashes allowed: %s\n",
 			target_data.release);
 		return;
@@ -1290,10 +1290,10 @@ make_spec_file(struct supported_gdb_version *sp)
 	printf("* eppic:  Provides C-like language for writing dump analysis scripts\n");
 	printf("* dminfo: Device-mapper target analyzer\n");
 	printf("* snap:   Takes a snapshot of live memory and creates a kdump dumpfile\n");
-        printf("* trace:  Displays kernel tracing data and traced events that occurred prior to a panic.\n"); 
+        printf("* trace:  Displays kernel tracing data and traced events that occurred prior to a panic.\n");
 	printf("\n");
 	printf("%%prep\n");
-        printf("%%setup -n %%{name}-%%{version}\n"); 
+        printf("%%setup -n %%{name}-%%{version}\n");
 	printf("# %%patch0 -p1 -b .install (patch example)\n");
 	printf("\n");
 	printf("%%build\n");
@@ -1352,7 +1352,7 @@ setup_gdb_defaults(void)
 	/*
 	 *  Use the default, allowing for an override in .gdb
 	 */
-        if (!file_exists(".gdb")) 
+        if (!file_exists(".gdb"))
 		return store_gdb_defaults(NULL);
 
         if ((fp = fopen(".gdb", "r")) == NULL) {
@@ -1407,7 +1407,7 @@ setup_gdb_defaults(void)
 		}
 
         }
-	
+
 	fclose(fp);
 
 	fprintf(stderr, ".gdb: rejected -- using default gdb\n\n");
@@ -1422,7 +1422,7 @@ store_gdb_defaults(struct supported_gdb_version *sp)
 	else
 		fprintf(stderr, "WARNING: \"make clean\" may be required before rebuilding\n\n");
 
-	return sp; 
+	return sp;
 }
 
 void
@@ -1440,7 +1440,7 @@ set_initial_target(struct supported_gdb_version *sp)
 	if (!file_exists(crash_target)) {
 		if (target_data.target_as_param &&
 		    file_exists(&sp->GDB[strlen("GDB=")])) {
-			fprintf(stderr, 
+			fprintf(stderr,
 			    "\nThe \"%s\" file does not exist.\n",
 				crash_target);
 			target_rebuild_instructions(sp, (char *)target_data.target_as_param);
@@ -1453,7 +1453,7 @@ set_initial_target(struct supported_gdb_version *sp)
                 perror(crash_target);
                 return;
         }
-	
+
         if (!fgets(buf, 512, fp)) {
                 perror(crash_target);
 		fclose(fp);
@@ -1462,9 +1462,9 @@ set_initial_target(struct supported_gdb_version *sp)
 
 	fclose(fp);
 
-	if (strncmp(buf, "X86_64", strlen("X86_64")) == 0) 
+	if (strncmp(buf, "X86_64", strlen("X86_64")) == 0)
 		target_data.initial_gdb_target = X86_64;
-	else if (strncmp(buf, "X86", strlen("X86")) == 0) 
+	else if (strncmp(buf, "X86", strlen("X86")) == 0)
 		target_data.initial_gdb_target = X86;
 	else if (strncmp(buf, "ALPHA", strlen("ALPHA")) == 0)
 		target_data.initial_gdb_target = ALPHA;
@@ -1497,7 +1497,7 @@ target_to_name(int target)
 	case S390X:  return("S390X");
 	case PPC64:  return("PPC64");
 	case X86_64: return("X86_64");
-	case ARM:    return("ARM"); 
+	case ARM:    return("ARM");
 	case ARM64:  return("ARM64");
 	}
 
@@ -1581,7 +1581,7 @@ get_extra_flags(char *filename, char *initial)
 			continue;
 		if (strlen(inbuf)) {
 			if (strlen(buf))
-				strcat(buf, " ");			
+				strcat(buf, " ");
 			strcat(buf, inbuf);
 		}
 	}
@@ -1590,6 +1590,6 @@ get_extra_flags(char *filename, char *initial)
 
 	if (strlen(buf))
 		return strdup(buf);
-	else 
+	else
 		return NULL;
 }

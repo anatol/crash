@@ -55,7 +55,7 @@ xen_hyper_init(void)
 
 	if (machine_type("X86_64") &&
 	    symbol_exists("xen_phys_start") && !xen_phys_start())
-		error(WARNING, 
+		error(WARNING,
 	 	    "This hypervisor is relocatable; if initialization fails below, try\n"
                     "         using the \"--xen_phys_start <address>\" command line option.\n\n");
 
@@ -89,7 +89,7 @@ xen_hyper_init(void)
 		xht->percpu_shift = 12;
 	}
 	member_offset = MEMBER_OFFSET("cpuinfo_x86", "x86_model_id");
-	buf = GETBUF(XEN_HYPER_SIZE(cpuinfo_x86));	
+	buf = GETBUF(XEN_HYPER_SIZE(cpuinfo_x86));
 	if (xen_hyper_test_pcpu_id(XEN_HYPER_CRASHING_CPU())) {
 		xen_hyper_x86_fill_cpu_data(XEN_HYPER_CRASHING_CPU(), buf);
 	} else {
@@ -342,7 +342,7 @@ xen_hyper_x86_pcpu_init(void)
 		init_tss_base = symbol_value("init_tss");
 		flag = FALSE;
 	}
-	buf = GETBUF(XEN_HYPER_SIZE(tss_struct));	
+	buf = GETBUF(XEN_HYPER_SIZE(tss_struct));
 	for_cpu_indexes(i, cpuid)
 	{
 		if (flag)
@@ -358,7 +358,7 @@ xen_hyper_x86_pcpu_init(void)
 			sp = ULONG(buf + XEN_HYPER_OFFSET(tss_struct_esp0));
 		} else if (machine_type("X86_64")) {
 			sp = ULONG(buf + XEN_HYPER_OFFSET(tss_struct_rsp0));
-		} else 
+		} else
 			sp = 0;
 		cpu_info = XEN_HYPER_GET_CPU_INFO(sp);
 		if (CRASHDEBUG(1)) {
@@ -448,7 +448,7 @@ xen_hyper_schedule_init(void)
 	malloc(XEN_HYPER_SIZE(scheduler))) == NULL) {
 		error(FATAL, "cannot malloc scheduler struct space.\n");
 	}
-	buf = GETBUF(XEN_HYPER_SCHEDULER_NAME);	
+	buf = GETBUF(XEN_HYPER_SCHEDULER_NAME);
 	scheduler_opt_name = XEN_HYPER_OFFSET(scheduler_opt_name);
 	if (symbol_exists("ops")) {
 		if (!readmem(symbol_value("ops") + scheduler_opt_name, KVADDR,
@@ -519,7 +519,7 @@ xen_hyper_schedule_init(void)
 	}
 	BZERO(xhscht->sched_context_array,
 		sizeof(struct xen_hyper_sched_context) * XEN_HYPER_MAX_CPUS());
-	buf = GETBUF(XEN_HYPER_SIZE(schedule_data));	
+	buf = GETBUF(XEN_HYPER_SIZE(schedule_data));
 	if (symbol_exists("per_cpu__schedule_data")) {
 		addr = symbol_value("per_cpu__schedule_data");
 		flag = TRUE;
@@ -791,7 +791,7 @@ xen_hyper_dumpinfo_init(void)
 		xhdit->context_xen_info.crash_xen_info_ptr =
 			xhdit->crash_note_xen_info_ptr + xhdit->xen_info_offset;
 	}
-		
+
 	/* allocate note core */
 	size = xhdit->core_size * XEN_HYPER_NR_PCPUS();
 	if(!(xhdit->crash_note_core_array = malloc(size))) {
@@ -1430,7 +1430,7 @@ xen_hyper_refresh_vcpu_context_space(void)
 		j < XEN_HYPER_NR_VCPUS_IN_DOM(dc); j++, vcc++) {
 			xen_hyper_read_vcpu(dc->vcpu[j]);
 			xen_hyper_store_vcpu_context(vcc, dc->vcpu[j],
-				xhvct->vcpu_struct);	
+				xhvct->vcpu_struct);
 		}
 		if (dc == xhdt->idle_domain) {
 			xhvct->idle_vcpu_context_array = vcca;
@@ -1994,10 +1994,10 @@ xen_hyper_ia64_memory_size(void)
 	return xen_hyper_x86_memory_size();
 }
 
-/*      
- *  Calculate and return the speed of the processor. 
+/*
+ *  Calculate and return the speed of the processor.
  */
-ulong 
+ulong
 xen_hyper_ia64_processor_speed(void)
 {
 	ulong mhz, proc_freq;
@@ -2012,7 +2012,7 @@ xen_hyper_ia64_processor_speed(void)
 	    XEN_HYPER_INVALID_MEMBER(cpuinfo_ia64_proc_freq))
 		return (machdep->mhz = mhz);
 
-        readmem(xen_hyper_per_cpu(xht->cpu_data_address, xht->cpu_idxs[0]) + 
+        readmem(xen_hyper_per_cpu(xht->cpu_data_address, xht->cpu_idxs[0]) +
 		XEN_HYPER_OFFSET(cpuinfo_ia64_proc_freq),
         	KVADDR, &proc_freq, sizeof(ulong),
                 "cpuinfo_ia64 proc_freq", FAULT_ON_ERROR);
@@ -2079,7 +2079,7 @@ xen_hyper_get_active_vcpu_from_pcpuid(ulong pcpuid)
 		i < xhvct->vcpu_context_arrays_cnt; i++, vcca++) {
 		for (j = 0, vcc = vcca->context_array;
 			j < vcca->context_array_cnt; j++, vcc++) {
-			if (vcc->processor == pcpuid && 
+			if (vcc->processor == pcpuid &&
 				vcc->state == XEN_HYPER_RUNSTATE_running) {
 				return vcc->vcpu;
 			}

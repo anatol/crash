@@ -200,7 +200,7 @@ void load_data_v1(struct map_hdr_v1 *hdr, u_long index, u_long *buf, u_long *len
 			printf("load_data, bad ret Z_DATA_ERROR from uncompress\n");
 		else
 			printf("load_data, bad ret %d from uncompress\n", ret);
-		
+
 		clean_exit(1);
 	}
 	free((void *)compr_buf);
@@ -272,7 +272,7 @@ int read_maps_v1(char *crash_file)
 	if(ret == -1) {
 		printf("read_maps: unable to fseek in  %s, errno = %d\n", crash_file, ferror(vas_file_p));
 		return -1;
-	}	
+	}
 	items = fread((void *)cur_entry_p, 1, Page_Size, vas_file_p);
 	if(items != Page_Size) {
 		printf("read_maps: unable to read header from %s, errno = %d\n", crash_file, ferror(vas_file_p));

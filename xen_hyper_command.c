@@ -132,7 +132,7 @@ xen_hyper_cmd_domain(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_domain(&da);
 }
 
@@ -208,7 +208,7 @@ xen_hyper_cmd_doms(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_doms(&da);
 }
 
@@ -404,7 +404,7 @@ xen_hyper_cmd_dumpinfo(void)
 	if (!cnt && bogus) {
 		return;
 	}
-	
+
 	xen_hyper_do_dumpinfo(flag, &dia);
 }
 
@@ -514,16 +514,16 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 		for (i = 0; i < 4; i++, addr += XEN_HYPER_SIZE(ELF_Timeval)) {
 			switch (i)
 			{
-			case 0: 
+			case 0:
 				sprintf(buf, "  pr_utime   ");
 				break;
-			case 1: 
+			case 1:
 				sprintf(buf, "  pr_stime   ");
 				break;
-			case 2: 
+			case 2:
 				sprintf(buf, "  pr_cutime  ");
 				break;
-			case 3: 
+			case 3:
 				sprintf(buf, "  pr_cstime  ");
 				break;
 			}
@@ -578,7 +578,7 @@ xen_hyper_cmd_log(void)
 
         if (argerrs)
                 cmd_usage(pc->curcmd, SYNOPSIS);
-	
+
 	xen_hyper_dump_log();
 }
 
@@ -696,7 +696,7 @@ xen_hyper_cmd_pcpus(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_pcpus(flag, &pca);
 }
 
@@ -828,7 +828,7 @@ xen_hyper_cmd_sched(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_sched(flag, &scha);
 }
 
@@ -974,7 +974,7 @@ xen_hyper_display_sys_stats(void)
         }
 
 	if (REMOTE()) {
-		switch (pc->flags & 
+		switch (pc->flags &
 			(NAMELIST_LOCAL|NAMELIST_UNLINKED|NAMELIST_SAVED))
 		{
 		case NAMELIST_UNLINKED:
@@ -1011,14 +1011,14 @@ xen_hyper_display_sys_stats(void)
 
 	XEN_HYPER_PRI_CONST(fp, len, "DUMPFILE: ", flag);
         if (ACTIVE()) {
-		if (REMOTE_ACTIVE()) 
+		if (REMOTE_ACTIVE())
 			fprintf(fp, "%s@%s  (remote live system)\n",
 			    	pc->server_memsrc, pc->server);
 		else
                 	fprintf(fp, "%s\n", pc->live_memsrc);
 	} else {
 		if (REMOTE_DUMPFILE())
-                	fprintf(fp, "%s@%s  (remote dumpfile)", 
+                	fprintf(fp, "%s@%s  (remote dumpfile)",
 				pc->server_memsrc, pc->server);
 		else
                 	fprintf(fp, "%s", pc->dumpfile);
@@ -1032,7 +1032,7 @@ xen_hyper_display_sys_stats(void)
 		(buf1, "%d\n", XEN_HYPER_NR_DOMAINS()));
 	/* !!!Display a date here if it can be found. */
 	XEN_HYPER_PRI(fp, len, "UPTIME: ", buf1, flag,
-		(buf1, "%s\n", (xen_hyper_get_uptime_hyper() ? 
+		(buf1, "%s\n", (xen_hyper_get_uptime_hyper() ?
 		 convert_time(xen_hyper_get_uptime_hyper(), buf2) : "--:--:--")));
 	/* !!!Display a version here if it can be found. */
 	XEN_HYPER_PRI_CONST(fp, len, "MACHINE: ", flag);
@@ -1116,7 +1116,7 @@ xen_hyper_cmd_vcpu(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_vcpu(&vca);
 }
 
@@ -1204,7 +1204,7 @@ xen_hyper_cmd_vcpus(void)
 	if (bogus && !cnt) {
 		return;
 	}
-	
+
 	xen_hyper_do_vcpus(&vca);
 }
 
@@ -1428,7 +1428,7 @@ xen_hyper_str_to_domain_context(char *string, ulong *value,
         if (hexadecimal(s, 0)) {
         	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
                 	s += 2;
-		if (strlen(s) <= MAX_HEXADDR_STRLEN) 
+		if (strlen(s) <= MAX_HEXADDR_STRLEN)
                 	hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
@@ -1450,17 +1450,17 @@ xen_hyper_str_to_domain_context(char *string, ulong *value,
 			found++;
 	}
 
-	switch (found) 
+	switch (found)
 	{
-	case 2: 
-		if (dc_did && dc_hid) {      
-                	*dcp = dc_did;      
-                	*value = dvalue;   
+	case 2:
+		if (dc_did && dc_hid) {
+                	*dcp = dc_did;
+                	*value = dvalue;
                 	type = STR_PID;
 		}
 		break;
 
-	case 1: 
+	case 1:
 		if (dc_did) {
 			*dcp = dc_did;
 			*value = dvalue;
@@ -1659,7 +1659,7 @@ xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
         if (hexadecimal(s, 0)) {
         	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
                 	s += 2;
-		if (strlen(s) <= MAX_HEXADDR_STRLEN) 
+		if (strlen(s) <= MAX_HEXADDR_STRLEN)
                 	hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
@@ -1677,9 +1677,9 @@ xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
 			found++;
 	}
 
-	switch (found) 
+	switch (found)
 	{
-	case 1: 
+	case 1:
 		if (vcc_dvc) {
 			*vccp = vcc_dvc;
 			*value = dvalue;
@@ -1729,7 +1729,7 @@ xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
         if (hexadecimal(s, 0)) {
         	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
                 	s += 2;
-		if (strlen(s) <= MAX_HEXADDR_STRLEN) 
+		if (strlen(s) <= MAX_HEXADDR_STRLEN)
                 	hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
@@ -1749,7 +1749,7 @@ xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
 			found++;
 	}
 
-	switch (found) 
+	switch (found)
 	{
 	case 2:
 		if (vcc_did && vcc_hid) {
@@ -1758,7 +1758,7 @@ xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
 			type = XEN_HYPER_STR_VCID;
 		}
 		break;
-	case 1: 
+	case 1:
 		if (vcc_did) {
 			*vccp = vcc_did;
 			*valvc = dvalue;
@@ -1802,7 +1802,7 @@ xen_hyper_str_to_pcpu_context(char *string, ulong *value,
         if (hexadecimal(s, 0)) {
         	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
                 	s += 2;
-		if (strlen(s) <= MAX_HEXADDR_STRLEN) 
+		if (strlen(s) <= MAX_HEXADDR_STRLEN)
                 	hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
@@ -1824,17 +1824,17 @@ xen_hyper_str_to_pcpu_context(char *string, ulong *value,
 			found++;
 	}
 
-	switch (found) 
+	switch (found)
 	{
-	case 2: 
-		if (pcc_did && pcc_hid) {      
-                	*pccp = pcc_did;      
-                	*value = dvalue;   
+	case 2:
+		if (pcc_did && pcc_hid) {
+                	*pccp = pcc_did;
+                	*value = dvalue;
                 	type = STR_PID;
 		}
 		break;
 
-	case 1: 
+	case 1:
 		if (pcc_did) {
 			*pccp = pcc_did;
 			*value = dvalue;

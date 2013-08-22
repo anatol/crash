@@ -210,7 +210,7 @@ lkcd_dump_init_v8_arch(dump_header_t *dh)
 int
 lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 {
-	int i; 
+	int i;
 	int eof;
 	uint32_t pgcnt;
 	dump_header_t *dh;
@@ -240,10 +240,10 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	    lkcd_offset_to_first_page = dh_dump_buffer_size;
 	} else
 	    lkcd_offset_to_first_page = LKCD_OFFSET_TO_FIRST_PAGE;
-	
+
         lkcd->dump_page = dp;
         lkcd->dump_header = dh;
-	if (lkcd->debug) 
+	if (lkcd->debug)
 		dump_lkcd_environment(LKCD_DUMP_HEADER_ONLY);
 
 	if (lkcd_dump_init_v8_arch(dh) != 0) {
@@ -264,7 +264,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	lkcd->bits = sizeof(long) * 8;
         lkcd->benchmark_pages = (dh->dh_num_pages/LKCD_PAGES_PER_MEGABYTE())+1;
 	lkcd->total_pages = dh->dh_num_pages;
-	/* 
+	/*
 	 * REMIND: dh_memory_size should be in physical pages and seems to be wrong.
 	 *         pad by two for now; 3DFE8 should be 40000.
 	 */
@@ -276,7 +276,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	lkcd->dumpfile_index = NULL;
 
  /* Keep from getting unused warnings */
-	dump_index_size = 0; 
+	dump_index_size = 0;
 	dump_index_created = 0;
 	strcpy(dumpfile_index_name, dumpfile);
 	ifd = 0;
@@ -285,7 +285,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 #ifdef LKCD_INDEX_FILE
 
 	lkcd->memory_pages = dh->dh_memory_size * 2;
-	dump_index_size = (lkcd->memory_pages * sizeof(off_t));	
+	dump_index_size = (lkcd->memory_pages * sizeof(off_t));
 	lkcd->page_offsets = 0;
 	strcpy(dumpfile_index_name, dumpfile);
 	lkcd->dumpfile_index = strcat(dumpfile_index_name, ".index");
@@ -303,7 +303,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 				ifd = -1;
 			} else {
 				dump_index_created++;
-			}	
+			}
 		}
 	}
 	if (ifd >= 0) {
@@ -318,8 +318,8 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 		}
 	}
 	lkcd->ifd = ifd;
-#endif 
-	
+#endif
+
 	lkcd->zone_shift = ffs(ZONE_SIZE) - 1;
 	lkcd->zone_mask = ~(ZONE_SIZE - 1);
 	lkcd->num_zones = 0;
@@ -329,7 +329,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	lkcd->get_dp_flags = get_dp_flags_v8;
 	lkcd->get_dp_address = get_dp_address_v8;
 	lkcd->get_dp_size = get_dp_size_v8;
-   	lkcd->compression = dh->dh_dump_compress; 
+   	lkcd->compression = dh->dh_dump_compress;
         lkcd->page_header_size = sizeof(dump_page_t);
 
         lseek(lkcd->fd, lkcd_offset_to_first_page, SEEK_SET);
@@ -344,14 +344,14 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 		case LKCD_DUMPFILE_OK:
 		case LKCD_DUMPFILE_END:
 			break;
-		
+
 		case LKCD_DUMPFILE_EOF:
 			lkcd_print("reached EOF\n");
 			eof = TRUE;
 			continue;
 		}
 
-		if (dp->dp_flags & 
+		if (dp->dp_flags &
               ~(DUMP_DH_COMPRESSED|DUMP_DH_RAW|DUMP_DH_END|LKCD_DUMP_MCLX_V0)) {
 			lkcd_print("unknown page flag in dump: %lx\n",
 				dp->dp_flags);
@@ -372,8 +372,8 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 
         	lseek(lkcd->fd, dp->dp_size, SEEK_CUR);
 
-		if (!LKCD_DEBUG(2)) 
-			break; 
+		if (!LKCD_DEBUG(2))
+			break;
 	}
 
         /*
@@ -389,7 +389,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	 */
 	lkcd_free_memory();
 	for (i = 0; i < LKCD_CACHED_PAGES; i++) {
-		lkcd->page_cache_hdr[i].pg_bufptr = 
+		lkcd->page_cache_hdr[i].pg_bufptr =
 			&lkcd->page_cache_buf[i * dh->dh_page_size];
 	}
 
@@ -405,7 +405,7 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 	lkcd->panic_task = (ulong)dh->dh_current_task;
 	lkcd->panic_string = (char *)&dh->dh_panic_string[0];
 
-	if (dh->dh_version & LKCD_DUMP_MCLX_V1) 
+	if (dh->dh_version & LKCD_DUMP_MCLX_V1)
 		mclx_cache_page_headers_v8();
 
         if (!fp)
@@ -419,8 +419,8 @@ lkcd_dump_init_v8(FILE *fp, int fd, char *dumpfile)
 /*
  *  Return the current page's dp_size.
  */
-uint32_t 
-get_dp_size_v8(void) 
+uint32_t
+get_dp_size_v8(void)
 {
         dump_page_t *dp;
 
@@ -432,8 +432,8 @@ get_dp_size_v8(void)
 /*
  *  Return the current page's dp_flags.
  */
-uint32_t 
-get_dp_flags_v8(void) 
+uint32_t
+get_dp_flags_v8(void)
 {
         dump_page_t *dp;
 
@@ -445,7 +445,7 @@ get_dp_flags_v8(void)
 /*
  *  Return the current page's dp_address.
  */
-uint64_t 
+uint64_t
 get_dp_address_v8(void)
 {
         dump_page_t *dp;
@@ -453,7 +453,7 @@ get_dp_address_v8(void)
         dp = (dump_page_t *)lkcd->dump_page;
 
         return(dp->dp_address);
-}    
+}
 
 /*
  *  help -S output, or as specified by arg.
@@ -609,9 +609,9 @@ dump_dump_page_v8(char *s, void *dpp)
         dump_page_t *dp;
         uint32_t flags;
         int others;
- 
+
         console(s);
- 
+
         dp = (dump_page_t *)dpp;
         others = 0;
 
@@ -634,7 +634,7 @@ dump_dump_page_v8(char *s, void *dpp)
 
 /*
  *  Read the MCLX-enhanced page header cache.  Verify the first one, which
- *  is a pointer to the page header for address 1MB, and take the rest at 
+ *  is a pointer to the page header for address 1MB, and take the rest at
  *  blind faith.  Note that the page headers do not include the 64K dump
  *  header offset, which must be added to the values found.
  */
@@ -669,18 +669,18 @@ mclx_cache_page_headers_v8(void)
 	/*
 	 *  Determine the granularity between offsets.
 	 */
-        if (lseek(lkcd->fd, page_headers[0] + lkcd_offset_to_first_page, 
-	    SEEK_SET) == -1) 
+        if (lseek(lkcd->fd, page_headers[0] + lkcd_offset_to_first_page,
+	    SEEK_SET) == -1)
 		return;
-        if (read(lkcd->fd, dp, lkcd->page_header_size) != 
-	    lkcd->page_header_size) 
+        if (read(lkcd->fd, dp, lkcd->page_header_size) !=
+	    lkcd->page_header_size)
                 return;
         physaddr1 = (dp->dp_address - lkcd->kvbase) << lkcd->page_shift;
 
         if (lseek(lkcd->fd, page_headers[1] + lkcd_offset_to_first_page,
             SEEK_SET) == -1)
                 return;
-        if (read(lkcd->fd, dp, lkcd->page_header_size) 
+        if (read(lkcd->fd, dp, lkcd->page_header_size)
 	    != lkcd->page_header_size)
                 return;
         physaddr2 = (dp->dp_address - lkcd->kvbase) << lkcd->page_shift;

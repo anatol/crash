@@ -31,7 +31,7 @@ static void dump_struct_members_for_tree(struct tree_data *, int, ulong);
 /*
  *  General purpose error reporting routine.  Type INFO prints the message
  *  and returns.  Type FATAL aborts the command in progress, and longjmps
- *  back to the appropriate recovery location.  If a FATAL occurs during 
+ *  back to the appropriate recovery location.  If a FATAL occurs during
  *  program initialization, exit() is called.
  *
  *  The idea is to get the message out so that it is seen by the user
@@ -76,19 +76,19 @@ __error(int type, char *fmt, ...)
 		spacebuf = NULL;
 
 	if (pc->stdpipe) {
-		fprintf(pc->stdpipe, "%s%s%s %s%s", 
-			new_line ? "\n" : "", 
-			type == CONT ? spacebuf : pc->curcmd, 
+		fprintf(pc->stdpipe, "%s%s%s %s%s",
+			new_line ? "\n" : "",
+			type == CONT ? spacebuf : pc->curcmd,
 			type == CONT ? " " : ":",
-			type == WARNING ? "WARNING: " : 
-			type == NOTE ? "NOTE: " : "", 
+			type == WARNING ? "WARNING: " :
+			type == NOTE ? "NOTE: " : "",
 			buf);
 		fflush(pc->stdpipe);
-	} else { 
-		fprintf(stdout, "%s%s%s %s%s", 
+	} else {
+		fprintf(stdout, "%s%s%s %s%s",
 			new_line || end_of_line ? "\n" : "",
-			type == WARNING ? "WARNING" : 
-			type == NOTE ? "NOTE" : 
+			type == WARNING ? "WARNING" :
+			type == NOTE ? "NOTE" :
 			type == CONT ? spacebuf : pc->curcmd,
 			type == CONT ? " " : ":",
 			buf, end_of_line ? "\n" : "");
@@ -97,9 +97,9 @@ __error(int type, char *fmt, ...)
 
         if ((fp != stdout) && (fp != pc->stdpipe) && (fp != pc->tmpfile)) {
                 fprintf(fp, "%s%s%s %s", new_line ? "\n" : "",
-			type == WARNING ? "WARNING" : 
-			type == NOTE ? "NOTE" : 
-			type == CONT ? spacebuf : pc->curcmd, 
+			type == WARNING ? "WARNING" :
+			type == NOTE ? "NOTE" :
+			type == CONT ? spacebuf : pc->curcmd,
 			type == CONT ? " " : ":",
 			buf);
 		fflush(fp);
@@ -114,12 +114,12 @@ __error(int type, char *fmt, ...)
         switch (type)
         {
         case FATAL:
-                if (pc->flags & IN_FOREACH) 
+                if (pc->flags & IN_FOREACH)
                         RESUME_FOREACH();
 		/* FALLTHROUGH */
 
 	case FATAL_RESTART:
-                if (pc->flags & RUNTIME) 
+                if (pc->flags & RUNTIME)
                         RESTART();
                 else {
 			if (REMOTE())
@@ -137,9 +137,9 @@ __error(int type, char *fmt, ...)
 
 /*
  *  Parse a line into tokens, populate the passed-in argv[] array, and return
- *  the count of arguments found.  This function modifies the passed-string 
- *  by inserting a NULL character at the end of each token.  Expressions 
- *  encompassed by parentheses, and strings encompassed by apostrophes, are 
+ *  the count of arguments found.  This function modifies the passed-string
+ *  by inserting a NULL character at the end of each token.  Expressions
+ *  encompassed by parentheses, and strings encompassed by apostrophes, are
  *  collected into single tokens.
  */
 int
@@ -179,7 +179,7 @@ next:
 			str[i++] = NULLCHAR;
 			if (str[i] == '"') {
 				k = i;
-				goto next;	
+				goto next;
 			}
 			break;
 		}
@@ -203,18 +203,18 @@ next:
 	            while (str[i] == ' ' || str[i] == '\t') {
 	                i++;
 	            }
-	
-	            if (str[i] == '"') {    
+
+	            if (str[i] == '"') {
 	                str[i] = ' ';
 	                string = TRUE;
 	                i++;
 	            }
 
-                    if (!string && str[i] == '(') {     
+                    if (!string && str[i] == '(') {
                         expression = TRUE;
                     }
-	
-	
+
+
 	            if (str[i] != NULLCHAR && str[i] != '\n') {
 	                argv[j++] = &str[i];
 	                if (string) {
@@ -239,13 +239,13 @@ next:
 	            argv[j] = NULLCHAR;
 	            return(j);
 	        }
-    	}  
+    	}
 }
 
 /*
- *  Defuse controversy re: extensions to ctype.h 
+ *  Defuse controversy re: extensions to ctype.h
  */
-int 
+int
 whitespace(int c)
 {
 	return ((c == ' ') ||(c == '\t'));
@@ -296,7 +296,7 @@ strip_linefeeds(char *line)
 	while (*p == '\n') {
 		*p = NULLCHAR;
 		if (--p < line)
-			break; 
+			break;
 	}
 
 	return(line);
@@ -403,8 +403,8 @@ strip_comma(char *line)
 char *
 strip_hex(char *line)
 {
-	if (STRNEQ(line, "0x")) 
-		shift_string_left(line, 2);	
+	if (STRNEQ(line, "0x"))
+		shift_string_left(line, 2);
 
 	return(line);
 }
@@ -422,7 +422,7 @@ upper_case(char *s, char *buf)
 
 	while (*p1) {
 		*p2 = toupper(*p1);
-		p1++, p2++;	
+		p1++, p2++;
 	}
 
 	*p2 = NULLCHAR;
@@ -542,13 +542,13 @@ fixup_percent(char *s)
 }
 
 /*
- *  Convert an indeterminate number string to either a hexadecimal or decimal 
+ *  Convert an indeterminate number string to either a hexadecimal or decimal
  *  long value.  Translate with a bias towards decimal unless HEX_BIAS is set.
  */
 ulong
 stol(char *s, int flags, int *errptr)
 {
-	if ((flags & HEX_BIAS) && hexadecimal(s, 0)) 
+	if ((flags & HEX_BIAS) && hexadecimal(s, 0))
         	return(htol(s, flags, errptr));
 	else {
         	if (decimal(s, 0))
@@ -585,7 +585,7 @@ stoll(char *s, int flags, int *errptr)
                 else if (hexadecimal(s, 0))
                         return(htoll(s, flags, errptr));
         }
- 
+
 	if (!(flags & QUIET))
         	error(INFO, "not a valid number: %s\n", s);
 
@@ -604,14 +604,14 @@ stoll(char *s, int flags, int *errptr)
 }
 
 /*
- *  Append a two-character string to a number to make 1, 2, 3 and 4 into 
+ *  Append a two-character string to a number to make 1, 2, 3 and 4 into
  *  1st, 2nd, 3rd, 4th, and so on...
  */
 char *
 ordinal(ulong val, char *buf)
 {
 	char *p1;
-	
+
 	sprintf(buf, "%ld", val);
 	p1 = &buf[strlen(buf)-1];
 
@@ -660,7 +660,7 @@ convert(char *s, int flags, int *errptr, ulong numflag)
 		if ((numflag & NUM_HEX) && hexadecimal(s, 0))
 	        	return(htol(s, flags, errptr));
 	}
-	
+
 	if ((sp = symbol_search(s)))
 		return(sp->value);
 
@@ -686,10 +686,10 @@ convert(char *s, int flags, int *errptr, ulong numflag)
 ulong
 htol(char *s, int flags, int *errptr)
 {
-    	long i, j; 
+    	long i, j;
 	ulong n;
 
-    	if (s == NULL) { 
+    	if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htol_error;
@@ -698,16 +698,16 @@ htol(char *s, int flags, int *errptr)
     	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-    	if (strlen(s) > MAX_HEXADDR_STRLEN) { 
+    	if (strlen(s) > MAX_HEXADDR_STRLEN) {
 		if (!(flags & QUIET))
-			error(INFO, 
-			    "input string too large: \"%s\" (%d vs %d)\n", 
+			error(INFO,
+			    "input string too large: \"%s\" (%d vs %d)\n",
 				s, strlen(s), MAX_HEXADDR_STRLEN);
 		goto htol_error;
 	}
 
     	for (n = i = 0; s[i] != 0; i++) {
-	        switch (s[i]) 
+	        switch (s[i])
 	        {
 	            case 'a':
 	            case 'b':
@@ -772,10 +772,10 @@ htol_error:
 ulonglong
 htoll(char *s, int flags, int *errptr)
 {
-    	long i, j; 
+    	long i, j;
 	ulonglong n;
 
-    	if (s == NULL) { 
+    	if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htoll_error;
@@ -784,16 +784,16 @@ htoll(char *s, int flags, int *errptr)
     	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-    	if (strlen(s) > LONG_LONG_PRLEN) { 
+    	if (strlen(s) > LONG_LONG_PRLEN) {
 		if (!(flags & QUIET))
-			error(INFO, 
-			    "input string too large: \"%s\" (%d vs %d)\n", 
+			error(INFO,
+			    "input string too large: \"%s\" (%d vs %d)\n",
 				s, strlen(s), LONG_LONG_PRLEN);
 		goto htoll_error;
 	}
 
     	for (n = i = 0; s[i] != 0; i++) {
-	        switch (s[i]) 
+	        switch (s[i])
 	        {
 	            case 'a':
 	            case 'b':
@@ -882,7 +882,7 @@ dtol(char *s, int flags, int *errptr)
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", 
+                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				orig, s[j]);
                 goto dtol_error;
 	} else if (sscanf(s, "%lu", &retval) != 1) {
@@ -938,7 +938,7 @@ dtoll(char *s, int flags, int *errptr)
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", 
+                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				orig, s[j]);
                 goto dtoll_error;
 	} else if (sscanf(s, "%llu", &retval) != 1) {
@@ -991,7 +991,7 @@ dtoi(char *s, int flags, int *errptr)
 
         if (s[j] != '\0' || (sscanf(s, "%d", &retval) != 1)) {
 		if (!(flags & QUIET))
-                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", 
+                	error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
 				s, s[j]);
                 goto dtoi_error;
         }
@@ -1073,13 +1073,13 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 	argc = parse_line(buf, arglist);
 
 	for (i = found = value = 0; i < argc; i++) {
-		if (stripchar) 
+		if (stripchar)
 			strip_ending_char(arglist[i], stripchar);
-		
+
 		if (hexadecimal(arglist[i], 0)) {
 			if (found) {
 				FREEBUF(buf);
-				error(FATAL, 
+				error(FATAL,
 				    "two hexadecimal args in: \"%s\"\n",
 					strip_linefeeds(s));
 			}
@@ -1095,7 +1095,7 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 	if (found) {
 		*result = value;
 		return TRUE;
-	} 
+	}
 
 	return FALSE;
 }
@@ -1110,7 +1110,7 @@ ascii_string(char *s)
         char *p;
 
         for (p = &s[0]; *p; p++) {
-		if (!ascii(*p)) 
+		if (!ascii(*p))
 			return FALSE;
         }
 
@@ -1135,7 +1135,7 @@ hexadecimal(char *s, int count)
 		cnt = count;
 
 	for (p = &s[0]; *p; p++) {
-        	switch(*p) 
+        	switch(*p)
 		{
 	        case 'a':
 	        case 'b':
@@ -1199,7 +1199,7 @@ hexadecimal_only(char *s, int count)
 	only = 0;
 
 	for (p = &s[0]; *p; p++) {
-        	switch(*p) 
+        	switch(*p)
 		{
 	        case 'a':
 	        case 'b':
@@ -1247,8 +1247,8 @@ hexadecimal_only(char *s, int count)
 
 /*
  *  Clean a command argument that has an obvious but ignorable error.
- *  The first one is an attached comma to a number, that usually is the 
- *  result of a cut-and-paste of an address from a structure display.  
+ *  The first one is an attached comma to a number, that usually is the
+ *  result of a cut-and-paste of an address from a structure display.
  *  The second on is an attached colon to a number, usually from a
  *  cut-and-paste of a memory dump.
  *  Add more when they become annoynance.
@@ -1261,7 +1261,7 @@ clean_arg(void)
 {
 	char buf[BUFSIZE];
 
-	if (LASTCHAR(args[optind]) == ',' || 
+	if (LASTCHAR(args[optind]) == ',' ||
 	    LASTCHAR(args[optind]) == ':') {
 		strcpy(buf, args[optind]);
 		LASTCHAR(buf) = NULLCHAR;
@@ -1309,7 +1309,7 @@ cmd_ascii(void)
 		fprintf(fp, "\n");
 		return;
 	}
-	
+
         while (args[optind]) {
 
 		s = args[optind];
@@ -1323,7 +1323,7 @@ cmd_ascii(void)
 			prlen = LONG_PRLEN;
 			bytes = sizeof(long);
 		}
-		
+
                 value = htoll(s, FAULT_ON_ERROR, NULL);
                 fprintf(fp, "%.*llx: ", prlen, value);
 		for (i = 0; i < bytes; i++) {
@@ -1397,7 +1397,7 @@ pad_line(FILE *filep, int cnt, char c)
 {
 	int i;
 
-	for (i = 0; i < cnt; i++) 
+	for (i = 0; i < cnt; i++)
 		fputc(c, filep);
 }
 
@@ -1432,7 +1432,7 @@ space(int cnt)
 	if (!strlen(spacebuf)) {
 		for (i = 0; i < SPACES; i++)
 			spacebuf[i] = ' ';
-		spacebuf[i] = NULLCHAR; 
+		spacebuf[i] = NULLCHAR;
 	}
 
 	if (cnt < (MINSPACE-1))
@@ -1455,9 +1455,9 @@ space(int cnt)
 			return (&spacebuf[SPACES-2]);  /* 2 spaces */
 
 	case (MINSPACE+1):
-                if (VADDR_PRLEN > 8) 
+                if (VADDR_PRLEN > 8)
                         return (&spacebuf[SPACES-2]);  /* 2 spaces */
-                else    
+                else
                         return (&spacebuf[SPACES-3]);  /* 3 spaces */
 
 	default:
@@ -1481,7 +1481,7 @@ bracketed(char *s, char *s1, int len)
 		len = s2-s1;
 	}
 
-	if (((s1-s) < 1) || (*(s1-1) != '<') || 
+	if (((s1-s) < 1) || (*(s1-1) != '<') ||
 	    ((s1+len) >= &s[strlen(s)]) || (*(s1+len) != '>'))
 		return FALSE;
 
@@ -1548,7 +1548,7 @@ concat_args(char *buf, int arg, int no_options)
 }
 
 /*
- *  Shifts the contents of a string to the left by cnt characters, 
+ *  Shifts the contents of a string to the left by cnt characters,
  *  disposing the leftmost characters.
  */
 char *
@@ -1584,11 +1584,11 @@ shift_string_right(char *s, int cnt)
 }
 
 /*
- *  Create a string in a buffer of a given size, centering, or justifying 
+ *  Create a string in a buffer of a given size, centering, or justifying
  *  left or right as requested.  If the opt argument is used, then the string
  *  is created with its string/integer value.  If opt is NULL, then the
  *  string is already in contained in string s (not justified).  Note that
- *  flag LONGLONG_HEX implies that opt is a ulonglong pointer to the 
+ *  flag LONGLONG_HEX implies that opt is a ulonglong pointer to the
  *  actual value.
  */
 char *
@@ -1599,7 +1599,7 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 	int left;
 	int right;
 
-	switch (flags & (LONG_DEC|LONG_HEX|INT_HEX|INT_DEC|LONGLONG_HEX|ZERO_FILL)) 
+	switch (flags & (LONG_DEC|LONG_HEX|INT_HEX|INT_DEC|LONGLONG_HEX|ZERO_FILL))
 	{
 	case LONG_DEC:
 		sprintf(s, "%lu", (ulong)opt);
@@ -1631,12 +1631,12 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 	/*
 	 *  At this point, string s has the string to be justified,
 	 *  and has room to work with.  The relevant flags from this
-	 *  point on are of CENTER, LJUST and RJUST.  If the length 
-	 *  of string s is already larger than the requested size, 
+	 *  point on are of CENTER, LJUST and RJUST.  If the length
+	 *  of string s is already larger than the requested size,
 	 *  just return it as is.
 	 */
 	len = strlen(s);
-	if (size <= len) 
+	if (size <= len)
 		return(s);
 	extra = size - len;
 
@@ -1660,14 +1660,14 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 				break;
 			}
 		}
-		else 
+		else
 			left = right = extra/2;
 
 		shift_string_right(s, left);
 		len = strlen(s);
 		memset(s + len, ' ', right);
 		s[len + right] = NULLCHAR;
-	
+
 		return(s);
 	}
 
@@ -1675,7 +1675,7 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 		len = strlen(s);
 		memset(s + len, ' ', extra);
 		s[len + extra] = NULLCHAR;
-	} else if (flags & RJUST) 
+	} else if (flags & RJUST)
 		shift_string_right(s, extra);
 
 	return(s);
@@ -1689,22 +1689,22 @@ backspace(int cnt)
 {
 	int i;
 
-	for (i = 0; i < cnt; i++) 
+	for (i = 0; i < cnt; i++)
 		fprintf(fp, "\b");
 }
 
 /*
  *  Set/display process context or internal variables.  Processes are set
  *  by their task or PID number, or to the panic context with the -p flag.
- *  Internal variables may be viewed or changed, depending whether an argument 
+ *  Internal variables may be viewed or changed, depending whether an argument
  *  follows the variable name.  If no arguments are entered, the current
  *  process context is dumped.  The current set of variables and their
  *  acceptable settings are:
  *
  *        debug  "on", "off", or any number.  "on" sets it to a value of 1.
- *         hash  "on", "off", or any number.  Non-zero numbers are converted 
+ *         hash  "on", "off", or any number.  Non-zero numbers are converted
  *               to "on", zero is converted to "off".
- *       scroll  "on", "off", or any number.  Non-zero numbers are converted 
+ *       scroll  "on", "off", or any number.  Non-zero numbers are converted
  *               to "on", zero is converted to "off".
  *       silent  "on", "off", or any number.  Non-zero numbers are converted
  *               to "on", zero is converted to "off".
@@ -1797,32 +1797,32 @@ cmd_set(void)
 				return;
 
 			if (ACTIVE())
-				error(FATAL, 
+				error(FATAL,
 				    "-a option not allowed on live systems\n");
 
 	                switch (str_to_context(optarg, &value, &tc))
 	                {
 	                case STR_PID:
 				if ((i = TASKS_PER_PID(value)) > 1)
-					error(FATAL, 
+					error(FATAL,
 					    "pid %d has %d tasks: "
 					    "use a task address\n",
 						value, i);
 	                        break;
-	
+
 	                case STR_TASK:
 	                        break;
-	
+
 	                case STR_INVALID:
 	                        error(FATAL, "invalid task or pid value: %s\n",
 	                                optarg);
 	                }
-		
+
 			cpu = tc->processor;
 			tt->active_set[cpu] = tc->task;
 			if (tt->panic_threads[cpu])
 				tt->panic_threads[cpu] = tc->task;
-			fprintf(fp, 
+			fprintf(fp,
 			    "\"%s\" task %lx has been marked as the active task on cpu %d\n",
 				tc->comm, tc->task, cpu);
 			return;
@@ -1841,7 +1841,7 @@ cmd_set(void)
 
 	if (!args[optind]) {
 		if (XEN_HYPER_MODE())
-			error(INFO, 
+			error(INFO,
 			    "requires an option with the Xen hypervisor\n");
 		else if (pc->flags & MINIMAL_MODE)
 			show_options();
@@ -1860,8 +1860,8 @@ cmd_set(void)
                                         pc->debug = 1;
                                 else if (STREQ(args[optind], "off"))
                                         pc->debug = 0;
-				else if (IS_A_NUMBER(args[optind])) 
-					pc->debug = stol(args[optind], 
+				else if (IS_A_NUMBER(args[optind]))
+					pc->debug = stol(args[optind],
 						FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
@@ -1955,7 +1955,7 @@ cmd_set(void)
                                         else {
                                                 tt->flags &= ~TASK_REFRESH;
 						if (!runtime)
-							tt->flags |= 
+							tt->flags |=
 							    TASK_REFRESH_OFF;
 					}
                                 } else
@@ -2094,12 +2094,12 @@ cmd_set(void)
 					fprintf(fp, "%s\n", pc->console);
 				else {
 					if (assignment)
-						fprintf(fp, 
+						fprintf(fp,
 					            "assignment to %s failed\n",
 						    	args[assignment]);
 					else
 						fprintf(fp, "not set\n");
-				}		
+				}
 			}
 			return;
 
@@ -2120,11 +2120,11 @@ cmd_set(void)
                                 } else
                                         goto invalid_set_command;
                         }
-		
+
 			if (runtime) {
 				fprintf(fp, "core: %s on error message)\n",
-					pc->flags & DROP_CORE ? 
-					"on (drop core" : 
+					pc->flags & DROP_CORE ?
+					"on (drop core" :
 					"off (do NOT drop core");
 			}
 			return;
@@ -2134,28 +2134,28 @@ cmd_set(void)
                                 optind++;
 				if (!runtime)
 					defer();
-				else if (from_rc_file && 
+				else if (from_rc_file &&
 				    (pc->flags2 & RADIX_OVERRIDE))
 					ignore();
                                 else if (STREQ(args[optind], "10") ||
 				    STRNEQ(args[optind], "dec") ||
-				    STRNEQ(args[optind], "ten")) 
+				    STRNEQ(args[optind], "ten"))
 					pc->output_radix = 10;
                                 else if (STREQ(args[optind], "16") ||
 			            STRNEQ(args[optind], "hex") ||
-				    STRNEQ(args[optind], "six")) 
+				    STRNEQ(args[optind], "six"))
 					pc->output_radix = 16;
-				else 
+				else
 					goto invalid_set_command;
-			} 
+			}
 
                         if (runtime) {
 				sprintf(buf, "set output-radix %d",
 					pc->output_radix);
                                 gdb_pass_through(buf, NULL, GNU_FROM_TTY_OFF);
                         	fprintf(fp, "output radix: %d (%s)\n",
-					pc->output_radix, 
-					pc->output_radix == 10 ? 
+					pc->output_radix,
+					pc->output_radix == 10 ?
 					"decimal" : "hex");
 			}
 			return;
@@ -2165,7 +2165,7 @@ cmd_set(void)
 				ignore();
 			else if (runtime) {
 				pc->output_radix = 16;
-				gdb_pass_through("set output-radix 16", 
+				gdb_pass_through("set output-radix 16",
 					NULL, GNU_FROM_TTY_OFF);
 				fprintf(fp, "output radix: 16 (hex)\n");
 			}
@@ -2176,7 +2176,7 @@ cmd_set(void)
 				ignore();
 			else if (runtime) {
 				pc->output_radix = 10;
-                                gdb_pass_through("set output-radix 10", 
+                                gdb_pass_through("set output-radix 10",
                                         NULL, GNU_FROM_TTY_OFF);
 				fprintf(fp, "output radix: 10 (decimal)\n");
 			}
@@ -2185,7 +2185,7 @@ cmd_set(void)
                } else if (STREQ(args[optind], "edit")) {
                         if (args[optind+1]) {
 				if (runtime && !from_rc_file)
-					error(FATAL, 
+					error(FATAL,
 		                "cannot change editing mode during runtime\n");
                                 optind++;
 				if (from_rc_file)
@@ -2205,8 +2205,8 @@ cmd_set(void)
                 } else if (STREQ(args[optind], "vi")) {
 			if (runtime) {
 				if (!from_rc_file)
-					error(FATAL, 
-		               "cannot change editing mode during runtime\n"); 
+					error(FATAL,
+		               "cannot change editing mode during runtime\n");
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
 			} else
 				pc->editing_mode = "vi";
@@ -2215,7 +2215,7 @@ cmd_set(void)
                 } else if (STREQ(args[optind], "emacs")) {
 			if (runtime) {
 				if (!from_rc_file)
-					error(FATAL, 
+					error(FATAL,
 		               "cannot change %s editing mode during runtime\n",
 						pc->editing_mode);
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
@@ -2232,7 +2232,7 @@ cmd_set(void)
 					*gdb_print_max = atoi(args[optind]);
 				else if (hexadecimal(args[optind], 0))
 					*gdb_print_max = (unsigned int)
-					    htol(args[optind], 
+					    htol(args[optind],
 						FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
@@ -2247,7 +2247,7 @@ cmd_set(void)
 			if (args[optind]) {
 				if (!runtime)
 					defer();
-				else if (can_eval(args[optind])) 
+				else if (can_eval(args[optind]))
 					value = eval(args[optind], FAULT_ON_ERROR, NULL);
 				else if (hexadecimal(args[optind], 0))
 					value = htol(args[optind], FAULT_ON_ERROR, NULL);
@@ -2266,7 +2266,7 @@ cmd_set(void)
 			if (runtime) {
 				fprintf(fp, "scope: %lx ", pc->scope);
 				if (pc->scope)
-					fprintf(fp, "(%s)\n", 
+					fprintf(fp, "(%s)\n",
 						value_to_symstr(pc->scope, buf, 0));
 				else
 					fprintf(fp, "(not set)\n");
@@ -2293,15 +2293,15 @@ cmd_set(void)
 						goto invalid_set_command;
 			}
 			if (runtime)
-				fprintf(fp, "null-stop: %s\n", 
+				fprintf(fp, "null-stop: %s\n",
 					*gdb_stop_print_at_null ? "on" : "off");
 			return;
 
                 } else if (STREQ(args[optind], "namelist")) {
 			optind++;
                         if (!runtime && args[optind]) {
-                		if (!is_elf_file(args[optind])) 
-                                	error(FATAL, 
+                		if (!is_elf_file(args[optind]))
+                                	error(FATAL,
 			       "%s: not a kernel namelist (from .%src file)\n",
                                         	args[optind],
 						pc->program_name);
@@ -2378,14 +2378,14 @@ cmd_set(void)
                         	if (set_context(task, pid))
                                 	show_context(CURRENT_CONTEXT());
 	                        break;
-	
+
 	                case STR_TASK:
                                 task = value;
                                 pid = NO_PID;
                                 if (set_context(task, pid))
-                                        show_context(CURRENT_CONTEXT()); 
+                                        show_context(CURRENT_CONTEXT());
 	                        break;
-	
+
 	                case STR_INVALID:
 	                        error(INFO, "invalid task or pid value: %s\n",
 	                                args[optind]);
@@ -2447,12 +2447,12 @@ show_options(void)
                 pc->output_radix == 16 ? "hexadecimal" : "unknown");
 	fprintf(fp, "       refresh: %s\n", tt->flags & TASK_REFRESH ? "on" : "off");
 	fprintf(fp, "     print_max: %d\n", *gdb_print_max);
-	fprintf(fp, "       console: %s\n", pc->console ? 
+	fprintf(fp, "       console: %s\n", pc->console ?
 		pc->console : "(not assigned)");
 	fprintf(fp, "         debug: %ld\n", pc->debug);
 	fprintf(fp, "          core: %s\n", pc->flags & DROP_CORE ? "on" : "off");
 	fprintf(fp, "          hash: %s\n", pc->flags & HASH ? "on" : "off");
-	fprintf(fp, "        silent: %s\n", pc->flags & SILENT ? "on" : "off"); 
+	fprintf(fp, "        silent: %s\n", pc->flags & SILENT ? "on" : "off");
 	fprintf(fp, "          edit: %s\n", pc->editing_mode);
 	fprintf(fp, "      namelist: %s\n", pc->namelist);
 	fprintf(fp, "      dumpfile: %s\n", pc->dumpfile);
@@ -2472,13 +2472,13 @@ show_options(void)
 
 /*
  *  Evaluate an expression, which can consist of a single symbol, single value,
- *  or an expression consisting of two values and an operator.  If the 
+ *  or an expression consisting of two values and an operator.  If the
  *  expression contains redirection characters, the whole expression must
  *  be enclosed with parentheses.  The result is printed in decimal, hex,
  *  octal and binary.  Input number values can only be hex or decimal, with
  *  a bias towards decimal (use 0x when necessary).
  */
-void 
+void
 cmd_eval(void)
 {
 	int flags;
@@ -2501,12 +2501,12 @@ cmd_eval(void)
 	} else if (STREQ(args[optind], "-l")) {
 		longlongflagforce++;
 		optind++;
-		if (STREQ(args[optind], "-b") && args[optind+1]) { 
+		if (STREQ(args[optind], "-b") && args[optind+1]) {
 			optind++;
 			bitflag++;
 		}
-	} else if (STREQ(args[optind], "-b")) { 
-		if (STREQ(args[optind+1], "-l")) { 
+	} else if (STREQ(args[optind], "-b")) {
+		if (STREQ(args[optind+1], "-l")) {
 			if (args[optind+2]) {
 				bitflag++;
 				longlongflagforce++;
@@ -2536,7 +2536,7 @@ cmd_eval(void)
 			if (eval_common(args[optind], flags, NULL, &nopt))
 				print_number(&nopt, bitflag, longlongflagforce);
 			else
-				error(FATAL, "invalid expression: %s\n", 
+				error(FATAL, "invalid expression: %s\n",
 					args[optind]);
 			return;
                 }
@@ -2570,7 +2570,7 @@ can_eval(char *s)
 
 	/*
 	 *  If we've got a () pair containing any sort of stuff in between,
-	 *  then presume it's eval-able.  It might contain crap, but it 
+	 *  then presume it's eval-able.  It might contain crap, but it
 	 *  should be sent to eval() regardless.
 	 */
 	if ((FIRSTCHAR(s) == '(') &&
@@ -2587,7 +2587,7 @@ can_eval(char *s)
 	strcpy(work, s);
 
         if (!(op = strpbrk(work, "><+-&|*/%^")))
-		return FALSE; 
+		return FALSE;
 
         element1 = &work[0];
         *op = NULLCHAR;
@@ -2600,7 +2600,7 @@ can_eval(char *s)
 }
 
 /*
- *  Evaluate an expression involving two values and an operator.  
+ *  Evaluate an expression involving two values and an operator.
  */
 #define OP_ADD   (1)
 #define OP_SUB   (2)
@@ -2626,7 +2626,7 @@ eval(char *s, int flags, int *errptr)
 	        {
 	        case FAULT_ON_ERROR:
 	                error(FATAL, "invalid expression: %s\n", s);
-	
+
 	        case RETURN_ON_ERROR:
 	                error(INFO, "invalid expression: %s\n", s);
 	                if (errptr)
@@ -2691,11 +2691,11 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 		p2 = &LASTCHAR(s);
 		if (strstr(s, ")") != p2)
 			goto malformed;
-	
+
 		strcpy(work, p1+1);
 		LASTCHAR(work) = NULLCHAR;
-	
-		if (strstr(work, "(") || strstr(work, ")")) 
+
+		if (strstr(work, "(") || strstr(work, ")"))
 			goto malformed;
 	} else
 		strcpy(work, s);
@@ -2706,11 +2706,11 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
         }
 
         if (!(op = strpbrk(work, "#><+-&|*/%^"))) {
-		if (calculate(work, &value1, &ll_value1, 
-		    flags & (HEX_BIAS|LONG_LONG))) { 
+		if (calculate(work, &value1, &ll_value1,
+		    flags & (HEX_BIAS|LONG_LONG))) {
 			if (flags & LONG_LONG) {
 				np->ll_num = ll_value1;
-				if (BITS32() && (ll_value1 > 0xffffffff)) 
+				if (BITS32() && (ll_value1 > 0xffffffff))
 					np->retflags |= LONG_LONG;
 				return TRUE;
 			} else {
@@ -2723,41 +2723,41 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 
 	switch (*op)
         {
-        case '+': 
-		opcode = OP_ADD; 
+        case '+':
+		opcode = OP_ADD;
 		break;
 
-        case '-': 
-		opcode = OP_SUB; 
+        case '-':
+		opcode = OP_SUB;
 		break;
 
-        case '&': 
-		opcode = OP_AND; 
+        case '&':
+		opcode = OP_AND;
 		break;
 
-        case '|': 
-		opcode = OP_OR; 
+        case '|':
+		opcode = OP_OR;
 		break;
 
-        case '*': 
-		opcode = OP_MUL; 
+        case '*':
+		opcode = OP_MUL;
 		break;
 
-        case '%': 
-		opcode = OP_MOD; 
+        case '%':
+		opcode = OP_MOD;
 		break;
 
-        case '/': 
-		opcode = OP_DIV; 
+        case '/':
+		opcode = OP_DIV;
 		break;
 
-	case '<': 
+	case '<':
 		if (*(op+1) != '<')
 			goto malformed;
 		opcode = OP_SL;
 	        break;
 
-	case '>': 
+	case '>':
                 if (*(op+1) != '>')
                         goto malformed;
                 opcode = OP_SR;
@@ -2777,7 +2777,7 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	if ((opcode == OP_SL) || (opcode == OP_SR)) {
 		*(op+1) = NULLCHAR;
 		element2 = op+2;
-	} else 
+	} else
 		element2 = op+1;
 
         if (strlen(clean_line(element1)) == 0)
@@ -2789,52 +2789,52 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	if ((sp = symbol_search(element1)))
                 value1 = ll_value1 = sp->value;
 	else {
-		if (!calculate(element1, &value1, &ll_value1, 
+		if (!calculate(element1, &value1, &ll_value1,
 		    flags & (HEX_BIAS|LONG_LONG)))
 			goto malformed;
-                if (BITS32() && (ll_value1 > 0xffffffff)) 
+                if (BITS32() && (ll_value1 > 0xffffffff))
                 	np->retflags |= LONG_LONG;
 	}
 
         if ((sp = symbol_search(element2)))
                 value2 = ll_value2 = sp->value;
-        else if (!calculate(element2, &value2, &ll_value2, 
+        else if (!calculate(element2, &value2, &ll_value2,
 	    	flags & (HEX_BIAS|LONG_LONG)))
 		goto malformed;
 
 	if (flags & LONG_LONG) {
-		if (BITS32() && (ll_value2 > 0xffffffff)) 
+		if (BITS32() && (ll_value2 > 0xffffffff))
 			np->retflags |= LONG_LONG;
 
                 switch (opcode)
                 {
                 case OP_ADD:
                         np->ll_num = (ll_value1 + ll_value2);
-			break;           
+			break;
                 case OP_SUB:
                         np->ll_num = (ll_value1 - ll_value2);
-			break;           
+			break;
                 case OP_AND:
                         np->ll_num = (ll_value1 & ll_value2);
-			break;           
+			break;
                 case OP_OR:
                         np->ll_num = (ll_value1 | ll_value2);
-			break;           
+			break;
                 case OP_MUL:
                         np->ll_num = (ll_value1 * ll_value2);
-			break;           
+			break;
                 case OP_DIV:
                         np->ll_num = (ll_value1 / ll_value2);
-			break;           
+			break;
                 case OP_MOD:
                         np->ll_num = (ll_value1 % ll_value2);
-			break;           
+			break;
                 case OP_SL:
                         np->ll_num = (ll_value1 << ll_value2);
-			break;           
+			break;
                 case OP_SR:
                         np->ll_num = (ll_value1 >> ll_value2);
-			break;           
+			break;
                 case OP_EXOR:
                         np->ll_num = (ll_value1 ^ ll_value2);
 			break;
@@ -2845,31 +2845,31 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	} else {
 		switch (opcode)
 		{
-		case OP_ADD: 
+		case OP_ADD:
 			np->num = (value1 + value2);
 			break;
 		case OP_SUB:
 			np->num = (value1 - value2);
 			break;
-		case OP_AND: 
+		case OP_AND:
 			np->num = (value1 & value2);
 			break;
-		case OP_OR:  
+		case OP_OR:
 			np->num = (value1 | value2);
 			break;
-		case OP_MUL: 
+		case OP_MUL:
 			np->num = (value1 * value2);
 			break;
-		case OP_DIV: 
+		case OP_DIV:
 			np->num = (value1 / value2);
 			break;
-		case OP_MOD: 
+		case OP_MOD:
 			np->num = (value1 % value2);
 			break;
-		case OP_SL:  
+		case OP_SL:
 			np->num = (value1 << value2);
 			break;
-		case OP_SR:  
+		case OP_SR:
 			np->num = (value1 >> value2);
 			break;
 		case OP_EXOR:
@@ -2916,7 +2916,7 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
 			*llvalue = (ulonglong)sp->value;
 			if (ones_complement)
                 		*llvalue = ~(*llvalue);
-		} else 
+		} else
                 	*value = ones_complement ? ~(sp->value) : sp->value;
 		return TRUE;
 	}
@@ -2940,7 +2940,7 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
                 LASTCHAR(s) = NULLCHAR;
                 if (IS_A_NUMBER(s))
                         factor = (1024*1024);
-		else 
+		else
 			return FALSE;
                 break;
 
@@ -2986,7 +2986,7 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
 /*
  *  Print a 32-bit or 64-bit number in hexadecimal, decimal, octal and binary,
  *  also showing the bits set if appropriate.
- *  
+ *
  */
 static void
 print_number(struct number_option *np, int bitflag, int longlongflagforce)
@@ -3008,23 +3008,23 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 		if (BITS32()) {
 			if (np->retflags & LONG_LONG)
 				longlongformat = TRUE;
-			if (np->ll_num > 0xffffffff) 
+			if (np->ll_num > 0xffffffff)
 				longlongformat = TRUE;
 			else
 				np->num = (ulong)np->ll_num;
-		} 
+		}
 	}
 
 	if (longlongformat) {
                 ll_hibit = (ulonglong)(1) << ((sizeof(long long)*8)-1);
-                
+
                 fprintf(fp, "hexadecimal: %llx  ", np->ll_num);
                 if (np->ll_num >= KILOBYTES(1)) {
                         if ((np->ll_num % GIGABYTES(1)) == 0)
-                                fprintf(fp, "(%lldGB)", 
+                                fprintf(fp, "(%lldGB)",
 					np->ll_num / GIGABYTES(1));
                         else if ((np->ll_num % MEGABYTES(1)) == 0)
-                                fprintf(fp, "(%lldMB)", 
+                                fprintf(fp, "(%lldMB)",
 					np->ll_num / MEGABYTES(1));
                         else if ((np->ll_num % KILOBYTES(1)) == 0)
                                 fprintf(fp, "(%lldKB)",
@@ -3039,7 +3039,7 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
                         fprintf(fp, "\n");
                 fprintf(fp, "      octal: %llo\n", np->ll_num);
                 fprintf(fp, "     binary: ");
-                for(i = 0, ll_mask = np->ll_num; i < (sizeof(long long)*8); 
+                for(i = 0, ll_mask = np->ll_num; i < (sizeof(long long)*8);
 		    i++, ll_mask <<= 1)
                         if (ll_mask & ll_hibit)
                                 fprintf(fp, "1");
@@ -3048,7 +3048,7 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
                 fprintf(fp,"\n");
 	} else {
 		hibit = (ulong)(1) << ((sizeof(long)*8)-1);
-	
+
 	        fprintf(fp, "hexadecimal: %lx  ", np->num);
 	        if (np->num >= KILOBYTES(1)) {
 	                if ((np->num % GIGABYTES(1)) == 0)
@@ -3059,7 +3059,7 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	                        fprintf(fp, "(%ldKB)", np->num / KILOBYTES(1));
 	        }
 	        fprintf(fp, "\n");
-	
+
 	        fprintf(fp, "    decimal: %lu  ", np->num);
 		if ((long)np->num < 0)
 	                fprintf(fp, "(%ld)\n", (long)np->num);
@@ -3067,7 +3067,7 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	                fprintf(fp, "\n");
 	        fprintf(fp, "      octal: %lo\n", np->num);
 	        fprintf(fp, "     binary: ");
-	        for(i = 0, mask = np->num; i < (sizeof(long)*8); 
+	        for(i = 0, mask = np->num; i < (sizeof(long)*8);
 		    i++, mask <<= 1)
 	                if (mask & hibit)
 	                        fprintf(fp, "1");
@@ -3118,28 +3118,28 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 
 /*
  *  Display the contents of a linked list.  Minimum requirements are a starting
- *  address, typically of a structure which contains the "next" list entry at 
+ *  address, typically of a structure which contains the "next" list entry at
  *  some offset into the structure.  The default offset is zero bytes, and need
- *  not be entered if that's the case.  Otherwise a number argument that's not 
- *  a kernel *  virtual address will be understood to be the offset.  
- *  Alternatively the offset may be entered in "struct.member" format.  Each 
+ *  not be entered if that's the case.  Otherwise a number argument that's not
+ *  a kernel *  virtual address will be understood to be the offset.
+ *  Alternatively the offset may be entered in "struct.member" format.  Each
  *  item in the list is dumped, and the list will be considered terminated upon
  *  encountering a "next" value that is:
  *
- *     a NULL pointer. 
- *     a pointer to the starting address. 
- *     a pointer to the entry pointed to by the starting address. 
+ *     a NULL pointer.
+ *     a pointer to the starting address.
+ *     a pointer to the entry pointed to by the starting address.
  *     a pointer to the structure itself.
  *     a pointer to the value specified with the "-e ending_addr" option.
  *
- *  If the structures are linked using list_head structures, the -h or -H 
+ *  If the structures are linked using list_head structures, the -h or -H
  *  options must be used.  In that case, the "start" address is:
  *  a pointer to the structure that contains the list_head structure (-h),
  *  or a pointer to a LIST_HEAD() structure (-H).
  *
  *  Given that the contents of the structures containing the next pointers
  *  often contain useful data, the "-s structname" also prints each structure
- *  in the list. 
+ *  in the list.
  *
  *  By default, the list members are hashed to guard against duplicate entries
  *  causing the list to wrap back upon itself.
@@ -3156,7 +3156,7 @@ cmd_list(void)
 	struct list_data list_data, *ld;
 	struct datatype_member struct_member, *sm;
 	struct syment *sp;
-	ulong value; 
+	ulong value;
 
 	sm = &struct_member;
 	ld = &list_data;
@@ -3179,27 +3179,27 @@ cmd_list(void)
 			break;
 
 		case 's':
-			if (ld->structname_args++ == 0) 
+			if (ld->structname_args++ == 0)
 				hq_open();
 			hq_enter((ulong)optarg);
 			break;
 
 		case 'o':
-			if (ld->flags & LIST_OFFSET_ENTERED) 
+			if (ld->flags & LIST_OFFSET_ENTERED)
                                error(FATAL,
                                 "offset value %d (0x%lx) already entered\n",
                                         ld->member_offset, ld->member_offset);
-			else if (IS_A_NUMBER(optarg)) 
-				ld->member_offset = stol(optarg, 
+			else if (IS_A_NUMBER(optarg))
+				ld->member_offset = stol(optarg,
 					FAULT_ON_ERROR, NULL);
-			else if (arg_to_datatype(optarg, 
-				sm, RETURN_ON_ERROR) > 1) 
+			else if (arg_to_datatype(optarg,
+				sm, RETURN_ON_ERROR) > 1)
 				ld->member_offset = sm->member_offset;
 			else
 				error(FATAL, "invalid -o argument: %s\n",
 					optarg);
 
-			ld->flags |= LIST_OFFSET_ENTERED; 
+			ld->flags |= LIST_OFFSET_ENTERED;
 			break;
 
 		case 'e':
@@ -3236,7 +3236,7 @@ cmd_list(void)
 
 	if (ld->structname_args) {
 		ld->structname = (char **)GETBUF(sizeof(char *) * ld->structname_args);
-		retrieve_list((ulong *)ld->structname, ld->structname_args); 
+		retrieve_list((ulong *)ld->structname, ld->structname_args);
 		hq_close();
 	}
 
@@ -3244,19 +3244,19 @@ cmd_list(void)
 		if (strstr(args[optind], ".") &&
 		    arg_to_datatype(args[optind], sm, RETURN_ON_ERROR) > 1) {
 			if (ld->flags & LIST_OFFSET_ENTERED)
-				error(FATAL, 
+				error(FATAL,
 			           "offset value %ld (0x%lx) already entered\n",
 					ld->member_offset, ld->member_offset);
 			ld->member_offset = sm->member_offset;
 			ld->flags |= LIST_OFFSET_ENTERED;
 		} else {
-			/* 
+			/*
 			 *  Do an inordinate amount of work to avoid -o...
 			 *
 			 *  OK, if it's a symbol, then it has to be a start.
 			 */
 			if ((sp = symbol_search(args[optind]))) {
-				if (ld->flags & LIST_START_ENTERED) 
+				if (ld->flags & LIST_START_ENTERED)
                                         error(FATAL,
                                             "list start already entered\n");
                                 ld->start = sp->value;
@@ -3268,7 +3268,7 @@ cmd_list(void)
 			 *  If it's not a symbol nor a number, bail out if it
 			 *  cannot be evaluated as a start address.
 			 */
-			if (!IS_A_NUMBER(args[optind])) {	
+			if (!IS_A_NUMBER(args[optind])) {
 				if (can_eval(args[optind])) {
                         		value = eval(args[optind], FAULT_ON_ERROR, NULL);
 					if (IS_KVADDR(value)) {
@@ -3280,7 +3280,7 @@ cmd_list(void)
 						goto next_arg;
 					}
 				}
-				
+
 				error(FATAL, "invalid argument: %s\n",
                                 	args[optind]);
 			}
@@ -3302,10 +3302,10 @@ cmd_list(void)
 			 */
 			if ((ld->flags & LIST_OFFSET_ENTERED) ||
 			    !args[optind+1]) {
-				value = htol(args[optind], FAULT_ON_ERROR, 
+				value = htol(args[optind], FAULT_ON_ERROR,
 					NULL);
 				if (!IS_KVADDR(value))
-					error(FATAL, 
+					error(FATAL,
 				        "invalid kernel virtual address: %s\n",
 						args[optind]);
                                 ld->start = value;
@@ -3331,27 +3331,27 @@ cmd_list(void)
                                         args[optind+1]);
 			/*
 			 *  Crunch time.  We've got two numbers.  If they're
-			 *  both ambigous we must have zero-based kernel 
+			 *  both ambigous we must have zero-based kernel
 			 *  virtual address space.
 			 */
 			if (COMMON_VADDR_SPACE() &&
 			    AMBIGUOUS_NUMBER(args[optind]) &&
 			    AMBIGUOUS_NUMBER(args[optind+1])) {
-				error(INFO, 
+				error(INFO,
                      "ambiguous arguments: \"%s\" and \"%s\": -o is required\n",
 					args[optind], args[optind+1]);
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			}
 
 			if (hexadecimal_only(args[optind], 0)) {
-				value = htol(args[optind], FAULT_ON_ERROR, 
+				value = htol(args[optind], FAULT_ON_ERROR,
 					NULL);
                                 if (IS_KVADDR(value)) {
                                 	ld->start = value;
                                 	ld->flags |= LIST_START_ENTERED;
 					goto next_arg;
 				}
-			} 
+			}
 			value = stol(args[optind], FAULT_ON_ERROR, NULL);
                         ld->member_offset = value;
                         ld->flags |= LIST_OFFSET_ENTERED;
@@ -3440,7 +3440,7 @@ do_list(struct list_data *ld)
 		console(" structname_args: %lx\n", ld->structname_args);
 		if (!ld->structname_args)
 			console("      structname: (unused)\n");
-		for (i = 0; i < ld->structname_args; i++)	
+		for (i = 0; i < ld->structname_args; i++)
 			console("   structname[%d]: %s\n", i, ld->structname[i]);
 		console("          header: %s\n", ld->header);
 	}
@@ -3452,11 +3452,11 @@ do_list(struct list_data *ld)
 		radix = 10;
 	else if (ld->flags & LIST_STRUCT_RADIX_16)
 		radix = 16;
-	else	
+	else
 		radix = 0;
 	next = ld->start;
 
-	readflag = ld->flags & RETURN_ON_LIST_ERROR ? 
+	readflag = ld->flags & RETURN_ON_LIST_ERROR ?
 		(RETURN_ON_ERROR|QUIET) : FAULT_ON_ERROR;
 
 	if (!readmem(next + ld->member_offset, KVADDR, &first, sizeof(void *),
@@ -3477,14 +3477,14 @@ do_list(struct list_data *ld)
 					switch (count_chars(ld->structname[i], '.'))
 					{
 					case 0:
-						dump_struct(ld->structname[i], 
+						dump_struct(ld->structname[i],
 							next - ld->list_head_offset, radix);
 						break;
 					case 1:
 						dump_struct_members(ld, i, next);
 						break;
 					default:
-						error(FATAL, 
+						error(FATAL,
 						    "invalid structure reference: %s\n",
 							ld->structname[i]);
 					}
@@ -3493,23 +3493,23 @@ do_list(struct list_data *ld)
 		}
 
                 if (next && !hq_enter(next - ld->list_head_offset)) {
-			if (ld->flags & 
+			if (ld->flags &
 			    (RETURN_ON_DUPLICATE|RETURN_ON_LIST_ERROR)) {
-                        	error(INFO, "\nduplicate list entry: %lx\n", 
+                        	error(INFO, "\nduplicate list entry: %lx\n",
 					next);
 				return -1;
 			}
                         error(FATAL, "\nduplicate list entry: %lx\n", next);
 		}
 
-		if ((searchfor == next) || 
+		if ((searchfor == next) ||
 		    (searchfor == (next - ld->list_head_offset)))
 			ld->searchfor = searchfor;
 
 		count++;
                 last = next;
 
-                if (!readmem(next + ld->member_offset, KVADDR, &next, 
+                if (!readmem(next + ld->member_offset, KVADDR, &next,
 		    sizeof(void *), "list entry", readflag)) {
 			error(INFO, "\ninvalid list entry: %lx\n", next);
 			return -1;
@@ -3523,21 +3523,21 @@ do_list(struct list_data *ld)
 
 		if (next == ld->end) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == end:%lx\n", 
+				console("do_list end: next:%lx == end:%lx\n",
 					next, ld->end);
 			break;
 		}
 
 		if (next == ld->start) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == start:%lx\n", 
+				console("do_list end: next:%lx == start:%lx\n",
 					next, ld->start);
 			break;
 		}
 
 		if (next == last) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == last:%lx\n", 
+				console("do_list end: next:%lx == last:%lx\n",
 					next, last);
 			break;
 		}
@@ -3559,7 +3559,7 @@ do_list(struct list_data *ld)
 /*
  *  Issue a dump_struct_member() call for one or more structure
  *  members.  Multiple members are passed in a comma-separated
- *  list using the the format:  
+ *  list using the the format:
  *
  *            struct.member1,member2,member3
  */
@@ -3636,44 +3636,44 @@ cmd_tree()
 				error(INFO, "invalid tree type: %s\n", optarg);
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			}
-				
+
 			break;
 
 		case 'r':
-			if (td->flags & TREE_ROOT_OFFSET_ENTERED) 
+			if (td->flags & TREE_ROOT_OFFSET_ENTERED)
 				error(FATAL,
 					"root offset value %d (0x%lx) already entered\n",
 						root_offset, root_offset);
-			else if (IS_A_NUMBER(optarg)) 
+			else if (IS_A_NUMBER(optarg))
 				root_offset = stol(optarg, FAULT_ON_ERROR, NULL);
-			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1) 
+			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1)
 				root_offset = sm->member_offset;
 			else
 				error(FATAL, "invalid -r argument: %s\n",
 					optarg);
 
-			td->flags |= TREE_ROOT_OFFSET_ENTERED; 
+			td->flags |= TREE_ROOT_OFFSET_ENTERED;
 			break;
 
 		case 'o':
-			if (td->flags & TREE_NODE_OFFSET_ENTERED) 
+			if (td->flags & TREE_NODE_OFFSET_ENTERED)
 				error(FATAL,
 					"node offset value %d (0x%lx) already entered\n",
 						td->node_member_offset, td->node_member_offset);
-			else if (IS_A_NUMBER(optarg)) 
-				td->node_member_offset = stol(optarg, 
+			else if (IS_A_NUMBER(optarg))
+				td->node_member_offset = stol(optarg,
 					FAULT_ON_ERROR, NULL);
-			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1) 
+			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1)
 				td->node_member_offset = sm->member_offset;
 			else
 				error(FATAL, "invalid -o argument: %s\n",
 					optarg);
 
-			td->flags |= TREE_NODE_OFFSET_ENTERED; 
+			td->flags |= TREE_NODE_OFFSET_ENTERED;
 			break;
 
 		case 's':
-			if (td->structname_args++ == 0) 
+			if (td->structname_args++ == 0)
 				hq_open();
 			hq_enter((ulong)optarg);
 			break;
@@ -3711,7 +3711,7 @@ cmd_tree()
 	if ((type_flag & RADIXTREE_REQUEST) && (td->flags & TREE_NODE_OFFSET_ENTERED))
 		error(FATAL, "-o option is not applicable to radix trees\n");
 
-	if ((td->flags & TREE_ROOT_OFFSET_ENTERED) && 
+	if ((td->flags & TREE_ROOT_OFFSET_ENTERED) &&
 	    (td->flags & TREE_NODE_POINTER))
 		error(INFO, "-r and -N options are mutually exclusive\n");
 
@@ -3725,7 +3725,7 @@ cmd_tree()
 		goto next_arg;
 	}
 
-	if (!IS_A_NUMBER(args[optind])) {	
+	if (!IS_A_NUMBER(args[optind])) {
 		if (can_eval(args[optind])) {
 			value = eval(args[optind], FAULT_ON_ERROR, NULL);
 			if (IS_KVADDR(value)) {
@@ -3734,7 +3734,7 @@ cmd_tree()
 			}
 		}
 		error(FATAL, "invalid start argument: %s\n", args[optind]);
-	} 
+	}
 
 	if (hexadecimal_only(args[optind], 0)) {
 		value = htol(args[optind], FAULT_ON_ERROR, NULL);
@@ -3743,7 +3743,7 @@ cmd_tree()
 			goto next_arg;
 		}
 	}
-	 
+
 	error(FATAL, "invalid start argument: %s\n", args[optind]);
 
 next_arg:
@@ -3755,7 +3755,7 @@ next_arg:
 	if (td->structname_args) {
 		td->structname = (char **)GETBUF(sizeof(char *) *
 				td->structname_args);
-		retrieve_list((ulong *)td->structname, td->structname_args); 
+		retrieve_list((ulong *)td->structname, td->structname_args);
 		hq_close();
 	}
 
@@ -3824,13 +3824,13 @@ do_rdtree(struct tree_data *td)
 	    !VALID_MEMBER(radix_tree_root_height) ||
 	    !VALID_MEMBER(radix_tree_root_rnode) ||
 	    !VALID_MEMBER(radix_tree_node_slots) ||
-	    !ARRAY_LENGTH(height_to_maxindex)) 
+	    !ARRAY_LENGTH(height_to_maxindex))
 		error(FATAL, "radix trees do not exist or have changed "
 			"their format\n");
 
 	if (RADIX_TREE_MAP_SHIFT == UNINITIALIZED) {
 		if (!(nlen = MEMBER_SIZE("radix_tree_node", "slots")))
-			error(FATAL, "cannot determine length of " 
+			error(FATAL, "cannot determine length of "
 				     "radix_tree_node.slots[] array\n");
 		nlen /= sizeof(void *);
 		RADIX_TREE_MAP_SHIFT = ffsl(nlen) - 1;
@@ -3863,7 +3863,7 @@ do_rdtree(struct tree_data *td)
 					"height_to_maxindex[] index %ld\n",
 					height, ARRAY_LENGTH(height_to_maxindex));
 			}
-		} else 
+		} else
 			error(FATAL, "-N option is not supported or applicable"
 				" for radix trees on this architecture or kernel\n");
 	} else {
@@ -3892,7 +3892,7 @@ do_rdtree(struct tree_data *td)
 	return td->count;
 }
 
-void 
+void
 rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum, uint height)
 {
 	ulong slot;
@@ -3949,7 +3949,7 @@ rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum,
 					}
 				}
 			}
-		} else 
+		} else
 			rdtree_iteration(slot, td, pos, index, height-1);
 	}
 }
@@ -3998,7 +3998,7 @@ rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 
 	if (td->flags & VERBOSE)
 		fprintf(fp, "%lx\n", struct_p);
-	
+
 	if (td->flags & TREE_POSITION_DISPLAY)
 		fprintf(fp, "  position: %s\n", pos);
 
@@ -4035,7 +4035,7 @@ rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 	sprintf(right_pos, "%s/r", pos);
 
 	rbtree_iteration(left_p, td, left_pos);
-	rbtree_iteration(right_p, td, right_pos);		
+	rbtree_iteration(right_p, td, right_pos);
 }
 
 void
@@ -4076,7 +4076,7 @@ dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 
 /*
  *  The next set of functions are a general purpose hashing tool used to
- *  identify duplicate entries in a set of passed-in data, and if found, 
+ *  identify duplicate entries in a set of passed-in data, and if found,
  *  to fail the entry attempt.  When a command wishes to verify a list
  *  of contains unique values, the hash functions should be used in the
  *  following order:
@@ -4133,7 +4133,7 @@ hq_init(void)
 
 	ht = &hash_table;
 
-        if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK * 
+        if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK *
 	    sizeof(struct hq_entry))) == NULL) {
 		error(INFO, "cannot malloc memory for hash queues: %s\n",
 			strerror(errno));
@@ -4141,7 +4141,7 @@ hq_init(void)
 		pc->flags &= ~HASH;
 		return;
 	}
-        
+
 	BZERO(ht->memptr, HQ_ENTRY_CHUNK * sizeof(struct hq_entry));
 	ht->count = HQ_ENTRY_CHUNK;
 	ht->index = 0;
@@ -4162,7 +4162,7 @@ alloc_hq_entry(void)
 	if (++ht->index == ht->count) {
                 if (!(new = (void *)realloc((void *)ht->memptr,
 		    (ht->count+HQ_ENTRY_CHUNK) * sizeof(struct hq_entry)))) {
-			error(INFO, 
+			error(INFO,
 			    "cannot realloc memory for hash queues: %s\n",
 				strerror(errno));
 			ht->flags |= HASH_QUEUE_FULL;
@@ -4179,9 +4179,9 @@ alloc_hq_entry(void)
 }
 
 /*
- *  Restore the hash queue to its state before the duplicate entry 
+ *  Restore the hash queue to its state before the duplicate entry
  *  was attempted.
- */ 
+ */
 static void
 dealloc_hq_entry(struct hq_entry *entry)
 {
@@ -4249,9 +4249,9 @@ hq_close(void)
 char *corrupt_hq = "corrupt hash queue entry: value: %lx next: %d order: %d\n";
 
 /*
- *  For a given value, allocate a hash queue entry and hash it into the 
- *  open hash table.  If a duplicate entry is found, return FALSE; for all 
- *  other possibilities return TRUE.  Note that it's up to the user to deal 
+ *  For a given value, allocate a hash queue entry and hash it into the
+ *  open hash table.  If a duplicate entry is found, return FALSE; for all
+ *  other possibilities return TRUE.  Note that it's up to the user to deal
  *  with failure.
  */
 int
@@ -4274,7 +4274,7 @@ hq_enter(ulong value)
 	if (!(ht->flags & HASH_QUEUE_OPEN))
 		return TRUE;
 
-	if ((index = alloc_hq_entry()) < 0) 
+	if ((index = alloc_hq_entry()) < 0)
 		return TRUE;
 
 	entry = ht->memptr + index;
@@ -4308,7 +4308,7 @@ hq_enter(ulong value)
 
 		if (list_entry->next >= ht->count) {
 			error(INFO, corrupt_hq,
-			    	list_entry->value, 
+			    	list_entry->value,
 				list_entry->next,
 				list_entry->order);
 			ht->flags |= HASH_QUEUE_NONE;
@@ -4338,7 +4338,7 @@ dump_hash_table(int verbose)
 	long elements;
 	long queues_in_use;
 	int others;
-	uint minq, maxq; 
+	uint minq, maxq;
 
 	ht = &hash_table;
 	others = 0;
@@ -4353,7 +4353,7 @@ dump_hash_table(int verbose)
         if (ht->flags & HASH_QUEUE_FULL)
                 fprintf(fp, "%sHASH_QUEUE_FULL", others++ ? "|" : "");
 	fprintf(fp, ")\n");
-	fprintf(fp, "   queue_heads[%d]: %lx\n", NR_HASH_QUEUES, 
+	fprintf(fp, "   queue_heads[%d]: %lx\n", NR_HASH_QUEUES,
 		(ulong)ht->queue_heads);
 	fprintf(fp, "             memptr: %lx\n", (ulong)ht->memptr);
 	fprintf(fp, "              count: %ld  ", ht->count);
@@ -4388,7 +4388,7 @@ dump_hash_table(int verbose)
 				goto corrupt_list_entry;
 	                continue;
 	         }
-	
+
 	         if (list_entry->next >= ht->count)
 	                        goto corrupt_list_entry;
 
@@ -4396,9 +4396,9 @@ dump_hash_table(int verbose)
        	}
 
 	if (elements != ht->index)
-        	fprintf(fp, "     elements found: %ld (expected %ld)\n", 
+        	fprintf(fp, "     elements found: %ld (expected %ld)\n",
 			elements, ht->index);
-        fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use, 
+        fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use,
 		NR_HASH_QUEUES);
 	fprintf(fp, " queue length range: %d to %d\n", minq, maxq);
 
@@ -4413,7 +4413,7 @@ dump_hash_table(int verbose)
         	list_entry = ht->memptr;
 	        for (i = 0; i < ht->count; i++, list_entry++) {
 	                 if (list_entry->order)
-	                        fprintf(fp, "%s%lx (%d)\n", 
+	                        fprintf(fp, "%s%lx (%d)\n",
 					list_entry->order == 1 ?
 					"" : "                     ",
 	                                list_entry->value, list_entry->order);
@@ -4432,21 +4432,21 @@ corrupt_list_entry:
  *  Retrieve the count of, and optionally stuff a pre-allocated array with,
  *  the current hash table entries.  The entries will be sorted according
  *  to the order in which they were entered, so from this point on, no
- *  further hq_enter() operations on this list will be allowed.  However, 
- *  multiple calls to retrieve_list are allowed because the second and 
- *  subsequent ones will go directly to where the non-zero (valid) entries 
+ *  further hq_enter() operations on this list will be allowed.  However,
+ *  multiple calls to retrieve_list are allowed because the second and
+ *  subsequent ones will go directly to where the non-zero (valid) entries
  *  start in the potentially very large list_entry memory chunk.
  */
 int
 retrieve_list(ulong array[], int count)
 {
-        int i; 
+        int i;
         struct hash_table *ht;
         struct hq_entry *list_entry;
         int elements;
 
 	if (!(pc->flags & HASH))
-		error(FATAL, 
+		error(FATAL,
 		    "cannot perform this command with hash turned off\n");
 
         ht = &hash_table;
@@ -4459,11 +4459,11 @@ retrieve_list(ulong array[], int count)
 			continue;
 		}
 
-                if (list_entry->next >= ht->count) 
+                if (list_entry->next >= ht->count)
 			goto corrupt_list_entry;
 
-		if (array) 
-			array[elements] = list_entry->value; 
+		if (array)
+			array[elements] = list_entry->value;
 
                 if (++elements == count)
                        	break;
@@ -4510,7 +4510,7 @@ hq_entry_exists(ulong value)
 
 		if (list_entry->next >= ht->count) {
 			error(INFO, corrupt_hq,
-				list_entry->value, 
+				list_entry->value,
 				list_entry->next,
  				list_entry->order);
 			ht->flags |= HASH_QUEUE_NONE;
@@ -4542,7 +4542,7 @@ power(long base, int exp)
 	return p;
 }
 
-long long 
+long long
 ll_power(long long base, long long exp)
 {
         long long i;
@@ -4556,7 +4556,7 @@ ll_power(long long base, long long exp)
 }
 
 /*
- *  Internal buffer allocation scheme to avoid inline malloc() calls and 
+ *  Internal buffer allocation scheme to avoid inline malloc() calls and
  *  resultant memory leaks due to aborted commands.  These buffers are
  *  for TEMPORARY use on a per-command basis.  They are allocated by calls
  *  to GETBUF(size).  They can explicitly freed by FREEBUF(address), but
@@ -4638,7 +4638,7 @@ buf_init(void)
 	bp = &shared_bufs;
 	BZERO(bp, sizeof(struct shared_bufs));
 
-	bp->smallest = 0x7fffffff; 
+	bp->smallest = 0x7fffffff;
 	bp->total = 0.0;
 }
 
@@ -4677,7 +4677,7 @@ void free_all_bufs(void)
  *  If the address is one of the static buffers, look for it and
  *  clear its inuse bit.
  */
-void 
+void
 freebuf(char *addr)
 {
         int i;
@@ -4735,7 +4735,7 @@ freebuf(char *addr)
                 }
         }
 
-	error(FATAL, 
+	error(FATAL,
 	    "freeing an unknown buffer -- shared buffer inconsistency!\n");
 }
 
@@ -4749,7 +4749,7 @@ dump_embedded(char *s)
 	p1 = s ? s : "";
 
         bp = &shared_bufs;
-        console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n", 
+        console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n",
 		p1, bp->embedded, bp->mallocs, bp->frees);
 }
 /* DEBUG */
@@ -4785,15 +4785,15 @@ dump_shared_bufs(void)
         fprintf(fp, "    buf_8K_ovf: %ld\n", bp->buf_8K_ovf);
         fprintf(fp, "   buf_32K_ovf: %ld\n", bp->buf_32K_ovf);
 
-        fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse, 
+        fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse,
 		NUMBER_1K_BUFS);
-        fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse, 
+        fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse,
 		NUMBER_2K_BUFS);
-        fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse, 
+        fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse,
 		NUMBER_4K_BUFS);
-        fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse, 
+        fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse,
 		NUMBER_8K_BUFS);
-        fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse, 
+        fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse,
 		NUMBER_32K_BUFS);
 
 	fprintf(fp, "  buf_inuse[%d]: ", SHARED_BUF_SIZES);
@@ -4801,14 +4801,14 @@ dump_shared_bufs(void)
 		fprintf(fp, "[%lx]", (ulong)bp->buf_inuse[i]);
 	fprintf(fp, "\n");
 
-        for (i = 0; i < MAX_MALLOC_BUFS; i++) 
+        for (i = 0; i < MAX_MALLOC_BUFS; i++)
 		if (bp->malloc_bp[i])
-			fprintf(fp, "  malloc_bp[%d]: %lx\n", 
+			fprintf(fp, "  malloc_bp[%d]: %lx\n",
 				i, (ulong)bp->malloc_bp[i]);
 
 	if (bp->smallest == 0x7fffffff)
         	fprintf(fp, "      smallest: 0\n");
-	else 
+	else
         	fprintf(fp, "      smallest: %ld\n", bp->smallest);
         fprintf(fp, "       largest: %ld\n", bp->largest);
 
@@ -4842,7 +4842,7 @@ getbuf(long reqsize)
 	struct shared_bufs *bp;
 	char *bufp;
 
-	if (!reqsize) { 
+	if (!reqsize) {
                 ulong retaddr = (ulong)__builtin_return_address(0);
                 error(FATAL, "zero-size memory allocation! (called from %lx)\n",
                         retaddr);
@@ -4853,7 +4853,7 @@ getbuf(long reqsize)
 	index = SHARED_BUFSIZE(reqsize);
 
 	if (CRASHDEBUG(7) && (reqsize > MAX_CACHE_SIZE))
-		error(NOTE, "GETBUF request > MAX_CACHE_SIZE: %ld\n", 
+		error(NOTE, "GETBUF request > MAX_CACHE_SIZE: %ld\n",
 			reqsize);
 
 	if (CRASHDEBUG(8)) {
@@ -4885,7 +4885,7 @@ getbuf(long reqsize)
                         bufp = bp->buf_1K[bdx];
                         bp->buf_1K_used++;
                         bp->buf_inuse[B1K] |= (1 << bdx);
-			bp->buf_1K_maxuse = MAX(bp->buf_1K_maxuse, 
+			bp->buf_1K_maxuse = MAX(bp->buf_1K_maxuse,
 				count_bits_int(bp->buf_inuse[B1K]));
                         BZERO(bufp, 1024);
                         return(bufp);
@@ -4964,13 +4964,13 @@ getbuf(long reqsize)
 	}
 
 	dump_shared_bufs();
-	
+
 	return ((char *)(long)
 		error(FATAL, "cannot allocate any more memory!\n"));
 }
 
 /*
- *  Change the size of the previously-allocated memory block 
+ *  Change the size of the previously-allocated memory block
  *  pointed to by oldbuf to newsize bytes.  Copy the minimum
  *  of oldsize and newsize bytes from the oldbuf to the newbuf,
  *  and return the address of the new buffer, which will have
@@ -5101,7 +5101,7 @@ console(char *fmt, ...)
         char output[BUFSIZE*2];
 	va_list ap;
 
-        if (!pc->console || !strlen(pc->console) || 
+        if (!pc->console || !strlen(pc->console) ||
             (pc->flags & NO_CONSOLE) || (pc->confd == -1))
                 return 0;
 
@@ -5142,7 +5142,7 @@ create_console_device(char *dev)
                 fprintf(stderr, "console name malloc: %s\n", strerror(errno));
         else {
                 strcpy(pc->console, dev);
-                if (console("debug console [%ld]: %s\n", 
+                if (console("debug console [%ld]: %s\n",
 		    pc->program_pid, (ulong)pc->console) < 0) {
 			close(pc->confd);
                 	free(pc->console);
@@ -5150,13 +5150,13 @@ create_console_device(char *dev)
 			pc->confd = -1;
 			if (!(pc->flags & RUNTIME))
 				error(INFO, "cannot set console to %s\n", dev);
-				
+
 		}
         }
 }
 
 /*
- *  Disable console output without closing the device.  
+ *  Disable console output without closing the device.
  *  Typically used with CONSOLE_OFF() macro.
  */
 int
@@ -5192,7 +5192,7 @@ console_verbatim(char *s)
         char *p;
 	int cnt;
 
-        if (!pc->console || !strlen(pc->console) || 
+        if (!pc->console || !strlen(pc->console) ||
 	    (pc->flags & NO_CONSOLE) || (pc->confd == -1))
                 return 0;
 
@@ -5208,7 +5208,7 @@ console_verbatim(char *s)
         }
 
         for (cnt = 0, p = s; *p; p++) {
-                if (write(pc->confd, p, 1) != 1) 
+                if (write(pc->confd, p, 1) != 1)
 			break;
 		cnt++;
         }
@@ -5262,7 +5262,7 @@ convert_time(ulonglong count, char *buf)
 
         if (days)
         	sprintf(buf, "%llu days, ", days);
-        sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu", 
+        sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu",
 		hours, minutes, seconds);
 
 	return buf;
@@ -5285,7 +5285,7 @@ stall(ulong microseconds)
 
 /*
  *  Fill a buffer with a page count translated to a GB/MB/KB value.
- */ 
+ */
 char *
 pages_to_size(ulong pages, char *buf)
 {
@@ -5322,7 +5322,7 @@ int
 empty_list(ulong list_head_addr)
 {
 	ulong next;
- 
+
 	if (!readmem(list_head_addr, KVADDR, &next, sizeof(void *),
             "list_head next contents", RETURN_ON_ERROR))
 		return TRUE;
@@ -5336,7 +5336,7 @@ machine_type(char *type)
 	return STREQ(MACHINE_TYPE, type);
 }
 
-int 
+int
 machine_type_mismatch(char *file, char *e_machine, char *alt, ulong query)
 {
 	if (machine_type(e_machine) || machine_type(alt))
@@ -5350,21 +5350,21 @@ machine_type_mismatch(char *file, char *e_machine, char *alt, ulong query)
 	fprintf(fp, "         crash utility: %s\n", MACHINE_TYPE);
 	fprintf(fp, "         %s: %s%s%s\n\n", file, e_machine,
 		alt ? " or " : "", alt ? alt : "");
-		
+
 	return TRUE;
 }
 void
 command_not_supported()
 {
-	error(FATAL, 
+	error(FATAL,
 	    "command not supported or applicable on this architecture or kernel\n");
 }
 
 void
 option_not_supported(int c)
 {
-	error(FATAL, 
-	    "-%c option not supported or applicable on this architecture or kernel\n", 
+	error(FATAL,
+	    "-%c option not supported or applicable on this architecture or kernel\n",
 		(char)c);
 }
 
@@ -5445,12 +5445,12 @@ endian_mismatch(char *file, char dumpfile_endian, ulong query)
 		endian = "big-endian";
 		break;
 	case ELFDATA2MSB:
-		if (__BYTE_ORDER == __BIG_ENDIAN)	
+		if (__BYTE_ORDER == __BIG_ENDIAN)
 			return FALSE;
 		endian = "little-endian";
 		break;
 	default:
-		endian = "unknown";	
+		endian = "unknown";
 		break;
 	}
 
@@ -5459,18 +5459,18 @@ endian_mismatch(char *file, char dumpfile_endian, ulong query)
 
         error(WARNING, "endian mismatch:\n");
 
-        fprintf(fp, "         crash utility: %s\n", 
+        fprintf(fp, "         crash utility: %s\n",
 		(__BYTE_ORDER == __LITTLE_ENDIAN) ?
 		"little-endian" : "big-endian");
         fprintf(fp, "         %s: %s\n\n", file, endian);
 
-	return TRUE;	
+	return TRUE;
 }
 
 uint16_t
 swap16(uint16_t val, int swap)
 {
-	if (swap) 
+	if (swap)
         	return (((val & 0x00ff) << 8) |
                 	((val & 0xff00) >> 8));
 	else
@@ -5538,11 +5538,11 @@ make_cpumask_error:
 }
 
 /*
- * Copy a string into a sized buffer.  If necessary, truncate 
- * the resultant string in the sized buffer so that it will 
+ * Copy a string into a sized buffer.  If necessary, truncate
+ * the resultant string in the sized buffer so that it will
  * always be NULL-terminated.
  */
-size_t 
+size_t
 strlcpy(char *dest, char *src, size_t size)
 {
 	size_t ret = strlen(src);
@@ -5562,7 +5562,7 @@ rb_first(struct rb_root *root)
         struct rb_node *n;
 	struct rb_node nloc;
 
-	readmem((ulong)root, KVADDR, &rloc, sizeof(struct rb_root), 
+	readmem((ulong)root, KVADDR, &rloc, sizeof(struct rb_root),
 		"rb_root", FAULT_ON_ERROR);
 
         n = rloc.rb_node;
@@ -5577,7 +5577,7 @@ rb_first(struct rb_root *root)
 struct rb_node *
 rb_parent(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node), 
+	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
 		"rb_node", FAULT_ON_ERROR);
 
 	return (struct rb_node *)(nloc->rb_parent_color & ~3);
@@ -5586,7 +5586,7 @@ rb_parent(struct rb_node *node, struct rb_node *nloc)
 struct rb_node *
 rb_right(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node), 
+	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
 		"rb_node", FAULT_ON_ERROR);
 
 	return nloc->rb_right;
@@ -5595,7 +5595,7 @@ rb_right(struct rb_node *node, struct rb_node *nloc)
 struct rb_node *
 rb_left(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node), 
+	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
 		"rb_node", FAULT_ON_ERROR);
 
 	return nloc->rb_left;

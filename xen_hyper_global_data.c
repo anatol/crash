@@ -117,7 +117,7 @@ char *xen_hyper_help_domain[] = {
 "  This command displays contents of domain struct for selected, or all, domains",
 "     domain-id  a domain id.",
 "       domainp  a domain pointer.",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_doms[] = {
@@ -158,7 +158,7 @@ char *xen_hyper_help_doms[] = {
 "          4 ffbee080 RU U   4000     4000     2  ff18d000   3eb92",
 "          5 ff186080 RU U   4000     4000     2  ff184000   298d3",
 "    %s>",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_dumpinfo[] = {
@@ -170,7 +170,7 @@ char *xen_hyper_help_dumpinfo[] = {
 "        enotep  a ELF Note pointer.",
 "            -t  display time information.",
 "            -r  display register information.",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_log[] = {
@@ -211,7 +211,7 @@ char *xen_hyper_help_log[] = {
 "    (XEN) System RAM: 1015MB (1039904kB)",
 "    (XEN) ACPI: RSDP (v000 XPC                                   ) @ 0x000f9250",
 "    ...",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_pcpus[] = {
@@ -314,7 +314,7 @@ char *xen_hyper_help_pcpus[] = {
 "      bitmap = 0x8000,",
 "      __cacheline_filler = \"\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\\000\"",
 "    }",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_sched[] = {
@@ -325,7 +325,7 @@ char *xen_hyper_help_sched[] = {
 "       pcpu-id  a physical cpu id.",
 "            -v  display verbosely scheduler information.",
 " ",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_sys[] = {
@@ -344,7 +344,7 @@ char *xen_hyper_help_sys[] = {
 "           MACHINE: Pentium III (Coppermine)  (866 Mhz)",
 "            MEMORY: 2 GB",
 "    %s>",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_vcpu[] = {
@@ -354,7 +354,7 @@ char *xen_hyper_help_vcpu[] = {
 "  This command displays contents of vcpu struct for selected, or all, vcpus",
 "       vcpu-id  a virtual cpu id.",
 "         vcpup  a virtual cpu pointer.",
-NULL               
+NULL
 };
 
 char *xen_hyper_help_vcpus[] = {
@@ -392,7 +392,7 @@ char *xen_hyper_help_vcpus[] = {
 "          0     1 ff1f3080 BL G     5 ff186080",
 "          1     0 ff1f2080 BL G     5 ff186080",
 "    %s>",
-NULL               
+NULL
 };
 
 struct task_context fake_tc = { 0 };

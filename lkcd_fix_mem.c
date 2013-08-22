@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- */ 
+ */
 
 #ifdef IA64
 
@@ -22,8 +22,8 @@
 #include "defs.h"
 #include "lkcd_dump_v8.h"
 
-static int fix_addr(dump_header_asm_t *); 
-    
+static int fix_addr(dump_header_asm_t *);
+
 int
 fix_addr_v8(dump_header_asm_t *dha)
 {
@@ -38,35 +38,35 @@ fix_addr_v7(int fd)
     static dump_header_asm_t dump_header_asm_v7 = { 0 };
     dump_header_asm_t *dha;
     dha = &dump_header_asm_v7;
-    
+
     if (read(lkcd->fd, dha, sizeof(dump_header_asm_t)) !=
 	    sizeof(dump_header_asm_t))
 	return -1;
 
     fix_addr(dha);
-    
+
     return 0;
 }
 
 static int
-fix_addr(dump_header_asm_t *dha)  
+fix_addr(dump_header_asm_t *dha)
 {
     lkcd->dump_header_asm = dha;
-    
+
 
     if (dha->dha_magic_number == DUMP_ASM_MAGIC_NUMBER && dha->dha_version > 3) {
 	int num;
 	int i = 0;
 
 	num = dha->dha_smp_num_cpus;
-    
+
 
 	lkcd->fix_addr_num = 0;
 	if (num && (lkcd->fix_addr = malloc(num * sizeof(struct fix_addrs)))) {
 	    while (i < num) {
 		if (dha->dha_stack[i] && dha->dha_smp_current_task[i]) {
 		    lkcd->fix_addr[i].task = (ulong)dha->dha_smp_current_task[i];
-		    lkcd->fix_addr[i].saddr = (ulong)dha->dha_stack[i]; 
+		    lkcd->fix_addr[i].saddr = (ulong)dha->dha_stack[i];
 		    lkcd->fix_addr[i].sw = (ulong)dha->dha_stack_ptr[i];
 		    /* remember the highest non-zero entry */
 		    lkcd->fix_addr_num = i + 1;

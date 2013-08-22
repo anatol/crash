@@ -41,7 +41,7 @@ cmd_extend(void)
                 {
 		case 'l':
 			if (flag & UNLOAD_EXTENSION) {
-				error(INFO, 
+				error(INFO,
 					"-l and -u are mutually exclusive\n");
 				argerrs++;
 			} else
@@ -50,7 +50,7 @@ cmd_extend(void)
 
 		case 'u':
                         if (flag & LOAD_EXTENSION) {
-                                error(INFO, 
+                                error(INFO,
                                         "-u and -l are mutually exclusive\n");
                                 argerrs++;
                         } else
@@ -76,8 +76,8 @@ cmd_extend(void)
 		/* FALLTHROUGH */
 
 	case LOAD_EXTENSION:
-		if (!args[optind]) { 
-			error(INFO, 
+		if (!args[optind]) {
+			error(INFO,
 		       "-l requires one or more extension library arguments\n");
 			cmd_usage(pc->curcmd, SYNOPSIS);
 			break;
@@ -90,7 +90,7 @@ cmd_extend(void)
 		break;
 
 	case UNLOAD_EXTENSION:
-		if (!args[optind]) { 
+		if (!args[optind]) {
 			unload_extension(NULL);
 			break;
 		}
@@ -107,7 +107,7 @@ cmd_extend(void)
  *  List all extension libaries and their commands in either the extend
  *  command format or for "help -e" (verbose).
  */
-void 
+void
 dump_extension_table(int verbose)
 {
 	int i;
@@ -135,10 +135,10 @@ dump_extension_table(int verbose)
                         fprintf(fp, "            prev: %lx\n", (ulong)ext->prev);
 
                         for (i = 0, cp = ext->command_table; cp->name; cp++, i++) {
-                        	fprintf(fp, "command_table[%d]: %lx\n", i, (ulong)cp); 
+                        	fprintf(fp, "command_table[%d]: %lx\n", i, (ulong)cp);
 				fprintf(fp, "                  name: %s\n", cp->name);
 				fprintf(fp, "                  func: %lx\n", (ulong)cp->func);
-				fprintf(fp, "             help_data: %lx\n", (ulong)cp->help_data); 
+				fprintf(fp, "             help_data: %lx\n", (ulong)cp->help_data);
 				fprintf(fp, "                 flags: %lx (", cp->flags);
 				others = 0;
 				if (cp->flags & CLEANUP)
@@ -150,7 +150,7 @@ dump_extension_table(int verbose)
 				fprintf(fp, ")\n");
 			}
 
-			if (ext->next) 
+			if (ext->next)
 				fprintf(fp, "\n");
 		}
 		return;
@@ -165,16 +165,16 @@ dump_extension_table(int verbose)
 			longest = strlen(ext->filename);
 	}
 
-	fprintf(fp, "%s  COMMANDS\n", 
+	fprintf(fp, "%s  COMMANDS\n",
 		mkstring(buf, longest, LJUST, "SHARED OBJECT"));
 	longest = MAX(longest, strlen("SHARED OBJECT"));
 
-	for (ext = extension_table; ext; ext = ext->next) 
+	for (ext = extension_table; ext; ext = ext->next)
 		if (ext->next == NULL)
 			break;
 
 	do {
-                fprintf(fp, "%s  ", 
+                fprintf(fp, "%s  ",
                         mkstring(buf, longest, LJUST, ext->filename));
                 for (cp = ext->command_table; cp->name; cp++)
                         fprintf(fp, "%s ", cp->name);
@@ -186,7 +186,7 @@ dump_extension_table(int verbose)
 /*
  *  Load an extension library.
  */
-void 
+void
 load_extension(char *lib)
 {
 	struct extension_table *ext, *curext;
@@ -198,20 +198,20 @@ load_extension(char *lib)
 	if ((env = getenv("CRASH_EXTENSIONS")))
 		env_len = strlen(env)+1;
 	else
-		env_len = 0;	
+		env_len = 0;
 
-	size = sizeof(struct extension_table) + strlen(lib) + 
+	size = sizeof(struct extension_table) + strlen(lib) +
 		MAX(env_len, strlen("/usr/lib64/crash/extensions/")) + 1;
 
-	if ((ext = (struct extension_table *)malloc(size)) == NULL) 
+	if ((ext = (struct extension_table *)malloc(size)) == NULL)
 		error(FATAL, "cannot malloc extension_table space.");
 
 	BZERO(ext, size);
 
 	ext->filename = (char *)((ulong)ext + sizeof(struct extension_table));
-	
+
        /*
-	*  If the library is not specified by an absolute pathname, dlopen() 
+	*  If the library is not specified by an absolute pathname, dlopen()
         *  does not look in the current directory, so modify the filename.
 	*  If it's not in the current directory, check the extensions library
 	*  directory.
@@ -226,7 +226,7 @@ load_extension(char *lib)
 			free(ext);
 			return;
 		}
-	} else 
+	} else
 		strcpy(ext->filename, lib);
 
 	if (!is_shared_object(ext->filename)) {
@@ -238,7 +238,7 @@ load_extension(char *lib)
 
 	for (curext = extension_table; curext; curext = curext->next) {
 		if (same_file(curext->filename, ext->filename)) {
-			fprintf(fp, "%s: shared object already loaded\n", 
+			fprintf(fp, "%s: shared object already loaded\n",
 				ext->filename);
 			free(ext);
 			return;
@@ -250,7 +250,7 @@ load_extension(char *lib)
         *  _init() function before dlopen() returns below.
 	*/
 	pc->curext = ext;
-	ext->handle = dlopen(ext->filename, RTLD_NOW|RTLD_GLOBAL); 
+	ext->handle = dlopen(ext->filename, RTLD_NOW|RTLD_GLOBAL);
 
 	if (!ext->handle) {
 		strcpy(buf, dlerror());
@@ -267,10 +267,10 @@ load_extension(char *lib)
 	if (!(ext->flags & REGISTERED)) {
 		dlclose(ext->handle);
 		if (ext->flags & (DUPLICATE_COMMAND_NAME | NO_MINIMAL_COMMANDS))
-			error(INFO, 
+			error(INFO,
 		         "%s: shared object unloaded\n", ext->filename);
 		else
-			error(INFO, 
+			error(INFO,
 		         "%s: no commands registered: shared object unloaded\n",
 				ext->filename);
 		free(ext);
@@ -316,7 +316,7 @@ in_extensions_library(char *lib, char *buf)
        	sprintf(buf, "/usr/lib/crash/extensions/%s", lib);
 	if (file_exists(buf, NULL))
 		return TRUE;
- 
+
        	sprintf(buf, "./extensions/%s", lib);
 	if (file_exists(buf, NULL))
 		return TRUE;
@@ -325,7 +325,7 @@ in_extensions_library(char *lib, char *buf)
 }
 
 /*
- * Look for an extensions directory using the proper order. 
+ * Look for an extensions directory using the proper order.
  */
 static char *
 get_extensions_directory(char *dirbuf)
@@ -348,7 +348,7 @@ get_extensions_directory(char *dirbuf)
        	sprintf(dirbuf, "/usr/lib/crash/extensions");
 	if (is_directory(dirbuf))
 		return dirbuf;
- 
+
        	sprintf(dirbuf, "./extensions");
 	if (is_directory(dirbuf))
 		return dirbuf;
@@ -378,7 +378,7 @@ preload_extensions(void)
 	pc->curcmd = pc->program_name;
 
         for (found = 0, dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
-		sprintf(filename, "%s%s%s", dirbuf, 
+		sprintf(filename, "%s%s%s", dirbuf,
 			LASTCHAR(dirbuf) == '/' ? "" : "/",
 			dp->d_name);
 
@@ -391,11 +391,11 @@ preload_extensions(void)
 	}
 
 	closedir(dirp);
-	
+
 	if (found)
 		fprintf(fp, "\n");
 	else
-		error(NOTE, 
+		error(NOTE,
 		    "%s: no extension modules found in directory\n\n",
 			dirbuf);
 }
@@ -403,7 +403,7 @@ preload_extensions(void)
 /*
  *  Unload all, or as specified, extension libraries.
  */
-void 
+void
 unload_extension(char *lib)
 {
         struct extension_table *ext;
@@ -418,7 +418,7 @@ unload_extension(char *lib)
                                     "dlclose: %s: shared object not open\n",
                                         ext->filename);
 
-			fprintf(fp, "%s: shared object unloaded\n", 
+			fprintf(fp, "%s: shared object unloaded\n",
 				ext->filename);
 
 			extension_table = ext->next;
@@ -433,7 +433,7 @@ unload_extension(char *lib)
 		if (!file_exists(lib, NULL) &&
 		    in_extensions_library(lib, buf))
 			lib = buf;
-	} 
+	}
 
 	if (!file_exists(lib, NULL)) {
 		error(INFO, "%s: %s\n", lib, strerror(ENXIO));
@@ -444,8 +444,8 @@ unload_extension(char *lib)
                 if (same_file(lib, ext->filename)) {
 			found = TRUE;
 			if (dlclose(ext->handle))
-				error(INFO, 
-				    "dlclose: %s: shared object not open\n", 
+				error(INFO,
+				    "dlclose: %s: shared object not open\n",
 					ext->filename);
 			else {
 				fprintf(fp, "%s: shared object unloaded\n",
@@ -484,11 +484,11 @@ unload_extension(char *lib)
  *  that clash, giving the registered command name priority.
  *
  *  This function is called from the shared object's _init() function
- *  before the dlopen() call returns back to load_extension() above.  
- *  The mark of approval for load_extension() is the setting of the 
+ *  before the dlopen() call returns back to load_extension() above.
+ *  The mark of approval for load_extension() is the setting of the
  *  REGISTERED bit in the "current" extension_table structure flags.
- */ 
-void 
+ */
+void
 register_extension(struct command_table_entry *command_table)
 {
 	struct command_table_entry *cp;
@@ -497,7 +497,7 @@ register_extension(struct command_table_entry *command_table)
 
         for (cp = command_table; cp->name; cp++) {
 		if (get_command_table_entry(cp->name)) {
-			error(INFO, 
+			error(INFO,
                   "%s: \"%s\" is a duplicate of a currently-existing command\n",
 				pc->curext->filename, cp->name);
 			pc->curext->flags |= DUPLICATE_COMMAND_NAME;
@@ -508,7 +508,7 @@ register_extension(struct command_table_entry *command_table)
 	}
 
 	if ((pc->flags & MINIMAL_MODE) && (pc->curext->flags & NO_MINIMAL_COMMANDS)) {
-		error(INFO, 
+		error(INFO,
 		      "%s: does not contain any commands which support minimal mode\n",
 		      pc->curext->filename);
 		return;
@@ -517,7 +517,7 @@ register_extension(struct command_table_entry *command_table)
 	if (pc->flags & MINIMAL_MODE) {
 		for (cp = command_table; cp->name; cp++) {
 			if (!(cp->flags & MINIMAL)) {
-				error(WARNING, 
+				error(WARNING,
 				      "%s: command \"%s\" does not support minimal mode\n",
 				      pc->curext->filename, cp->name);
 			}
@@ -526,34 +526,34 @@ register_extension(struct command_table_entry *command_table)
 
         for (cp = command_table; cp->name; cp++) {
 		if (is_alias(cp->name)) {
-			error(INFO, 
+			error(INFO,
                "alias \"%s\" deleted: name clash with extension command\n",
 				cp->name);
 			deallocate_alias(cp->name);
 		}
 	}
 
-	pc->curext->command_table = command_table;   
+	pc->curext->command_table = command_table;
 	pc->curext->flags |= REGISTERED;             /* Mark of approval */
 }
 
-/* 
+/*
  *  Hooks for sial.
  */
-unsigned long 
-get_curtask(void) 
-{ 
-	return CURRENT_TASK(); 
+unsigned long
+get_curtask(void)
+{
+	return CURRENT_TASK();
 }
 
 char *
-crash_global_cmd(void) 
-{ 
+crash_global_cmd(void)
+{
 	return pc->curcmd;
 }
 
 struct command_table_entry *
-crash_cmd_table(void) 
-{ 
-	return pc->cmd_table; 
+crash_cmd_table(void)
+{
+	return pc->cmd_table;
 }

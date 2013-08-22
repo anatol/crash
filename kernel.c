@@ -86,7 +86,7 @@ kernel_init()
 	struct syment *sp1, *sp2;
 	char *rqstruct;
 	char *rq_timestamp_name = NULL;
-	char *irq_desc_type_name;	
+	char *irq_desc_type_name;
 	ulong pv_init_ops;
 
 	if (pc->flags & KERNEL_DEBUG_QUERY)
@@ -99,7 +99,7 @@ kernel_init()
 
 	kt->stext = symbol_value("_stext");
 	kt->etext = symbol_value("_etext");
-	get_text_init_space(); 
+	get_text_init_space();
 	if (symbol_exists("__init_begin")) {
 		kt->init_begin = symbol_value("__init_begin");
 		kt->init_end = symbol_value("__init_end");
@@ -108,18 +108,18 @@ kernel_init()
 		kt->end = symbol_value("_end");
 	else
 		kt->end = highest_bss_symbol();
-	
+
 	/*
-	 *  For the traditional (non-pv_ops) Xen architecture, default to writable 
+	 *  For the traditional (non-pv_ops) Xen architecture, default to writable
          *  page tables unless:
-	 *  
-	 *  (1) it's an "xm save" CANONICAL_PAGE_TABLES dumpfile,  or
-	 *  (2) the --shadow_page_tables option was explicitly entered.  
 	 *
-	 *  But if the "phys_to_maching_mapping" array does not exist, and 
-         *  it's not an "xm save" canonical dumpfile, then we have no choice 
+	 *  (1) it's an "xm save" CANONICAL_PAGE_TABLES dumpfile,  or
+	 *  (2) the --shadow_page_tables option was explicitly entered.
+	 *
+	 *  But if the "phys_to_maching_mapping" array does not exist, and
+         *  it's not an "xm save" canonical dumpfile, then we have no choice
          *  but to presume shadow page tables.
-	 */ 
+	 */
 	if (!PVOPS() && symbol_exists("xen_start_info")) {
 		kt->flags |= ARCH_XEN;
 		if (!(kt->xen_flags & (SHADOW_PAGE_TABLES|CANONICAL_PAGE_TABLES)))
@@ -147,7 +147,7 @@ kernel_init()
 
 	if (PVOPS() && readmem(symbol_value("pv_init_ops"), KVADDR, &pv_init_ops,
 	    sizeof(void *), "pv_init_ops", RETURN_ON_ERROR) &&
-	    (p1 = value_symbol(pv_init_ops)) && 
+	    (p1 = value_symbol(pv_init_ops)) &&
 	    STREQ(p1, "xen_patch")) {
 		kt->flags |= ARCH_XEN | ARCH_PVOPS_XEN;
 		kt->xen_flags |= WRITABLE_PAGE_TABLES;
@@ -179,39 +179,39 @@ kernel_init()
 		kt->flags |= SMP;
 		get_symbol_data("smp_num_cpus", sizeof(int), &kt->cpus);
 		if (kt->cpus < 1 || kt->cpus > NR_CPUS)
-			error(WARNING, 
+			error(WARNING,
 			    "invalid value: smp_num_cpus: %d\n",
 				kt->cpus);
 	} else if (symbol_exists("__per_cpu_offset")) {
 		kt->flags |= SMP;
 		kt->cpus = 1;
-	} else 
+	} else
 		kt->cpus = 1;
 
 	if ((sp1 = symbol_search("__per_cpu_start")) &&
  	    (sp2 = symbol_search("__per_cpu_end")) &&
-	    (sp1->type == 'A' || sp1->type == 'D') && 
+	    (sp1->type == 'A' || sp1->type == 'D') &&
 	    (sp2->type == 'A' || sp2->type == 'D') &&
 	    (sp2->value > sp1->value))
 		kt->flags |= SMP|PER_CPU_OFF;
-	
+
 	MEMBER_OFFSET_INIT(timekeeper_xtime, "timekeeper", "xtime");
 	MEMBER_OFFSET_INIT(timekeeper_xtime_sec, "timekeeper", "xtime_sec");
 	get_xtime(&kt->date);
-	
+
 	if (pc->flags & GET_TIMESTAMP) {
-        	fprintf(fp, "%s\n\n", 
+        	fprintf(fp, "%s\n\n",
 			strip_linefeeds(ctime(&kt->date.tv_sec)));
 		clean_exit(0);
 	}
-	
+
 	if (symbol_exists("system_utsname"))
         	readmem(symbol_value("system_utsname"), KVADDR, &kt->utsname,
-                	sizeof(struct new_utsname), "system_utsname", 
+                	sizeof(struct new_utsname), "system_utsname",
 			RETURN_ON_ERROR);
 	else if (symbol_exists("init_uts_ns"))
 		readmem(symbol_value("init_uts_ns") + sizeof(int),
-			KVADDR,  &kt->utsname, sizeof(struct new_utsname), 
+			KVADDR,  &kt->utsname, sizeof(struct new_utsname),
 			"init_uts_ns", RETURN_ON_ERROR);
 	else
 		error(INFO, "cannot access utsname information\n\n");
@@ -279,8 +279,8 @@ kernel_init()
 	    (get_array_length("runqueue.cpu", NULL, 0) > 0)) {
 		MEMBER_OFFSET_INIT(cpu_s_curr, "cpu_s", "curr");
 		MEMBER_OFFSET_INIT(cpu_s_idle, "cpu_s", "idle");
-	 	STRUCT_SIZE_INIT(cpu_s, "cpu_s"); 
-		kt->runq_siblings = get_array_length("runqueue.cpu", 
+	 	STRUCT_SIZE_INIT(cpu_s, "cpu_s");
+		kt->runq_siblings = get_array_length("runqueue.cpu",
 			NULL, 0);
 		if (symbol_exists("__cpu_idx") &&
 		    symbol_exists("__rq_idx")) {
@@ -290,18 +290,18 @@ kernel_init()
 			if (!(kt->__rq_idx = (long *)
 			    calloc(NR_CPUS, sizeof(long))))
 				error(FATAL, "cannot malloc __rq_idx array");
-			if (!readmem(symbol_value("__cpu_idx"), KVADDR, 
+			if (!readmem(symbol_value("__cpu_idx"), KVADDR,
 		            &kt->__cpu_idx[0], sizeof(long) * NR_CPUS,
                             "__cpu_idx[NR_CPUS]", RETURN_ON_ERROR))
-				error(INFO, 
+				error(INFO,
 			            "cannot read __cpu_idx[NR_CPUS] array\n");
-			if (!readmem(symbol_value("__rq_idx"), KVADDR, 
+			if (!readmem(symbol_value("__rq_idx"), KVADDR,
 		            &kt->__rq_idx[0], sizeof(long) * NR_CPUS,
                             "__rq_idx[NR_CPUS]", RETURN_ON_ERROR))
-				error(INFO, 
+				error(INFO,
 			           "cannot read __rq_idx[NR_CPUS] array\n");
-		} else if (kt->runq_siblings > 1) 
-			error(INFO, 
+		} else if (kt->runq_siblings > 1)
+			error(INFO,
      	   "runq_siblings: %d: __cpu_idx and __rq_idx arrays don't exist?\n",
 				kt->runq_siblings);
 	} else {
@@ -315,8 +315,8 @@ kernel_init()
 	MEMBER_OFFSET_INIT(rq_timestamp, rqstruct, rq_timestamp_name);
 	MEMBER_OFFSET_INIT(prio_array_queue, "prio_array", "queue");
         MEMBER_OFFSET_INIT(prio_array_nr_active, "prio_array", "nr_active");
-	STRUCT_SIZE_INIT(runqueue, rqstruct); 
-	STRUCT_SIZE_INIT(prio_array, "prio_array"); 
+	STRUCT_SIZE_INIT(runqueue, rqstruct);
+	STRUCT_SIZE_INIT(prio_array, "prio_array");
 
 	MEMBER_OFFSET_INIT(rq_cfs, "rq", "cfs");
 	MEMBER_OFFSET_INIT(task_group_cfs_rq, "task_group", "cfs_rq");
@@ -348,7 +348,7 @@ kernel_init()
                         for (i = kt->cpus = 0; i < nr_cpus; i++)
                                 if (init_tasks[i])
                                         kt->cpus++;
-                } else 
+                } else
 			kt->cpus = machdep->get_smp_cpus();
 	}
 
@@ -362,9 +362,9 @@ kernel_init()
 	}
 
 	if (kt->cpus > NR_CPUS) {
-		error(WARNING, 
+		error(WARNING,
        "%s number of cpus (%d) greater than compiled-in NR_CPUS (%d)\n",
-			kt->cpus_override && atoi(kt->cpus_override) ? 
+			kt->cpus_override && atoi(kt->cpus_override) ?
 			"configured" : "calculated", kt->cpus, NR_CPUS);
 		error(FATAL, "recompile crash with larger NR_CPUS\n");
 	}
@@ -374,18 +374,18 @@ kernel_init()
 	STRUCT_SIZE_INIT(spinlock_t, "spinlock_t");
 	verify_spinlock();
 
-	STRUCT_SIZE_INIT(list_head, "list_head"); 
-	MEMBER_OFFSET_INIT(list_head_next, "list_head", "next"); 
-	MEMBER_OFFSET_INIT(list_head_prev, "list_head", "prev"); 
+	STRUCT_SIZE_INIT(list_head, "list_head");
+	MEMBER_OFFSET_INIT(list_head_next, "list_head", "next");
+	MEMBER_OFFSET_INIT(list_head_prev, "list_head", "prev");
 	if (OFFSET(list_head_next) != 0)
-	    	error(WARNING, 
+	    	error(WARNING,
 		    "list_head.next offset: %ld: list command may fail\n",
 			OFFSET(list_head_next));
 
         MEMBER_OFFSET_INIT(hlist_node_next, "hlist_node", "next");
         MEMBER_OFFSET_INIT(hlist_node_pprev, "hlist_node", "pprev");
-	STRUCT_SIZE_INIT(hlist_head, "hlist_head"); 
-	STRUCT_SIZE_INIT(hlist_node, "hlist_node"); 
+	STRUCT_SIZE_INIT(hlist_head, "hlist_head");
+	STRUCT_SIZE_INIT(hlist_node, "hlist_node");
 
 	if (STRUCT_EXISTS("irq_desc_t"))
 		irq_desc_type_name = "irq_desc_t";
@@ -481,9 +481,9 @@ kernel_init()
 	}
 
         STRUCT_SIZE_INIT(irq_cpustat_t, "irq_cpustat_t");
-        MEMBER_OFFSET_INIT(irq_cpustat_t___softirq_active, 
+        MEMBER_OFFSET_INIT(irq_cpustat_t___softirq_active,
                 "irq_cpustat_t", "__softirq_active");
-        MEMBER_OFFSET_INIT(irq_cpustat_t___softirq_mask, 
+        MEMBER_OFFSET_INIT(irq_cpustat_t___softirq_mask,
                 "irq_cpustat_t", "__softirq_mask");
 
         STRUCT_SIZE_INIT(timer_list, "timer_list");
@@ -494,7 +494,7 @@ kernel_init()
         MEMBER_OFFSET_INIT(timer_list_function, "timer_list", "function");
         STRUCT_SIZE_INIT(timer_vec_root, "timer_vec_root");
 	if (VALID_STRUCT(timer_vec_root))
-               	MEMBER_OFFSET_INIT(timer_vec_root_vec, 
+               	MEMBER_OFFSET_INIT(timer_vec_root_vec,
 			"timer_vec_root", "vec");
         STRUCT_SIZE_INIT(timer_vec, "timer_vec");
 	if (VALID_STRUCT(timer_vec))
@@ -505,7 +505,7 @@ kernel_init()
                	STRUCT_SIZE_INIT(tvec_t_base_s, "tvec_t_base_s");
                 MEMBER_OFFSET_INIT(tvec_t_base_s_tv1,
                         "tvec_t_base_s", "tv1");
-	        MEMBER_OFFSET_INIT(tvec_root_s_vec, 
+	        MEMBER_OFFSET_INIT(tvec_root_s_vec,
 			"tvec_root_s", "vec");
 	        STRUCT_SIZE_INIT(tvec_s, "tvec_s");
 	        MEMBER_OFFSET_INIT(tvec_s_vec, "tvec_s", "vec");
@@ -515,7 +515,7 @@ kernel_init()
                		STRUCT_SIZE_INIT(tvec_t_base_s, "tvec_base");
                 	MEMBER_OFFSET_INIT(tvec_t_base_s_tv1,
                         	"tvec_base", "tv1");
-	        	MEMBER_OFFSET_INIT(tvec_root_s_vec, 
+	        	MEMBER_OFFSET_INIT(tvec_root_s_vec,
 				"tvec_root", "vec");
 	        	STRUCT_SIZE_INIT(tvec_s, "tvec");
 	        	MEMBER_OFFSET_INIT(tvec_s_vec, "tvec", "vec");
@@ -536,9 +536,9 @@ kernel_init()
         } else {
                	STRUCT_SIZE_INIT(wait_queue, "wait_queue");
 		if (VALID_STRUCT(wait_queue)) {
-               		MEMBER_OFFSET_INIT(wait_queue_task, 
+               		MEMBER_OFFSET_INIT(wait_queue_task,
 				"wait_queue", "task");
-               		MEMBER_OFFSET_INIT(wait_queue_next, 
+               		MEMBER_OFFSET_INIT(wait_queue_next,
 				"wait_queue", "next");
 		}
 	}
@@ -565,7 +565,7 @@ kernel_init()
 	}
 
 	STRUCT_SIZE_INIT(cdev, "cdev");
-	if (VALID_STRUCT(cdev)) 
+	if (VALID_STRUCT(cdev))
 		MEMBER_OFFSET_INIT(cdev_ops, "cdev", "ops");
 
 	STRUCT_SIZE_INIT(probe, "probe");
@@ -576,10 +576,10 @@ kernel_init()
 	}
 
 	STRUCT_SIZE_INIT(kobj_map, "kobj_map");
-	if (VALID_STRUCT(kobj_map)) 
+	if (VALID_STRUCT(kobj_map))
 		MEMBER_OFFSET_INIT(kobj_map_probes, "kobj_map", "probes");
 
-	MEMBER_OFFSET_INIT(module_kallsyms_start, "module", 
+	MEMBER_OFFSET_INIT(module_kallsyms_start, "module",
 		"kallsyms_start");
 
 	STRUCT_SIZE_INIT(kallsyms_header, "kallsyms_header");
@@ -610,7 +610,7 @@ kernel_init()
 			"kallsyms_section", "name_off");
 		STRUCT_SIZE_INIT(kallsyms_symbol, "kallsyms_symbol");
 		STRUCT_SIZE_INIT(kallsyms_section, "kallsyms_section");
-			
+
 		if (!(kt->flags & NO_KALLSYMS))
 			kt->flags |= KALLSYMS_V1;
 	}
@@ -620,18 +620,18 @@ kernel_init()
 	if (VALID_MEMBER(module_num_symtab)) {
 		MEMBER_OFFSET_INIT(module_symtab, "module", "symtab");
 		MEMBER_OFFSET_INIT(module_strtab, "module", "strtab");
-			
+
 		if (!(kt->flags & NO_KALLSYMS))
 			kt->flags |= KALLSYMS_V2;
 	}
 
 	if (!(kt->flags & DWARF_UNWIND))
-		kt->flags |= NO_DWARF_UNWIND; 
+		kt->flags |= NO_DWARF_UNWIND;
 
-	/* 
-	 *  OpenVZ 
+	/*
+	 *  OpenVZ
 	 */
-	if (kernel_symbol_exists("pcpu_info") && 
+	if (kernel_symbol_exists("pcpu_info") &&
 	    STRUCT_EXISTS("pcpu_info") && STRUCT_EXISTS("vcpu_struct")) {
 		MEMBER_OFFSET_INIT(pcpu_info_vcpu, "pcpu_info", "vcpu");
 		MEMBER_OFFSET_INIT(pcpu_info_idle, "pcpu_info", "idle");
@@ -650,23 +650,23 @@ kernel_init()
 	 */
 	STRUCT_SIZE_INIT(hrtimer_clock_base, "hrtimer_clock_base");
 	if (VALID_STRUCT(hrtimer_clock_base)) {
-		MEMBER_OFFSET_INIT(hrtimer_clock_base_offset, 
+		MEMBER_OFFSET_INIT(hrtimer_clock_base_offset,
 			"hrtimer_clock_base", "offset");
-		MEMBER_OFFSET_INIT(hrtimer_clock_base_active, 
+		MEMBER_OFFSET_INIT(hrtimer_clock_base_active,
 			"hrtimer_clock_base", "active");
-		MEMBER_OFFSET_INIT(hrtimer_clock_base_first, 
+		MEMBER_OFFSET_INIT(hrtimer_clock_base_first,
 			"hrtimer_clock_base", "first");
-		MEMBER_OFFSET_INIT(hrtimer_clock_base_get_time, 
+		MEMBER_OFFSET_INIT(hrtimer_clock_base_get_time,
 			"hrtimer_clock_base", "get_time");
 	}
 
 	STRUCT_SIZE_INIT(hrtimer_base, "hrtimer_base");
 	if (VALID_STRUCT(hrtimer_base)) {
-		MEMBER_OFFSET_INIT(hrtimer_base_first, 
+		MEMBER_OFFSET_INIT(hrtimer_base_first,
 			"hrtimer_base", "first");
-		MEMBER_OFFSET_INIT(hrtimer_base_pending, 
+		MEMBER_OFFSET_INIT(hrtimer_base_pending,
 			"hrtimer_base", "pending");
-		MEMBER_OFFSET_INIT(hrtimer_base_get_time, 
+		MEMBER_OFFSET_INIT(hrtimer_base_get_time,
 			"hrtimer_base", "get_time");
 	}
 
@@ -679,11 +679,11 @@ kernel_init()
 	if (INVALID_MEMBER(hrtimer_expires))
 		MEMBER_OFFSET_INIT(hrtimer_expires, "hrtimer", "_expires");
 	if (INVALID_MEMBER(hrtimer_expires)) {
-		MEMBER_OFFSET_INIT(timerqueue_head_next, 
+		MEMBER_OFFSET_INIT(timerqueue_head_next,
 			"timerqueue_head", "next");
-		MEMBER_OFFSET_INIT(timerqueue_node_expires, 
+		MEMBER_OFFSET_INIT(timerqueue_node_expires,
 			"timerqueue_node", "expires");
-		MEMBER_OFFSET_INIT(timerqueue_node_node, 
+		MEMBER_OFFSET_INIT(timerqueue_node_node,
 			"timerqueue_node_node", "node");
 	}
 	MEMBER_OFFSET_INIT(hrtimer_softexpires, "hrtimer", "_softexpires");
@@ -706,7 +706,7 @@ kernel_init()
  * Get cpu map address.  Types are: possible, online, present and active.
  * They exist as either:
  *
- *  (1) cpu_<type>_map symbols, or 
+ *  (1) cpu_<type>_map symbols, or
  *  (2) what is pointed to by cpu_<type>_mask
  */
 ulong
@@ -777,7 +777,7 @@ cpu_map_size(const char *type)
 /*
  *  If the cpu_present_map, cpu_online_map and cpu_possible_maps exist,
  *  set up the kt->cpu_flags[NR_CPUS] with their settings.
- */ 
+ */
 static void
 cpu_maps_init(void)
 {
@@ -817,11 +817,11 @@ cpu_maps_init(void)
 				if (*maskptr & (0x1UL << c)) {
 					cpu = (i * BITS_PER_LONG) + c;
 					if (cpu >= NR_CPUS) {
-						error(WARNING, 
+						error(WARNING,
 						    "cpu_%s_%s indicates more than"
 						    " %d (NR_CPUS) cpus\n",
-							mapinfo[m].name, 
-							cpu_map_type(mapinfo[m].name), 
+							mapinfo[m].name,
+							cpu_map_type(mapinfo[m].name),
 							NR_CPUS);
 						break;
 					}
@@ -914,10 +914,10 @@ verify_version(void)
 		get_symbol_data("linux_banner", sizeof(ulong), &linux_banner);
 
 	if (!IS_KVADDR(linux_banner))
-		error(WARNING, "invalid linux_banner pointer: %lx\n", 
+		error(WARNING, "invalid linux_banner pointer: %lx\n",
 			linux_banner);
 
-	if (!accessible(linux_banner)) 
+	if (!accessible(linux_banner))
 		goto bad_match;
 
 	if (!read_string(linux_banner, buf, BUFSIZE-1))
@@ -927,18 +927,18 @@ verify_version(void)
 		len = strlen(kt->proc_version);
 		if ((len > 0) && (strncmp(buf, kt->proc_version, len) != 0)) {
                		if (CRASHDEBUG(1)) {
-                        	fprintf(fp, "/proc/version:\n%s\n", 
+                        	fprintf(fp, "/proc/version:\n%s\n",
 					kt->proc_version);
                         	fprintf(fp, "linux_banner:\n%s\n", buf);
                 	}
 			goto bad_match;
-		} else if (CRASHDEBUG(1)) 
+		} else if (CRASHDEBUG(1))
                        	fprintf(fp, "linux_banner:\n%s\n", buf);
 	}
 
 	if (DUMPFILE()) {
 		if (!STRNEQ(buf, "Linux version")) {
-                	if (CRASHDEBUG(1)) 
+                	if (CRASHDEBUG(1))
                         	fprintf(fp, "linux_banner:\n%s\n", buf);
 			goto bad_match;
 		}
@@ -985,7 +985,7 @@ verify_version(void)
 			break;
 		default:
 			kt->gcc_version[0] = atoi(arglist[0]);
-			kt->gcc_version[1] = atoi(arglist[1]);		
+			kt->gcc_version[1] = atoi(arglist[1]);
 			kt->gcc_version[2] = atoi(arglist[2]);
 			break;
 		}
@@ -1003,8 +1003,8 @@ bad_match:
 		sprintf(buf, ACTIVE() ? pc->live_memsrc : pc->dumpfile);
 
 	error(INFO, "%s and %s do not match!\n",
-		pc->system_map ? pc->system_map : 
-		pc->namelist_debug ? pc->namelist_debug : pc->namelist, buf); 
+		pc->system_map ? pc->system_map :
+		pc->namelist_debug ? pc->namelist_debug : pc->namelist, buf);
 
 	program_usage(SHORT_FORM);
 }
@@ -1048,7 +1048,7 @@ non_matching_kernel(void)
 	if (pc->debuginfo_file)
 		kernels++;
 
-	fprintf(fp, 
+	fprintf(fp,
 "\nErrors like the one above typically occur when the kernel%s and memory source\ndo not match.  These are the files being used:\n\n", kernels > 1 ? "s" : "");
 
         if (REMOTE()) {
@@ -1073,7 +1073,7 @@ non_matching_kernel(void)
                 	fprintf(fp, "  SYSTEM MAP: %s\n", pc->system_map);
                 	fprintf(fp, "DEBUG KERNEL: %s %s\n", pc->namelist,
                 		debug_kernel_version(pc->namelist));
-				
+
 		} else
 			fprintf(fp, "      KERNEL: %s\n", pc->namelist);
 		if (pc->namelist_orig)
@@ -1085,13 +1085,13 @@ non_matching_kernel(void)
 		fprintf(fp, "   DEBUGINFO: %s\n", pc->debuginfo_file);
 		if (STREQ(pc->debuginfo_file, pc->namelist_debug) &&
 		    pc->namelist_debug_orig)
-			fprintf(fp, "              (uncompressed from %s)\n", 
+			fprintf(fp, "              (uncompressed from %s)\n",
 				pc->namelist_debug_orig);
 	} else if (pc->namelist_debug) {
 		fprintf(fp, "DEBUG KERNEL: %s %s\n", pc->namelist_debug,
 			debug_kernel_version(pc->namelist_debug));
 		if (pc->namelist_debug_orig)
-			fprintf(fp, "              (uncompressed from %s)\n", 
+			fprintf(fp, "              (uncompressed from %s)\n",
 				pc->namelist_debug_orig);
 	}
 
@@ -1103,7 +1103,7 @@ non_matching_kernel(void)
                 if (REMOTE_ACTIVE())
                         fprintf(fp, "%s@%s  (remote live system)\n",
                                 pc->server_memsrc, pc->server);
-                else 
+                else
                         fprintf(fp, "%s\n", pc->live_memsrc);
         } else {
                 if (REMOTE_DUMPFILE())
@@ -1124,10 +1124,10 @@ non_matching_kernel(void)
 	fprintf(fp, "\n\n");
 
 	if ((pc->flags & FINDKERNEL) && !(pc->system_map)) {
-		fprintf(fp, 
+		fprintf(fp,
 		   "The kernel \"%s\" is most likely incorrect.\n",
 			pc->namelist);
-		fprintf(fp, 
+		fprintf(fp,
          "Try a different kernel name, or use a System.map file argument.\n\n");
 	}
 
@@ -1135,7 +1135,7 @@ non_matching_kernel(void)
 }
 
 /*
- *  Only two checks are made here: 
+ *  Only two checks are made here:
  *
  *    1. if the namelist is SMP and the memory source isn't, bail out.
  *    2. if the basic gcc versions differ, issue a warning only.
@@ -1197,7 +1197,7 @@ verify_namelist()
 		if ((p1 = strstr(buffer, "(gcc version "))) {
 			p1 += strlen("(gcc version ");
 			i = 0;
-			while (*p1 != ' ') 
+			while (*p1 != ' ')
 				buffer3[i++] = *p1++;
 			buffer3[i] = NULLCHAR;
 		}
@@ -1209,20 +1209,20 @@ verify_namelist()
 	if (!found && (p1 = strstr(kt->proc_version, "(gcc version "))) {
 		p1 += strlen("(gcc version ");
 		i = 0;
-		while (*p1 != ' ') 
+		while (*p1 != ' ')
 			buffer4[i++] = *p1++;
 		buffer4[i] = NULLCHAR;
 		if (!STREQ(buffer3, buffer4)) {
         		if (REMOTE())
-                		sprintf(buffer, "%s:%s kernel", 
+                		sprintf(buffer, "%s:%s kernel",
 					pc->server, pc->server_memsrc);
         		else
-                		sprintf(buffer, "%s kernel", ACTIVE() ? 
+                		sprintf(buffer, "%s kernel", ACTIVE() ?
 					"live system" : pc->dumpfile);
         		sprintf(buffer5, "  %s: %s\n  %s: %s\n\n",
                 		namelist, buffer3,
                 		buffer, buffer4);
-        		error(WARNING, 
+        		error(WARNING,
 		           "kernels compiled by different gcc versions:\n%s",
 				buffer5);
 		}
@@ -1231,7 +1231,7 @@ verify_namelist()
 	if (found) {
                 if (CRASHDEBUG(1)) {
                 	fprintf(fp, "verify_namelist:\n");
-			fprintf(fp, "%s /proc/version:\n%s\n", 
+			fprintf(fp, "%s /proc/version:\n%s\n",
 				ACTIVE() ? "live memory" : "dumpfile",
 				kt->proc_version);
 			fprintf(fp, "%s:\n%s\n", namelist, buffer);
@@ -1239,18 +1239,18 @@ verify_namelist()
 		return;
 	}
 
-	if (!(pc->flags & SYSMAP_ARG)) 
-		error(WARNING, 
+	if (!(pc->flags & SYSMAP_ARG))
+		error(WARNING,
 		    "kernel version inconsistency between vmlinux and %s\n\n",
 			ACTIVE() ? "live memory" : "dumpfile");
-		 
+
         if (CRASHDEBUG(1)) {
-		error(WARNING, 
+		error(WARNING,
 		    "\ncannot find matching kernel version in %s file:\n\n",
 			namelist);
-			
+
                	fprintf(fp, "verify_namelist:\n");
-                fprintf(fp, "%s /proc/version:\n%s\n", 
+                fprintf(fp, "%s /proc/version:\n%s\n",
 			ACTIVE() ? "live memory" : "dumpfile",
 			kt->proc_version);
                 fprintf(fp, "%s:\n%s\n", namelist, buffer2);
@@ -1285,9 +1285,9 @@ verify_namelist()
  *      at the target address.
  *   2. if a count is NOT entered, and the target address is the starting
  *      address of a function, disassemble the whole function.
- *   3. if the target address is other than the starting address of a 
- *      function, and no count argument is appended, then disassemble one 
- *      instruction. 
+ *   3. if the target address is other than the starting address of a
+ *      function, and no count argument is appended, then disassemble one
+ *      instruction.
  *   4. If the -r option is used, disassemble all instructions in a routine
  *      up to and including the target address.
  *   5. If -u option, just pass the user address and count, ignoring any of
@@ -1300,7 +1300,7 @@ void
 cmd_dis(void)
 {
 	int c;
-	int do_load_module_filter, do_machdep_filter, reverse; 
+	int do_load_module_filter, do_machdep_filter, reverse;
 	int unfiltered, user_mode, count_entered, bug_bytes_entered;
 	unsigned int radix;
 	ulong curaddr;
@@ -1309,14 +1309,14 @@ cmd_dis(void)
 	ulong offset;
 	struct syment *sp;
 	struct gnu_request *req;
-	char *savename; 
+	char *savename;
 	char *ret ATTRIBUTE_UNUSED;
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
 	char buf3[BUFSIZE];
 	char buf4[BUFSIZE];
 	char buf5[BUFSIZE];
-	
+
 	if ((argcnt == 2) && STREQ(args[1], "-b")) {
 		fprintf(fp, "encoded bytes being skipped after ud2a: ");
 		if (kt->BUG_bytes < 0)
@@ -1341,7 +1341,7 @@ cmd_dis(void)
 		{
 		case 'd':
 			if (radix == 16)
-				error(FATAL, 
+				error(FATAL,
 				    "-d and -x are mutually exclusive\n");
 			radix = 10;
 			break;
@@ -1349,7 +1349,7 @@ cmd_dis(void)
 		case 'x':
 		case 'h':
 			if (radix == 10)
-				error(FATAL, 
+				error(FATAL,
 				    "-d and -x are mutually exclusive\n");
 			radix = 16;
 			break;
@@ -1393,13 +1393,13 @@ cmd_dis(void)
 		radix = pc->output_radix;
 
         if (args[optind]) {
-                if (can_eval(args[optind])) 
+                if (can_eval(args[optind]))
                         req->addr = eval(args[optind], FAULT_ON_ERROR, NULL);
                 else if (hexadecimal(args[optind], 0)) {
                         req->addr = htol(args[optind], FAULT_ON_ERROR, NULL);
-			if (!user_mode && 
+			if (!user_mode &&
 			    !(sp = value_search(req->addr, &offset))) {
-				error(WARNING, 
+				error(WARNING,
 				    "%lx: no associated kernel symbol found\n",
 					req->addr);
 				unfiltered = TRUE;
@@ -1419,10 +1419,10 @@ cmd_dis(void)
 
                 if (args[++optind]) {
 			if (reverse) {
-				error(INFO, 
+				error(INFO,
 			            "count argument ignored with -r option\n");
 			} else {
-                        	req->count = stol(args[optind], 
+                        	req->count = stol(args[optind],
 					FAULT_ON_ERROR, NULL);
 				req->flags &= ~GNU_FUNCTION_ONLY;
 				count_entered++;
@@ -1430,25 +1430,25 @@ cmd_dis(void)
 		}
 
 		if (unfiltered) {
-                	sprintf(buf1, "x/%ldi 0x%lx",  
+                	sprintf(buf1, "x/%ldi 0x%lx",
 				req->count ? req->count : 1, req->addr);
         		gdb_pass_through(buf1, NULL, GNU_RETURN_ON_ERROR);
 			return;
 		}
 
-		if (!user_mode && !IS_KVADDR(req->addr)) 
+		if (!user_mode && !IS_KVADDR(req->addr))
 			error(FATAL, "%lx is not a kernel virtual address\n",
 				req->addr);
 
 		if (user_mode) {
-                	sprintf(buf1, "x/%ldi 0x%lx",  
+                	sprintf(buf1, "x/%ldi 0x%lx",
 				req->count ? req->count : 1, req->addr);
 			pc->curcmd_flags |= MEMTYPE_UVADDR;
         		gdb_pass_through(buf1, NULL, GNU_RETURN_ON_ERROR);
 			return;
 		}
 
-		do_load_module_filter = module_symbol(req->addr, NULL, NULL, 
+		do_load_module_filter = module_symbol(req->addr, NULL, NULL,
 			NULL, *gdb_output_radix);
 
 		if (!reverse) {
@@ -1463,14 +1463,14 @@ cmd_dis(void)
                                         if ((sp = next_symbol(NULL, sp)))
                                                 req->addr2 = sp->value;
 					else
-                                		error(FATAL, 
+                                		error(FATAL,
 				        "unable to determine symbol after %s\n",
                                         		savename);
 				} else {
 					if ((sp = value_search(req->addr, NULL))
                                              && (sp = next_symbol(NULL, sp)))
-						req->addr2 = sp->value;	
-					else 
+						req->addr2 = sp->value;
+					else
 						error(FATAL, dis_err, req->addr);
 				}
                         }
@@ -1484,9 +1484,9 @@ cmd_dis(void)
 			gdb_interface(req);
 #else
 			sprintf(buf1, "x/%ldi 0x%lx",
-                                count_entered && req->count ? req->count : 
-				req->flags & GNU_FUNCTION_ONLY ? 
-				req->addr2 - req->addr : 1, 
+                                count_entered && req->count ? req->count :
+				req->flags & GNU_FUNCTION_ONLY ?
+				req->addr2 - req->addr : 1,
 				req->addr);
         		gdb_pass_through(buf1, NULL, GNU_RETURN_ON_ERROR);
 #endif
@@ -1506,7 +1506,7 @@ cmd_dis(void)
 				if (do_load_module_filter)
 					load_module_filter(buf2, LM_DIS_FILTER);
 
-				if (STRNEQ(buf2, "0x")) 
+				if (STRNEQ(buf2, "0x"))
 					extract_hex(buf2, &curaddr, ':', TRUE);
 
 				if ((req->flags & GNU_FUNCTION_ONLY) &&
@@ -1517,7 +1517,7 @@ cmd_dis(void)
 					machdep->dis_filter(curaddr, buf2, radix);
 
 				if (req->flags & GNU_FUNCTION_ONLY) {
-                                        if (req->flags & 
+                                        if (req->flags &
                                             GNU_PRINT_LINE_NUMBERS) {
                                                 get_line_number(curaddr, buf3,
                                                         FALSE);
@@ -1530,15 +1530,15 @@ cmd_dis(void)
                                                 }
                                         }
 
-                			print_verbatim(pc->saved_fp, buf2); 
+                			print_verbatim(pc->saved_fp, buf2);
 					continue;
 				} else {
-					if (curaddr < req->addr) 
+					if (curaddr < req->addr)
 						continue;
 
-                			if (req->flags & 
+                			if (req->flags &
 					    GNU_PRINT_LINE_NUMBERS) {
-                        			get_line_number(curaddr, buf3, 
+                        			get_line_number(curaddr, buf3,
 							FALSE);
                         			if (!STREQ(buf3, buf4)) {
                                 			print_verbatim(
@@ -1547,11 +1547,11 @@ cmd_dis(void)
 						            pc->saved_fp, "\n");
                                 			strcpy(buf4, buf3);
                         			}
-                			} 
+                			}
 
                 			print_verbatim(pc->saved_fp, buf2);
 
-					if (LASTCHAR(clean_line(buf2)) 
+					if (LASTCHAR(clean_line(buf2))
 						!= ':') {
 						if (++count == req->count)
 							break;
@@ -1599,7 +1599,7 @@ cmd_dis(void)
 	gdb_interface(req);
 #else
         sprintf(buf5, "x/%ldi 0x%lx",
-        	(revtarget - req->addr) ? revtarget - req->addr : 1, 
+        	(revtarget - req->addr) ? revtarget - req->addr : 1,
 		req->addr);
         gdb_pass_through(buf5, NULL, GNU_RETURN_ON_ERROR);
 #endif
@@ -1635,7 +1635,7 @@ cmd_dis(void)
 
                 print_verbatim(pc->saved_fp, buf2);
                 if (STRNEQ(buf2, buf1)) {
-                	if (LASTCHAR(clean_line(buf2)) != ':') 
+                	if (LASTCHAR(clean_line(buf2)) != ':')
                         	break;
 
         		ret = fgets(buf2, BUFSIZE, pc->tmpfile);
@@ -1643,7 +1643,7 @@ cmd_dis(void)
                 	if (do_load_module_filter)
                         	load_module_filter(buf2, LM_DIS_FILTER);
 
-			if (do_machdep_filter) 
+			if (do_machdep_filter)
 				machdep->dis_filter(curaddr, buf2, radix);
 
                 	print_verbatim(pc->saved_fp, buf2);
@@ -1659,7 +1659,7 @@ cmd_dis(void)
 /*
  *  x86 and x86_64 kernels may have file/line-number encoding
  *  asm()'d in just after the "ud2a" instruction, which confuses
- *  the disassembler and the x86 backtracer.  Determine the 
+ *  the disassembler and the x86 backtracer.  Determine the
  *  number of bytes to skip.
  */
 static void
@@ -1684,12 +1684,12 @@ BUG_x86(void)
 	/*
 	 *  Prior to 2.4.19, a call to do_BUG() preceded
 	 *  the standalone ud2a instruction.
-	 */ 
+	 */
 	if (THIS_KERNEL_VERSION < LINUX(2,4,19))
 		return 0;
 
 	/*
-	 *  2.6.20 introduced __bug_table support for i386, 
+	 *  2.6.20 introduced __bug_table support for i386,
 	 *  but even if CONFIG_DEBUG_BUGVERBOSE is not configured,
 	 *  the ud2a stands alone.
 	 */
@@ -1697,7 +1697,7 @@ BUG_x86(void)
 		return 0;
 
 	/*
-	 *  For previous kernel versions, it may depend upon 
+	 *  For previous kernel versions, it may depend upon
 	 *  whether CONFIG_DEBUG_BUGVERBOSE was configured:
 	 *
 	 *   #ifdef CONFIG_DEBUG_BUGVERBOSE
@@ -1754,9 +1754,9 @@ BUG_x86(void)
 		if (parse_line(buf2, arglist) < 3)
 			continue;
 
-		if ((vaddr = htol(strip_ending_char(arglist[0], ':'), 
+		if ((vaddr = htol(strip_ending_char(arglist[0], ':'),
 		    RETURN_ON_ERROR|QUIET, NULL)) >= spn->value)
-			continue; 
+			continue;
 
 		if (STREQ(arglist[2], "ud2a")) {
 			found = TRUE;
@@ -1771,13 +1771,13 @@ BUG_x86(void)
 
 	if (!IS_KVADDR(fileptr)) {
 		if (CRASHDEBUG(1))
-			fprintf(fp, 
+			fprintf(fp,
 			    "no filename pointer: kt->BUG_bytes: 0\n");
 		return 0;
 	}
 
 	if (!read_string(fileptr, buf1, BUFSIZE-1))
-		error(WARNING, 
+		error(WARNING,
 		    "cannot read BUG (ud2a) encoded filename address: %lx\n",
 			fileptr);
 	else if (CRASHDEBUG(1))
@@ -1801,14 +1801,14 @@ BUG_x86_64(void)
 	 *  The original bug_frame structure looks like this, which
 	 *  causes the disassembler to go off into the weeds:
 	 *
-	 *    struct bug_frame { 
-	 *        unsigned char ud2[2];          
-	 *        char *filename;  
-	 *        unsigned short line; 
-	 *    } 
-	 *  
-	 *  In 2.6.13, fake push and ret instructions were encoded 
-	 *  into the frame so that the disassembly would at least 
+	 *    struct bug_frame {
+	 *        unsigned char ud2[2];
+	 *        char *filename;
+	 *        unsigned short line;
+	 *    }
+	 *
+	 *  In 2.6.13, fake push and ret instructions were encoded
+	 *  into the frame so that the disassembly would at least
 	 *  "work", although the two fake instructions show nonsensical
 	 *  arguments:
 	 *
@@ -1819,7 +1819,7 @@ BUG_x86_64(void)
 	 *        unsigned char ret;
 	 *        unsigned short line;
 	 *    }
-	 */  
+	 */
 
 	if (STRUCT_EXISTS("bug_frame"))
 		return (int)(STRUCT_SIZE("bug_frame") - 2);
@@ -1849,7 +1849,7 @@ next_text_symbol(struct syment *sp_in)
 	return next_symbol(NULL, sp_in);
 	struct syment *sp;
 
-	sp = sp_in; 
+	sp = sp_in;
 	while ((sp = next_symbol(NULL, sp))) {
 		if (STREQ(sp->name, "__constant_c_and_count_memset") ||
 		    STREQ(sp->name, "__constant_copy_from_user") ||
@@ -1883,7 +1883,7 @@ generic_dis_filter(ulong value, char *buf, unsigned int output_radix)
 
 /*
  *  Display a kernel stack backtrace.  Arguments may be any number pid or task
- *  values, or, if no arguments are given, the stack trace of the current 
+ *  values, or, if no arguments are given, the stack trace of the current
  *  context will be displayed.  Alternatively:
  *
  *     -a  displays the stack traces of the active tasks on each CPU.
@@ -1920,7 +1920,7 @@ clone_bt_info(struct bt_info *orig, struct bt_info *new,
 		print_task_header(fp, tc, subsequent++);	\
 	back_trace(bt);						\
 	}
- 
+
 #define DO_THREAD_GROUP_BACKTRACE()	 			\
 	{							\
 	tc = pid_to_context(tgid);				\
@@ -1998,12 +1998,12 @@ cmd_bt(void)
 
 		case 'O':
 			if (!(machine_type("X86") || machine_type("X86_64")) ||
-			    XEN_HYPER_MODE()) 
+			    XEN_HYPER_MODE())
 				option_not_supported(c);
-			else if (kt->flags & USE_OLD_BT) { 
-				/* 
+			else if (kt->flags & USE_OLD_BT) {
+				/*
 				 *  Make this setting idempotent across the use of
-				 *  $HOME/.crashrc, ./.crashrc, and "-i input" files. 
+				 *  $HOME/.crashrc, ./.crashrc, and "-i input" files.
 				 *  If we've been here before during initialization,
 				 *  leave it alone.
 			 	 */
@@ -2020,12 +2020,12 @@ cmd_bt(void)
 			return;
 
 		case 'R':
-			if (refptr) 
+			if (refptr)
 				error(INFO, "only one -R option allowed\n");
-			else 
+			else
 				refptr = optarg;
 			break;
-			
+
 		case 'l':
 			if (GDB_PATCHED())
 				error(INFO, "line numbers are not available\n");
@@ -2070,7 +2070,7 @@ cmd_bt(void)
 
 		case 'I':
 			bt->hp = &hook;
-			hook.eip = convert(optarg, FAULT_ON_ERROR, 
+			hook.eip = convert(optarg, FAULT_ON_ERROR,
 				NULL, NUM_HEX|NUM_EXPR);
 			break;
 
@@ -2115,7 +2115,7 @@ cmd_bt(void)
 			bt->hp = &hook;
 			hook.esp = htol(optarg, FAULT_ON_ERROR, NULL);
 			if (!hook.esp)
-				error(FATAL, 
+				error(FATAL,
 				    "invalid stack address for this task: 0\n");
 			break;
 
@@ -2154,8 +2154,8 @@ cmd_bt(void)
 		if (machdep->flags & FRAMESIZE_DEBUG) {
 			while (args[optind]) {
 				if (!hook.eip)
-                       			hook.eip = convert(args[optind], 
-						FAULT_ON_ERROR, NULL, 
+                       			hook.eip = convert(args[optind],
+						FAULT_ON_ERROR, NULL,
 						NUM_HEX|NUM_EXPR);
 				else {
 					fprintf(fp, FRAMESIZE_DEBUG_MESSAGE);
@@ -2188,7 +2188,7 @@ cmd_bt(void)
 				fake_tc.task = xen_hyper_pcpu_to_active_vcpu(c);
 				BT_SETUP(&fake_tc);
 			        if (!BT_REFERENCE_CHECK(bt))
-					xen_hyper_print_bt_header(fp, fake_tc.task, 
+					xen_hyper_print_bt_header(fp, fake_tc.task,
 						subsequent++);
 				back_trace(bt);
 			}
@@ -2212,11 +2212,11 @@ cmd_bt(void)
 
 	if (active) {
 		if (LIVE())
-			error(FATAL, 
+			error(FATAL,
 			    "-a option not supported on a live system or live dump\n");
 
 		if (bt->flags & BT_THREAD_GROUP)
-			error(FATAL, 
+			error(FATAL,
 			    "-a option cannot be used with the -g option\n");
 
 		for (c = 0; c < NR_CPUS; c++) {
@@ -2264,7 +2264,7 @@ cmd_bt(void)
 					pc->flags |= IN_FOREACH;
 					DO_TASK_BACKTRACE();
 					pc->flags &= ~IN_FOREACH;
-				} else 
+				} else
 					DO_TASK_BACKTRACE();
 			}
 			break;
@@ -2306,7 +2306,7 @@ print_stack_text_syms(struct bt_info *bt, ulong esp, ulong eip)
 		        	closest_symbol(eip), eip);
 	}
 
-	if (bt->hp) 
+	if (bt->hp)
 		bt->hp->eip = bt->hp->esp = 0;
 	next_pc = next_sp = 0;
 
@@ -2314,20 +2314,20 @@ print_stack_text_syms(struct bt_info *bt, ulong esp, ulong eip)
 	     i < LONGS_PER_STACK; i++) {
 		up = (ulong *)(&bt->stackbuf[i*sizeof(ulong)]);
 		if (is_kernel_text_offset(*up)) {
-			if (!next_pc) 
+			if (!next_pc)
 				next_pc = *up;
-			else if (!next_sp) 
+			else if (!next_sp)
 				next_sp = bt->stackbase + (i * sizeof(long));
 		}
-		if (is_kernel_text(*up) && (bt->flags & 
-		    (BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT))) { 
+		if (is_kernel_text(*up) && (bt->flags &
+		    (BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT))) {
 			if (bt->flags & (BT_ERROR_MASK|BT_TEXT_SYMBOLS)) {
                                	fprintf(fp, "  %s[%s] %s at %lx",
 					bt->flags & BT_ERROR_MASK ?
 					"  " : "",
-					mkstring(buf1, VADDR_PRLEN, 
+					mkstring(buf1, VADDR_PRLEN,
 					RJUST|LONG_HEX,
-                               		MKSTR(bt->stackbase + 
+                               		MKSTR(bt->stackbase +
 					(i * sizeof(long)))),
 					bt->flags & BT_SYMBOL_OFFSET ?
 					value_to_symstr(*up, buf2, bt->radix) :
@@ -2337,7 +2337,7 @@ print_stack_text_syms(struct bt_info *bt, ulong esp, ulong eip)
 				fprintf(fp, "\n");
 			} else
                                	fprintf(fp, "%lx: %s\n",
-                                       	bt->stackbase + 
+                                       	bt->stackbase +
 					(i * sizeof(long)),
                                        	value_to_symstr(*up, buf1, 0));
 		}
@@ -2366,7 +2366,7 @@ in_alternate_stack(int cpu, ulong address)
 }
 
 /*
- *  Gather the EIP, ESP and stack address for the target task, and passing 
+ *  Gather the EIP, ESP and stack address for the target task, and passing
  *  them on to the machine-specific back trace command.
  */
 void
@@ -2381,20 +2381,20 @@ back_trace(struct bt_info *bt)
 	if (bt->flags & BT_RAW) {
 		if (bt->hp && bt->hp->esp)
 			esp = bt->hp->esp;
-		else 
+		else
 			esp = GET_STACKBASE(bt->task);
 		raw_stack_dump(esp, STACKSIZE());
 		return;
 	}
 
-	if (LIVE() && !(bt->flags & BT_EFRAME_SEARCH) && 
+	if (LIVE() && !(bt->flags & BT_EFRAME_SEARCH) &&
             ((bt->task == tt->this_task) || is_task_active(bt->task))) {
 
 		if (BT_REFERENCE_CHECK(bt) ||
 		    bt->flags & (BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT))
 			return;
 
-		if (!(bt->flags & 
+		if (!(bt->flags &
 		    (BT_KSTACKP|BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_ALL)))
 			fprintf(fp, "(active)\n");
 
@@ -2405,12 +2405,12 @@ back_trace(struct bt_info *bt)
 	fill_stackbuf(bt);
 
 	if (CRASHDEBUG(4)) {
-		for (i = 0, up = (ulong *)bt->stackbuf; 
+		for (i = 0, up = (ulong *)bt->stackbuf;
 		     i < LONGS_PER_STACK; i++, up++) {
 			if (is_kernel_text(*up))
-				fprintf(fp, "%lx: %s\n", 
+				fprintf(fp, "%lx: %s\n",
 					tt->flags & THREAD_INFO ?
-					bt->tc->thread_info + 
+					bt->tc->thread_info +
 					(i * sizeof(long)) :
 					bt->task + (i * sizeof(long)),
 					value_to_symstr(*up, buf, 0));
@@ -2419,11 +2419,11 @@ back_trace(struct bt_info *bt)
 
 	if (BT_REFERENCE_CHECK(bt)) {
 		if (can_eval(bt->ref->str)) {
-			bt->ref->hexval = eval(bt->ref->str, 
+			bt->ref->hexval = eval(bt->ref->str,
 				FAULT_ON_ERROR, NULL);
 			bt->ref->cmdflags |= BT_REF_HEXVAL;
 		} else if (hexadecimal(bt->ref->str, 0)) {
-			bt->ref->hexval = htol(bt->ref->str, 
+			bt->ref->hexval = htol(bt->ref->str,
 				FAULT_ON_ERROR, NULL);
 			bt->ref->cmdflags |= BT_REF_HEXVAL;
 		} else
@@ -2431,14 +2431,14 @@ back_trace(struct bt_info *bt)
 	}
 
 	if (bt->flags & BT_EFRAME_SEARCH) {
-		machdep->eframe_search(bt); 
+		machdep->eframe_search(bt);
 		return;
 	}
-	
+
 	if (bt->hp) {
 		if (bt->hp->esp && !INSTACK(bt->hp->esp, bt) &&
 		    !in_alternate_stack(bt->tc->processor, bt->hp->esp))
-			error(FATAL, 
+			error(FATAL,
 		    	    "non-process stack address for this task: %lx\n"
 			    "    (valid range: %lx - %lx)\n",
 				bt->hp->esp, bt->stackbase, bt->stacktop);
@@ -2446,7 +2446,7 @@ back_trace(struct bt_info *bt)
 		eip = bt->hp->eip;
 		esp = bt->hp->esp;
 
-		machdep->get_stack_frame(bt, eip ? NULL : &eip, 
+		machdep->get_stack_frame(bt, eip ? NULL : &eip,
 			esp ? NULL : &esp);
 
 		if (in_irq_ctx(BT_HARDIRQ, bt->tc->processor, esp)) {
@@ -2485,21 +2485,21 @@ back_trace(struct bt_info *bt)
 	}
 
 	if (ACTIVE() && !INSTACK(esp, bt)) {
-		sprintf(buf, "/proc/%ld", bt->tc->pid); 
+		sprintf(buf, "/proc/%ld", bt->tc->pid);
 		if (!file_exists(buf, NULL))
 			error(INFO, "task no longer exists\n");
-		else 
-			error(INFO, 
-			    "invalid/stale stack pointer for this task: %lx\n", 
+		else
+			error(INFO,
+			    "invalid/stale stack pointer for this task: %lx\n",
 				esp);
 		return;
 	}
 
-	if (bt->flags & 
+	if (bt->flags &
 	    (BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT)) {
 
 		if (bt->flags & BT_TEXT_SYMBOLS_ALL) {
-			esp = bt->stackbase + 
+			esp = bt->stackbase +
 				((tt->flags & THREAD_INFO) ?
 				SIZE(thread_info) : SIZE(task_struct));
 			eip = 0;
@@ -2534,7 +2534,7 @@ back_trace(struct bt_info *bt)
 					    OFFSET(thread_info_previous_esp));
 				else
 					btloc.hp->esp = ULONG(bt->stackbuf +
-					    SIZE(irq_ctx) - 
+					    SIZE(irq_ctx) -
 					    (sizeof(char *)*2));
 				fprintf(fp, "--- <hard IRQ> ---\n");
 				if (in_irq_ctx(BT_SOFTIRQ, bt->tc->processor, btloc.hp->esp)) {
@@ -2554,7 +2554,7 @@ back_trace(struct bt_info *bt)
 
 			back_trace(&btloc);
 		}
-		
+
 		return;
 	}
 
@@ -2571,7 +2571,7 @@ complete_trace:
 
 	machdep->back_trace(bt);
 
-	if ((bt->flags & (BT_HARDIRQ|BT_SOFTIRQ)) && restore_stack(bt))  
+	if ((bt->flags & (BT_HARDIRQ|BT_SOFTIRQ)) && restore_stack(bt))
 		goto complete_trace;
 
 	if (BT_REFERENCE_FOUND(bt)) {
@@ -2595,7 +2595,7 @@ complete_trace:
  *  Restore a bt_info to make the jump from an IRQ stack to the task's
  *  normal stack.
  */
-static int 
+static int
 restore_stack(struct bt_info *bt)
 {
 	ulonglong type;
@@ -2605,21 +2605,21 @@ restore_stack(struct bt_info *bt)
 	bt->instptr = bt->stkptr = 0;
 	type = 0;
 
-	switch (bt->flags & (BT_HARDIRQ|BT_SOFTIRQ)) 
-	{ 
+	switch (bt->flags & (BT_HARDIRQ|BT_SOFTIRQ))
+	{
 	case BT_HARDIRQ:
 		retvaddr = ULONG(bt->stackbuf +
 			SIZE(irq_ctx) - sizeof(char *));
-		if ((sp = value_search(retvaddr, NULL)) && 
+		if ((sp = value_search(retvaddr, NULL)) &&
 			STREQ(sp->name, "do_IRQ"))
-			bt->instptr = retvaddr; 
+			bt->instptr = retvaddr;
 		else
 			bt->instptr = symbol_value("do_IRQ");
 		if (symbol_exists("__do_IRQ"))
             		bt->stkptr = ULONG(bt->stackbuf +
                      		OFFSET(thread_info_previous_esp));
 		else
-			bt->stkptr = ULONG(bt->stackbuf + 
+			bt->stkptr = ULONG(bt->stackbuf +
 				SIZE(irq_ctx) - (sizeof(char *)*2));
 		type = BT_HARDIRQ;
 		break;
@@ -2627,9 +2627,9 @@ restore_stack(struct bt_info *bt)
 	case BT_SOFTIRQ:
 		retvaddr = ULONG(bt->stackbuf +
 			SIZE(irq_ctx) - sizeof(char *));
-		if ((sp = value_search(retvaddr, NULL)) && 
+		if ((sp = value_search(retvaddr, NULL)) &&
 			STREQ(sp->name, "do_softirq"))
-			bt->instptr = retvaddr; 
+			bt->instptr = retvaddr;
 		else
 			bt->instptr = symbol_value("do_softirq");
                	bt->stkptr = ULONG(bt->stackbuf +
@@ -2640,38 +2640,38 @@ restore_stack(struct bt_info *bt)
 
 	if ((type == BT_HARDIRQ) && bt->instptr &&
 	    in_irq_ctx(BT_SOFTIRQ, bt->tc->processor, bt->stkptr)) {
-		bt->flags &= ~BT_HARDIRQ; 
-		bt->flags |= BT_SOFTIRQ; 
+		bt->flags &= ~BT_HARDIRQ;
+		bt->flags |= BT_SOFTIRQ;
                 bt->stackbase = tt->softirq_ctx[bt->tc->processor];
                 bt->stacktop = bt->stackbase + STACKSIZE();
 		if (!readmem(bt->stackbase, KVADDR, bt->stackbuf,
-		    bt->stacktop - bt->stackbase, 
+		    bt->stacktop - bt->stackbase,
 		    "restore softirq_ctx stack", RETURN_ON_ERROR)) {
-			error(INFO, 
-			    "read of softirq stack at %lx failed\n", 
+			error(INFO,
+			    "read of softirq stack at %lx failed\n",
 				bt->stackbase);
 			type = 0;
 		}
 	} else {
-		bt->flags &= ~(BT_HARDIRQ|BT_SOFTIRQ); 
+		bt->flags &= ~(BT_HARDIRQ|BT_SOFTIRQ);
 		bt->stackbase = GET_STACKBASE(bt->tc->task);
 	        bt->stacktop = GET_STACKTOP(bt->tc->task);
-	
+
 	        if (!readmem(bt->stackbase, KVADDR, bt->stackbuf,
-	            bt->stacktop - bt->stackbase, 
+	            bt->stacktop - bt->stackbase,
 		    "restore_stack contents", RETURN_ON_ERROR)) {
-	        	error(INFO, "restore_stack of stack at %lx failed\n", 
+	        	error(INFO, "restore_stack of stack at %lx failed\n",
 				bt->stackbase);
 			type = 0;
 		}
-	
+
 		if (!(bt->instptr && INSTACK(bt->stkptr, bt)))
 			type = 0;
 	}
 
 	if (type) {
 		if (!BT_REFERENCE_CHECK(bt))
-		fprintf(fp, "--- %s ---\n", type == BT_HARDIRQ ? 
+		fprintf(fp, "--- %s ---\n", type == BT_HARDIRQ ?
 			"<hard IRQ>" : "<soft IRQ>");
 		return TRUE;
 	}
@@ -2683,7 +2683,7 @@ restore_stack(struct bt_info *bt)
 #define MAXHOOKS (100)
 
 struct stack_hook *
-gather_text_list(struct bt_info *bt) 
+gather_text_list(struct bt_info *bt)
 {
 	int cnt;
 	struct bt_info btloc;
@@ -2752,7 +2752,7 @@ dump_bt_info(struct bt_info *bt, char *where)
 	fprintf(fp, "    stackbuf: %lx\n", (ulong)bt->stackbuf);
 	fprintf(fp, "    textlist: %lx\n", (ulong)bt->textlist);
 	fprintf(fp, "    frameptr: %lx\n", (ulong)bt->frameptr);
-	fprintf(fp, " call_target: %s\n", bt->call_target ? 
+	fprintf(fp, " call_target: %s\n", bt->call_target ?
 		bt->call_target : "none");
 	fprintf(fp, "   eframe_ip: %lx\n", bt->eframe_ip);
 	fprintf(fp, "       debug: %lx\n", bt->debug);
@@ -2760,7 +2760,7 @@ dump_bt_info(struct bt_info *bt, char *where)
 }
 
 /*
- *  LKCD doesn't save state of the active tasks in the TSS, so poke around 
+ *  LKCD doesn't save state of the active tasks in the TSS, so poke around
  *  the raw stack for some reasonable hooks.
  */
 static void
@@ -2805,31 +2805,31 @@ get_lkcd_regs(struct bt_info *bt, ulong *eip, ulong *esp)
 		/* Egenera */
                 if (STREQ(sym, "netdump_ipi")) {
                         *eip = *up;
-                        *esp = bt->task + 
+                        *esp = bt->task +
 				((char *)(up-1) - bt->stackbuf);
                         return;
                 }
 		if (STREQ(sym, "dump_execute")) {
                         *eip = *up;
-                        *esp = bt->stackbase + 
+                        *esp = bt->stackbase +
 				((char *)(up) - bt->stackbuf);
                         return;
 		}
 		if (STREQ(sym, "vmdump_nmi_callback")) {
                         *eip = *up;
-                        *esp = bt->stackbase + 
+                        *esp = bt->stackbase +
 				((char *)(up) - bt->stackbuf);
                         return;
 		}
                 if (STREQ(sym, "smp_stop_cpu_interrupt")) {
                         *eip = *up;
-                        *esp = bt->task + 
+                        *esp = bt->task +
 				((char *)(up-1) - bt->stackbuf);
                         return;
                 }
                 if (STREQ(sym, "stop_this_cpu")) {
                         *eip = *up;
-                        *esp = bt->task + 
+                        *esp = bt->task +
 				((char *)(up-1) - bt->stackbuf);
                         return;
                 }
@@ -2869,11 +2869,11 @@ module_init(void)
 	struct kernel_list_head list;
 	int modules_found;
 
-	if (kernel_symbol_exists("module_list")) 
+	if (kernel_symbol_exists("module_list"))
 		kt->flags |= KMOD_V1;
 	else if (kernel_symbol_exists("modules"))
 		kt->flags |= KMOD_V2;
-	else 
+	else
 		error(WARNING, "cannot determine how modules are linked\n");
 
         if (kt->flags & NO_MODULE_ACCESS || !(kt->flags & (KMOD_V1|KMOD_V2))) {
@@ -2891,7 +2891,7 @@ module_init(void)
 	switch (kt->flags & (KMOD_V1|KMOD_V2))
 	{
 	case KMOD_V1:
-        	MEMBER_OFFSET_INIT(module_size_of_struct, "module", 
+        	MEMBER_OFFSET_INIT(module_size_of_struct, "module",
 			"size_of_struct");
         	MEMBER_OFFSET_INIT(module_next, "module", "next");
         	MEMBER_OFFSET_INIT(module_nsyms, "module", "nsyms");
@@ -2900,23 +2900,23 @@ module_init(void)
 
         	get_symbol_data("module_list", sizeof(ulong), &kt->module_list);
         	kt->kernel_module = symbol_value("kernel_module");
-		break;	
+		break;
 
-	case KMOD_V2: 
+	case KMOD_V2:
 		MEMBER_OFFSET_INIT(module_num_syms, "module", "num_syms");
 		MEMBER_OFFSET_INIT(module_list, "module", "list");
         	MEMBER_OFFSET_INIT(module_gpl_syms, "module", "gpl_syms");
-        	MEMBER_OFFSET_INIT(module_num_gpl_syms, "module", 
+        	MEMBER_OFFSET_INIT(module_num_gpl_syms, "module",
 			"num_gpl_syms");
-        	MEMBER_OFFSET_INIT(module_module_core, "module", 
+        	MEMBER_OFFSET_INIT(module_module_core, "module",
 			"module_core");
-        	MEMBER_OFFSET_INIT(module_core_size, "module", 
+        	MEMBER_OFFSET_INIT(module_core_size, "module",
 			"core_size");
-        	MEMBER_OFFSET_INIT(module_core_text_size, "module", 
+        	MEMBER_OFFSET_INIT(module_core_text_size, "module",
 			"core_text_size");
 		MEMBER_OFFSET_INIT(module_module_init, "module", "module_init");
 		MEMBER_OFFSET_INIT(module_init_size, "module", "init_size");
-		MEMBER_OFFSET_INIT(module_init_text_size, "module", 
+		MEMBER_OFFSET_INIT(module_init_text_size, "module",
 			"init_text_size");
 		MEMBER_OFFSET_INIT(module_percpu, "module", "percpu");
 
@@ -2932,10 +2932,10 @@ module_init(void)
 			for (i = 0; i < c; i++) {
 				sp = sp_array[i];
 
-				if (!readmem(sp->value, KVADDR, 
-				    &list, sizeof(struct kernel_list_head), 
-				    "modules list_head test", 
-				    RETURN_ON_ERROR|QUIET)) 
+				if (!readmem(sp->value, KVADDR,
+				    &list, sizeof(struct kernel_list_head),
+				    "modules list_head test",
+				    RETURN_ON_ERROR|QUIET))
 					continue;
 
 				if ((ulong)list.next == symbol_value("modules")) {
@@ -2950,7 +2950,7 @@ module_init(void)
 					modules_found = TRUE;
 					break;
 				}
-			} 
+			}
 
 			if (!modules_found) {
                         	error(WARNING,
@@ -2961,7 +2961,7 @@ module_init(void)
 				return;
 			}
 		} else {
-        		get_symbol_data("modules", sizeof(ulong), 
+        		get_symbol_data("modules", sizeof(ulong),
 				&kt->module_list);
 			if (kt->module_list == symbol_value("modules")) {
                 		kt->mods_installed = 0;
@@ -2985,14 +2985,14 @@ module_init(void)
 		if (CRASHDEBUG(3))
 			fprintf(fp, "module: %lx\n", mod);
 
-                if (!readmem(mod, KVADDR, modbuf, SIZE(module), 
+                if (!readmem(mod, KVADDR, modbuf, SIZE(module),
 		    "module struct", RETURN_ON_ERROR|QUIET)) {
                         error(WARNING,
                             "%scannot access vmalloc'd module memory\n\n",
 				DUMPFILE() ? "\n" : "");
                         kt->mods_installed = 0;
                         kt->flags |= NO_MODULE_ACCESS;
-                        FREEBUF(modbuf); 
+                        FREEBUF(modbuf);
 			return;
 		}
 
@@ -3001,7 +3001,7 @@ module_init(void)
 		case KMOD_V1:
                 	nsyms = UINT(modbuf + OFFSET(module_nsyms));
 			break;
-		case KMOD_V2: 
+		case KMOD_V2:
                 	nsyms = UINT(modbuf + OFFSET(module_num_syms)) +
 				UINT(modbuf + OFFSET(module_num_gpl_syms));
 			break;
@@ -3015,12 +3015,12 @@ module_init(void)
 		 */
 		switch (kt->flags & (KALLSYMS_V1|KALLSYMS_V2))
 		{
-		case KALLSYMS_V1: 
+		case KALLSYMS_V1:
 			kallsyms_header = ULONG(modbuf +
-				OFFSET(module_kallsyms_start));	
+				OFFSET(module_kallsyms_start));
 			if (kallsyms_header) {
-	                	if (!readmem(kallsyms_header, KVADDR, 
-				    kallsymsbuf, SIZE(kallsyms_header), 
+	                	if (!readmem(kallsyms_header, KVADDR,
+				    kallsymsbuf, SIZE(kallsyms_header),
 				    "kallsyms_header", RETURN_ON_ERROR|QUIET)) {
 	                        	error(WARNING,
                                       "%scannot access module kallsyms_header\n",
@@ -3028,7 +3028,7 @@ module_init(void)
 				} else {
 					nsyms = UINT(kallsymsbuf +
 				 	    OFFSET(kallsyms_header_symbols));
-					total += nsyms; 
+					total += nsyms;
 				}
 			}
 			break;
@@ -3044,18 +3044,18 @@ module_init(void)
 
 			if (!size) {
 				/*
-				 *  Bail out here instead of a crashing with a 
+				 *  Bail out here instead of a crashing with a
 				 *  getbuf(0) failure during storage later on.
 				 */
-				error(WARNING, 
+				error(WARNING,
 				    "invalid kernel module size: 0\n");
 					kt->mods_installed = 0;
 					kt->flags |= NO_MODULE_ACCESS;
-				FREEBUF(modbuf); 
+				FREEBUF(modbuf);
 				return;
 			}
 
-			total += numksyms; 
+			total += numksyms;
 			break;
 		}
 
@@ -3093,7 +3093,7 @@ verify_modules(void)
         ulong mod, mod_next, mod_base;
 	long mod_size;
         char *modbuf, *module_name;
-	ulong module_list, mod_name; 
+	ulong module_list, mod_name;
 	physaddr_t paddr;
 	int mods_installed;
 	struct load_module *lm;
@@ -3123,7 +3123,7 @@ verify_modules(void)
 
         for (mod = module_list; mod != kt->kernel_module; mod = mod_next) {
 
-                if (!readmem(mod, KVADDR, modbuf, SIZE(module), 
+                if (!readmem(mod, KVADDR, modbuf, SIZE(module),
 		    "module struct", RETURN_ON_ERROR|QUIET)) {
                         error(WARNING,
                             "cannot access vmalloc'd module memory\n");
@@ -3145,7 +3145,7 @@ verify_modules(void)
 				mod_base = mod;
 				break;
 			case KMOD_V2:
-				mod_base = ULONG(modbuf + 
+				mod_base = ULONG(modbuf +
 					OFFSET(module_module_core));
 				break;
 			}
@@ -3154,19 +3154,19 @@ verify_modules(void)
 				switch (kt->flags & (KMOD_V1|KMOD_V2))
 				{
 				case KMOD_V1:
-        				mod_name = ULONG(modbuf + 
+        				mod_name = ULONG(modbuf +
 						OFFSET(module_name));
-					mod_size = LONG(modbuf + 
+					mod_size = LONG(modbuf +
 						OFFSET(module_size));
-                			if (!read_string(mod_name, buf, 
-					    BUFSIZE-1) || !STREQ(lm->mod_name, 
+                			if (!read_string(mod_name, buf,
+					    BUFSIZE-1) || !STREQ(lm->mod_name,
 					    buf) || (mod_size != lm->mod_size)){
 						irregularities++;
 						goto irregularity;
 					}
 					break;
 				case KMOD_V2:
-        				module_name = modbuf + 
+        				module_name = modbuf +
 						OFFSET(module_name);
 					if (THIS_KERNEL_VERSION >= LINUX(2,6,27))
 						mod_size = UINT(modbuf +
@@ -3176,8 +3176,8 @@ verify_modules(void)
 							OFFSET(module_core_size));
                 			if (strlen(module_name) < MAX_MOD_NAME)
                         			strcpy(buf, module_name);
-                			else 
-                        			strncpy(buf, module_name, 
+                			else
+                        			strncpy(buf, module_name,
 							MAX_MOD_NAME-1);
 					if (!STREQ(lm->mod_name, buf) ||
 					    (mod_size != lm->mod_size)) {
@@ -3192,7 +3192,7 @@ irregularity:
 			}
 		}
 
-		if (!found || irregularities) 
+		if (!found || irregularities)
 			return FALSE;
 
 		mods_installed++;
@@ -3202,7 +3202,7 @@ irregularity:
 
         FREEBUF(modbuf);
 
-	if (mods_installed != kt->mods_installed) 
+	if (mods_installed != kt->mods_installed)
 		return FALSE;
 
 	return TRUE;
@@ -3210,7 +3210,7 @@ irregularity:
 
 
 /*
- *  With no arguments, just dump basic data concerning each of the 
+ *  With no arguments, just dump basic data concerning each of the
  *  currently-loaded modules.  The -s and -S arguments dynamically
  *  loads module symbols from its object file.
  */
@@ -3236,7 +3236,7 @@ cmd_mod(void)
 		error(FATAL, "cannot access vmalloc'd module memory\n");
 
 	if (!verify_modules()) {
- 	 	error(NOTE, 
+ 	 	error(NOTE,
 	             "modules have changed on this system -- reinitializing\n");
 		reinit_modules();
 	}
@@ -3272,7 +3272,7 @@ cmd_mod(void)
 			if ((p = strstr(args[c], "g"))) {
 				pc->curcmd_flags |= MOD_SECTIONS;
 				shift_string_left(p, 1);
-			} 
+			}
 			if ((p = strstr(args[c], "r"))) {
 				pc->curcmd_flags |= MOD_READNOW;
 				shift_string_left(p, 1);
@@ -3307,7 +3307,7 @@ cmd_mod(void)
                         break;
 
 		case 'D':
-			if (flag) 
+			if (flag)
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			flag = DELETE_ALL_MODULE_SYMBOLS;
 			break;
@@ -3335,19 +3335,19 @@ cmd_mod(void)
 		 *  for KMOD_V2 kernels.
                  */
                 case 'o':
-			if (flag) 
+			if (flag)
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			if (kt->flags & KMOD_V1)
-				error(INFO, 
+				error(INFO,
 				    "-o option is not applicable to this kernel version\n");
                         st->flags |= USE_OLD_ADD_SYM;
 			return;
 
 		case 'S':
-			if (flag) 
+			if (flag)
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			else
-				flag = LOAD_ALL_MODULE_SYMBOLS; 
+				flag = LOAD_ALL_MODULE_SYMBOLS;
 			break;
 
 		case 's':
@@ -3356,7 +3356,7 @@ cmd_mod(void)
 			else
 				flag = LOAD_SPECIFIED_MODULE_SYMBOLS;
 
-			if (hexadecimal(optarg, 0) && 
+			if (hexadecimal(optarg, 0) &&
 			    (strlen(optarg) == VADDR_PRLEN)) {
 				address = htol(optarg, FAULT_ON_ERROR, NULL);
 				if (!is_module_address(address, buf))
@@ -3397,7 +3397,7 @@ cmd_mod(void)
 	switch (flag)
 	{
 	case LOAD_ALL_MODULE_SYMBOLS:
-		switch (argcnt) 
+		switch (argcnt)
 		{
 		case 3:
 			if (is_directory(args[2]))
@@ -3421,18 +3421,18 @@ cmd_mod(void)
 		{
 		case 4:
 			objfile = args[3];
-			if (!file_exists(objfile, NULL)) { 
-				if (!(objfile = 
+			if (!file_exists(objfile, NULL)) {
+				if (!(objfile =
 				    find_module_objfile(modref, objfile, tree)))
-					error(FATAL, 
+					error(FATAL,
 				    "%s: cannot find or load object file: %s\n",
 						modref, args[3]);
-			} 
+			}
 			break;
 
 		case 3:
                         if (!(objfile = find_module_objfile(modref,NULL,tree)))
-                        	error(FATAL, 
+                        	error(FATAL,
                               "cannot find or load object file for %s module\n",
 					modref);
 			break;
@@ -3442,7 +3442,7 @@ cmd_mod(void)
 		}
 
                 if (!is_elf_file(objfile)) {
-                        error(INFO, "%s: not an ELF format object file\n", 
+                        error(INFO, "%s: not an ELF format object file\n",
 				objfile);
                         cmd_usage(pc->curcmd, SYNOPSIS);
                 }
@@ -3516,7 +3516,7 @@ show_module_taint(void)
 	if (INVALID_MEMBER(module_taints) &&
 	    INVALID_MEMBER(module_license_gplok)) {
 		MEMBER_OFFSET_INIT(module_taints, "module", "taints");
-		MEMBER_OFFSET_INIT(module_license_gplok, 
+		MEMBER_OFFSET_INIT(module_license_gplok,
 			"module", "license_gplok");
 		MEMBER_OFFSET_INIT(module_gpgsig_ok, "module", "gpgsig_ok");
 		STRUCT_SIZE_INIT(tnt, "tnt");
@@ -3539,7 +3539,7 @@ show_module_taint(void)
 
 		taints = VALID_MEMBER(module_taints) ?
 			UINT(modbuf + OFFSET(module_taints)) : 0;
-		license_gplok = VALID_MEMBER(module_license_gplok) ? 
+		license_gplok = VALID_MEMBER(module_license_gplok) ?
 			INT(modbuf + OFFSET(module_license_gplok)) : 0;
 		gpgsig_ok = VALID_MEMBER(module_gpgsig_ok) ?
 			INT(modbuf + OFFSET(module_gpgsig_ok)) : 1;
@@ -3549,7 +3549,7 @@ show_module_taint(void)
 			maxnamelen = strlen(lm->mod_name) > maxnamelen ?
 				strlen(lm->mod_name) : maxnamelen;
 		}
-			
+
 	}
 
 	if (!found) {
@@ -3583,7 +3583,7 @@ show_module_taint(void)
 
 		taints = VALID_MEMBER(module_taints) ?
 			UINT(modbuf + OFFSET(module_taints)) : 0;
-		license_gplok = VALID_MEMBER(module_license_gplok) ? 
+		license_gplok = VALID_MEMBER(module_license_gplok) ?
 			INT(modbuf + OFFSET(module_license_gplok)) : 0;
 		gpgsig_ok = VALID_MEMBER(module_gpgsig_ok) ?
 			INT(modbuf + OFFSET(module_gpgsig_ok)) : 1;
@@ -3595,17 +3595,17 @@ show_module_taint(void)
 			taintsp = &taints;
 			for (j = 0; j < (tnts_len * SIZE(tnt)); j += SIZE(tnt)) {
 				readmem((tnts_addr + j) + OFFSET(tnt_bit),
-					KVADDR, &tnt_bit, sizeof(uint8_t), 
+					KVADDR, &tnt_bit, sizeof(uint8_t),
 					"tnt bit", FAULT_ON_ERROR);
 
 				if (NUM_IN_BITMAP(taintsp, tnt_bit)) {
 					readmem((tnts_addr + j) + OFFSET(tnt_true),
-						KVADDR, &tnt_true, sizeof(char), 
+						KVADDR, &tnt_true, sizeof(char),
 						"tnt true", FAULT_ON_ERROR);
 					buf1[bx++] = tnt_true;
 				} else {
 					readmem((tnts_addr + j) + OFFSET(tnt_false),
-						KVADDR, &tnt_false, sizeof(char), 
+						KVADDR, &tnt_false, sizeof(char),
 						"tnt false", FAULT_ON_ERROR);
 					if (tnt_false != ' ' && tnt_false != '-' &&
 					    tnt_false != 'G')
@@ -3628,8 +3628,8 @@ show_module_taint(void)
 				LJUST, lm->mod_name), buf1);
 		else
 			fprintf(fp, "%s  %x%s\n", mkstring(buf2, maxnamelen,
-				LJUST, lm->mod_name), 
-				VALID_MEMBER(module_taints) ? 
+				LJUST, lm->mod_name),
+				VALID_MEMBER(module_taints) ?
 				taints : license_gplok, buf1);
 	}
 
@@ -3641,7 +3641,7 @@ show_module_taint(void)
  */
 
 static void
-do_module_cmd(ulong flag, char *modref, ulong address, 
+do_module_cmd(ulong flag, char *modref, ulong address,
 	char *objfile, char *tree)
 {
 	int i, j;
@@ -3660,49 +3660,49 @@ do_module_cmd(ulong flag, char *modref, ulong address,
 	case LIST_MODULE:
 	case LIST_MODULE_HDR:
 	 	maxnamelen = maxsizelen = 0;
-		
+
 		for (i = 0; i < kt->mods_installed; i++) {
 			lm = &st->load_modules[i];
-			maxnamelen = strlen(lm->mod_name) > maxnamelen ? 
+			maxnamelen = strlen(lm->mod_name) > maxnamelen ?
 				strlen(lm->mod_name) : maxnamelen;
-	
+
 	                sprintf(buf1, "%ld", lm->mod_size);
-			maxsizelen = strlen(buf1) > maxsizelen ? 
+			maxsizelen = strlen(buf1) > maxsizelen ?
 				strlen(buf1) : maxsizelen;
 	        }
-	
+
 		if (flag == LIST_MODULE_HDR) {
 			fprintf(fp, "%s  %s  %s  OBJECT FILE\n",
-				mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, 
+				mkstring(buf1, VADDR_PRLEN, CENTER|LJUST,
 				"MODULE"),
 				mkstring(buf2, maxnamelen, LJUST, "NAME"),
 				mkstring(buf3, maxsizelen, RJUST, "SIZE"));
 		}
-	
+
 		for (i = 0; i < kt->mods_installed; i++) {
 			lm = &st->load_modules[i];
 			if (!address || (lm->module_struct == address) ||
 			    (lm->mod_base == address)) {
 				fprintf(fp, "%s  ", mkstring(buf1, VADDR_PRLEN,
 				    LONG_HEX|RJUST, MKSTR(lm->module_struct)));
-				fprintf(fp, "%s  ", mkstring(buf2, maxnamelen, 
+				fprintf(fp, "%s  ", mkstring(buf2, maxnamelen,
 					LJUST, lm->mod_name));
 				fprintf(fp, "%s  ", mkstring(buf3, maxsizelen,
 					RJUST|LONG_DEC, MKSTR(lm->mod_size)));
 				// fprintf(fp, "%6ld  ", lm->mod_size);
-		
+
 				if (strlen(lm->mod_namelist))
-					fprintf(fp, "%s %s", 
+					fprintf(fp, "%s %s",
 						lm->mod_namelist,
 						lm->mod_flags & MOD_REMOTE ?
-						" (temporary)" : "");  
+						" (temporary)" : "");
 				else {
 					fprintf(fp, "(not loaded)");
 					if (lm->mod_flags & MOD_KALLSYMS)
-						fprintf(fp, 
+						fprintf(fp,
 					   "  [CONFIG_KALLSYMS]");
 				}
-		
+
 				fprintf(fp, "\n");
 			}
 		}
@@ -3726,23 +3726,23 @@ do_module_cmd(ulong flag, char *modref, ulong address,
 			return;
 
 		case 1:
-			error(NOTE, 
+			error(NOTE,
  "\nTo save the %s module object locally,\n      enter: \"save %s\"\n",
 				lmp->mod_name, lmp->mod_name);
 			break;
 
 		default:
-			error(NOTE, 
+			error(NOTE,
 "\nTo save all temporary remote module objects locally,\n      enter: \"save modules\"\n");
-			fprintf(fp, 
+			fprintf(fp,
  "      To save a single remote module object locally,\n      enter: \"save NAME\",\n"
  "      where \"NAME\" is one of the module names shown in the list above.\n");
 			break;
 		}
 		break;
-	
+
 	case LOAD_SPECIFIED_MODULE_SYMBOLS:
-		if (!load_module_symbols(modref, objfile, address)) 
+		if (!load_module_symbols(modref, objfile, address))
 			error(FATAL, "cannot load symbols from: %s\n", objfile);
 		do_module_cmd(LIST_MODULE_HDR, 0, address, 0, NULL);
 		do_module_cmd(REMOTE_MODULE_SAVE_MSG, 0, 0, 0, NULL);
@@ -3764,25 +3764,25 @@ do_module_cmd(ulong flag, char *modref, ulong address,
 
 			if ((objfile = find_module_objfile(modref,NULL,tree))) {
 				if (!is_elf_file(objfile)) {
-                        		error(INFO, 
+                        		error(INFO,
 			                  "%s: not an ELF format object file\n",
 						objfile);
-				} else if (!load_module_symbols(modref, 
+				} else if (!load_module_symbols(modref,
 					objfile, address))
-					error(INFO, 
+					error(INFO,
 				           "cannot load symbols from: %s\n",
 						objfile);
-				do_module_cmd(j++ ? 
+				do_module_cmd(j++ ?
 					LIST_MODULE : LIST_MODULE_HDR,
 					0, address, 0, tree);
 				FREEBUF(objfile);
 			} else if ((lm->mod_flags & MOD_LOAD_SYMS) ||
-			    strlen(lm->mod_namelist)) { 
+			    strlen(lm->mod_namelist)) {
 				if (CRASHDEBUG(1))
-                        		fprintf(fp, 
+                        		fprintf(fp,
 				      "%s: module symbols are already loaded\n",
                                 		modref);
-				do_module_cmd(j++ ? 
+				do_module_cmd(j++ ?
 					LIST_MODULE : LIST_MODULE_HDR,
 					0, address, 0, tree);
 			} else
@@ -3865,7 +3865,7 @@ module_objfile_search(char *modref, char *filename, char *tree)
 				retbuf = GETBUF(strlen(file)+1);
 				strcpy(retbuf, file);
 				if (CRASHDEBUG(1))
-					fprintf(fp, 
+					fprintf(fp,
 					    "find_module_objfile: [%s] file in cwd\n",
 						retbuf);
 				return retbuf;
@@ -3873,7 +3873,7 @@ module_objfile_search(char *modref, char *filename, char *tree)
 		}
 	}
 #else
-	else 
+	else
 		sprintf(file, "%s.o", modref);
 #endif
 
@@ -3881,9 +3881,9 @@ module_objfile_search(char *modref, char *filename, char *tree)
 	 *  Later versions of insmod create a symbol at the module's base
 	 *  address.  Examples:
          *
-         * __insmod_sunrpc_O/lib/modules/2.2.17/misc/sunrpc.o_M3A7EE300_V131601 
-         * __insmod_lockd_O/lib/modules/2.2.17/fs/lockd.o_M3A7EE300_V131601  
-         * __insmod_nfsd_O/lib/modules/2.2.17/fs/nfsd.o_M3A7EE300_V131601  
+         * __insmod_sunrpc_O/lib/modules/2.2.17/misc/sunrpc.o_M3A7EE300_V131601
+         * __insmod_lockd_O/lib/modules/2.2.17/fs/lockd.o_M3A7EE300_V131601
+         * __insmod_nfsd_O/lib/modules/2.2.17/fs/nfsd.o_M3A7EE300_V131601
          * __insmod_nfs_O/lib/modules/2.2.17/fs/nfs.o_M3A7EE300_V131601
 	 */
 	if ((st->flags & INSMOD_BUILTIN) && !filename) {
@@ -3896,32 +3896,32 @@ module_objfile_search(char *modref, char *filename, char *tree)
 			if ((p2 = strstr(sp->name, file)))
 				p2 += strlen(file);
 			if (p2) {
-				strncpy(buf, p1, p2-p1); 	
+				strncpy(buf, p1, p2-p1);
                                 if (!strstr(buf, "/lib/modules/")) {
 					sprintf(dir, "/lib/%s.o", modref);
 					if (STREQ(dir, buf))
 						initrd = TRUE;
-				} else if (REMOTE()) 
+				} else if (REMOTE())
 					strcpy(file, buf);
 				else {
 					retbuf = GETBUF(strlen(buf)+1);
 					strcpy(retbuf, buf);
 					if (CRASHDEBUG(1))
-				    		fprintf(fp, 
+				    		fprintf(fp,
 					          "find_module_objfile: [%s]\n",
 							retbuf);
 					return retbuf;
 				}
 			}
 		}
-		if (is_module_name(modref, NULL, &lm) && 
+		if (is_module_name(modref, NULL, &lm) &&
 		    (lm->mod_flags & MOD_INITRD)) {
 			sprintf(dir, "/lib/%s.o", modref);
 			initrd = TRUE;
 		}
 	}
-        
-	if (initrd) 
+
+	if (initrd)
 		error(NOTE, "%s: installed from initrd image\n", dir);
 
 	if (REMOTE()) {
@@ -3935,7 +3935,7 @@ module_objfile_search(char *modref, char *filename, char *tree)
         	if ((lm->mod_flags & MOD_LOAD_SYMS) &&
 		    strlen(lm->mod_namelist)) {
 			if (CRASHDEBUG(1))
-				fprintf(fp, "redundant mod call: %s\n", 
+				fprintf(fp, "redundant mod call: %s\n",
 					lm->mod_namelist);
 			strcpy(retbuf, lm->mod_namelist);
 			return retbuf;
@@ -3963,7 +3963,7 @@ module_objfile_search(char *modref, char *filename, char *tree)
 		return retbuf;
 	}
 
-	sprintf(dir, "%s/%s", DEFAULT_REDHAT_DEBUG_LOCATION, 
+	sprintf(dir, "%s/%s", DEFAULT_REDHAT_DEBUG_LOCATION,
 		kt->utsname.release);
 	retbuf = search_directory_tree(dir, file, 0);
 
@@ -4025,9 +4025,9 @@ module_objfile_search(char *modref, char *filename, char *tree)
 
 	/*
 	 *  Check the directory tree where the vmlinux file is located.
-	 */ 
-	if (!retbuf && 
-	    (namelist = realpath(pc->namelist_orig ? 
+	 */
+	if (!retbuf &&
+	    (namelist = realpath(pc->namelist_orig ?
 		pc->namelist_orig : pc->namelist, NULL))) {
 		sprintf(dir, "%s", dirname(namelist));
 		if (!(retbuf = search_directory_tree(dir, file, 0))) {
@@ -4051,8 +4051,8 @@ module_objfile_search(char *modref, char *filename, char *tree)
 /*
  *  First look for a module based upon its reference name.
  *  If that fails, try replacing any underscores in the
- *  reference name with a dash.  
- *  If that fails, because of intermingled dashes and underscores, 
+ *  reference name with a dash.
+ *  If that fails, because of intermingled dashes and underscores,
  *  try a regex expression.
  *
  *  Example: module name "dm_mod" comes from "dm-mod.ko" objfile
@@ -4084,7 +4084,7 @@ find_module_objfile(char *modref, char *filename, char *tree)
 				tmpref[c++] = ']';
 			} else
 				tmpref[c++] = modref[i];
-		} 
+		}
 		tmpref[c] = NULLCHAR;
 		retbuf = module_objfile_search(tmpref, filename, tree);
 	}
@@ -4127,7 +4127,7 @@ unlink_module(struct load_module *load_module)
 
         for (i = 0; i < kt->mods_installed; i++) {
                 lm = &st->load_modules[i];
-		if (lm->mod_flags & MOD_REMOTE) 
+		if (lm->mod_flags & MOD_REMOTE)
 			unlink(lm->mod_namelist);
         }
 }
@@ -4151,7 +4151,7 @@ cmd_log(void)
 		case 't':
 			msg_flags |= SHOW_LOG_TEXT;
 			break;
-		case 'd': 
+		case 'd':
 			msg_flags |= SHOW_LOG_DICT;
 			break;
                 case 'm':
@@ -4170,7 +4170,7 @@ cmd_log(void)
 }
 
 
-void 
+void
 dump_log(int msg_flags)
 {
 	int i, len, tmp, show_level;
@@ -4181,7 +4181,7 @@ dump_log(int msg_flags)
 	struct syment *nsp;
 	int log_wrap, loglevel, log_buf_len;
 
-	if (kernel_symbol_exists("log_first_idx") && 
+	if (kernel_symbol_exists("log_first_idx") &&
 	    kernel_symbol_exists("log_next_idx")) {
 		dump_variable_length_record_log(msg_flags);
 		return;
@@ -4201,13 +4201,13 @@ dump_log(int msg_flags)
 		if ((ARRAY_LENGTH(log_buf) == 0) &&
 	            (get_array_length("log_buf", NULL, 0) == 0)) {
 	                if ((nsp = next_symbol("log_buf", NULL)) == NULL)
-	                        error(FATAL, 
+	                        error(FATAL,
 				    "cannot determine length of log_buf\n");
-	                builtin_array_length("log_buf", 
-				(int)(nsp->value - symbol_value("log_buf")), 
+	                builtin_array_length("log_buf",
+				(int)(nsp->value - symbol_value("log_buf")),
 				NULL);
 		}
-	
+
 		log_buf_len = ARRAY_LENGTH(log_buf);
 		log_buf = symbol_value("log_buf");
 	}
@@ -4286,7 +4286,7 @@ wrap_around:
 	FREEBUF(buf);
 }
 
-/* 
+/*
  * get log record by index; idx must point to valid message.
  */
 static char *
@@ -4298,8 +4298,8 @@ log_from_idx(uint32_t idx, char *logbuf)
 	logptr = logbuf + idx;
 
 	/*
-	 * A length == 0 record is the end of buffer marker. 
-	 * Wrap around and return the message at the start of 
+	 * A length == 0 record is the end of buffer marker.
+	 * Wrap around and return the message at the start of
 	 * the buffer.
 	 */
 
@@ -4310,10 +4310,10 @@ log_from_idx(uint32_t idx, char *logbuf)
 	return logptr;
 }
 
-/* 
- * get next record index; idx must point to valid message. 
+/*
+ * get next record index; idx must point to valid message.
  */
-static uint32_t 
+static uint32_t
 log_next(uint32_t idx, char *logbuf)
 {
 	char *logptr;
@@ -4343,7 +4343,7 @@ dump_log_entry(char *logptr, int msg_flags)
 	char *msg, *p;
 	uint16_t i, text_len, dict_len, level;
 	uint64_t ts_nsec;
-	ulonglong nanos; 
+	ulonglong nanos;
 	ulong rem;
 	char buf[BUFSIZE];
 	int ilen;
@@ -4370,10 +4370,10 @@ dump_log_entry(char *logptr, int msg_flags)
 	msg = logptr + SIZE(log);
 
 	if (CRASHDEBUG(1))
-		fprintf(fp, 
+		fprintf(fp,
 		    "\nlog %lx -> msg: %lx ts_nsec: %lld flags/level: %x"
-		    " text_len: %d dict_len: %d\n", 
-			(ulong)logptr, (ulong)msg, (ulonglong)ts_nsec, 
+		    " text_len: %d dict_len: %d\n",
+			(ulong)logptr, (ulong)msg, (ulonglong)ts_nsec,
 			level, text_len, dict_len);
 
 	if ((msg_flags & SHOW_LOG_TEXT) == 0) {
@@ -4393,12 +4393,12 @@ dump_log_entry(char *logptr, int msg_flags)
 	for (i = 0, p = msg; i < text_len; i++, p++) {
 		if (*p == '\n')
 			fprintf(fp, "\n%s", space(ilen));
-		else if (isprint(*p) || isspace(*p)) 
+		else if (isprint(*p) || isspace(*p))
 			fputc(*p, fp);
 		else
 			fputc('.', fp);
 	}
-	
+
 	if (dict_len & (msg_flags & SHOW_LOG_DICT)) {
 		fprintf(fp, "\n");
 		indent = TRUE;
@@ -4420,7 +4420,7 @@ dump_log_entry(char *logptr, int msg_flags)
 	fprintf(fp, "\n");
 }
 
-/* 
+/*
  *  Handle the new variable-length-record log_buf.
  */
 static void
@@ -4448,9 +4448,9 @@ dump_variable_length_record_log(int msg_flags)
 		MEMBER_OFFSET_INIT(log_level, log_struct_name, "level");
 		MEMBER_SIZE_INIT(log_level, log_struct_name, "level");
 		MEMBER_OFFSET_INIT(log_flags_level, log_struct_name, "flags_level");
-			
+
 		/*
-		 * If things change, don't kill a dumpfile session 
+		 * If things change, don't kill a dumpfile session
 		 * searching for a panic message.
 		 */
 		if (INVALID_SIZE(log) ||
@@ -4596,11 +4596,11 @@ display_sys_stats(void)
         }
 
 	if (REMOTE()) {
-		switch (pc->flags & 
+		switch (pc->flags &
 			(NAMELIST_LOCAL|NAMELIST_UNLINKED|NAMELIST_SAVED))
 		{
 		case NAMELIST_UNLINKED:
-			fprintf(fp, "      KERNEL: %s  (temporary)\n", 
+			fprintf(fp, "      KERNEL: %s  (temporary)\n",
 				pc->namelist);
 			break;
 
@@ -4615,29 +4615,29 @@ display_sys_stats(void)
 	} else {
         	if (pc->system_map) {
                 	fprintf(fp, "  SYSTEM MAP: %s\n", pc->system_map);
-			fprintf(fp, "DEBUG KERNEL: %s %s\n", 
+			fprintf(fp, "DEBUG KERNEL: %s %s\n",
 					pc->namelist_orig ?
 					pc->namelist_orig : pc->namelist,
 					debug_kernel_version(pc->namelist));
 		} else
-			fprintf(fp, "      KERNEL: %s\n", pc->namelist_orig ? 
+			fprintf(fp, "      KERNEL: %s\n", pc->namelist_orig ?
 				pc->namelist_orig : pc->namelist);
 	}
 
-	if (pc->debuginfo_file) { 
-		if (STREQ(pc->debuginfo_file, pc->namelist_debug) && 
+	if (pc->debuginfo_file) {
+		if (STREQ(pc->debuginfo_file, pc->namelist_debug) &&
 		     pc->namelist_debug_orig)
-			fprintf(fp, "   DEBUGINFO: %s\n", 
+			fprintf(fp, "   DEBUGINFO: %s\n",
 				pc->namelist_debug_orig);
 		else
 			fprintf(fp, "   DEBUGINFO: %s\n", pc->debuginfo_file);
 	} else if (pc->namelist_debug)
-		fprintf(fp, "DEBUG KERNEL: %s %s\n", pc->namelist_debug_orig ? 
+		fprintf(fp, "DEBUG KERNEL: %s %s\n", pc->namelist_debug_orig ?
 			pc->namelist_debug_orig : pc->namelist_debug,
 			debug_kernel_version(pc->namelist_debug));
 
 	/*
-	 *  After the initial banner display, we no longer need the 
+	 *  After the initial banner display, we no longer need the
 	 *  temporary namelist file(s).
 	 */
 	if (!(pc->flags & RUNTIME)) {
@@ -4652,14 +4652,14 @@ display_sys_stats(void)
 	else
 		fprintf(fp, "    DUMPFILE: ");
         if (ACTIVE()) {
-		if (REMOTE_ACTIVE()) 
+		if (REMOTE_ACTIVE())
 			fprintf(fp, "%s@%s  (remote live system)\n",
 			    	pc->server_memsrc, pc->server);
 		else
                 	fprintf(fp, "%s\n", pc->live_memsrc);
 	} else {
 		if (REMOTE_DUMPFILE())
-                	fprintf(fp, "%s@%s  (remote dumpfile)", 
+                	fprintf(fp, "%s@%s  (remote dumpfile)",
 				pc->server_memsrc, pc->server);
 		else {
 			if (dumpfile_is_split())
@@ -4686,19 +4686,19 @@ display_sys_stats(void)
 			fprintf(fp, "     MAPFILE: %s\n",
 				pc->kvmdump_mapfile);
 	}
-	
+
 	fprintf(fp, "        CPUS: %d\n",
 		machine_type("PPC64") ? get_cpus_to_display() : kt->cpus);
 	if (ACTIVE())
 		get_xtime(&kt->date);
-        fprintf(fp, "        DATE: %s\n", 
-		strip_linefeeds(ctime(&kt->date.tv_sec))); 
-        fprintf(fp, "      UPTIME: %s\n", get_uptime(buf, NULL)); 
-        fprintf(fp, "LOAD AVERAGE: %s\n", get_loadavg(buf)); 
+        fprintf(fp, "        DATE: %s\n",
+		strip_linefeeds(ctime(&kt->date.tv_sec)));
+        fprintf(fp, "      UPTIME: %s\n", get_uptime(buf, NULL));
+        fprintf(fp, "LOAD AVERAGE: %s\n", get_loadavg(buf));
 	fprintf(fp, "       TASKS: %ld\n", RUNNING_TASKS());
-	fprintf(fp, "    NODENAME: %s\n", uts->nodename); 
-        fprintf(fp, "     RELEASE: %s\n", uts->release); 
-	fprintf(fp, "     VERSION: %s\n", uts->version); 
+	fprintf(fp, "    NODENAME: %s\n", uts->nodename);
+        fprintf(fp, "     RELEASE: %s\n", uts->release);
+	fprintf(fp, "     VERSION: %s\n", uts->version);
 	fprintf(fp, "     MACHINE: %s  ", uts->machine);
 	if ((mhz = machdep->processor_speed()))
 		fprintf(fp, "(%ld Mhz)\n", mhz);
@@ -4721,8 +4721,8 @@ display_sys_stats(void)
 			fprintf(fp, "(MCA)\n");
 		else {
         		strip_linefeeds(get_panicmsg(buf));
-			fprintf(fp, "\"%s\"%s\n", buf, 
-				strstr(buf, "Oops: ") ? 
+			fprintf(fp, "\"%s\"%s\n", buf,
+				strstr(buf, "Oops: ") ?
 				" (check log for details)" : "");
 		}
 	}
@@ -4747,7 +4747,7 @@ debug_kernel_version(char *namelist)
 
         sprintf(command, "/usr/bin/strings %s", namelist);
 
-        if ((pipe = popen(command, "r")) == NULL) { 
+        if ((pipe = popen(command, "r")) == NULL) {
 		debug_kernel_version_string = " ";
                 return debug_kernel_version_string;
 	}
@@ -4757,12 +4757,12 @@ debug_kernel_version(char *namelist)
                 if (!strstr(buf, "Linux version 2."))
                         continue;
 
-		argc = parse_line(buf, arglist); 
+		argc = parse_line(buf, arglist);
 		break;
         }
         pclose(pipe);
 
-	if ((argc >= 3) && (debug_kernel_version_string = (char *) 
+	if ((argc >= 3) && (debug_kernel_version_string = (char *)
 	    malloc(strlen(arglist[2])+3)))
 		sprintf(debug_kernel_version_string, "(%s)", arglist[2]);
 	else
@@ -4889,11 +4889,11 @@ dump_sys_call_table(char *spec, int cnt)
 	ulong *sys_call_table, *sct, sys_ni_syscall, addr;
 #endif
 	if (GDB_PATCHED())
-		error(INFO, "line numbers are not available\n"); 
+		error(INFO, "line numbers are not available\n");
 
 	NR_syscalls = get_NR_syscalls(&confirmed);
 	if (CRASHDEBUG(1))
-		fprintf(fp, "NR_syscalls: %d (%sconfirmed)\n", 
+		fprintf(fp, "NR_syscalls: %d (%sconfirmed)\n",
 			NR_syscalls, confirmed ? "" : "not ");
         size = sizeof(addr) * NR_syscalls;
 #ifdef S390X
@@ -4915,10 +4915,10 @@ dump_sys_call_table(char *spec, int cnt)
         for (i = 0, sct = sys_call_table; i < NR_syscalls; i++, sct++) {
                 if (!(scp = value_symbol(*sct))) {
 			if (confirmed || CRASHDEBUG(1)) {
-				fprintf(fp, (*gdb_output_radix == 16) ? 
+				fprintf(fp, (*gdb_output_radix == 16) ?
 					"%3x  " : "%3d  ", i);
-				fprintf(fp, 
-			    	    "invalid sys_call_table entry: %lx ", 
+				fprintf(fp,
+			    	    "invalid sys_call_table entry: %lx ",
 					(unsigned long)*sct);
 				if (strlen(value_to_symstr(*sct, buf1, 0)))
 					fprintf(fp, "(%s)\n", buf1);
@@ -4927,7 +4927,7 @@ dump_sys_call_table(char *spec, int cnt)
 			}
 			continue;
 		}
-		
+
 		fprintf(fp, (*gdb_output_radix == 16) ? "%3x  " : "%3d  ", i);
   		if (sys_ni_syscall && *sct == sys_ni_syscall)
 			fprintf(fp, "%-26s ", "sys_ni_syscall");
@@ -4936,7 +4936,7 @@ dump_sys_call_table(char *spec, int cnt)
 
 		/*
 		 *  For system call symbols whose first instruction is
-		 *  an inline from a header file, the file/line-number is 
+		 *  an inline from a header file, the file/line-number is
 		 *  confusing.  For this command only, look for the first
 	 	 *  instruction address in the system call that shows the
 		 *  the actual source file containing the system call.
@@ -4949,7 +4949,7 @@ dump_sys_call_table(char *spec, int cnt)
 			BZERO(buf1, BUFSIZE);
 			get_line_number(addr, buf1, FALSE);
 
-			if (strstr(buf1, ".h: ") && strstr(buf1, "include/")) 
+			if (strstr(buf1, ".h: ") && strstr(buf1, "include/"))
 				continue;
 
 			if (strstr(buf1, buf2)) {
@@ -4967,7 +4967,7 @@ dump_sys_call_table(char *spec, int cnt)
                 rewind(pc->tmpfile);
 
 		hdr_printed = cnt;
-		if ((number = IS_A_NUMBER(spec))) 
+		if ((number = IS_A_NUMBER(spec)))
                 	sprintf(buf3, (*gdb_output_radix == 16) ?  "%lx" : "%ld",
                         	stol(spec, FAULT_ON_ERROR, NULL));
 
@@ -4984,7 +4984,7 @@ dump_sys_call_table(char *spec, int cnt)
 				printit = TRUE;
 
 			if (printit) {
-				fprintf(pc->saved_fp, "%s%s", hdr_printed++ ? 
+				fprintf(pc->saved_fp, "%s%s", hdr_printed++ ?
 					"" : sys_call_hdr, buf1);
 				if (number)
 					break;
@@ -4998,7 +4998,7 @@ dump_sys_call_table(char *spec, int cnt)
 /*
  *  Get the number of system calls in the sys_call_table, confirming
  *  the number only if the debuginfo data shows sys_call_table as an
- *  array.  Otherwise base it upon next symbol after it. 
+ *  array.  Otherwise base it upon next symbol after it.
  */
 static int
 get_NR_syscalls(int *confirmed)
@@ -5007,7 +5007,7 @@ get_NR_syscalls(int *confirmed)
 	struct syment *sp;
 	int type, cnt;
 
-	type = get_symbol_type("sys_call_table", NULL, NULL); 
+	type = get_symbol_type("sys_call_table", NULL, NULL);
 	if ((type == TYPE_CODE_ARRAY) &&
 	    (cnt = get_array_length("sys_call_table", NULL, 0))) {
 		*confirmed = TRUE;
@@ -5125,7 +5125,7 @@ dump_kernel_table(int verbose)
         fprintf(fp, "          cpus: %d\n", kt->cpus);
         fprintf(fp, " cpus_override: %s\n", kt->cpus_override);
         fprintf(fp, "       NR_CPUS: %d (compiled-in to this version of %s)\n",
-		NR_CPUS, pc->program_name); 
+		NR_CPUS, pc->program_name);
 	fprintf(fp, "kernel_NR_CPUS: %d\n", kt->kernel_NR_CPUS);
         others = 0;
 	fprintf(fp, "ikconfig_flags: %x (", kt->ikconfig_flags);
@@ -5153,9 +5153,9 @@ dump_kernel_table(int verbose)
         fprintf(fp, "   module_list: %lx\n", kt->module_list);
         fprintf(fp, " kernel_module: %lx\n", kt->kernel_module);
 	fprintf(fp, "mods_installed: %d\n", kt->mods_installed);
-	fprintf(fp, "   module_tree: %s\n", kt->module_tree ? 
+	fprintf(fp, "   module_tree: %s\n", kt->module_tree ?
 		kt->module_tree : "(not used)");
-	if (!(pc->flags & KERNEL_DEBUG_QUERY) && ACTIVE()) 
+	if (!(pc->flags & KERNEL_DEBUG_QUERY) && ACTIVE())
 		get_xtime(&kt->date);
         fprintf(fp, "          date: %s\n",
                 strip_linefeeds(ctime(&kt->date.tv_sec)));
@@ -5167,9 +5167,9 @@ dump_kernel_table(int verbose)
         fprintf(fp, "      .version: %s\n", uts->version);
         fprintf(fp, "      .machine: %s\n", uts->machine);
         fprintf(fp, "   .domainname: %s\n", uts->domainname);
-	fprintf(fp, "kernel_version: %d.%d.%d\n", kt->kernel_version[0], 
+	fprintf(fp, "kernel_version: %d.%d.%d\n", kt->kernel_version[0],
 		kt->kernel_version[1], kt->kernel_version[2]);
-	fprintf(fp, "   gcc_version: %d.%d.%d\n", kt->gcc_version[0], 
+	fprintf(fp, "   gcc_version: %d.%d.%d\n", kt->gcc_version[0],
 		kt->gcc_version[1], kt->gcc_version[2]);
 	fprintf(fp, "     BUG_bytes: %d\n", kt->BUG_bytes);
 	fprintf(fp, "      relocate: %lx\n", kt->relocate);
@@ -5283,7 +5283,7 @@ no_cpu_flags:
 	fprintf(fp, " log_dict_len_OFFSET: %ld\n", kt->vmcoreinfo.log_dict_len_OFFSET);
 	fprintf(fp, "    phys_base_SYMBOL: %lx\n", kt->vmcoreinfo.phys_base_SYMBOL);
 	fprintf(fp, "       _stext_SYMBOL: %lx\n", kt->vmcoreinfo._stext_SYMBOL);
-        fprintf(fp, "    hypervisor: %s\n", kt->hypervisor); 
+        fprintf(fp, "    hypervisor: %s\n", kt->hypervisor);
 
 	others = 0;
 	fprintf(fp, "     xen_flags: %lx (", kt->xen_flags);
@@ -5345,9 +5345,9 @@ set_cpu(int cpu)
 	ulong task;
 
 	if (cpu >= kt->cpus)
-		error(FATAL, "invalid cpu number: system has only %d cpu%s\n", 
+		error(FATAL, "invalid cpu number: system has only %d cpu%s\n",
 			kt->cpus, kt->cpus > 1 ? "s" : "");
-	if ((task = get_active_task(cpu))) 
+	if ((task = get_active_task(cpu)))
 		set_context(task, NO_PID);
 	else
 		error(FATAL, "cannot determine active task on cpu %ld\n", cpu);
@@ -5399,11 +5399,11 @@ cmd_irq(void)
 				    VALID_MEMBER(irq_cpustat_t___softirq_active)
                         	    && VALID_MEMBER(irq_cpustat_t___softirq_mask))
 			                kt->display_bh = display_bh_3;
-				else if (get_symbol_type("softirq_vec", NULL, NULL) == 
+				else if (get_symbol_type("softirq_vec", NULL, NULL) ==
 				    TYPE_CODE_ARRAY)
 			                kt->display_bh = display_bh_4;
 				else
-					error(FATAL, 
+					error(FATAL,
 					    "bottom-half option not supported\n");
 			}
 			kt->display_bh();
@@ -5419,7 +5419,7 @@ cmd_irq(void)
 			else if (kernel_symbol_exists("no_irq_type"))
 				pc->curcmd_private = (ulonglong)symbol_value("no_irq_type");
 			else
-				error(WARNING, 
+				error(WARNING,
        "irq: -u option ignored: \"no_irq_chip\" or \"no_irq_type\" symbols do not exist\n");
 			break;
 
@@ -5515,7 +5515,7 @@ cmd_irq(void)
 	while (args[optind]) {
 		i = dtoi(args[optind], FAULT_ON_ERROR, NULL);
 		if (i >= nr_irqs)
-			error(FATAL, "invalid IRQ value: %d  (%d max)\n", 
+			error(FATAL, "invalid IRQ value: %d  (%d max)\n",
 				i, nr_irqs-1);
 		machdep->dump_irq(i);
 		optind++;
@@ -5638,7 +5638,7 @@ generic_dump_irq(int irq)
 	ulong tmp1, tmp2;
 
 	handler = UNINITIALIZED;
-	
+
 	irq_desc_addr = get_irq_desc_addr(irq);
 	if (!irq_desc_addr && symbol_exists("irq_desc_ptrs")) {
 		if (!(pc->curcmd_flags & IRQ_IN_USE))
@@ -5648,18 +5648,18 @@ generic_dump_irq(int irq)
 
 	if (irq_desc_addr) {
 		if (VALID_MEMBER(irq_desc_t_status))
-			readmem(irq_desc_addr + OFFSET(irq_desc_t_status), 
+			readmem(irq_desc_addr + OFFSET(irq_desc_t_status),
 				KVADDR, &status, sizeof(int), "irq_desc status",
 				FAULT_ON_ERROR);
 		if (VALID_MEMBER(irq_desc_t_handler))
-		        readmem(irq_desc_addr + OFFSET(irq_desc_t_handler), 
+		        readmem(irq_desc_addr + OFFSET(irq_desc_t_handler),
 				KVADDR, &handler, sizeof(long), "irq_desc handler",
 				FAULT_ON_ERROR);
 		else if (VALID_MEMBER(irq_desc_t_chip))
 		        readmem(irq_desc_addr + OFFSET(irq_desc_t_chip), KVADDR,
 	        	        &handler, sizeof(long), "irq_desc chip",
 				FAULT_ON_ERROR);
-	        readmem(irq_desc_addr + OFFSET(irq_desc_t_action), KVADDR, 
+	        readmem(irq_desc_addr + OFFSET(irq_desc_t_action), KVADDR,
 			&action, sizeof(long), "irq_desc action", FAULT_ON_ERROR);
 	        readmem(irq_desc_addr + OFFSET(irq_desc_t_depth), KVADDR, &depth,
 	                sizeof(int), "irq_desc depth", FAULT_ON_ERROR);
@@ -5703,7 +5703,7 @@ generic_dump_irq(int irq)
 	fprintf(fp, "HANDLER: ");
 	if (value_symbol(handler)) {
 		fprintf(fp, "%lx  ", handler);
-		pad_line(fp, VADDR_PRLEN == 8 ? 
+		pad_line(fp, VADDR_PRLEN == 8 ?
 			VADDR_PRLEN+2 : VADDR_PRLEN-6, ' ');
 		fprintf(fp, "<%s>\n", value_symbol(handler));
 	} else
@@ -5733,8 +5733,8 @@ generic_dump_irq(int irq)
 			readmem(handler+OFFSET(irq_chip_startup),
 				KVADDR,	&tmp1, sizeof(void *),
 				"hw_interrupt_type startup", FAULT_ON_ERROR);
-		fprintf(fp, "          startup: %lx  ", tmp1); 
-		if (is_kernel_text(tmp1)) 
+		fprintf(fp, "          startup: %lx  ", tmp1);
+		if (is_kernel_text(tmp1))
 			fprintf(fp, "<%s>", value_to_symstr(tmp1, buf, 0));
 		else if (readmem(tmp1, KVADDR, &tmp2,
                 	sizeof(ulong), "startup indirection",
@@ -5763,13 +5763,13 @@ generic_dump_irq(int irq)
                 fprintf(fp, "\n");
 
 		if (VALID_MEMBER(hw_interrupt_type_handle)) {
-	                readmem(handler+OFFSET(hw_interrupt_type_handle), 
+	                readmem(handler+OFFSET(hw_interrupt_type_handle),
 				KVADDR,
 	                        &tmp1, sizeof(void *),
 	                        "hw_interrupt_type handle", FAULT_ON_ERROR);
 	                fprintf(fp, "           handle: %lx  ", tmp1);
 	                if (is_kernel_text(tmp1))
-	                        fprintf(fp, "<%s>", 
+	                        fprintf(fp, "<%s>",
 					value_to_symstr(tmp1, buf, 0));
 	                else if (readmem(tmp1, KVADDR, &tmp2,
 	                        sizeof(ulong), "handle indirection",
@@ -5821,7 +5821,7 @@ generic_dump_irq(int irq)
                         	"hw_interrupt_type ack", FAULT_ON_ERROR);
                 	fprintf(fp, "              ack: %lx  ", tmp1);
                 	if (is_kernel_text(tmp1))
-                        	fprintf(fp, "<%s>", 
+                        	fprintf(fp, "<%s>",
 					value_to_symstr(tmp1, buf, 0));
                 	else if (readmem(tmp1, KVADDR, &tmp2,
                         	sizeof(ulong), "ack indirection",
@@ -5860,7 +5860,7 @@ generic_dump_irq(int irq)
                                                 value_to_symstr(tmp2, buf, 0));
                         fprintf(fp, "\n");
 		}
-		
+
 		if (VALID_MEMBER(irq_chip_mask_ack)) {
 			readmem(handler+OFFSET(irq_chip_mask_ack), KVADDR,
 				&tmp1, sizeof(void *),
@@ -5915,7 +5915,7 @@ generic_dump_irq(int irq)
                         	"hw_interrupt_type end", FAULT_ON_ERROR);
                         fprintf(fp, "              end: %lx  ", tmp1);
                         if (is_kernel_text(tmp1))
-                                fprintf(fp, "<%s>", 
+                                fprintf(fp, "<%s>",
                                         value_to_symstr(tmp1, buf, 0));
                         else if (readmem(tmp1, KVADDR, &tmp2,
                                 sizeof(ulong), "end indirection",
@@ -5942,11 +5942,11 @@ generic_dump_irq(int irq)
 		if (VALID_MEMBER(hw_interrupt_type_set_affinity)) {
                 	readmem(handler+OFFSET(hw_interrupt_type_set_affinity),
 				KVADDR, &tmp1, sizeof(void *),
-                        	"hw_interrupt_type set_affinity", 
+                        	"hw_interrupt_type set_affinity",
 				FAULT_ON_ERROR);
                         fprintf(fp, "     set_affinity: %lx  ", tmp1);
                         if (is_kernel_text(tmp1))
-                                fprintf(fp, "<%s>", 
+                                fprintf(fp, "<%s>",
                                         value_to_symstr(tmp1, buf, 0));
                         else if (readmem(tmp1, KVADDR, &tmp2,
                                 sizeof(ulong), "set_affinity indirection",
@@ -6022,7 +6022,7 @@ do_linked_action:
 	fprintf(fp, " ACTION: ");
         if (value_symbol(action)) {
                 fprintf(fp, "%lx  ", action);
-                pad_line(fp, VADDR_PRLEN == 8 ? 
+                pad_line(fp, VADDR_PRLEN == 8 ?
 			VADDR_PRLEN+2 : VADDR_PRLEN-6, ' ');
                 fprintf(fp, "<%s>\n", value_symbol(action));
         } else if (action)
@@ -6077,7 +6077,7 @@ do_linked_action:
                 fprintf(fp, "             next: %lx\n", action);
 	}
 
-	if (action) 
+	if (action)
 		goto do_linked_action;
 
 	fprintf(fp, "  DEPTH: %d\n\n", depth);
@@ -6091,14 +6091,14 @@ irq_desc_format_v2:
 			"IRQ_DESC/_DATA"),
 			mkstring(buf2, VADDR_PRLEN, CENTER,
 			"IRQACTION"));
-		
+
 		pc->curcmd_flags |= HEADER_PRINTED;
 	}
 	if (!irq_desc_addr) {
 		if (pc->curcmd_flags & IRQ_IN_USE)
 			return;
 	}
-	fprintf(fp, "%s  %s  ", 
+	fprintf(fp, "%s  %s  ",
 		mkstring(buf1, 4, CENTER|RJUST|INT_DEC, MKSTR((ulong)irq)),
 		irq_desc_addr ?
 		mkstring(buf2, MAX(VADDR_PRLEN, strlen("IRQ_DESC/_DATA")),
@@ -6127,12 +6127,12 @@ do_linked_action_v2:
                         "irqaction next", FAULT_ON_ERROR);
 		if (action) {
 			fprintf(fp, "\n%s",
-				space(4 + 2 + MAX(VADDR_PRLEN, 
+				space(4 + 2 + MAX(VADDR_PRLEN,
 				strlen("IRQ_DESC/_DATA")) + 2));
 			goto do_linked_action_v2;
 		}
 	}
-		
+
 
 	fprintf(fp, "\n");
 }
@@ -6367,9 +6367,9 @@ display_bh_1(void)
 }
 
 /*
- *  Dump the 2.3-ish Linux version's bottom half essentials.  
+ *  Dump the 2.3-ish Linux version's bottom half essentials.
  */
-static void 
+static void
 display_bh_2(void)
 {
 	int i;
@@ -6377,7 +6377,7 @@ display_bh_2(void)
 	struct softirq_state {
         	uint32_t active;
         	uint32_t mask;
-	} softirq_state; 
+	} softirq_state;
 	struct softirq_action {
 	        void    *action;
         	void    *data;
@@ -6387,36 +6387,36 @@ display_bh_2(void)
         readmem(symbol_value("bh_base"), KVADDR, bh_base, sizeof(void *) * 32,
                 "bh_base[32]", FAULT_ON_ERROR);
 
-        readmem(symbol_value("softirq_vec"), KVADDR, softirq_vec, 
+        readmem(symbol_value("softirq_vec"), KVADDR, softirq_vec,
 		sizeof(struct softirq_action) * 32,
                 "softirq_vec[32]", FAULT_ON_ERROR);
 
 	fprintf(fp, "CPU    MASK     ACTIVE\n");
-	
+
 	for (i = 0; i < kt->cpus; i++) {
-		readmem(symbol_value("softirq_state") + 
+		readmem(symbol_value("softirq_state") +
 			(i * SIZE(softirq_state)), KVADDR,
 			&softirq_state, sizeof(struct softirq_state),
 			"softirq_state", FAULT_ON_ERROR);
 
-		fprintf(fp, " %-2d  %08x  %08x\n", 
+		fprintf(fp, " %-2d  %08x  %08x\n",
 			i, softirq_state.mask,
 			softirq_state.active);
 	}
 
-	fprintf(fp, "\nVEC  %s\n", 
+	fprintf(fp, "\nVEC  %s\n",
 		mkstring(buf, VADDR_PRLEN, CENTER|LJUST, "ACTION"));
 
 	for (i = 0; i < 32; i++) {
 		if (!softirq_vec[i].action)
 			continue;
 
-		fprintf(fp, " %-2d  %lx  <%s>\n", i, 
+		fprintf(fp, " %-2d  %lx  <%s>\n", i,
 			(ulong)softirq_vec[i].action,
 			value_to_symstr((ulong)softirq_vec[i].action, buf, 0));
 	}
 
-        fprintf(fp, "\nBH_BASE   %s\n", 
+        fprintf(fp, "\nBH_BASE   %s\n",
 		mkstring(buf, VADDR_PRLEN, CENTER|LJUST, "FUNCTION"));
         for (i = 0; i < 32; i++) {
                 if (!bh_base[i])
@@ -6428,9 +6428,9 @@ display_bh_2(void)
 }
 
 /*
- *  Dump the 2.4 Linux version's bottom half essentials.  
+ *  Dump the 2.4 Linux version's bottom half essentials.
  */
-static void 
+static void
 display_bh_3(void)
 {
 	int i;
@@ -6446,14 +6446,14 @@ display_bh_3(void)
         readmem(symbol_value("bh_base"), KVADDR, bh_base, sizeof(void *) * 32,
                 "bh_base[32]", FAULT_ON_ERROR);
 
-        readmem(symbol_value("softirq_vec"), KVADDR, softirq_vec, 
+        readmem(symbol_value("softirq_vec"), KVADDR, softirq_vec,
 		sizeof(struct softirq_action) * 32,
                 "softirq_vec[32]", FAULT_ON_ERROR);
 
 	fprintf(fp, "CPU    MASK     ACTIVE\n");
-	
+
 	for (i = 0; i < kt->cpus; i++) {
-		readmem(symbol_value("irq_stat") + 
+		readmem(symbol_value("irq_stat") +
 			(i * SIZE(irq_cpustat_t)) +
 			OFFSET(irq_cpustat_t___softirq_active), KVADDR,
 			&active, sizeof(uint),
@@ -6468,7 +6468,7 @@ display_bh_3(void)
 		fprintf(fp, " %-2d  %08x  %08x\n", i, mask, active);
 	}
 
-	fprintf(fp, "\nVEC  %s\n", 
+	fprintf(fp, "\nVEC  %s\n",
 		mkstring(buf, VADDR_PRLEN, CENTER|LJUST, "ACTION"));
 
 	for (i = 0; i < 32; i++) {
@@ -6478,9 +6478,9 @@ display_bh_3(void)
 		fprintf(fp, " %-2d  %lx  ", i, (ulong)softirq_vec[i].action);
 		if (is_kernel_text((ulong)softirq_vec[i].action))
 			fprintf(fp, "<%s>",
-			    	value_to_symstr((ulong)softirq_vec[i].action, 
+			    	value_to_symstr((ulong)softirq_vec[i].action,
 			    	buf, 0));
-                else if (readmem((ulong)softirq_vec[i].action, KVADDR, 
+                else if (readmem((ulong)softirq_vec[i].action, KVADDR,
 			&function, sizeof(ulong), "action indirection",
                         RETURN_ON_ERROR|QUIET) && is_kernel_text(function))
                                 fprintf(fp, "<%s>",
@@ -6488,14 +6488,14 @@ display_bh_3(void)
 		fprintf(fp, "\n");
 	}
 
-        fprintf(fp, "\nBH_BASE   %s\n", 
+        fprintf(fp, "\nBH_BASE   %s\n",
 		mkstring(buf, VADDR_PRLEN, CENTER|LJUST, "FUNCTION"));
         for (i = 0; i < 32; i++) {
                 if (!bh_base[i])
                         continue;
                 fprintf(fp, "  %2d      %lx  ", i, bh_base[i]);
 		if (is_kernel_text(bh_base[i]))
-			fprintf(fp, "<%s>", 
+			fprintf(fp, "<%s>",
 				value_to_symstr(bh_base[i], buf, 0));
                 else if (readmem(bh_base[i], KVADDR, &function,
                         sizeof(ulong), "bh_base indirection",
@@ -6508,14 +6508,14 @@ display_bh_3(void)
 }
 
 /*
- *  Dump the 2.6 Linux version's bottom half essentials.  
+ *  Dump the 2.6 Linux version's bottom half essentials.
  */
 static void
 display_bh_4(void)
 {
 	int i, len;
 	char buf[BUFSIZE];
-	char *array; 
+	char *array;
 	ulong *p;
 	struct load_module *lm;
 
@@ -6526,7 +6526,7 @@ display_bh_4(void)
 		mkstring(buf, VADDR_PRLEN, CENTER|RJUST, "ACTION"));
 
 	array = GETBUF(SIZE(softirq_action) * (len+1));
-	
+
 	readmem(symbol_value("softirq_vec"), KVADDR,
 		array, SIZE(softirq_action) * len,
 		"softirq_vec", FAULT_ON_ERROR);
@@ -6535,7 +6535,7 @@ display_bh_4(void)
 		if (*p) {
 			fprintf(fp, "    [%d]%s %s  <%s>",
 				i, i < 10 ? space(4) : space(3),
-				mkstring(buf, VADDR_PRLEN, 
+				mkstring(buf, VADDR_PRLEN,
 				LONG_HEX|CENTER|RJUST, MKSTR(*p)),
 				value_symbol(*p));
 			if (module_symbol(*p, NULL, &lm, NULL, 0))
@@ -6593,7 +6593,7 @@ dump_hrtimer_data(void)
 	hrtimer_max_clock_bases = 0;
 	max_hrtimer_bases = 0;
 
-	/* 
+	/*
 	 * decide whether hrtimer is available and
 	 * set hrtimer_max_clock_bases or max_hrtimer_bases.
 	 * if both are not available, hrtimer is not available.
@@ -6654,7 +6654,7 @@ dump_hrtimer_clock_base(const void *hrtimer_bases, const int num)
 	readmem((ulong)(base + OFFSET(hrtimer_clock_base_get_time)), KVADDR,
 		&get_time, sizeof(get_time), "hrtimer_clock_base get_time",
 		FAULT_ON_ERROR);
-	fprintf(fp, "  CLOCK: %d  HRTIMER_CLOCK_BASE: %lx  [%s]\n", num, 
+	fprintf(fp, "  CLOCK: %d  HRTIMER_CLOCK_BASE: %lx  [%s]\n", num,
 		(ulong)base, value_to_symstr(get_time, buf, 0));
 
 	/* get current time(uptime) */
@@ -6675,12 +6675,12 @@ dump_hrtimer_base(const void *hrtimer_bases, const int num)
 	ulonglong current_time, now;
 	ulong get_time;
 	char buf[BUFSIZE];
-	
+
 	base = (void *)hrtimer_bases + SIZE(hrtimer_base) * num;
 	readmem((ulong)(base + OFFSET(hrtimer_base_get_time)), KVADDR,
 		&get_time, sizeof(get_time), "hrtimer_base get_time",
 		FAULT_ON_ERROR);
-	fprintf(fp, "  CLOCK: %d  HRTIMER_BASE: %lx  [%s]\n", num, 
+	fprintf(fp, "  CLOCK: %d  HRTIMER_BASE: %lx  [%s]\n", num,
 		(ulong)base, value_to_symstr(get_time, buf, 0));
 
 	/* get current time(uptime) */
@@ -6770,9 +6770,9 @@ next_one:
 		if (softexpires_len < 11)
 			softexpires_len = 11;
 		fprintf(fp, "  %s\n", mkstring(buf1, softexpires_len, CENTER|RJUST,
-			"CURRENT")); 
+			"CURRENT"));
 		sprintf(buf1, "%lld", now);
-		fprintf(fp, "  %s\n", mkstring(buf1, softexpires_len, 
+		fprintf(fp, "  %s\n", mkstring(buf1, softexpires_len,
 			CENTER|RJUST, NULL));
 		fprintf(fp, "  %s  %s  %s  %s\n",
 			mkstring(buf1, softexpires_len, CENTER|RJUST, "SOFTEXPIRES"),
@@ -6780,7 +6780,7 @@ next_one:
 			mkstring(buf3, VADDR_PRLEN, CENTER|LJUST, "HRTIMER"),
 			mkstring(buf4, VADDR_PRLEN, CENTER|LJUST, "FUNCTION"));
 	} else {
-		fprintf(fp, "  %s\n", mkstring(buf1, expires_len, CENTER|RJUST, 
+		fprintf(fp, "  %s\n", mkstring(buf1, expires_len, CENTER|RJUST,
 			"CURRENT"));
 		sprintf(buf1, "%lld", now);
 		fprintf(fp, "  %s\n", mkstring(buf1, expires_len, CENTER|RJUST, NULL));
@@ -6827,7 +6827,7 @@ get_expires_len(const int timer_cnt, const ulong *timer_list, const int getsoft)
 	if (getsoft) {
 		/* soft expires exist*/
 		if (VALID_MEMBER(hrtimer_softexpires)) {
-			softexpires = ktime_to_ns(last_timer + 
+			softexpires = ktime_to_ns(last_timer +
 				OFFSET(hrtimer_softexpires));
 			sprintf(buf, "%lld", softexpires);
 			len = strlen(buf);
@@ -6853,7 +6853,7 @@ static void
 print_timer(const void *timer)
 {
 	ulonglong softexpires, expires;
-	
+
 	ulong function;
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
@@ -6909,7 +6909,7 @@ ktime_to_ns(const void *ktime)
 
 	ns = 0;
 
-	if (!accessible((ulong)ktime)) 
+	if (!accessible((ulong)ktime))
 		return ns;
 
 	if (VALID_MEMBER(ktime_t_tv64)) {
@@ -6937,7 +6937,7 @@ ktime_to_ns(const void *ktime)
  *  Display the pending timer queue entries, both the old and new-style.
  */
 struct timer_data {
-	ulong address; 
+	ulong address;
 	ulong expires;
 	ulong function;
 };
@@ -6976,14 +6976,14 @@ dump_timer_data(void)
 	} else if (symbol_exists("tvec_bases")) {
 		dump_timer_data_tvec_bases_v1();
 		return;
-	} 
+	}
 
 	BZERO(tv, sizeof(struct tv_range) * TVN);
 
 	vec_root_size = (i = ARRAY_LENGTH(timer_vec_root_vec)) ?
-		i : get_array_length("timer_vec_root.vec", 
+		i : get_array_length("timer_vec_root.vec",
 			NULL, SIZE(list_head));
-	vec_size = (i = ARRAY_LENGTH(timer_vec_vec)) ? 
+	vec_size = (i = ARRAY_LENGTH(timer_vec_vec)) ?
 		i : get_array_length("timer_vec.vec", NULL, SIZE(list_head));
 
 	vec = (ulong *)GETBUF(SIZE(list_head) * MAX(vec_root_size, vec_size));
@@ -6991,7 +6991,7 @@ dump_timer_data(void)
 	if (symbol_exists("timer_active") && symbol_exists("timer_table")) {
 		get_symbol_data("timer_active", sizeof(ulong), &timer_active);
         	readmem(symbol_value("timer_table"), KVADDR, &timer_table,
-                	sizeof(struct timer_struct) * 32, "timer_table[32]", 
+                	sizeof(struct timer_struct) * 32, "timer_table[32]",
 			FAULT_ON_ERROR);
 		old_timers_exist = TRUE;
 	} else
@@ -7003,7 +7003,7 @@ dump_timer_data(void)
 	 */
 
 	count = 0;
-        for (mask = 1, tp = timer_table+0; old_timers_exist && mask; 
+        for (mask = 1, tp = timer_table+0; old_timers_exist && mask;
 	     tp++, mask += mask) {
                 if (mask > timer_active)
                         break;
@@ -7035,12 +7035,12 @@ dump_timer_data(void)
 		get_symbol_data("timer_active", sizeof(ulong), &timer_active);
 
 	highest = 0;
-        for (i = 0, mask = 1, tp = timer_table+0; old_timers_exist && mask; 
+        for (i = 0, mask = 1, tp = timer_table+0; old_timers_exist && mask;
 	     i++, tp++, mask += mask) {
-                if (mask > timer_active) 
+                if (mask > timer_active)
                         break;
 
-                if (!(mask & timer_active)) 
+                if (!(mask & timer_active))
                         continue;
 
 		td[tdx].address = i;
@@ -7068,7 +7068,7 @@ dump_timer_data(void)
 	 *  Because the jiffies values can fluctuate wildly from dump to
 	 *  dump, try to use the appropriate amount of space...
 	 */
-	sprintf(buf, "%ld", highest); 
+	sprintf(buf, "%ld", highest);
 	flen = MAX(strlen(buf), strlen("JIFFIES"));
 	fprintf(fp, "%s\n", mkstring(buf, flen, CENTER|LJUST, "JIFFIES"));
 	fprintf(fp, "%s\n", mkstring(buf, flen, RJUST|LONG_DEC,MKSTR(jiffies)));
@@ -7077,7 +7077,7 @@ dump_timer_data(void)
 		mkstring(buf, flen, CENTER|LJUST, "EXPIRES"));
 
         for (i = 0; i < tdx; i++) {
-        	fprintf(fp, "%s", 
+        	fprintf(fp, "%s",
 		    mkstring(buf, flen, RJUST|LONG_DEC, MKSTR(td[i].expires)));
 
 		if (td[i].address < 32) {
@@ -7085,19 +7085,19 @@ dump_timer_data(void)
                         fprintf(fp, "  %s  ",
                                 mkstring(buf, 16, CENTER|LJUST, NULL));
 		} else {
-			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, 
+			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
 				MKSTR(td[i].address));
 			fprintf(fp, "  %s  ", mkstring(buf, 16, CENTER, buf1));
 		}
-		
-		if (is_kernel_text(td[i].function)) 
+
+		if (is_kernel_text(td[i].function))
 			fprintf(fp, "%s  <%s>\n",
-				mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, 
+				mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
 				MKSTR(td[i].function)),
                         	value_to_symstr(td[i].function, buf, 0));
 		else {
-			fprintf(fp, "%s  ", 
-				mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, 
+			fprintf(fp, "%s  ",
+				mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
 				MKSTR(td[i].function)));
                 	if (readmem(td[i].function, KVADDR, &function,
                             sizeof(ulong), "timer function",
@@ -7105,7 +7105,7 @@ dump_timer_data(void)
 				if (is_kernel_text(function))
 					fprintf(fp, "<%s>",
 					    value_to_symstr(function, buf, 0));
-			} 
+			}
 			fprintf(fp, "\n");
 		}
         }
@@ -7182,11 +7182,11 @@ next_cpu:
 
 	fprintf(fp, "TVEC_BASES[%d]: %lx\n", cpu,
         	symbol_value("tvec_bases") + (SIZE(tvec_t_base_s) * cpu));
-		
+
         sprintf(buf1, "%ld", highest);
         flen = MAX(strlen(buf1), strlen("JIFFIES"));
         fprintf(fp, "%s\n", mkstring(buf1,flen, CENTER|RJUST, "JIFFIES"));
-        fprintf(fp, "%s\n", mkstring(buf1,flen, 
+        fprintf(fp, "%s\n", mkstring(buf1,flen,
 		RJUST|LONG_DEC,MKSTR(jiffies)));
 
 	fprintf(fp, "%s  %s  %s\n",
@@ -7198,8 +7198,8 @@ next_cpu:
                 fprintf(fp, "%s",
                     mkstring(buf1, flen, RJUST|LONG_DEC, MKSTR(td[i].expires)));
 
-                fprintf(fp, "  %s  ", mkstring(buf1, 
-			MAX(VADDR_PRLEN, strlen("TIMER_LIST")), 
+                fprintf(fp, "  %s  ", mkstring(buf1,
+			MAX(VADDR_PRLEN, strlen("TIMER_LIST")),
 			RJUST|CENTER|LONG_HEX, MKSTR(td[i].address)));
 
                 if (is_kernel_text(td[i].function)) {
@@ -7208,7 +7208,7 @@ next_cpu:
 				MKSTR(td[i].function)),
                                 value_to_symstr(td[i].function, buf1, 0));
                 } else {
-                        fprintf(fp, "%s  ", mkstring(buf1, VADDR_PRLEN, 
+                        fprintf(fp, "%s  ", mkstring(buf1, VADDR_PRLEN,
 				RJUST|LONG_HEX, MKSTR(td[i].function)));
                         if (readmem(td[i].function, KVADDR, &function,
                             sizeof(ulong), "timer function",
@@ -7253,7 +7253,7 @@ dump_timer_data_tvec_bases_v2(void)
          */
         vec_root_size = (i = ARRAY_LENGTH(tvec_root_s_vec)) ?
                 i : get_array_length("tvec_root_s.vec", NULL, SIZE(list_head));
-	if (!vec_root_size && 
+	if (!vec_root_size &&
 	    (i = get_array_length("tvec_root.vec", NULL, SIZE(list_head))))
 		vec_root_size = i;
 	if (!vec_root_size)
@@ -7322,11 +7322,11 @@ next_cpu:
         }
 
         fprintf(fp, "TVEC_BASES[%d]: %lx\n", cpu, tvec_bases);
-		
+
         sprintf(buf1, "%ld", highest);
         flen = MAX(strlen(buf1), strlen("JIFFIES"));
         fprintf(fp, "%s\n", mkstring(buf1,flen, CENTER|RJUST, "JIFFIES"));
-        fprintf(fp, "%s\n", mkstring(buf1,flen, 
+        fprintf(fp, "%s\n", mkstring(buf1,flen,
 		RJUST|LONG_DEC,MKSTR(jiffies)));
 
 	fprintf(fp, "%s  %s  %s\n",
@@ -7338,8 +7338,8 @@ next_cpu:
                 fprintf(fp, "%s",
                     mkstring(buf1, flen, RJUST|LONG_DEC, MKSTR(td[i].expires)));
 
-                fprintf(fp, "  %s  ", mkstring(buf1, 
-			MAX(VADDR_PRLEN, strlen("TIMER_LIST")), 
+                fprintf(fp, "  %s  ", mkstring(buf1,
+			MAX(VADDR_PRLEN, strlen("TIMER_LIST")),
 			RJUST|CENTER|LONG_HEX, MKSTR(td[i].address)));
 
                 if (is_kernel_text(td[i].function)) {
@@ -7348,7 +7348,7 @@ next_cpu:
 				MKSTR(td[i].function)),
                                 value_to_symstr(td[i].function, buf1, 0));
                 } else {
-                        fprintf(fp, "%s  ", mkstring(buf1, VADDR_PRLEN, 
+                        fprintf(fp, "%s  ", mkstring(buf1, VADDR_PRLEN,
 				RJUST|LONG_HEX, MKSTR(td[i].function)));
                         if (readmem(td[i].function, KVADDR, &function,
                             sizeof(ulong), "timer function",
@@ -7418,11 +7418,11 @@ init_tv_ranges(struct tv_range *tv, int vec_root_size, int vec_size, int cpu)
 		sp = per_cpu_symbol_search("per_cpu__tvec_bases");
 		if ((kt->flags & SMP) && (kt->flags & PER_CPU_OFF))
 			tvec_bases = sp->value + kt->__per_cpu_offset[cpu];
-		else		
+		else
 			tvec_bases =  sp->value;
 
 		if (symbol_exists("boot_tvec_bases")) {
-			readmem(tvec_bases, KVADDR, &tvec_bases, sizeof(void *), 
+			readmem(tvec_bases, KVADDR, &tvec_bases, sizeof(void *),
 				"per-cpu tvec_bases", FAULT_ON_ERROR);
 		}
 
@@ -7444,16 +7444,16 @@ init_tv_ranges(struct tv_range *tv, int vec_root_size, int vec_size, int cpu)
 	} else {
 		tv[1].base = symbol_value("tv1");
 	        tv[1].end = tv[1].base + SIZE(timer_vec_root);
-	
+
 	        tv[2].base = symbol_value("tv2");
 	        tv[2].end = tv[2].base + SIZE(timer_vec);
-	
+
 	        tv[3].base = symbol_value("tv3");
 	        tv[3].end = tv[3].base + SIZE(timer_vec);
-	
+
 	        tv[4].base = symbol_value("tv4");
 	        tv[4].end = tv[4].base + SIZE(timer_vec);
-	
+
 	        tv[5].base = symbol_value("tv5");
 	        tv[5].end = tv[5].base + SIZE(timer_vec);
 	}
@@ -7472,13 +7472,13 @@ init_tv_ranges(struct tv_range *tv, int vec_root_size, int vec_size, int cpu)
  */
 static int
 do_timer_list(ulong vec_kvaddr,
-	      int size, 
-	      ulong *vec, 
-	      void *option, 
+	      int size,
+	      ulong *vec,
+	      void *option,
 	      ulong *highest,
 	      struct tv_range *tv)
 {
-	int i, t; 
+	int i, t;
 	int count, tdx;
 	ulong expires, function;
 	struct timer_data *td;
@@ -7500,7 +7500,7 @@ do_timer_list(ulong vec_kvaddr,
 		sz = SIZE(list_head) * size;
 	else if (VALID_MEMBER(timer_list_entry))
 		sz = SIZE(list_head) * size;
-	else 
+	else
 		sz = sizeof(ulong) * size;
 
         readmem(vec_kvaddr, KVADDR, vec, sz, "timer_list vec array",
@@ -7571,7 +7571,7 @@ new_timer_list_format:
 	ld = &list_data;
 	timer_list_buf = GETBUF(SIZE(timer_list));
 
-        for (i = count = 0; i < (size*2); i += 2, 
+        for (i = count = 0; i < (size*2); i += 2,
 	     vec_kvaddr += SIZE(list_head)) {
 
 		if (vec[i] == vec_kvaddr)
@@ -7586,10 +7586,10 @@ new_timer_list_format:
                 hq_open();
 		if ((timer_cnt = do_list(ld)) == -1) {
 			/* Ignore chains with errors */
-			error(INFO, 
+			error(INFO,
 	      	      "ignoring faulty timer list at index %d of timer array\n",
 				i/2);
-			continue; 
+			continue;
 		}
                 if (!timer_cnt)
                 	continue;
@@ -7607,7 +7607,7 @@ new_timer_list_format:
                                 SIZE(timer_list), "timer_list buffer",
                                 FAULT_ON_ERROR);
 
-                        expires = ULONG(timer_list_buf + 
+                        expires = ULONG(timer_list_buf +
 				OFFSET(timer_list_expires));
                         function = ULONG(timer_list_buf +
                         	OFFSET(timer_list_function));
@@ -7783,7 +7783,7 @@ dump_waitq(ulong wq, char *wq_name)
 		 *   WAIT_QUEUE_HEAD macro in 2.2 systems).
 		 */
 		if (wq_name)
-			fprintf(fp, "wait queue \"%s\" (%lx) is empty\n", 
+			fprintf(fp, "wait queue \"%s\" (%lx) is empty\n",
 				wq_name, wq);
 		else
 			fprintf(fp, "wait queue %lx is empty\n", wq);
@@ -7844,7 +7844,7 @@ get_cpus_online()
 
 	online = 0;
 
-        if (readmem(addr, KVADDR, buf, len, 
+        if (readmem(addr, KVADDR, buf, len,
 	    "cpu_online_map", RETURN_ON_ERROR)) {
 
 		maskptr = (ulong *)buf;
@@ -7878,7 +7878,7 @@ get_highest_cpu_online()
 	buf = GETBUF(len);
 	highest = -1;
 
-        if (readmem(addr, KVADDR, buf, len, 
+        if (readmem(addr, KVADDR, buf, len,
 	    "cpu_online_map", RETURN_ON_ERROR)) {
 
 		maskptr = (ulong *)buf;
@@ -7907,7 +7907,7 @@ get_cpus_present()
 	char *buf;
 	ulong *maskptr, addr;
 
-	if (!(addr = cpu_map_addr("present"))) 
+	if (!(addr = cpu_map_addr("present")))
 		return 0;
 
 	len = cpu_map_size("present");
@@ -7949,7 +7949,7 @@ get_highest_cpu_present()
 	buf = GETBUF(len);
 	highest = -1;
 
-	if (readmem(addr, KVADDR, buf, len, 
+	if (readmem(addr, KVADDR, buf, len,
 	    "cpu_present_map", RETURN_ON_ERROR)) {
 
 		maskptr = (ulong *)buf;
@@ -8004,7 +8004,7 @@ get_cpus_possible()
 }
 
 /*
- *  When displaying cpus, return the number of cpus online if possible, 
+ *  When displaying cpus, return the number of cpus online if possible,
  *  otherwise kt->cpus.
  */
 int
@@ -8017,7 +8017,7 @@ get_cpus_to_display(void)
 
 /*
  *  Xen machine-address to pseudo-physical-page translator.
- */ 
+ */
 ulonglong
 xen_m2p(ulonglong machine)
 {
@@ -8028,7 +8028,7 @@ xen_m2p(ulonglong machine)
 
 	if (pfn == XEN_MFN_NOT_FOUND) {
 		if (CRASHDEBUG(1) && !STREQ(pc->curcmd, "search"))
-			error(INFO, 
+			error(INFO,
 			    "xen_m2p: machine address %lx not found\n",
                            	 machine);
 		return XEN_MACHADDR_NOT_FOUND;
@@ -8049,12 +8049,12 @@ __xen_m2p(ulonglong machine, ulong mfn)
 	 */
 	for (c = 0; c < P2M_MAPPING_CACHE; c++) {
 		if (kt->p2m_mapping_cache[c].mapping &&
-		    ((mfn >= kt->p2m_mapping_cache[c].start) && 
-		     (mfn <= kt->p2m_mapping_cache[c].end))) { 
+		    ((mfn >= kt->p2m_mapping_cache[c].start) &&
+		     (mfn <= kt->p2m_mapping_cache[c].end))) {
 
 			if (kt->p2m_mapping_cache[c].mapping != kt->last_mapping_read) {
-                        	if (!readmem(kt->p2m_mapping_cache[c].mapping, KVADDR, 
-			       	    mp, PAGESIZE(), "phys_to_machine_mapping page (cached)", 
+                        	if (!readmem(kt->p2m_mapping_cache[c].mapping, KVADDR,
+			       	    mp, PAGESIZE(), "phys_to_machine_mapping page (cached)",
 			    	    RETURN_ON_ERROR))
                                 	error(FATAL, "cannot access "
                                     	    "phys_to_machine_mapping page\n");
@@ -8107,21 +8107,21 @@ __xen_m2p(ulonglong machine, ulong mfn)
 		 */
 		mapping = kt->phys_to_machine_mapping;
 
-		for (p = 0; p < kt->p2m_table_size; p += XEN_PFNS_PER_PAGE) 
+		for (p = 0; p < kt->p2m_table_size; p += XEN_PFNS_PER_PAGE)
 		{
 			if (mapping != kt->last_mapping_read) {
-				if (!readmem(mapping, KVADDR, mp, PAGESIZE(), 
-			    	    "phys_to_machine_mapping page", 
+				if (!readmem(mapping, KVADDR, mp, PAGESIZE(),
+			    	    "phys_to_machine_mapping page",
 				    RETURN_ON_ERROR))
-					error(FATAL, 
+					error(FATAL,
 				     	    "cannot access"
 					    " phys_to_machine_mapping page\n");
 				else
 					kt->last_mapping_read = mapping;
 			}
-	
+
 			kt->p2m_pages_searched++;
-	
+
 			if (search_mapping_page(mfn, &i, &start, &end)) {
 				pfn = p + i;
 				if (CRASHDEBUG(1))
@@ -8129,23 +8129,23 @@ __xen_m2p(ulonglong machine, ulong mfn)
 					" i: %ld pfn: %lx (%llx)\n",
 					(p/XEN_PFNS_PER_PAGE)+1, mfn, machine,
 					p, i, pfn, XEN_PFN_TO_PSEUDO(pfn));
-	
+
 				c = kt->p2m_cache_index;
 				kt->p2m_mapping_cache[c].start = start;
 				kt->p2m_mapping_cache[c].end = end;
 				kt->p2m_mapping_cache[c].mapping = mapping;
 				kt->p2m_cache_index = (c+1) % P2M_MAPPING_CACHE;
-	
+
 				return pfn;
 			}
-	
+
 			mapping += PAGESIZE();
 		}
-	}	
+	}
 
 	if (CRASHDEBUG(1))
 		console("machine address %llx not found\n", machine);
-	
+
 	return (XEN_MFN_NOT_FOUND);
 }
 
@@ -8259,9 +8259,9 @@ __xen_pvops_m2p_l3(ulonglong machine, ulong mfn)
 }
 
 /*
- *  Search for an mfn in the current mapping page, and if found, 
+ *  Search for an mfn in the current mapping page, and if found,
  *  determine the range of contiguous mfns that it's contained
- *  within (if any). 
+ *  within (if any).
  */
 #define PREV_UP    0x1
 #define NEXT_UP    0x2
@@ -8350,14 +8350,14 @@ search_mapping_page(ulong mfn, ulong *index, ulong *startptr, ulong *endptr)
 		if (start > end) {
 			curr = start;
 			start = end;
-			end = curr;	
+			end = curr;
 		}
 
 		*startptr = start;
 		*endptr = end;
 
 		if (CRASHDEBUG(2))
-			fprintf(fp, "mfn: %lx -> start: %lx end: %lx (%ld mfns)\n", 
+			fprintf(fp, "mfn: %lx -> start: %lx end: %lx (%ld mfns)\n",
 				mfn, start, end, end - start);
 	}
 
@@ -8498,16 +8498,16 @@ read_in_kernel_config(int command)
 
 	if ((sp = symbol_search("kernel_config_data")) == NULL) {
 		if (command == IKCFG_READ)
-			error(FATAL, 
+			error(FATAL,
 			    "kernel_config_data does not exist in this kernel\n");
 		else if (command == IKCFG_SETUP || command == IKCFG_FREE)
-			error(WARNING, 
+			error(WARNING,
 			    "kernel_config_data does not exist in this kernel\n");
 		return;
 	}
-	
-	/* We don't know how large IKCONFIG is, so we start with 
-	 * 32k, if we can't find MAGIC_END assume we didn't read 
+
+	/* We don't know how large IKCONFIG is, so we start with
+	 * 32k, if we can't find MAGIC_END assume we didn't read
 	 * enough, double it and try again.
 	 */
 	ii = 32;
@@ -8519,13 +8519,13 @@ again:
 		error(WARNING, "cannot malloc IKCONFIG input buffer\n");
 		return;
 	}
-	
+
         if (!readmem(sp->value, KVADDR, buf, size,
             "kernel_config_data", RETURN_ON_ERROR)) {
 		error(WARNING, "cannot read kernel_config_data\n");
 		goto out2;
 	}
-		
+
 	/* Find the start */
 	if (strstr(buf, MAGIC_START))
 		head = buf + MAGIC_SIZE + 10; /* skip past MAGIC_START and gzip header */
@@ -8540,7 +8540,7 @@ again:
 
 	/* Find the end*/
 	while (tail < (buf + (size - 1))) {
-		
+
 		if (strncmp(tail, MAGIC_END, end)==0) {
 			found = 1;
 			break;
@@ -8588,7 +8588,7 @@ again:
 
 	if (ret != Z_STREAM_END) {
 		inflateEnd(&stream);
-		if (ret == Z_NEED_DICT || 
+		if (ret == Z_NEED_DICT ||
 		   (ret == Z_BUF_ERROR && stream.avail_in == 0)) {
 			read_in_kernel_config_err(Z_DATA_ERROR, "uncompress");
 			goto out1;
@@ -8615,7 +8615,7 @@ again:
 			} else
 				error(WARNING, "IKCFG_SETUP failed\n\n");
 		} else
-			error(WARNING, 
+			error(WARNING,
 				"IKCFG_SETUP: ikconfig data already loaded\n");
 		goto out1;
 	} else if (command == IKCFG_FREE) {
@@ -8637,7 +8637,7 @@ again:
 			pos += ii;
 
 			ln = line;
-				
+
 			/* skip leading whitespace */
 			while (whitespace(*ln))
 				ln++;
@@ -8678,8 +8678,8 @@ again:
 
 					if (STREQ(ln, "CONFIG_NR_CPUS")) {
 						kt->kernel_NR_CPUS = atoi(val);
-						if (CRASHDEBUG(1)) 
-							error(INFO, 
+						if (CRASHDEBUG(1))
+							error(INFO,
 							    "CONFIG_NR_CPUS: %d\n",
 								kt->kernel_NR_CPUS);
 
@@ -8691,7 +8691,7 @@ again:
 					} else if (STREQ(ln, "CONFIG_HZ")) {
 						machdep->hz = atoi(val);
 						if (CRASHDEBUG(1))
-							error(INFO, 
+							error(INFO,
 							    "CONFIG_HZ: %d\n",
 								machdep->hz);
 					}
@@ -8724,7 +8724,7 @@ read_in_kernel_config_err(int e, char *msg)
 		case Z_NEED_DICT:
 			fprintf(fp, "Z_NEED_DICT\n");
 			break;
-		
+
 		case Z_ERRNO:
 			fprintf(fp, "Z_ERNO\n");
 			break;
@@ -8733,7 +8733,7 @@ read_in_kernel_config_err(int e, char *msg)
 			fprintf(fp, "Z_STREAM\n");
 			break;
 
-		case Z_DATA_ERROR: 
+		case Z_DATA_ERROR:
 			fprintf(fp, "Z_DATA_ERROR\n");
 			break;
 
@@ -8744,12 +8744,12 @@ read_in_kernel_config_err(int e, char *msg)
 		case Z_BUF_ERROR: /* not enough room in output buf */
 			fprintf(fp, "Z_BUF_ERROR\n");
 			break;
-		
+
 		case Z_VERSION_ERROR:
 			fprintf(fp, "Z_VERSION_ERROR\n");
 			break;
 
-		default: 
+		default:
 			fprintf(fp, "UNKNOWN ERROR: %d\n", e);
 			break;
 	}
@@ -8757,10 +8757,10 @@ read_in_kernel_config_err(int e, char *msg)
 
 /*
  *  With the evidence available, attempt to pre-determine whether
- *  this is a paravirt-capable kernel running as bare-metal, xen, 
- *  kvm, etc. 
+ *  this is a paravirt-capable kernel running as bare-metal, xen,
+ *  kvm, etc.
  *
- *  NOTE: Only bare-metal pv_ops kernels are supported so far. 
+ *  NOTE: Only bare-metal pv_ops kernels are supported so far.
  */
 void
 paravirt_init(void)
@@ -8787,12 +8787,12 @@ get_xtime(struct timespec *date)
 
 	if (VALID_MEMBER(timekeeper_xtime) &&
 	    (sp = kernel_symbol_search("timekeeper"))) {
-                readmem(sp->value + OFFSET(timekeeper_xtime), KVADDR, 
+                readmem(sp->value + OFFSET(timekeeper_xtime), KVADDR,
 			date, sizeof(struct timespec),
                         "timekeeper xtime", RETURN_ON_ERROR);
 	} else if (VALID_MEMBER(timekeeper_xtime_sec) &&
 	    (sp = kernel_symbol_search("timekeeper"))) {
-                readmem(sp->value + OFFSET(timekeeper_xtime_sec), KVADDR, 
+                readmem(sp->value + OFFSET(timekeeper_xtime_sec), KVADDR,
 			&xtime_sec, sizeof(uint64_t),
                         "timekeeper xtime_sec", RETURN_ON_ERROR);
 		date->tv_sec = (__time_t)xtime_sec;
@@ -8801,7 +8801,7 @@ get_xtime(struct timespec *date)
 }
 
 
-static void 
+static void
 hypervisor_init(void)
 {
 	ulong x86_hyper, name, pv_init_ops;
@@ -8810,25 +8810,25 @@ hypervisor_init(void)
 	kt->hypervisor = "(undetermined)";
 	BZERO(buf, BUFSIZE);
 
-	if (kernel_symbol_exists("pv_info") && 
+	if (kernel_symbol_exists("pv_info") &&
 	    MEMBER_EXISTS("pv_info", "name") &&
-	    readmem(symbol_value("pv_info") + MEMBER_OFFSET("pv_info", "name"), 
-	    KVADDR, &name, sizeof(char *), "pv_info.name", 
+	    readmem(symbol_value("pv_info") + MEMBER_OFFSET("pv_info", "name"),
+	    KVADDR, &name, sizeof(char *), "pv_info.name",
 	    QUIET|RETURN_ON_ERROR) && read_string(name, buf, BUFSIZE-1))
 		kt->hypervisor = strdup(buf);
 	else if (try_get_symbol_data("x86_hyper", sizeof(void *), &x86_hyper)) {
 		if (!x86_hyper)
 			kt->hypervisor = "bare hardware";
 		else if (MEMBER_EXISTS("hypervisor_x86", "name") &&
-	  	    readmem(x86_hyper + MEMBER_OFFSET("hypervisor_x86", "name"), 
-		    KVADDR, &name, sizeof(char *), "x86_hyper->name", 
+	  	    readmem(x86_hyper + MEMBER_OFFSET("hypervisor_x86", "name"),
+		    KVADDR, &name, sizeof(char *), "x86_hyper->name",
 		    QUIET|RETURN_ON_ERROR) && read_string(name, buf, BUFSIZE-1))
 			kt->hypervisor = strdup(buf);
-	} else if (XENDUMP_DUMPFILE() || XEN()) 
+	} else if (XENDUMP_DUMPFILE() || XEN())
 		kt->hypervisor = "Xen";
 	else if (KVMDUMP_DUMPFILE())
 		kt->hypervisor = "KVM";
-	else if (PVOPS() && readmem(symbol_value("pv_init_ops"), KVADDR, 
+	else if (PVOPS() && readmem(symbol_value("pv_init_ops"), KVADDR,
 	    &pv_init_ops, sizeof(void *), "pv_init_ops", RETURN_ON_ERROR) &&
 	    (p1 = value_symbol(pv_init_ops)) &&
 	    STREQ(p1, "native_patch"))
@@ -8897,84 +8897,84 @@ get_log_from_vmcoreinfo(char *file, char *(*vmcoreinfo_read_string)(const char *
 	if ((string = vmcoreinfo_read_string("SYMBOL(log_buf)"))) {
 		vmc->log_buf_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(log_buf): %lx\n", 
+			fprintf(fp, "SYMBOL(log_buf): %lx\n",
 				vmc->log_buf_SYMBOL);
 		free(string);
 	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(log_end)"))) {
 		vmc->log_end_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(log_end): %lx\n", 
+			fprintf(fp, "SYMBOL(log_end): %lx\n",
 				vmc->log_end_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(log_buf_len)"))) {
 		vmc->log_buf_len_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(log_buf_len): %lx\n", 
+			fprintf(fp, "SYMBOL(log_buf_len): %lx\n",
 				vmc->log_buf_len_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(logged_chars)"))) {
 		vmc->logged_chars_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(logged_chars): %lx\n", 
+			fprintf(fp, "SYMBOL(logged_chars): %lx\n",
 				vmc->logged_chars_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(log_first_idx)"))) {
 		vmc->log_first_idx_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(log_first_idx): %lx\n", 
+			fprintf(fp, "SYMBOL(log_first_idx): %lx\n",
 				vmc->log_first_idx_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(log_next_idx)"))) {
 		vmc->log_next_idx_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(log_next_idx): %lx\n", 
+			fprintf(fp, "SYMBOL(log_next_idx): %lx\n",
 				vmc->log_next_idx_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(phys_base)"))) {
 		vmc->phys_base_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(phys_base): %lx\n", 
+			fprintf(fp, "SYMBOL(phys_base): %lx\n",
 				vmc->phys_base_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("SYMBOL(_stext)"))) {
 		vmc->_stext_SYMBOL = htol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "SYMBOL(_stext): %lx\n", 
+			fprintf(fp, "SYMBOL(_stext): %lx\n",
 				vmc->_stext_SYMBOL);
 		free(string);
-	} 
+	}
 	if ((string = vmcoreinfo_read_string("OFFSET(log.ts_nsec)"))) {
 		vmc->log_ts_nsec_OFFSET = dtol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "OFFSET(log.ts_nsec): %ld\n", 
+			fprintf(fp, "OFFSET(log.ts_nsec): %ld\n",
 				vmc->log_ts_nsec_OFFSET);
 		free(string);
 	}
 	if ((string = vmcoreinfo_read_string("OFFSET(log.len)"))) {
 		vmc->log_len_OFFSET = dtol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "OFFSET(log.len): %ld\n", 
+			fprintf(fp, "OFFSET(log.len): %ld\n",
 				vmc->log_len_OFFSET);
 		free(string);
 	}
 	if ((string = vmcoreinfo_read_string("OFFSET(log.text_len)"))) {
 		vmc->log_text_len_OFFSET = dtol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "OFFSET(log.text_len): %ld\n", 
+			fprintf(fp, "OFFSET(log.text_len): %ld\n",
 				vmc->log_text_len_OFFSET);
 		free(string);
 	}
 	if ((string = vmcoreinfo_read_string("OFFSET(log.dict_len)"))) {
 		vmc->log_dict_len_OFFSET = dtol(string, RETURN_ON_ERROR, NULL);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "OFFSET(log.dict_len): %ld\n", 
+			fprintf(fp, "OFFSET(log.dict_len): %ld\n",
 				vmc->log_dict_len_OFFSET);
 		free(string);
 	}
@@ -8998,7 +8998,7 @@ get_log_from_vmcoreinfo(char *file, char *(*vmcoreinfo_read_string)(const char *
             (vmc->log_text_len_OFFSET >= 0) &&
             (vmc->log_dict_len_OFFSET >= 0))
 		dump_variable_length_record();
-	else if (vmc->log_buf_SYMBOL && vmc->log_end_SYMBOL && 
+	else if (vmc->log_buf_SYMBOL && vmc->log_end_SYMBOL &&
 	    vmc->log_buf_len_SYMBOL && vmc->logged_chars_SYMBOL)
 		dump_log_legacy();
 	else
@@ -9022,14 +9022,14 @@ dump_log_legacy(void)
 	log_buf = log_end = log_buf_len = logged_chars = 0;
 
 	paddr = VTOP(vmc->log_buf_SYMBOL);
-	if (readmem(paddr, PHYSADDR, &long_value, sizeof(ulong), 
+	if (readmem(paddr, PHYSADDR, &long_value, sizeof(ulong),
 	    "log_buf pointer", RETURN_ON_ERROR))
 		log_buf = long_value;
 	else
-		error(FATAL, "cannot read log_buf value\n"); 
+		error(FATAL, "cannot read log_buf value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_buf vaddr: %lx paddr: %llx => %lx\n", 
-			vmc->log_buf_SYMBOL, (ulonglong)paddr, log_buf); 
+		fprintf(fp, "log_buf vaddr: %lx paddr: %llx => %lx\n",
+			vmc->log_buf_SYMBOL, (ulonglong)paddr, log_buf);
 
 	paddr = VTOP(vmc->log_end_SYMBOL);
 	if (THIS_KERNEL_VERSION < LINUX(2,6,25)) {
@@ -9037,40 +9037,40 @@ dump_log_legacy(void)
 		    "log_end (long)", RETURN_ON_ERROR))
 			log_end = (uint)long_value;
 		else
-			error(FATAL, "cannot read log_end value\n"); 
+			error(FATAL, "cannot read log_end value\n");
 	} else {
 		if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 		    "log_end (int)", RETURN_ON_ERROR))
 			log_end = int_value;
 		else
-			error(FATAL, "cannot read log_end value\n"); 
+			error(FATAL, "cannot read log_end value\n");
 	}
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_end vaddr: %lx paddr: %llx => %d\n", 
-			vmc->log_end_SYMBOL, (ulonglong)paddr, log_end); 
+		fprintf(fp, "log_end vaddr: %lx paddr: %llx => %d\n",
+			vmc->log_end_SYMBOL, (ulonglong)paddr, log_end);
 
 	paddr = VTOP(vmc->log_buf_len_SYMBOL);
 	if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 	    "log_buf_len", RETURN_ON_ERROR))
 		log_buf_len = int_value;
 	else
-		error(FATAL, "cannot read log_buf_len value\n"); 
+		error(FATAL, "cannot read log_buf_len value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_buf_len vaddr: %lx paddr: %llx => %d\n", 
-			vmc->log_buf_len_SYMBOL, (ulonglong)paddr, log_buf_len); 
+		fprintf(fp, "log_buf_len vaddr: %lx paddr: %llx => %d\n",
+			vmc->log_buf_len_SYMBOL, (ulonglong)paddr, log_buf_len);
 
 	paddr = VTOP(vmc->logged_chars_SYMBOL);
 	if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 	    "logged_chars", RETURN_ON_ERROR))
 		logged_chars = int_value;
 	else
-		error(FATAL, "cannot read logged_chars value\n"); 
+		error(FATAL, "cannot read logged_chars value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "logged_chars vaddr: %lx paddr: %llx => %d\n", 
-			vmc->logged_chars_SYMBOL, (ulonglong)paddr, logged_chars); 
+		fprintf(fp, "logged_chars vaddr: %lx paddr: %llx => %d\n",
+			vmc->logged_chars_SYMBOL, (ulonglong)paddr, logged_chars);
 
         if ((buf = calloc(sizeof(char), log_buf_len)) == NULL)
-		error(FATAL, "cannot calloc log_buf_len (%d) bytes\n", 
+		error(FATAL, "cannot calloc log_buf_len (%d) bytes\n",
 			log_buf_len);
 
 	paddr = VTOP(log_buf);
@@ -9118,53 +9118,53 @@ dump_variable_length_record(void)
 	log_buf = log_buf_len = log_first_idx = log_next_idx = 0;
 
 	paddr = VTOP(vmc->log_buf_SYMBOL);
-	if (readmem(paddr, PHYSADDR, &long_value, sizeof(ulong), 
+	if (readmem(paddr, PHYSADDR, &long_value, sizeof(ulong),
 	    "log_buf pointer", RETURN_ON_ERROR))
 		log_buf = long_value;
 	else
-		error(FATAL, "cannot read log_buf value\n"); 
+		error(FATAL, "cannot read log_buf value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_buf vaddr: %lx paddr: %llx => %lx\n", 
-			vmc->log_buf_SYMBOL, (ulonglong)paddr, log_buf); 
+		fprintf(fp, "log_buf vaddr: %lx paddr: %llx => %lx\n",
+			vmc->log_buf_SYMBOL, (ulonglong)paddr, log_buf);
 
 	paddr = VTOP(vmc->log_buf_len_SYMBOL);
 	if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 	    "log_buf_len", RETURN_ON_ERROR))
 		log_buf_len = int_value;
 	else
-		error(FATAL, "cannot read log_buf_len value\n"); 
+		error(FATAL, "cannot read log_buf_len value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_buf_len vaddr: %lx paddr: %llx => %d\n", 
-			vmc->log_buf_len_SYMBOL, (ulonglong)paddr, log_buf_len); 
+		fprintf(fp, "log_buf_len vaddr: %lx paddr: %llx => %d\n",
+			vmc->log_buf_len_SYMBOL, (ulonglong)paddr, log_buf_len);
 
 	paddr = VTOP(vmc->log_first_idx_SYMBOL);
 	if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 	    "log_first_idx", RETURN_ON_ERROR))
 		log_first_idx = int_value;
 	else
-		error(FATAL, "cannot read log_first_idx value\n"); 
+		error(FATAL, "cannot read log_first_idx value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_first_idx vaddr: %lx paddr: %llx => %d\n", 
-			vmc->log_first_idx_SYMBOL, (ulonglong)paddr, log_first_idx); 
+		fprintf(fp, "log_first_idx vaddr: %lx paddr: %llx => %d\n",
+			vmc->log_first_idx_SYMBOL, (ulonglong)paddr, log_first_idx);
 
 	paddr = VTOP(vmc->log_next_idx_SYMBOL);
 	if (readmem(paddr, PHYSADDR, &int_value, sizeof(uint),
 	    "log_next_idx", RETURN_ON_ERROR))
 		log_next_idx = int_value;
 	else
-		error(FATAL, "cannot read log_next_idx value\n"); 
+		error(FATAL, "cannot read log_next_idx value\n");
 	if (CRASHDEBUG(1))
-		fprintf(fp, "log_next_idx vaddr: %lx paddr: %llx => %d\n", 
-			vmc->log_next_idx_SYMBOL, (ulonglong)paddr, log_next_idx); 
+		fprintf(fp, "log_next_idx vaddr: %lx paddr: %llx => %d\n",
+			vmc->log_next_idx_SYMBOL, (ulonglong)paddr, log_next_idx);
 
 	ASSIGN_SIZE(log)= vmc->log_SIZE;
 	ASSIGN_OFFSET(log_ts_nsec) = vmc->log_ts_nsec_OFFSET;
-	ASSIGN_OFFSET(log_len) = vmc->log_len_OFFSET;  
+	ASSIGN_OFFSET(log_len) = vmc->log_len_OFFSET;
 	ASSIGN_OFFSET(log_text_len) = vmc->log_text_len_OFFSET;
 	ASSIGN_OFFSET(log_dict_len) = vmc->log_dict_len_OFFSET;
 
         if ((buf = calloc(sizeof(char), log_buf_len)) == NULL)
-		error(FATAL, "cannot calloc log_buf_len (%d) bytes\n", 
+		error(FATAL, "cannot calloc log_buf_len (%d) bytes\n",
 			log_buf_len);
 
 	paddr = VTOP(log_buf);

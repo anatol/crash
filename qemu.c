@@ -211,9 +211,9 @@ get_kernel_base(struct qemu_device_list *dl)
 		if (base_vaddr == last)
 			continue;
 		if (base_vaddr < kvm->kvbase) {
-			fprintf(stderr, 
+			fprintf(stderr,
 			    "WARNING: IDT base contains: %llx\n         "
-			    "cannot determine physical base address: defaulting to 0\n\n", 
+			    "cannot determine physical base address: defaulting to 0\n\n",
 				(unsigned long long)base_vaddr);
 			return 0;
 		}
@@ -280,7 +280,7 @@ int main (int argc, char **argv)
 
 #include "defs.h"
 
-int 
+int
 qemu_init(char *filename)
 {
 	struct qemu_device_list *dl;
@@ -298,10 +298,10 @@ qemu_init(char *filename)
 	please_wait("scanning KVM dumpfile");
 
 	if (kvm->flags & KVMHOST_32)
-		dl = qemu_load(devices_x86_32, 
+		dl = qemu_load(devices_x86_32,
 			QEMU_FEATURE_CPU|QEMU_FEATURE_RAM, kvm->vmp);
 	else
-		dl = qemu_load(devices_x86_64, 
+		dl = qemu_load(devices_x86_64,
 			QEMU_FEATURE_CPU|QEMU_FEATURE_RAM, kvm->vmp);
 
 	please_wait_done();
@@ -312,18 +312,18 @@ qemu_init(char *filename)
 			kvm->mapinfo.phys_base = get_kernel_base(dl);
 		}
 
-		dram = (struct qemu_device_ram *) 
+		dram = (struct qemu_device_ram *)
 			device_find_instance (dl, "ram", 0);
 
 		if (CRASHDEBUG(1)) {
 			if (machine_type("X86_64")) {
-				fprintf(kvm->ofp, "IDT: %llx\n", 
+				fprintf(kvm->ofp, "IDT: %llx\n",
 					(ulonglong)idt);
-				fprintf(kvm->ofp, "physical kernel base: %llx\n", 
-					(ulonglong)kvm->mapinfo.phys_base); 
+				fprintf(kvm->ofp, "physical kernel base: %llx\n",
+					(ulonglong)kvm->mapinfo.phys_base);
 			}
-			fprintf(kvm->ofp, "last RAM offset: %llx\n", 
-				(ulonglong)dram->last_ram_offset); 
+			fprintf(kvm->ofp, "last RAM offset: %llx\n",
+				(ulonglong)dram->last_ram_offset);
 		}
 
 		device_list_free (dl);

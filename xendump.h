@@ -1,4 +1,4 @@
-/* 
+/*
  * xendump.h
  *
  * Copyright (C) 2006, 2007, 2009, 2010 David Anderson
@@ -34,7 +34,7 @@ typedef struct xc_core_header {
 } xc_core_header_t;
 
 /*
- *  Based upon the original xensource xc_core_header struct above, 
+ *  Based upon the original xensource xc_core_header struct above,
  *  but with unsigned long offset values so that it can be used
  *  with the original dumpfile format and new ELF-style format.
  */
@@ -65,7 +65,7 @@ struct last_batch {
 	ulong start;
 	ulong end;
 	ulong accesses;
-	ulong duplicates; 
+	ulong duplicates;
 };
 
 struct xendump_data {
@@ -164,10 +164,10 @@ typedef struct xen_domctl_arch_setup {
  *  structure by the additional name field.
  */
 struct elfnote {
-	uint32_t namesz; 
+	uint32_t namesz;
 	uint32_t descsz;
 	uint32_t type;
-	char name[4]; 
+	char name[4];
 };
 
 #define XEN_ELFNOTE_DUMPCORE_NONE            0x2000000
@@ -180,15 +180,15 @@ struct xen_dumpcore_elfnote_header_desc {
 	uint64_t xch_nr_vcpus;
 	uint64_t xch_nr_pages;
 	uint64_t xch_page_size;
-}; 
+};
 
 #define FORMAT_VERSION_0000000000000001 0x0000000000000001ULL
 
 struct xen_dumpcore_elfnote_format_version_desc {
 	uint64_t version;
-}; 
+};
 
 struct xen_dumpcore_p2m {
 	uint64_t pfn;
-	uint64_t gmfn; 
+	uint64_t gmfn;
 };

@@ -14,18 +14,18 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- */ 
+ */
 #ifdef ALPHA
 #include "defs.h"
 
 static void alpha_back_trace(struct gnu_request *, struct bt_info *);
 static int alpha_trace_status(struct gnu_request *, struct bt_info *);
-static void alpha_exception_frame(ulong, ulong, 
+static void alpha_exception_frame(ulong, ulong,
 	struct gnu_request *, struct bt_info *);
 static void alpha_frame_offset(struct gnu_request *, ulong);
 static int alpha_backtrace_resync(struct gnu_request *, ulong,
 	struct bt_info *);
-static void alpha_print_stack_entry(struct gnu_request *, ulong, 
+static void alpha_print_stack_entry(struct gnu_request *, ulong,
 	char *, ulong, struct bt_info *);
 static int alpha_resync_speculate(struct gnu_request *, ulong,struct bt_info *);
 static int alpha_dis_filter(ulong, char *, unsigned int);
@@ -79,7 +79,7 @@ static ulong get_percpu_data(int, ulong, struct percpu_data *);
 
 /*
  *  Do all necessary machine-specific setup here.  This is called three times,
- *  before symbol table initialization, and before and after GDB has been 
+ *  before symbol table initialization, and before and after GDB has been
  *  initialized.
  */
 void
@@ -110,20 +110,20 @@ alpha_init(int when)
 		machdep->verify_paddr = generic_verify_paddr;
 		machdep->ptrs_per_pgd = PTRS_PER_PGD;
 		break;
-		
+
 	case PRE_GDB:
 	        switch (symbol_value("_stext") & KSEG_BASE)
 	        {
 	        case KSEG_BASE:
 	                machdep->kvbase = KSEG_BASE;
 	                break;
-	
+
 	        case KSEG_BASE_48_BIT:
 	                machdep->kvbase = KSEG_BASE_48_BIT;
 	                break;
-	
+
 	        default:
-	                error(FATAL, 
+	                error(FATAL,
 			    "cannot determine KSEG base from _stext: %lx\n",
 	                        symbol_value("_stext"));
 	        }
@@ -162,9 +162,9 @@ alpha_init(int when)
 		break;
 
 	case POST_GDB:
-		MEMBER_OFFSET_INIT(thread_struct_ptbr, 
+		MEMBER_OFFSET_INIT(thread_struct_ptbr,
 			"thread_struct", "ptbr");
-		MEMBER_OFFSET_INIT(hwrpb_struct_cycle_freq, 
+		MEMBER_OFFSET_INIT(hwrpb_struct_cycle_freq,
 			"hwrpb_struct", "cycle_freq");
 		MEMBER_OFFSET_INIT(hwrpb_struct_processor_offset,
 			"hwrpb_struct", "processor_offset");
@@ -172,17 +172,17 @@ alpha_init(int when)
 			"hwrpb_struct", "processor_size");
 		MEMBER_OFFSET_INIT(percpu_struct_halt_PC,
 			"percpu_struct", "halt_PC");
-		MEMBER_OFFSET_INIT(percpu_struct_halt_ra, 
+		MEMBER_OFFSET_INIT(percpu_struct_halt_ra,
 			"percpu_struct", "halt_ra");
                 MEMBER_OFFSET_INIT(percpu_struct_halt_pv,
                         "percpu_struct", "halt_pv");
 		MEMBER_OFFSET_INIT(switch_stack_r26,
 			"switch_stack", "r26");
         	if (symbol_exists("irq_action"))
-			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_action, 
+			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_action,
 				"irq_action", NULL, 0);
         	else if (symbol_exists("irq_desc"))
-                	ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc, 
+                	ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
 				"irq_desc", NULL, 0);
         	else
                 	machdep->nr_irqs = 0;
@@ -267,7 +267,7 @@ alpha_back_trace_cmd(struct bt_info *bt)
 		goto show_remaining_text;			        \
         }								\
 	goto show_remaining_text;					\
-}								
+}
 
 
 static void
@@ -294,10 +294,10 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			fprintf(fp, "(hardware reset while in user space)\n");
 			return;
 		}
-		
-		fprintf(fp, "invalid pc: %lx\n", req->pc); 
 
-        	alpha_exception_frame(USER_EFRAME_ADDR(req->task),  
+		fprintf(fp, "invalid pc: %lx\n", req->pc);
+
+        	alpha_exception_frame(USER_EFRAME_ADDR(req->task),
 			BT_USER_EFRAME, req, bt);
 
 		return;
@@ -310,9 +310,9 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 
 		if ((req->name = closest_symbol(req->pc)) == NULL) {
 			req->ra = req->pc = 0;
-                        if (alpha_backtrace_resync(req, 
-			    bt->flags | BT_FROM_CALLFRAME, bt)) 
-                       		continue; 
+                        if (alpha_backtrace_resync(req,
+			    bt->flags | BT_FROM_CALLFRAME, bt))
+                       		continue;
 
 			if (BT_REFERENCE_FOUND(bt))
 				return;
@@ -323,7 +323,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
                 if (!INSTACK(req->sp, bt))
                         break;
 
-		if (!is_kernel_text(req->pc)) 
+		if (!is_kernel_text(req->pc))
 			ALPHA_BACKTRACE_SPECULATE(2);
 
 		alpha_print_stack_entry(req, req->pc, req->name,
@@ -351,13 +351,13 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			break;
 
 		case ALPHA_STRACE:
-                        alpha_exception_frame(req->sp, 
+                        alpha_exception_frame(req->sp,
 				BT_USER_EFRAME|BT_STRACE, req, bt);
                         done = TRUE;
 			break;
 
 		case ALPHA_RET_FROM_SMP_FORK:
-                        alpha_exception_frame(USER_EFRAME_ADDR(req->task), 
+                        alpha_exception_frame(USER_EFRAME_ADDR(req->task),
 				BT_USER_EFRAME|BT_RET_FROM_SMP_FORK, req, bt);
 			done = TRUE;
 			break;
@@ -404,7 +404,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 
                         frame++;
 			alpha_print_stack_entry(req,
-				req->pc, closest_symbol(req->pc), 
+				req->pc, closest_symbol(req->pc),
 				bt->flags | BT_SAVE_LASTSP, bt);
 
 			if (BT_REFERENCE_FOUND(bt))
@@ -452,15 +452,15 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 		case ALPHA_EXCEPTION_FRAME:
 			alpha_frame_offset(req, 0);
                         if (!req->value) {
-				fprintf(fp, 
+				fprintf(fp,
                        "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
-					req->pc, 
+					req->pc,
 					value_to_symstr(req->pc, buf, 0));
                                 done = TRUE;
                                 break;
                         }
 
-			alpha_exception_frame(req->sp + req->value, 
+			alpha_exception_frame(req->sp + req->value,
 				bt->flags, req, bt);
 
 			if (!IS_KVADDR(req->pc)) {
@@ -473,18 +473,18 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
                         if (!req->value) {
                                 fprintf(fp,
                        "ALPHA EXCEPTION FRAME w/no frame offset for %lx (%s)\n",
-                                        req->pc, 
+                                        req->pc,
 					value_to_symstr(req->pc, buf, 0));
                                 done = TRUE;
                                 break;
                         }
-			
-			eframe_same_pc_ra_function = 
+
+			eframe_same_pc_ra_function =
 				SAME_FUNCTION(req->pc, req->ra);
-	
+
 			frame++;
 			alpha_print_stack_entry(req, req->pc,
-				closest_symbol(req->pc), 
+				closest_symbol(req->pc),
 				bt->flags | BT_SAVE_LASTSP, bt);
 
 			if (BT_REFERENCE_FOUND(bt))
@@ -495,10 +495,10 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 				break;
 			}
 
-			if (STREQ(closest_symbol(req->pc), 
+			if (STREQ(closest_symbol(req->pc),
 			    "ret_from_reschedule")) {
                         	alpha_exception_frame(
-				    USER_EFRAME_ADDR(req->task), 
+				    USER_EFRAME_ADDR(req->task),
 				    BT_USER_EFRAME|BT_RESCHEDULE, req, bt);
                         	done = TRUE;
 				break;
@@ -508,7 +508,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 			req->pc = GET_STACK_ULONG(req->sp);
 
 			if (!is_kernel_text(req->pc)) {
-				if (alpha_backtrace_resync(req, 
+				if (alpha_backtrace_resync(req,
 				    bt->flags | BT_FROM_EXCEPTION, bt))
 					break;
 
@@ -518,7 +518,7 @@ alpha_back_trace(struct gnu_request *req, struct bt_info *bt)
 				ALPHA_BACKTRACE_SPECULATE(3);
 			}
 
-			if (!eframe_same_pc_ra_function && 
+			if (!eframe_same_pc_ra_function &&
 			    (req->pc != req->ra)) {
 				req->pc = req->ra;
 				break;
@@ -552,14 +552,14 @@ show_remaining_text:
 	if (BT_REFERENCE_CHECK(bt))
 		return;
 
-        BZERO(btloc, sizeof(struct bt_info));                         
-        btloc->task = req->task;                                       
+        BZERO(btloc, sizeof(struct bt_info));
+        btloc->task = req->task;
 	btloc->tc = bt->tc;
 	btloc->stackbase = bt->stackbase;
 	btloc->stacktop = bt->stacktop;
-        btloc->flags = BT_TEXT_SYMBOLS_NOPRINT;                        
+        btloc->flags = BT_TEXT_SYMBOLS_NOPRINT;
         hook.esp = req->lastsp + sizeof(long);
-        btloc->hp = &hook; 
+        btloc->hp = &hook;
         back_trace(btloc);
 
         if (hook.eip) {
@@ -568,24 +568,24 @@ show_remaining_text:
 		btloc->flags = BT_TEXT_SYMBOLS_PRINT|BT_ERROR_MASK;
         	hook.esp = req->lastsp + sizeof(long);
         	back_trace(btloc);
-	} else 
-       		fprintf(fp, 
+	} else
+       		fprintf(fp,
 "NOTE: cannot resolve trace from this point -- no remaining text symbols\n");
 
 	if (CRASHDEBUG(1))
 		fprintf(fp, "speculate_location: %d\n", speculate_location);
 
-	alpha_exception_frame(USER_EFRAME_ADDR(req->task), 
+	alpha_exception_frame(USER_EFRAME_ADDR(req->task),
 		BT_USER_EFRAME, req, bt);
 }
 
 /*
  *  print one entry of a stack trace
  */
-static void 
-alpha_print_stack_entry(struct gnu_request *req, 
-			ulong callpc, 	
-			char *name, 
+static void
+alpha_print_stack_entry(struct gnu_request *req,
+			ulong callpc,
+			char *name,
 			ulong flags,
 			struct bt_info *bt)
 {
@@ -596,10 +596,10 @@ alpha_print_stack_entry(struct gnu_request *req,
                 {
                 case BT_REF_SYMBOL:
 			if (STREQ(name, bt->ref->str) ||
-			    (STREQ(name, "strace") && 
+			    (STREQ(name, "strace") &&
 			    STREQ(bt->ref->str, "entSys"))) {
 				bt->ref->cmdflags |= BT_REF_FOUND;
-			} 
+			}
 			break;
 
 		case BT_REF_HEXVAL:
@@ -610,7 +610,7 @@ alpha_print_stack_entry(struct gnu_request *req,
 	} else {
 		fprintf(fp, "%s#%d [%lx] %s at %lx",
         		req->curframe < 10 ? " " : "", req->curframe, req->sp,
-			STREQ(name, "strace") ?  "strace (via entSys)" : name, 
+			STREQ(name, "strace") ?  "strace (via entSys)" : name,
 			callpc);
 		if (module_symbol(callpc, NULL, &lm, NULL, 0))
 			fprintf(fp, " [%s]", lm->mod_name);
@@ -626,7 +626,7 @@ alpha_print_stack_entry(struct gnu_request *req,
 	if (BT_REFERENCE_CHECK(bt))
 		return;
 
-	if (flags & BT_LINE_NUMBERS) 
+	if (flags & BT_LINE_NUMBERS)
 		alpha_dump_line_number(name, callpc);
 }
 
@@ -705,11 +705,11 @@ try_closest:
 			p = strstr(buf, ": ");
 			if (p)
 				*p = NULLCHAR;
-		} 
+		}
 		fprintf(fp, "    %s\n", buf);
 	} else {
 		if (retries)
-			fprintf(fp, GDB_PATCHED() ? 
+			fprintf(fp, GDB_PATCHED() ?
 			  "" : "    (cannot determine file and line number)\n");
 		else {
 			retries++;
@@ -729,21 +729,21 @@ try_closest:
  *    0xfffffc00003217e8 <schedule+8>:        subq    sp,0x50,sp
  *    fffffc00003217e8:  43ca153e
  *    010000 11110 01010000 1 0101001 11110
- *    
+ *
  *    0xfffffc0000321668 <schedule_timeout+8>:        subq    sp,0x60,sp
  *    fffffc0000321668:  43cc153e
  *    010000 11110 01100000 1 0101001 11110
- *    
+ *
  *    0xfffffc000035d028 <do_select+8>:       subq    sp,0x70,sp
  *    fffffc000035d028:  43ce153e
  *    010000 11110 01110000 1 0101001 11110
- *    
+ *
  *    0100 0011 110x xxxx xxx1 0101 0011 1110
  *    1111 1111 111x xxxx xxx1 1111 1111 1111
  *    0000 0000 0001 1111 1110 0000 0000 0000
  *       f    f    e    0    1    f    f    f  instruction mask
  *       0    0    1    f    e    0    0    0  offset
- *    
+ *
  *    stq     ra,0(sp)
  *    fffffc000035d034:  b75e0000
  */
@@ -757,11 +757,11 @@ alpha_frame_offset(struct gnu_request *req, ulong alt_pc)
 	req->value = value = 0;
 
 	if (alt_pc && !is_kernel_text(alt_pc))
-		error(FATAL, 
+		error(FATAL,
 		    "trying to get frame offset of non-text address: %lx\n",
 			alt_pc);
 	else if (!alt_pc && !is_kernel_text(req->pc))
-                error(FATAL, 
+                error(FATAL,
                     "trying to get frame offset of non-text address: %lx\n",
                         req->pc);
 
@@ -772,14 +772,14 @@ alpha_frame_offset(struct gnu_request *req, ulong alt_pc)
 
 	ival = 0;
 
- 	/*  
+ 	/*
 	 *  Don't go any farther than "stq ra,0(sp)" (0xb75e0000)
 	 */
 	while (ival != 0xb75e0000) {
 		if (!text_value_cache((ulong)ip, 0, &ival)) {
 	        	readmem((ulong)ip, KVADDR, &ival,
-                		sizeof(uint), "uncached text value", 
-				FAULT_ON_ERROR); 
+                		sizeof(uint), "uncached text value",
+				FAULT_ON_ERROR);
 			text_value_cache((ulong)ip, ival, NULL);
 		}
 
@@ -801,14 +801,14 @@ use_gdb:
 	static int gdb_frame_offset_warnings = 10;
 
 	if (gdb_frame_offset_warnings-- > 0)
-		error(WARNING, 
+		error(WARNING,
 	        "GNU_ALPHA_FRAME_OFFSET functionality not ported to gdb\n");
 }
 #endif
 	req->command = GNU_ALPHA_FRAME_OFFSET;
 	if (alt_pc) {
 		ulong pc_save;
-        	pc_save = req->pc; 
+        	pc_save = req->pc;
         	req->pc = alt_pc;
         	gdb_interface(req);
         	req->pc = pc_save;
@@ -831,7 +831,7 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 	func = req->name;
 	frame = req->sp;
 
-	if (STREQ(func, "start_kernel") || 
+	if (STREQ(func, "start_kernel") ||
 	    STREQ(func, "smp_callin") ||
 	    STREQ(func, "kernel_thread") ||
 	    STREQ(func, "__kernel_thread"))
@@ -841,7 +841,7 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 	    STREQ(func, "ret_from_smpfork"))
 		return ALPHA_RET_FROM_SMP_FORK;
 
-	if (STREQ(func, "entSys")) 
+	if (STREQ(func, "entSys"))
 		return ALPHA_SYSCALL_FRAME;
 
 	if (STREQ(func, "entMM")) {
@@ -849,16 +849,16 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 		return ALPHA_MM_FAULT;
 	}
 
-	if (STREQ(func, "do_entInt")) 
+	if (STREQ(func, "do_entInt"))
 		return ALPHA_EXCEPTION_FRAME;
 
-	if (STREQ(func, "do_entArith")) 
+	if (STREQ(func, "do_entArith"))
                 return ALPHA_EXCEPTION_FRAME;
 
-        if (STREQ(func, "do_entIF")) 
+        if (STREQ(func, "do_entIF"))
                 return ALPHA_EXCEPTION_FRAME;
 
-        if (STREQ(func, "do_entDbg")) 
+        if (STREQ(func, "do_entDbg"))
                 return ALPHA_EXCEPTION_FRAME;
 
 	if (STREQ(func, "handle_bottom_half"))
@@ -870,7 +870,7 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 	if (STREQ(func, "reschedule"))
 		return ALPHA_RESCHEDULE;
 
-	if (STREQ(func, "ret_from_reschedule")) 
+	if (STREQ(func, "ret_from_reschedule"))
 		return ALPHA_RESCHEDULE;
 
 	if (STREQ(func, "signal_return"))
@@ -914,9 +914,9 @@ alpha_trace_status(struct gnu_request *req, struct bt_info *bt)
 /*
  *  Redo the gdb pt_regs structure output.
  */
-enum regnames { _r0_, _r1_, _r2_, _r3_, _r4_, _r5_, _r6_, _r7_, _r8_, 
-		_r19_, _r20_, _r21_, _r22_, _r23_, _r24_, _r25_, _r26_, 
-		_r27_, _r28_, _hae_, _trap_a0_, _trap_a1_, _trap_a2_, 
+enum regnames { _r0_, _r1_, _r2_, _r3_, _r4_, _r5_, _r6_, _r7_, _r8_,
+		_r19_, _r20_, _r21_, _r22_, _r23_, _r24_, _r25_, _r26_,
+		_r27_, _r28_, _hae_, _trap_a0_, _trap_a1_, _trap_a2_,
         	_ps_, _pc_, _gp_, _r16_, _r17_, _r18_, NUMREGS};
 
 struct alpha_eframe {
@@ -925,14 +925,14 @@ struct alpha_eframe {
 };
 
 static void
-alpha_exception_frame(ulong addr, 
-	              ulong flags, 
+alpha_exception_frame(ulong addr,
+	              ulong flags,
 		      struct gnu_request *req,
 		      struct bt_info *bt)
 {
 	int i, j;
 	char buf[BUFSIZE];
-	ulong value; 
+	ulong value;
 	physaddr_t paddr;
 	struct alpha_eframe eframe;
 
@@ -1040,17 +1040,17 @@ alpha_exception_frame(ulong addr,
 			eframe.value[_hae_] = value;
 		}
 		if (STRNEQ(buf, "trap_a0 = ")) {
-			sprintf(eframe.regs[_trap_a0_], "TRAP_A0: %016lx", 
+			sprintf(eframe.regs[_trap_a0_], "TRAP_A0: %016lx",
 				value);
 			eframe.value[_trap_a0_] = value;
 		}
 		if (STRNEQ(buf, "trap_a1 = ")) {
-			sprintf(eframe.regs[_trap_a1_], "TRAP_A1: %016lx", 
+			sprintf(eframe.regs[_trap_a1_], "TRAP_A1: %016lx",
 				value);
 			eframe.value[_trap_a1_] = value;
 		}
 		if (STRNEQ(buf, "trap_a2 = ")) {
-			sprintf(eframe.regs[_trap_a2_], "TRAP_A2: %016lx", 
+			sprintf(eframe.regs[_trap_a2_], "TRAP_A2: %016lx",
 				value);
 			eframe.value[_trap_a2_] = value;
 		}
@@ -1091,9 +1091,9 @@ dump_eframe:
 			pad_line(fp, 21 - strlen(eframe.regs[i]), ' ');
 			j = i+((NUMREGS+1)/2);
 			fprintf(fp, "%s", eframe.regs[j]);
-			if (((j == _pc_) || (j == _r26_)) && 
+			if (((j == _pc_) || (j == _r26_)) &&
 			    is_kernel_text(eframe.value[j]))
-				fprintf(fp, "  <%s>", 
+				fprintf(fp, "  <%s>",
 				    value_to_symstr(eframe.value[j], buf, 0));
 			fprintf(fp, "\n");
 		}
@@ -1106,17 +1106,17 @@ dump_eframe:
 	if (flags & BT_USER_EFRAME) {
 		flags &= ~BT_USER_EFRAME;
 		if (!BT_REFERENCE_CHECK(bt) && (eframe.value[_ps_] == 8) &&
-		    (((uvtop(task_to_context(req->task), req->pc, &paddr, 0) || 
+		    (((uvtop(task_to_context(req->task), req->pc, &paddr, 0) ||
 	             (volatile ulong)paddr) &&
 		    (uvtop(task_to_context(req->task), req->ra, &paddr, 0) ||
 		     (volatile ulong)paddr)) ||
 		     (IS_ZOMBIE(req->task) || IS_EXITING(req->task)))) {
-			if (!(flags & 
+			if (!(flags &
 			     (BT_RESCHEDULE|BT_RET_FROM_SMP_FORK|BT_STRACE)))
-				fprintf(fp, 
+				fprintf(fp,
 				    "NOTE: kernel-entry exception frame:\n");
 			goto dump_eframe;
-		} 
+		}
 	}
 }
 
@@ -1158,11 +1158,11 @@ alpha_eframe_search(struct bt_info *bt)
 		     IS_MODULE_VADDR(pt->reg_value[_r26_])) &&
                     IS_KVADDR(pt->reg_value[_gp_])) {
 			cnt++;
-			if (bt->flags & BT_EFRAME_COUNT) 
+			if (bt->flags & BT_EFRAME_COUNT)
 				continue;
 			fprintf(fp, "\nKERNEL-MODE EXCEPTION FRAME:\n");
 			eframe = bt->task + ((ulong)first - (ulong)stack);
-			alpha_exception_frame(eframe, BT_EXCEPTION_FRAME, 
+			alpha_exception_frame(eframe, BT_EXCEPTION_FRAME,
 				req, bt);
 			continue;
 		}
@@ -1173,14 +1173,14 @@ alpha_eframe_search(struct bt_info *bt)
 		    ((IN_TASK_VMA(bt->task, pt->reg_value[_pc_]) &&
                     IN_TASK_VMA(bt->task, pt->reg_value[_r26_]) &&
                     IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
-		    ((first == last) && 
+		    ((first == last) &&
 			(IS_ZOMBIE(bt->task) || IS_EXITING(bt->task))))) {
 			cnt++;
-			if (bt->flags & BT_EFRAME_COUNT) 
+			if (bt->flags & BT_EFRAME_COUNT)
 				continue;
 			fprintf(fp, "\nUSER-MODE EXCEPTION FRAME:\n");
 			eframe = bt->task + ((ulong)first - (ulong)stack);
-			alpha_exception_frame(eframe, BT_EXCEPTION_FRAME, 
+			alpha_exception_frame(eframe, BT_EXCEPTION_FRAME,
 				req, bt);
 		}
         }
@@ -1207,7 +1207,7 @@ verify_user_eframe(struct bt_info *bt, ulong task, ulong sp)
             ((IN_TASK_VMA(task, pt->reg_value[_pc_]) &&
             IN_TASK_VMA(task, pt->reg_value[_r26_]) &&
             IS_UVADDR(pt->reg_value[_gp_], bt->tc)) ||
-            ((pt == (struct alpha_pt_regs *)USER_EFRAME_ADDR(task)) && 
+            ((pt == (struct alpha_pt_regs *)USER_EFRAME_ADDR(task)) &&
 	    (IS_ZOMBIE(task) || IS_EXITING(task))))) {
 		return TRUE;
         }
@@ -1217,18 +1217,18 @@ verify_user_eframe(struct bt_info *bt, ulong task, ulong sp)
 
 /*
  *  Try to resync the stack location when there is no valid stack frame,
- *  typically just above an exception frame.  Use the req->ra value from the 
- *  exception frame as the new starting req->pc.  Then walk up the stack until 
- *  a text routine that calls the newly-assigned pc is found -- that stack 
- *  location then becomes the new req->sp.  
+ *  typically just above an exception frame.  Use the req->ra value from the
+ *  exception frame as the new starting req->pc.  Then walk up the stack until
+ *  a text routine that calls the newly-assigned pc is found -- that stack
+ *  location then becomes the new req->sp.
  *
- *  If we're not coming from an exception frame, req-ra and req->pc will be 
- *  purposely zeroed out.  In that case, use the prevsp value to find the 
+ *  If we're not coming from an exception frame, req-ra and req->pc will be
+ *  purposely zeroed out.  In that case, use the prevsp value to find the
  *  first pc that called the last frame's pc.
  *
- *  Add any other repeatable "special-case" frames to the beginning of this 
- *  routine (ex. debug_spin_lock).  Last ditch -- at the end of this routine, 
- *  speculate what might have happened (possibly in the background) -- and 
+ *  Add any other repeatable "special-case" frames to the beginning of this
+ *  routine (ex. debug_spin_lock).  Last ditch -- at the end of this routine,
+ *  speculate what might have happened (possibly in the background) -- and
  *  if it looks good, run with it.
  */
 static int
@@ -1239,7 +1239,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	char lookfor1[BUFSIZE];
 	char lookfor2[BUFSIZE];
 	ulong newpc;
-	ulong *stkp; 
+	ulong *stkp;
 	ulong *stkp_newpc, *stkp_next;
 	ulong value;
 	int found;
@@ -1247,7 +1247,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	int exception;
 
 	if (CRASHDEBUG(1))
-		fprintf(fp, 
+		fprintf(fp,
 		    "RESYNC1: [%lx-%d] ra: %lx pc: %lx sp: %lx\n",
                         flags, req->curframe, req->ra, req->pc, req->sp);
 
@@ -1257,7 +1257,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	} else
 		exception = TRUE;
 
-	if (!IS_KVADDR(req->ra)) 
+	if (!IS_KVADDR(req->ra))
 		return FALSE;
 
 	name = closest_symbol(req->ra);
@@ -1274,14 +1274,14 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
          *  in debug_spin_lock().  The next pc is offset by 0x30 from
          *  the top of the exception frame, and the next sp is equal
 	 *  to the frame offset of debug_spin_lock().  I can't explain it...
-	 */ 
+	 */
 	if ((flags & BT_FROM_EXCEPTION) && STREQ(name, "debug_spin_lock")) {
-		alpha_print_stack_entry(req, req->ra, 
+		alpha_print_stack_entry(req, req->ra,
 			closest_symbol(req->ra), flags, bt);
 
-		if (BT_REFERENCE_FOUND(bt)) 
+		if (BT_REFERENCE_FOUND(bt))
 			return FALSE;
-		
+
 		alpha_frame_offset(req, req->ra);
 		stkp = (ulong *)(req->sp + 0x30);
 		value = GET_STACK_ULONG(stkp);
@@ -1336,9 +1336,9 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 		return FALSE;
 
 	if (CRASHDEBUG(1)) {
-		fprintf(fp, "RESYNC3: prevsp: %lx  ra: %lx name: %s\n", 
+		fprintf(fp, "RESYNC3: prevsp: %lx  ra: %lx name: %s\n",
 			req->prevsp, req->ra, name);
-		fprintf(fp, "RESYNC3: prevpc: %lx\n", req->prevpc); 
+		fprintf(fp, "RESYNC3: prevpc: %lx\n", req->prevpc);
 	}
 
 	stkp_newpc = stkp_next = 0;
@@ -1347,7 +1347,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	if (exception) {
 		newpc = req->ra;
 		stkp = (ulong *)req->sp;
-	} else 
+	} else
 		stkp = (ulong *)req->prevsp;
 
 	if (CRASHDEBUG(1))
@@ -1376,7 +1376,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 			if (!stkp_next)
 				stkp_next = stkp;
 			if (CRASHDEBUG(2)) {
-				fprintf(fp, 
+				fprintf(fp,
 				    "RESYNC6: disassemble %lx (%s)\n",
 					value - sizeof(uint),
 					value_to_symstr(value - sizeof(uint),
@@ -1397,13 +1397,13 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 
                                 if (STRNEQ(buf, addr)) {
 					if (LASTCHAR(buf) == ':') {
-						fgets(buf, BUFSIZE, 
+						fgets(buf, BUFSIZE,
 							pc->tmpfile);
 						clean_line(buf);
 					}
-					if (CRASHDEBUG(2) && 
-					    (strstr(buf, "jsr") 
-					    || strstr(buf, "bsr"))) 
+					if (CRASHDEBUG(2) &&
+					    (strstr(buf, "jsr")
+					    || strstr(buf, "bsr")))
 						fprintf(pc->saved_fp, "%s\n",
 							buf);
 					if ((strstr(buf, "jsr") ||
@@ -1413,7 +1413,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 						if (exception) {
 							req->pc = newpc;
 							req->sp = (ulong)stkp;
-						} else 
+						} else
 							req->pc = req->addr;
 						close_tmpfile();
 						return TRUE;
@@ -1434,7 +1434,7 @@ alpha_backtrace_resync(struct gnu_request *req, ulong flags, struct bt_info *bt)
 	}
 
 	/*
-	 *  At this point, all we can do is speculate based upon 
+	 *  At this point, all we can do is speculate based upon
 	 *  past experiences...
 	 */
 	return (alpha_resync_speculate(req, flags, bt));
@@ -1476,7 +1476,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 			stkp = (ulong *)req->sp;
 			for (stkp++; INSTACK(stkp, bt); stkp++) {
 				value = GET_STACK_ULONG(stkp);
-	
+
 				if (found_ra) {
 					if (is_kernel_text_offset(value)) {
 						found_sp = (ulong)stkp;
@@ -1484,9 +1484,9 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 					}
 					continue;
 				}
-	
-				if (value == req->ra) 
-					found_ra = value; 
+
+				if (value == req->ra)
+					found_ra = value;
 			}
 		}
 		break;
@@ -1511,7 +1511,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
                                         continue;
                                 }
 
-				if (is_kernel_text_offset(value)) 
+				if (is_kernel_text_offset(value))
 					found_ra = value;
                         }
 		}
@@ -1536,7 +1536,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
                                 }
 
                                 if (is_kernel_text_offset(value) &&
-				    STREQ(closest_symbol(value), "do_no_page")) 
+				    STREQ(closest_symbol(value), "do_no_page"))
                                         found_ra = value;
                         }
 			if (found_ra && found_sp) {
@@ -1545,7 +1545,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 				return TRUE;
 			}
 		}
-		
+
                 if (req->hookp) {
                         found_ra = req->hookp->eip;
                         found_sp = req->hookp->esp;
@@ -1560,7 +1560,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 		hook.eip = found_ra;
 
 		if (CRASHDEBUG(1))
-			fprintf(pc->saved_fp, 
+			fprintf(pc->saved_fp,
 			    "----- RESYNC SPECULATE START -----\n");
 
 		open_tmpfile();
@@ -1601,7 +1601,7 @@ alpha_resync_speculate(struct gnu_request *req, ulong flags, struct bt_info *bt)
 		close_tmpfile();
 
 		if (CRASHDEBUG(1))
-			fprintf(pc->saved_fp, 
+			fprintf(pc->saved_fp,
 			    "----- RESYNC SPECULATE DONE ------\n");
 
 		if (looks_good) {
@@ -1651,13 +1651,13 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
                         	pgd = ULONG_PTR(tt->mm_struct +
                                 	OFFSET(mm_struct_pgd));
 			else
-				readmem(tc->mm_struct + OFFSET(mm_struct_pgd), 
-					KVADDR, &pgd, sizeof(long), 
+				readmem(tc->mm_struct + OFFSET(mm_struct_pgd),
+					KVADDR, &pgd, sizeof(long),
 					"mm_struct pgd", FAULT_ON_ERROR);
 		}
 	}
 
-	if (verbose) 
+	if (verbose)
 		fprintf(fp, "PAGE DIRECTORY: %lx\n", (ulong)pgd);
 
 	page_dir = pgd + ((vaddr >> PGDIR_SHIFT) & (PTRS_PER_PAGE - 1));
@@ -1672,7 +1672,7 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 		goto no_upage;
 
 	page_middle = (ulong *)
-		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) + 
+		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
 	  	((vaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
 
 	FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
@@ -1687,11 +1687,11 @@ alpha_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose
 	page_table = (ulong *)
 		(PTOV((pmd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
      		(BTOP(vaddr) & (PTRS_PER_PAGE - 1));
-	
+
 	FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
 	pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
 
 	if (!(pte & (_PAGE_VALID))) {
@@ -1741,14 +1741,14 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 		return TRUE;
 	}
 
-	if (!IS_VMALLOC_ADDR(kvaddr)) { 
+	if (!IS_VMALLOC_ADDR(kvaddr)) {
 		*paddr = VTOP(kvaddr);
 		return TRUE;
 	}
 
 	pgd = (ulong *)vt->kernel_pgd[0];
 
-	if (verbose) 
+	if (verbose)
 		fprintf(fp, "PAGE DIRECTORY: %lx\n", (ulong)pgd);
 
 	page_dir = pgd + ((kvaddr >> PGDIR_SHIFT) & (PTRS_PER_PAGE - 1));
@@ -1763,7 +1763,7 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 		goto no_kpage;
 
 	page_middle = (ulong *)
-		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) + 
+		(PTOV((pgd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
 	  	((kvaddr >> PMD_SHIFT) & (PTRS_PER_PAGE - 1));
 
         FILL_PMD(PAGEBASE(page_middle), KVADDR, PAGESIZE());
@@ -1778,11 +1778,11 @@ alpha_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbos
 	page_table = (ulong *)
 		(PTOV((pmd_pte & _PFN_MASK) >> (32-PAGESHIFT()))) +
      		(BTOP(kvaddr) & (PTRS_PER_PAGE - 1));
-	
+
         FILL_PTBL(PAGEBASE(page_table), KVADDR, PAGESIZE());
         pte = ULONG(machdep->ptbl + PAGEOFFSET(page_table));
 
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "  PTE: %lx => %lx\n", (ulong)page_table, pte);
 
 	if (!(pte & (_PAGE_VALID))) {
@@ -1845,7 +1845,7 @@ alpha_processor_speed(void)
 	get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
 	offset = OFFSET(hwrpb_struct_cycle_freq);
 
-	if (!hwrpb || (offset == -1) || 
+	if (!hwrpb || (offset == -1) ||
 	    !readmem(hwrpb+offset, KVADDR, &cycle_freq,
             sizeof(ulong), "hwrpb cycle_freq", RETURN_ON_ERROR))
 		return (machdep->mhz = mhz);
@@ -1874,7 +1874,7 @@ alpha_dump_machdep_table(ulong arg)
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
 	fprintf(fp, "                 hz: %d\n", machdep->hz);
 	fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-        fprintf(fp, "            memsize: %ld (0x%lx)\n", 
+        fprintf(fp, "            memsize: %ld (0x%lx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
@@ -1929,17 +1929,17 @@ alpha_dump_machdep_table(ulong arg)
  *  is being set up as an offset from gp, then calculate the target address:
  *
  *    0xfffffc000042c364 <start_tty+228>:     ldq     t12,-29336(gp)
- *    0xfffffc000042c368 <start_tty+232>:     
+ *    0xfffffc000042c368 <start_tty+232>:
  *       jsr ra,(t12),0xfffffc0000429dc0 <decr_console+96>
- * 
- *  If the next instruction is a jsr ra,(t12), then correct the bracketed 
+ *
+ *  If the next instruction is a jsr ra,(t12), then correct the bracketed
  *  target address translation.
- *  
+ *
  */
 
 #define LDAH_GP_T12  (0x27bb0000)
 #define LDA_GP_GP    (0x23bd0000)
-#define LDQ_T12_GP   (0xa77d0000)   
+#define LDQ_T12_GP   (0xa77d0000)
 #define JSR_RA_T12   (0x6b5b0000)
 
 #define OPCODE_OPERAND_MASK  (0xffff0000)
@@ -1965,17 +1965,17 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 	if (!buf) {
 		BZERO(id, sizeof(struct instruction_data));
 
-		if (!(sp = value_search(vaddr, NULL)))   
+		if (!(sp = value_search(vaddr, NULL)))
 			return FALSE;
 
-		readmem(sp->value, KVADDR, &id->inst[0], 
+		readmem(sp->value, KVADDR, &id->inst[0],
 			sizeof(uint) * 2, "two instructions", FAULT_ON_ERROR);
 
 		if (((id->inst[0] & OPCODE_OPERAND_MASK) == LDAH_GP_T12) &&
 		    ((id->inst[1] & OPCODE_OPERAND_MASK) == LDA_GP_GP)) {
-			id->mem_disp[0] = (short)(id->inst[0] & 
+			id->mem_disp[0] = (short)(id->inst[0] &
 				OPCODE_MEM_DISP_MASK);
-			id->mem_disp[1] = (short)(id->inst[1] & 
+			id->mem_disp[1] = (short)(id->inst[1] &
 				OPCODE_MEM_DISP_MASK);
 			id->gp = sp->value + (65536*id->mem_disp[0]) +
 				id->mem_disp[1];
@@ -1988,14 +1988,14 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
                                 id->gp);
 
 			return TRUE;
-		} 
+		}
                                /* send all lines through the generic */
 		return TRUE;   /* dis_address_translation() filter */
 	}
 
 	dis_address_translation(vaddr, buf, output_radix);
 
-	if (!id->gp || !(sp = value_search(vaddr, NULL)) || 
+	if (!id->gp || !(sp = value_search(vaddr, NULL)) ||
 	    !STREQ(id->curfunc, sp->name)) {
 		BZERO(id, sizeof(struct instruction_data));
 		return FALSE;
@@ -2003,7 +2003,7 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 
         readmem(vaddr, KVADDR, &id->inst[0],
         	sizeof(uint), "one instruction", FAULT_ON_ERROR);
-        
+
 	if ((id->inst[0] & OPCODE_OPERAND_MASK) == JSR_RA_T12) {
 
 		if (!id->target || !strstr(buf, "jsr\tra,(t12)") ||
@@ -2011,7 +2011,7 @@ alpha_dis_filter(ulong vaddr, char *buf, unsigned int output_radix)
 			return FALSE;
 
 		p1 = strstr(strstr(buf, "jsr"), "0x");
-		sprintf(p1, "0x%lx <%s>%s", 
+		sprintf(p1, "0x%lx <%s>%s",
 			id->target,
 			value_to_symstr(id->target, buf2, output_radix),
 			CRASHDEBUG(1) ? "  [PATCHED]\n" : "\n");
@@ -2057,10 +2057,10 @@ dis_address_translation(ulong vaddr, char *inbuf, unsigned int output_radix)
 	strcpy(buf1, inbuf);
 	argc = parse_line(buf1, argv);
 
-	if ((FIRSTCHAR(argv[argc-1]) == '<') && 
+	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
 	    (LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
-		while ((p1 > inbuf) && (*p1 != ',')) 
+		while ((p1 > inbuf) && (*p1 != ','))
 			p1--;
 
 		if (!STRNEQ(p1, ",0x"))
@@ -2070,7 +2070,7 @@ dis_address_translation(ulong vaddr, char *inbuf, unsigned int output_radix)
 		if (!extract_hex(p1, &value, NULLCHAR, TRUE))
 			return;
 
-		sprintf(buf1, "0x%lx <%s>\n", value,	
+		sprintf(buf1, "0x%lx <%s>\n", value,
 			value_to_symstr(value, buf2, output_radix));
 
 		sprintf(p1, buf1);
@@ -2105,13 +2105,13 @@ alpha_dump_irq(int irq)
 
 	if (!action) {
 		fprintf(fp, "    IRQ: %d\n", irq);
-		fprintf(fp, "handler:\n"); 
+		fprintf(fp, "handler:\n");
 		fprintf(fp, "  flags: \n");
 		fprintf(fp, "   mask: \n");
 		fprintf(fp, "   name: \n");
 		fprintf(fp, " dev_id: \n");
 		fprintf(fp, "   next: \n\n");
-		return;	
+		return;
 	}
 
         fprintf(fp, "    IRQ: %d\n", irq);
@@ -2136,15 +2136,15 @@ do_linked_action:
 			fprintf(pc->saved_fp, "\n");
                 }
                 if (STREQ(arglist[0], "flags")) {
-			value = htol(strip_comma(arglist[2]), 
+			value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
-                        fprintf(pc->saved_fp, 
+                        fprintf(pc->saved_fp,
 				"  flags: %lx  ", value);
-				
+
 			if (value) {
 				others = 0;
 				fprintf(pc->saved_fp, "(");
-	
+
 				if (value & SA_INTERRUPT)
 					fprintf(pc->saved_fp,
 					    "%sSA_INTERRUPT",
@@ -2167,13 +2167,13 @@ do_linked_action:
 					    "  (bits %lx not translated)",
 						value & ~ACTION_FLAGS);
 				}
-			} 
+			}
 
 			fprintf(pc->saved_fp, "\n");
 
 		}
                 if (STREQ(arglist[0], "mask")) {
-			value = htol(strip_comma(arglist[2]), 
+			value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
                         fprintf(pc->saved_fp,
                         	"   mask: %lx\n", value);
@@ -2186,13 +2186,13 @@ do_linked_action:
                         fprintf(pc->saved_fp, "\n");
                 }
 		if (STREQ(arglist[0], "dev_id")) {
-                        value = htol(strip_comma(arglist[2]), 
+                        value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
                         fprintf(pc->saved_fp,
                                 " dev_id: %lx\n", value);
                 }
 		if (STREQ(arglist[0], "next")) {
-                        value = htol(strip_comma(arglist[2]), 
+                        value = htol(strip_comma(arglist[2]),
 				FAULT_ON_ERROR, NULL);
                         fprintf(pc->saved_fp,
                                 "   next: %s\n",
@@ -2221,16 +2221,16 @@ alpha_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 
 	if (pcp) {
 	        if (DUMPFILE() && is_panic_thread(bt->task)) {
-			sp = next_symbol("crash_save_current_state", NULL);	
+			sp = next_symbol("crash_save_current_state", NULL);
 
 	                if (HWRESET_TASK(bt->task))
 	                        ip = get_percpu_data(0, GET_HALT_PC, 0);
-			else if (sp) 
+			else if (sp)
 	                        ip = sp->value - 4;
 			else
-	                       	ip = symbol_value("crash_save_current_state") 
+	                       	ip = symbol_value("crash_save_current_state")
 					+ 16;
-	        } else 
+	        } else
 	        	get_alpha_frame(bt, &ip, NULL);
 
         	*pcp = ip;
@@ -2239,12 +2239,12 @@ alpha_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 	if (spp) {
 		ip = 0;
        		if (!get_panic_ksp(bt, &ksp))
-                	get_alpha_frame(bt, 
+                	get_alpha_frame(bt,
 				HWRESET_TASK(bt->task) ? &ip : NULL, &ksp);
 
-        	if (!INSTACK(ksp, bt)) 
-                	error(FATAL, 
-			    "cannot determine starting stack address\n", 
+        	if (!INSTACK(ksp, bt))
+                	error(FATAL,
+			    "cannot determine starting stack address\n",
 				bt->task);
 
 		*spp = ksp;
@@ -2280,14 +2280,14 @@ get_alpha_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 		sp = ksp;
 	} else if (VALID_MEMBER(task_struct_tss_ksp))
                 ksp = sp = stack[OFFSET(task_struct_tss_ksp)/sizeof(long)];
-	else 
+	else
                 ksp = sp = stack[OFFSET(task_struct_thread_ksp)/sizeof(long)];
 
 	ip = 0;
 	percpu_ra = percpu_pv = 0;
 	spp = &stack[(sp - task)/sizeof(long)];
 
-        if (DUMPFILE() && getsp) { 
+        if (DUMPFILE() && getsp) {
 		if (HWRESET_TASK(task)) {
 			if (INSTACK(sp, bt)) {
 				*getsp = sp;
@@ -2296,7 +2296,7 @@ get_alpha_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 				get_percpu_data(0, 0, &percpu_data);
 				percpu_ra = percpu_data.halt_ra;
 				percpu_pv = percpu_data.halt_pv;
-				spp = &stack[roundup(SIZE(task_struct), 
+				spp = &stack[roundup(SIZE(task_struct),
 					sizeof(ulong)) / sizeof(ulong)];
 			}
 		}
@@ -2317,11 +2317,11 @@ percpu_retry:
 
 	for (i = 0, spp++; spp < &stack[LONGS_PER_STACK]; spp++,i++) {
 
-		if (CRASHDEBUG(1) && (percpu_ra || percpu_pv) && 
+		if (CRASHDEBUG(1) && (percpu_ra || percpu_pv) &&
 		    is_kernel_text(*spp)) {
-			fprintf(fp, "%lx: %lx (%s)\n", 
+			fprintf(fp, "%lx: %lx (%s)\n",
 				((ulong)spp - (ulong)stack) + task,
-				*spp, value_to_symstr(*spp, buf, 0)); 
+				*spp, value_to_symstr(*spp, buf, 0));
 		}
 
                 if (percpu_ra) {
@@ -2362,7 +2362,7 @@ percpu_retry:
                 	fprintf(fp, "get_alpha_frame: look for %lx (%s)\n",
                         	percpu_pv, value_to_symstr(percpu_pv, buf, 0));
         	}
-		spp = &stack[roundup(SIZE(task_struct), 
+		spp = &stack[roundup(SIZE(task_struct),
 			sizeof(ulong)) / sizeof(ulong)];
 
 		goto percpu_retry;
@@ -2378,7 +2378,7 @@ percpu_retry:
 	 */
 	if (!ip) {
                 if (INSTACK(ksp + OFFSET(switch_stack_r26), bt)) {
-                        readmem(ksp + OFFSET(switch_stack_r26), KVADDR, 
+                        readmem(ksp + OFFSET(switch_stack_r26), KVADDR,
 				&r26, sizeof(ulong),
                                 "ret_from_smp_fork check", FAULT_ON_ERROR);
                         if (STREQ(closest_symbol(r26), "ret_from_smp_fork") ||
@@ -2398,7 +2398,7 @@ percpu_retry:
 }
 
 /*
- *  Fill the percpu_data structure with information from the 
+ *  Fill the percpu_data structure with information from the
  *  hwrpb/percpu_data structures for a given CPU.  If requested,
  *  return one of the specified entries.
  */
@@ -2443,7 +2443,7 @@ get_percpu_data(int cpu, ulong flag, struct percpu_data *pd)
 	{
 	case GET_HALT_PC:
 		return halt_PC;
-		
+
 	case GET_HALT_RA:
 		return halt_ra;
 
@@ -2512,9 +2512,9 @@ alpha_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 
 	fprintf(fp, "FLAGS\n");
 
-	fprintf(fp, "%s  %s  ",  
+	fprintf(fp, "%s  %s  ",
 		mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-		mkstring(physbuf, len2, CENTER|RJUST, NULL)); 
+		mkstring(physbuf, len2, CENTER|RJUST, NULL));
 	fprintf(fp, "(");
 	others = 0;
 
@@ -2689,7 +2689,7 @@ display_hwrpb(unsigned int radix)
 	int cpu;
 	ulong hwrpb, percpu;
         ulong processor_offset, processor_size;
-	
+
         get_symbol_data("hwrpb", sizeof(void *), &hwrpb);
 
         readmem(hwrpb+OFFSET(hwrpb_struct_processor_offset), KVADDR,
@@ -2703,7 +2703,7 @@ display_hwrpb(unsigned int radix)
 	dump_struct("hwrpb_struct", hwrpb, radix);
 
 	for (cpu = 0; cpu < kt->cpus; cpu++) {
-		fprintf(fp, "\nCPU %d:\n", cpu); 
+		fprintf(fp, "\nCPU %d:\n", cpu);
 		percpu = hwrpb + processor_offset + (processor_size * cpu);
 		dump_struct("percpu_struct", percpu, radix);
 	}

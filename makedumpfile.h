@@ -1,6 +1,6 @@
-/* 
+/*
  * makedumpfile.h
- * 
+ *
  * This code is for reading a dumpfile ganarated by makedumpfile command.
  *
  * Copyright (C) 2011  NEC Soft, Ltd.

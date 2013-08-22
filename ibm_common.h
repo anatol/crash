@@ -45,7 +45,7 @@ typedef struct _s390_dump_header_s {
         uint32_t             dh_version;                         /* 0x008 */
 
         /* the size of this header (in case we can't read it) */
-        uint32_t             dh_header_size;                     /* 0x00c */ 
+        uint32_t             dh_header_size;                     /* 0x00c */
 
         /* the level of this dump (just a header?) */
         uint32_t             dh_dump_level;                      /* 0x010 */
@@ -67,7 +67,7 @@ typedef struct _s390_dump_header_s {
 
         /* ensure that dh_tod and dh_cpu_id are 8 byte aligned */
         uint32_t             dh_pad;                             /* 0x034 */
-	
+
         /* the time of the dump generation using stck */
         uint64_t             dh_tod;                             /* 0x038 */
 
@@ -97,6 +97,6 @@ typedef struct _s390_dump_header_s {
 typedef struct _s390_dump_end_marker_{
         char end_string[8];
         unsigned long long end_time;
-} __attribute__((packed)) s390_dump_end_marker_t; 
+} __attribute__((packed)) s390_dump_end_marker_t;
 
 #endif /* _ASM_VMDUMP_H */

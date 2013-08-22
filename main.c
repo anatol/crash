@@ -79,7 +79,7 @@ main(int argc, char **argv)
 
 	setup_environment(argc, argv);
 
-	/* 
+	/*
 	 *  Get and verify command line options.
 	 */
 	opterr = 0;
@@ -89,47 +89,47 @@ main(int argc, char **argv)
 		switch (c)
 		{
 		case 0:
-		        if (STREQ(long_options[option_index].name, 
-			    "memory_module")) 
+		        if (STREQ(long_options[option_index].name,
+			    "memory_module"))
 				pc->memory_module = optarg;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "memory_device")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "memory_device"))
 				pc->memory_device = optarg;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "no_kallsyms")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "no_kallsyms"))
 				kt->flags |= NO_KALLSYMS;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "no_modules")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "no_modules"))
 				kt->flags |= NO_MODULE_ACCESS;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "no_ikconfig")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "no_ikconfig"))
 				kt->flags |= NO_IKCONFIG;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "no_data_debug")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "no_data_debug"))
 				pc->flags &= ~DATADEBUG;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "no_kmem_cache")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "no_kmem_cache"))
 				vt->flags |= KMEM_CACHE_UNAVAIL;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "kmem_cache_delay")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "kmem_cache_delay"))
 				vt->flags |= KMEM_CACHE_DELAY;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "readnow")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "readnow"))
 				pc->flags |= READNOW;
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "smp")) 
+		        else if (STREQ(long_options[option_index].name,
+			    "smp"))
 				kt->flags |= SMP;
 
-		        else if (STREQ(long_options[option_index].name, 
+		        else if (STREQ(long_options[option_index].name,
 			    "machdep")) {
 				for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
 					if (machdep->cmdline_args[i])
@@ -142,33 +142,33 @@ main(int argc, char **argv)
 						optarg);
 			}
 
-		        else if (STREQ(long_options[option_index].name, 
-			    "version")) { 
+		        else if (STREQ(long_options[option_index].name,
+			    "version")) {
 				pc->flags |= VERSION_QUERY;
                         	display_version();
                         	display_gdb_banner();
                         	clean_exit(0);
 			}
 
-		        else if (STREQ(long_options[option_index].name, 
+		        else if (STREQ(long_options[option_index].name,
 			    "buildinfo")) {
 				dump_build_data();
 				clean_exit(0);
 			}
 
-		        else if (STREQ(long_options[option_index].name, "cpus")) 
+		        else if (STREQ(long_options[option_index].name, "cpus"))
 				kt->cpus_override = optarg;
 
 			else if (STREQ(long_options[option_index].name, "hyper"))
 				pc->flags |= XEN_HYPER;
 
-		        else if (STREQ(long_options[option_index].name, "p2m_mfn")) 
+		        else if (STREQ(long_options[option_index].name, "p2m_mfn"))
 				xen_kdump_p2m_mfn(optarg);
 
-		        else if (STREQ(long_options[option_index].name, "xen_phys_start")) 
+		        else if (STREQ(long_options[option_index].name, "xen_phys_start"))
 				set_xen_phys_start(optarg);
 
-		        else if (STREQ(long_options[option_index].name, "zero_excluded")) 
+		        else if (STREQ(long_options[option_index].name, "zero_excluded"))
 				*diskdump_flags |= ZERO_EXCLUDED;
 
 			else if (STREQ(long_options[option_index].name, "no_elf_notes")) {
@@ -180,10 +180,10 @@ main(int argc, char **argv)
 					      "the X86 and X86_64 architectures.\n");
 			}
 
-		        else if (STREQ(long_options[option_index].name, "no_panic")) 
+		        else if (STREQ(long_options[option_index].name, "no_panic"))
 				tt->flags |= PANIC_TASK_NOT_FOUND;
 
-		        else if (STREQ(long_options[option_index].name, "no_strip")) 
+		        else if (STREQ(long_options[option_index].name, "no_strip"))
 				st->flags |= NO_STRIP;
 
 		        else if (STREQ(long_options[option_index].name, "more")) {
@@ -199,7 +199,7 @@ main(int argc, char **argv)
 			}
 
 		        else if (STREQ(long_options[option_index].name, "CRASHPAGER")) {
-				if ((pc->scroll_command != SCROLL_NONE) && 
+				if ((pc->scroll_command != SCROLL_NONE) &&
 				    CRASHPAGER_valid())
 					pc->scroll_command = SCROLL_CRASHPAGER;
 			}
@@ -221,11 +221,11 @@ main(int argc, char **argv)
 					error(INFO, "invalid --reloc argument: %s\n",
 						optarg);
 					program_usage(SHORT_FORM);
-				} 
+				}
 				kt->flags |= RELOC_SET;
 			}
 
-			else if (STREQ(long_options[option_index].name, "minimal")) 
+			else if (STREQ(long_options[option_index].name, "minimal"))
 				pc->flags |= MINIMAL_MODE;
 
 		        else if (STREQ(long_options[option_index].name, "kvmhost"))
@@ -253,7 +253,7 @@ main(int argc, char **argv)
 				pc->flags2 |= RADIX_OVERRIDE;
 				pc->output_radix = 10;
 			}
-			
+
 
 			else {
 				error(INFO, "internal error: option %s unhandled\n",
@@ -284,7 +284,7 @@ main(int argc, char **argv)
 			else
 				program_usage(LONG_FORM);
 			clean_exit(0);
-			
+
 		case 'k':
 			pc->flags |= KERNTYPES;
 			break;
@@ -295,7 +295,7 @@ main(int argc, char **argv)
 			else if (STREQ(optarg, "emacs"))
 				pc->editing_mode = "emacs";
 			else
-				fprintf(fp, "invalid edit mode: %s\n", optarg);	
+				fprintf(fp, "invalid edit mode: %s\n", optarg);
 			break;
 
 		case 't':
@@ -329,13 +329,13 @@ main(int argc, char **argv)
                                 pc->system_map = "/boot/System.map";
                                 pc->flags |= (SYSMAP|SYSMAP_ARG);
 			}
-			break;	
+			break;
 
 		case 'c':
 			create_console_device(optarg);
 			break;
 
-		case 'd': 
+		case 'd':
 			pc->debug = atol(optarg);
 			set_lkcd_debug(pc->debug);
 			set_vas_debug(pc->debug);
@@ -378,7 +378,7 @@ main(int argc, char **argv)
 
 		if (is_remote_daemon(argv[optind])) {
                 	if (pc->flags & DUMPFILE_TYPES) {
-				error(INFO, 
+				error(INFO,
 				      "too many dumpfile/memory arguments\n");
 				program_usage(SHORT_FORM);
 			}
@@ -396,13 +396,13 @@ main(int argc, char **argv)
        		if (!file_exists(argv[optind], NULL)) {
                 	error(INFO, "%s: %s\n", argv[optind], strerror(ENOENT));
                 	program_usage(SHORT_FORM);
-        	} else if (!is_readable(argv[optind])) 
+        	} else if (!is_readable(argv[optind]))
 			program_usage(SHORT_FORM);
 
 		if (is_kernel(argv[optind])) {
 			if (pc->namelist || pc->server_namelist) {
 				if (!select_namelist(argv[optind])) {
-                               		error(INFO, 
+                               		error(INFO,
 					    "too many namelist arguments\n");
                                		program_usage(SHORT_FORM);
 				}
@@ -412,7 +412,7 @@ main(int argc, char **argv)
 		} else if (is_compressed_kernel(argv[optind], &tmpname)) {
 			if (pc->namelist) {
 				if (!select_namelist(tmpname)) {
-					error(INFO, 
+					error(INFO,
 					    "too many namelist arguments\n");
 					program_usage(SHORT_FORM);
 				}
@@ -435,7 +435,7 @@ main(int argc, char **argv)
 
 			if (STREQ(argv[optind], "/dev/mem")) {
                         	if (pc->flags & MEMORY_SOURCES) {
-                                	error(INFO, 
+                                	error(INFO,
                                             "too many dumpfile arguments\n");
                                 	program_usage(SHORT_FORM);
                         	}
@@ -447,7 +447,7 @@ main(int argc, char **argv)
 
 			} else if (is_proc_kcore(argv[optind], KCORE_LOCAL)) {
 				if (pc->flags & MEMORY_SOURCES) {
-					error(INFO, 
+					error(INFO,
 					    "too many dumpfile arguments\n");
 					program_usage(SHORT_FORM);
 				}
@@ -503,7 +503,7 @@ main(int argc, char **argv)
                                         program_usage(SHORT_FORM);
 				}
 				pc->kvmdump_mapfile = argv[optind];
-                                
+
                         } else if (is_xendump(argv[optind])) {
                                 if (pc->flags & MEMORY_SOURCES) {
                                         error(INFO,
@@ -576,8 +576,8 @@ main(int argc, char **argv)
 				pc->readmem = read_sadump;
 				pc->writemem = write_sadump;
 
-			} else { 
-				error(INFO, 
+			} else {
+				error(INFO,
 				    "%s: not a supported file format\n",
 					argv[optind]);
 				program_usage(SHORT_FORM);
@@ -585,7 +585,7 @@ main(int argc, char **argv)
 		}
 		optind++;
 	}
-	
+
 	check_xen_hyper();
 
         if (setjmp(pc->main_loop_env))
@@ -606,20 +606,20 @@ main(int argc, char **argv)
         datatype_init();
 
 	/*
-	 *  gdb_main_loop() modifies "command_loop_hook" to point to the 
+	 *  gdb_main_loop() modifies "command_loop_hook" to point to the
          *  main_loop() function below, and then calls gdb's main() function.
          *  After gdb initializes itself, it calls back to main_loop().
 	 */
-	gdb_main_loop(argc, argv);   
+	gdb_main_loop(argc, argv);
 
 	clean_exit(0);
-	exit(0); 
+	exit(0);
 }
 
 /*
  *  This routine is called from above, but also will be re-entered
- *  as part of gdb's SIGINT handling.  Since GDB_INIT and RUNTIME 
- *  will be set on re-entrancy, the initialization routines won't 
+ *  as part of gdb's SIGINT handling.  Since GDB_INIT and RUNTIME
+ *  will be set on re-entrancy, the initialization routines won't
  *  be called.  This can be avoided by always making gdb ignore SIGINT.
  */
 void
@@ -682,7 +682,7 @@ main_loop(void)
         }
 
 	if (pc->flags & MINIMAL_MODE)
-            error(NOTE, 
+            error(NOTE,
 		"minimal mode commands: log, dis, rd, sym, eval, set, extend and exit\n\n");
 
         pc->flags |= RUNTIME;
@@ -700,7 +700,7 @@ main_loop(void)
 
 	/*
 	 *  process_command_line() reads, parses and stores input command lines
-	 *  in the global args[] array.  exec_command() figures out what to 
+	 *  in the global args[] array.  exec_command() figures out what to
          *  do with the parsed line.
 	 */
 	while (TRUE) {
@@ -711,7 +711,7 @@ main_loop(void)
 
 /*
  *  Most of the time args[0] simply contains the name string of a command
- *  found in the global command_table[].  Special consideration is done for 
+ *  found in the global command_table[].  Special consideration is done for
  *  dealing with input files, "known" external commands, and built-in commands.
  *  If none of the above apply, the args[0] string is checked against the
  *  known list of structure, union and typedef names, and if found, passed
@@ -773,14 +773,14 @@ reattempt:
 	if (is_builtin_command())
 		return;
 
-        if (is_datatype_command()) 
+        if (is_datatype_command())
                 goto reattempt;
 
 	if (STRNEQ(args[0], "#") || STRNEQ(args[0], "//"))
 		return;
 
 	if (!(pc->flags & MINIMAL_MODE) &&
-	    is_gdb_command(TRUE, FAULT_ON_ERROR)) 
+	    is_gdb_command(TRUE, FAULT_ON_ERROR))
 		goto reattempt;
 
 	if (REMOTE() && remote_execute())
@@ -789,7 +789,7 @@ reattempt:
 	pc->curcmd = pc->program_name;
 
 	if (pc->flags & MINIMAL_MODE)
-		error(INFO, 
+		error(INFO,
 		    "%s: command not available in minimal mode\n"
 		    "NOTE: minimal mode commands: log, dis, rd, sym, eval, set, extend and exit\n",
 			args[0]);
@@ -806,7 +806,7 @@ reattempt:
  */
 struct command_table_entry *
 get_command_table_entry(char *name)
-{       
+{
 	int i;
         struct command_table_entry *cp;
         struct extension_table *ext;
@@ -814,7 +814,7 @@ get_command_table_entry(char *name)
 	if (pc->flags2 & GDB_CMD_MODE) {
 		if (STREQ(name, "crash")) {
 			if (argcnt == 1)
-				error(FATAL, 
+				error(FATAL,
 				    "a crash command must follow "
 				    "the \"crash\" directive\n");
 			for (i = 1; i <= argcnt; i++)
@@ -824,7 +824,7 @@ get_command_table_entry(char *name)
 		} else
 			name = "gdb";
 	}
-	
+
 	for (cp = pc->cmd_table; cp->name; cp++) {
                 if (STREQ(cp->name, name)) {
 			if (!(pc->flags & MINIMAL_MODE) || (cp->flags & MINIMAL))
@@ -833,7 +833,7 @@ get_command_table_entry(char *name)
 				return NULL;
 		}
         }
-                
+
         for (ext = extension_table; ext; ext = ext->next) {
                 for (cp = ext->command_table; cp->name; cp++) {
                         if (STREQ(cp->name, name)) {
@@ -843,7 +843,7 @@ get_command_table_entry(char *name)
 					return NULL;
 			}
                 }
-        }       
+        }
 
         return NULL;
 }
@@ -869,7 +869,7 @@ is_builtin_command(void)
 	/*
 	 *  cmd_test() is used strictly for debugging -- but not advertised
 	 *  in the help menu.
-	 */ 
+	 */
         if (STREQ(args[0], "test")) {
 		pc->curcmd = "test";
                 cmd_test();
@@ -883,7 +883,7 @@ is_builtin_command(void)
 		rfp->flags |= REMOTE_VERBOSE;
 		for (i = 1; i < argcnt; i++) {
 			rfp->filename = args[i];
-			get_remote_file(rfp); 
+			get_remote_file(rfp);
 		}
 		return TRUE;
 	}
@@ -961,7 +961,7 @@ setup_environment(int argc, char **argv)
 	program = argv[0];
 
 	/*
-	 *  Program output typically goes via "fprintf(fp, ...)", but the 
+	 *  Program output typically goes via "fprintf(fp, ...)", but the
 	 *  contents of fp are modified on the fly to handle redirection
 	 *  to pipes or output files.
 	 */
@@ -1001,12 +1001,12 @@ setup_environment(int argc, char **argv)
 	prctl(PR_SET_PDEATHSIG, SIGUSR2);
 
 	/*
-	 *  Get gdb version before initializing it since this might be one 
+	 *  Get gdb version before initializing it since this might be one
          *  of the short-hand commands that need it without running gdb.
 	 */
 	get_gdb_version();
 
-	/* 
+	/*
 	 *  Set up the default scrolling behavior for terminal output.
 	 */
 	if (isatty(fileno(stdout))) {
@@ -1023,10 +1023,10 @@ setup_environment(int argc, char **argv)
                 	pc->scroll_command = SCROLL_NONE;
                 	pc->flags &= ~SCROLL;
         	}
-	} 
+	}
 
 	/*
-	 *  Setup the readline command line editing mode based upon the 
+	 *  Setup the readline command line editing mode based upon the
 	 *  following order:
 	 *
 	 *   (1) EDITOR environment variable
@@ -1050,7 +1050,7 @@ setup_environment(int argc, char **argv)
 	 */
 	for (i = 1; i < argc; i++)
 		if (STREQ(argv[i], "--no_crashrc"))
-			pc->flags |= NOCRASHRC; 
+			pc->flags |= NOCRASHRC;
 
 	alias_init(NULL);
 
@@ -1077,7 +1077,7 @@ setup_environment(int argc, char **argv)
 	}
 
         sprintf(localrc, ".%src", pc->program_name);
-	if (!same_file(homerc, localrc) && 
+	if (!same_file(homerc, localrc) &&
 	    !(pc->flags & NOCRASHRC) && file_exists(localrc, NULL)) {
 		if ((afp = fopen(localrc, "r")) == NULL)
                         error(INFO, "cannot open %s: %s\n",
@@ -1085,7 +1085,7 @@ setup_environment(int argc, char **argv)
 		else if (untrusted_file(afp, localrc))
 			fclose(afp);
 		else {
-			while (fgets(buf, BUFSIZE, afp)) 
+			while (fgets(buf, BUFSIZE, afp))
 				resolve_rc_cmd(buf, ALIAS_RCLOCAL);
 			fclose(afp);
 		}
@@ -1123,7 +1123,7 @@ dump_program_context(void)
 	if (pc->flags & RUNTIME)
 		sprintf(&buf[strlen(buf)], "%sRUNTIME", others++ ? "|" : "");
 	if (pc->flags & LIVE_SYSTEM)
-		sprintf(&buf[strlen(buf)], "%sLIVE_SYSTEM", 
+		sprintf(&buf[strlen(buf)], "%sLIVE_SYSTEM",
 			others++ ? "|" : "");
 	if (pc->flags & TTY)
 		sprintf(&buf[strlen(buf)], "%sTTY", others++ ? "|" : "");
@@ -1144,10 +1144,10 @@ dump_program_context(void)
         if (pc->flags & MCLXCD)
                 sprintf(&buf[strlen(buf)], "%sMCLXCD", others++ ? "|" : "");
         if (pc->flags & RUNTIME_IFILE)
-                sprintf(&buf[strlen(buf)], "%sRUNTIME_IFILE", 
+                sprintf(&buf[strlen(buf)], "%sRUNTIME_IFILE",
 			others++ ? "|" : "");
         if (pc->flags & CMDLINE_IFILE)
-                sprintf(&buf[strlen(buf)], "%sCMDLINE_IFILE", 
+                sprintf(&buf[strlen(buf)], "%sCMDLINE_IFILE",
 			others++ ? "|" : "");
         if (pc->flags & DROP_CORE)
                 sprintf(&buf[strlen(buf)], "%sDROP_CORE", others++ ? "|" : "");
@@ -1158,29 +1158,29 @@ dump_program_context(void)
         if (pc->flags & IN_GDB)
                 sprintf(&buf[strlen(buf)], "%sIN_GDB", others++ ? "|" : "");
 	if (pc->flags & RCHOME_IFILE)
-                sprintf(&buf[strlen(buf)], "%sRCHOME_IFILE", 
+                sprintf(&buf[strlen(buf)], "%sRCHOME_IFILE",
 			others++ ? "|" : "");
 	if (pc->flags & RCLOCAL_IFILE)
-                sprintf(&buf[strlen(buf)], "%sRCLOCAL_IFILE", 
+                sprintf(&buf[strlen(buf)], "%sRCLOCAL_IFILE",
 			others++ ? "|" : "");
 	if (pc->flags & READLINE)
                 sprintf(&buf[strlen(buf)], "%sREADLINE", others++ ? "|" : "");
         if (pc->flags & _SIGINT_)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%s_SIGINT_", others++ ? "|" : "");
         if (pc->flags & IN_RESTART)
                 sprintf(&buf[strlen(buf)], "%sIN_RESTART", others++ ? "|" : "");
         if (pc->flags & KERNEL_DEBUG_QUERY)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sKERNEL_DEBUG_QUERY", others++ ? "|" : "");
         if (pc->flags & DEVMEM)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sDEVMEM", others++ ? "|" : "");
         if (pc->flags & MEMMOD)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sMEMMOD", others++ ? "|" : "");
         if (pc->flags & MODPRELOAD)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sMODPRELOAD", others++ ? "|" : "");
         if (pc->flags & REM_LIVE_SYSTEM)
                 sprintf(&buf[strlen(buf)],
@@ -1282,13 +1282,13 @@ dump_program_context(void)
                 sprintf(&buf[strlen(buf)],
                         "%sMINIMAL_MODE", others++ ? "|" : "");
         if (pc->flags & CRASHBUILTIN)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sCRASHBUILTIN", others++ ? "|" : "");
         if (pc->flags & PRELOAD_EXTENSIONS)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sPRELOAD_EXTENSIONS", others++ ? "|" : "");
         if (pc->flags & PROC_KCORE)
-                sprintf(&buf[strlen(buf)], 
+                sprintf(&buf[strlen(buf)],
 			"%sPROC_KCORE", others++ ? "|" : "");
 
 	if (pc->flags)
@@ -1296,9 +1296,9 @@ dump_program_context(void)
 
 	if (strlen(buf)) {
 		if (strlen(buf) > 46) {
-			sprintf(buf2, "\n%s\n", 
+			sprintf(buf2, "\n%s\n",
 				mkstring(buf, 80, CENTER|LJUST, NULL));
-			if (strlen(buf2) <= 82) 
+			if (strlen(buf2) <= 82)
 				fprintf(fp, "%s", buf2);
 			else {
 				for (i = strlen(buf2)-1; i; i--) {
@@ -1394,7 +1394,7 @@ dump_program_context(void)
 	fprintf(fp, "runtime_ifile_cmd: %s\n", pc->runtime_ifile_cmd ?
                 pc->runtime_ifile_cmd : "(unused)");
 	fprintf(fp, "   scroll_command: ");
-	switch (pc->scroll_command) 
+	switch (pc->scroll_command)
 	{
 	case SCROLL_NONE:
 		fprintf(fp, "SCROLL_NONE\n");
@@ -1416,37 +1416,37 @@ dump_program_context(void)
 		sprintf(buf, "(");
 	others = 0;
 	if (pc->redirect & FROM_COMMAND_LINE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sFROM_COMMAND_LINE", others++ ? "|" : "");
 	if (pc->redirect & FROM_INPUT_FILE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sFROM_INPUT_FILE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_NOT_DONE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_NOT_DONE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_TO_PIPE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_TO_PIPE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_TO_STDPIPE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_TO_STDPIPE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_TO_FILE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_TO_FILE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_FAILURE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_FAILURE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_SHELL_ESCAPE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_SHELL_ESCAPE", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_SHELL_COMMAND)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_SHELL_COMMAND", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_PID_KNOWN)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_PID_KNOWN", others++ ? "|" : "");
 	if (pc->redirect & REDIRECT_MULTI_PIPE)
-		sprintf(&buf[strlen(buf)], 
+		sprintf(&buf[strlen(buf)],
 			"%sREDIRECT_MULTI_PIPE", others++ ? "|" : "");
 	if (pc->redirect)
 		strcat(buf, ")");
@@ -1467,9 +1467,9 @@ dump_program_context(void)
 	fprintf(fp, "   pipe_shell_pid: %d\n", pc->pipe_shell_pid);
 	fprintf(fp, "     pipe_command: %s\n", pc->pipe_command);
 	if (pc->symfile && pc->symfile2) {
-		fprintf(fp, "          symfile: %lx  (%ld)\n", 
+		fprintf(fp, "          symfile: %lx  (%ld)\n",
 			(ulong)pc->symfile, (ulong)ftell(pc->symfile));
-		fprintf(fp, "         symfile2: %lx  (%ld)\n", 
+		fprintf(fp, "         symfile2: %lx  (%ld)\n",
 			(ulong)pc->symfile2, (ulong)ftell(pc->symfile2));
 	} else {
 		fprintf(fp, "          symfile: %lx \n", (ulong)pc->symfile);
@@ -1489,7 +1489,7 @@ dump_program_context(void)
 	fprintf(fp, "     last_gdb_cmd: %d  %s\n", pc->last_gdb_cmd,
 		gdb_command_string(pc->last_gdb_cmd, buf, FALSE));
 	fprintf(fp, "          cur_req: %lx\n", (ulong)pc->cur_req);
-	fprintf(fp, "        cmdgencur: %ld\n", pc->cmdgencur); 
+	fprintf(fp, "        cmdgencur: %ld\n", pc->cmdgencur);
 	fprintf(fp, "     curcmd_flags: %lx (", pc->curcmd_flags);
 	others = 0;
         if (pc->curcmd_flags & XEN_MACHINE_ADDR)
@@ -1525,7 +1525,7 @@ dump_program_context(void)
         if (pc->curcmd_flags & MOD_READNOW)
 		fprintf(fp, "%sMOD_READNOW", others ? "|" : "");
 	fprintf(fp, ")\n");
-	fprintf(fp, "   curcmd_private: %llx\n", pc->curcmd_private); 
+	fprintf(fp, "   curcmd_private: %llx\n", pc->curcmd_private);
 	fprintf(fp, "      cmd_cleanup: %lx\n", (ulong)pc->cmd_cleanup);
 	fprintf(fp, "  cmd_cleanup_arg: %lx\n", (ulong)pc->cmd_cleanup_arg);
 	fprintf(fp, "       sigint_cnt: %d\n", pc->sigint_cnt);
@@ -1540,7 +1540,7 @@ dump_program_context(void)
 	fprintf(fp, "          cmdlist: %lx\n", (ulong)pc->cmdlist);
 	fprintf(fp, "        cmdlistsz: %d\n", pc->cmdlistsz);
 	fprintf(fp, "     output_radix: %d (%s)\n", pc->output_radix,
-		pc->output_radix == 16 ? 
+		pc->output_radix == 16 ?
 		"hex" : ((pc->output_radix == 10) ? "decimal" : "???"));
 
 	fprintf(fp, "           server: %s\n", pc->server);
@@ -1565,10 +1565,10 @@ dump_program_context(void)
 	else
 		fprintf(fp, "%lx\n", (ulong)pc->writemem);
 
-	fprintf(fp, "  dumpfile memory: %d\n", 
-		dumpfile_memory(DUMPFILE_MEM_USED)); 
-	fprintf(fp, "           curext: %lx\n", (ulong)pc->curext); 
-	fprintf(fp, "             sbrk: %lx\n", (ulong)pc->sbrk); 
+	fprintf(fp, "  dumpfile memory: %d\n",
+		dumpfile_memory(DUMPFILE_MEM_USED));
+	fprintf(fp, "           curext: %lx\n", (ulong)pc->curext);
+	fprintf(fp, "             sbrk: %lx\n", (ulong)pc->sbrk);
 	fprintf(fp, "          cleanup: %s\n", pc->cleanup);
 	fprintf(fp, "            scope: %lx %s\n", pc->scope,
 		pc->scope ? "" : "(not set)");
@@ -1656,7 +1656,7 @@ dump_build_data(void)
 /*
  *  Perform any cleanup activity here.
  */
-int 
+int
 clean_exit(int status)
 {
 	if (pc->flags & MEMMOD)
@@ -1698,7 +1698,7 @@ check_xen_hyper(void)
 }
 
 /*
- *  Reject untrusted .crashrc, $HOME/.crashrc, 
+ *  Reject untrusted .crashrc, $HOME/.crashrc,
  *  .gdbinit, and $HOME/.gdbinit files.
  */
 static char *untrusted_file_list[4] = { 0 };
@@ -1712,7 +1712,7 @@ untrusted_file(FILE *filep, char *filename)
 	if (filep && (fstat(fileno(filep), &sbuf) == 0) &&
 	    (sbuf.st_uid == getuid()) && !(sbuf.st_mode & S_IWOTH))
 		return FALSE;
-	
+
 	for (i = 0; i < 4; i++) {
 		if (!untrusted_file_list[i]) {
 			untrusted_file_list[i] = strdup(filename);
@@ -1730,7 +1730,7 @@ show_untrusted_files(void)
 
 	for (i = cnt = 0; i < 4; i++) {
 		if (untrusted_file_list[i]) {
-			error(WARNING, "not using untrusted file: \"%s\"\n", 
+			error(WARNING, "not using untrusted file: \"%s\"\n",
 				untrusted_file_list[i]);
 			free(untrusted_file_list[i]);
 			cnt++;
@@ -1751,7 +1751,7 @@ get_osrelease(char *dumpfile)
 
 	if (is_flattened_format(dumpfile))
 		pc->flags2 |= FLAT;
-	
+
 	if (is_diskdump(dumpfile)) {
 		if (pc->flags2 & GET_OSRELEASE)
 			retval = 0;
@@ -1759,7 +1759,7 @@ get_osrelease(char *dumpfile)
 		if (pc->flags2 & GET_OSRELEASE)
 			retval = 0;
 	}
-	
+
 	if (retval)
 		fprintf(fp, "unknown\n");
 
@@ -1774,7 +1774,7 @@ get_log(char *dumpfile)
 
 	if (is_flattened_format(dumpfile))
 		pc->flags2 |= FLAT;
-	
+
 	if (is_diskdump(dumpfile)) {
 		if (pc->flags2 & GET_LOG)
 			retval = 0;

@@ -1,7 +1,7 @@
 /* lkcd_common.c - core analysis suite
  *
  * Copyright (C) 1999, 2000, 2001, 2002 Mission Critical Linux, Inc.
- * Copyright (C) 2002 Silicon Graphics, Inc. 
+ * Copyright (C) 2002 Silicon Graphics, Inc.
  * Copyright (C) 2002 Free Software Foundation, Inc.
  * Copyright (C) 2002, 2003, 2004, 2005, 2007, 2009, 2011 David Anderson
  * Copyright (C) 2002, 2003, 2004, 2005, 2007, 2009, 2011 Red Hat, Inc. All rights reserved.
@@ -56,14 +56,14 @@ struct lkcd_environment *lkcd = &lkcd_environment;
 static int uncompress_errloc;
 static int uncompress_recover(unsigned char *, ulong, unsigned char *, ulong);
 
-ulonglong 
+ulonglong
 fix_lkcd_address(ulonglong addr)
 {
-    int i; 
+    int i;
     ulong offset;
 
     for (i = 0; i < lkcd->fix_addr_num; i++) {
-	if ( (addr >=lkcd->fix_addr[i].task) && 
+	if ( (addr >=lkcd->fix_addr[i].task) &&
 		(addr < lkcd->fix_addr[i].task + STACKSIZE())){
 
 	    offset = addr - lkcd->fix_addr[i].task;
@@ -136,13 +136,13 @@ get_lkcd_panicmsg(char *buf)
  *  Called by remote_lkcd_dump_init() the local (!valid) lkcd_environment
  *  is used to store the panic task and panic message for use by the
  *  two routines above.
- */ 
+ */
 void
 set_remote_lkcd_panic_data(ulong task, char *buf)
 {
 	if (buf) {
 		if (!(lkcd->panic_string = (char *)malloc(strlen(buf)+1))) {
-			fprintf(stderr, 
+			fprintf(stderr,
 			    "cannot malloc space for panic message!\n");
 			clean_exit(1);
 		}
@@ -184,7 +184,7 @@ is_lkcd_compressed_dump(char *s)
 
         close(tmpfd);
 
-        if (!((magic == LKCD_DUMP_MAGIC_NUMBER) || 
+        if (!((magic == LKCD_DUMP_MAGIC_NUMBER) ||
 	     (magic == LKCD_DUMP_MAGIC_LIVE)))
 		return FALSE;
 
@@ -215,8 +215,8 @@ is_lkcd_compressed_dump(char *s)
 		return TRUE;
 
 	default:
-		lkcd_print("unsupported LKCD dump version: %ld (%lx)\n", 
-			version & ~(LKCD_DUMP_MCLX_V0|LKCD_DUMP_MCLX_V1), 
+		lkcd_print("unsupported LKCD dump version: %ld (%lx)\n",
+			version & ~(LKCD_DUMP_MCLX_V0|LKCD_DUMP_MCLX_V1),
 			version);
 		return FALSE;
 	}
@@ -346,7 +346,7 @@ dump_page_only:
 	lkcd_print("            bits: %d\n", lkcd->bits);
 	lkcd_print("      panic_task: %lx\n", lkcd->panic_task);
 	lkcd_print("    panic_string: %s%s", lkcd->panic_string,
-		lkcd->panic_string && strstr(lkcd->panic_string, "\n") ? 
+		lkcd->panic_string && strstr(lkcd->panic_string, "\n") ?
 		"" : "\n");
 
 	lkcd_print("     get_dp_size: ");
@@ -427,10 +427,10 @@ set_lkcd_debug(ulong debug)
 /*
  *  Set no-hash flag bit.
  */
-void 
+void
 set_lkcd_nohash(void)
 {
-	lkcd->flags |= LKCD_NOHASH; 
+	lkcd->flags |= LKCD_NOHASH;
 }
 
 /*
@@ -453,7 +453,7 @@ lkcd_memory_used(void)
         struct page_cache_hdr *sp;
 
         sp = &lkcd->page_cache_hdr[0];
-        for (i = pages = 0; i < LKCD_CACHED_PAGES; i++, sp++) { 
+        for (i = pages = 0; i < LKCD_CACHED_PAGES; i++, sp++) {
 		if (LKCD_VALID_PAGE(sp->pg_flags))
 			pages++;
 	}
@@ -463,7 +463,7 @@ lkcd_memory_used(void)
 
 /*
  *  Since the dumpfile pages are temporary tenants of a fixed page cache,
- *  this command doesn't do anything except clear the references. 
+ *  this command doesn't do anything except clear the references.
  */
 int
 lkcd_free_memory(void)
@@ -508,14 +508,14 @@ lkcd_memory_dump(FILE *fp)
         pct_raw = (lkcd->raw*100) /
                 (lkcd->hashed ? lkcd->hashed : 1);
         lkcd_print("          hashed: %ld\n", lkcd->hashed);
-        lkcd_print("      compressed: %ld (%ld%%)\n", 
+        lkcd_print("      compressed: %ld (%ld%%)\n",
 		lkcd->compressed, pct_compressed);
-        lkcd_print("             raw: %ld (%ld%%)\n", 
+        lkcd_print("             raw: %ld (%ld%%)\n",
 		lkcd->raw, pct_raw);
-        pct_cached = (lkcd->cached_reads*100) /  
+        pct_cached = (lkcd->cached_reads*100) /
                 (lkcd->total_reads ? lkcd->total_reads : 1);
         pct_hashed = (lkcd->hashed_reads*100) /
-                (lkcd->total_reads ? lkcd->total_reads : 1); 
+                (lkcd->total_reads ? lkcd->total_reads : 1);
         lkcd_print("    cached_reads: %ld (%ld%%)\n", lkcd->cached_reads,
                 pct_cached);
         lkcd_print("    hashed_reads: %ld (%ld%%)\n", lkcd->hashed_reads,
@@ -533,7 +533,7 @@ lkcd_memory_dump(FILE *fp)
 	                lkcd_print("  [%2d]: ", i);
 	                wrap = 0;
 	                while (phe && LKCD_VALID_PAGE(phe->pg_flags)) {
-				sprintf(buf, "%llx@", 
+				sprintf(buf, "%llx@",
 					(ulonglong)phe->pg_addr);
 				sprintf(&buf[strlen(buf)],
 	                        	"%llx,", (ulonglong)phe->pg_hdr_offset);
@@ -646,7 +646,7 @@ lkcd_speedo(void)
 
 
 /*
- *  The lkcd_lseek() routine does the bulk of the work setting things up 
+ *  The lkcd_lseek() routine does the bulk of the work setting things up
  *  so that the subsequent lkcd_read() simply has to do a bcopy().
 
  *  Given a physical address, first determine:
@@ -709,9 +709,9 @@ retry:
 				if (CRASHDEBUG(1) && !STREQ(pc->curcmd, "search"))
 				    error(INFO, "LKCD: conflicting page: zone %lld, "
 					"page %lld: %lld, %lld != %lld\n",
-					(unsigned long long)zone, 
-					(unsigned long long)page, 
-					(unsigned long long)paddr, 
+					(unsigned long long)zone,
+					(unsigned long long)page,
+					(unsigned long long)paddr,
 					(unsigned long long)off,
 					(unsigned long long)lkcd->zones[ii].pages[page].offset);
 				return -1;
@@ -736,7 +736,7 @@ retry:
 				return -1; /* this should be fatal */
 			}
 
-			BZERO(lkcd->zones[ii].pages, 
+			BZERO(lkcd->zones[ii].pages,
 					(ZONE_SIZE >> lkcd->page_shift) *
 					sizeof(struct page_desc));
 			lkcd->zones[ii].pages[page].offset = off;
@@ -762,7 +762,7 @@ retry:
 
 	return ret;  /* 1 if the page is new */
 }
-		
+
 static off_t
 get_offset(uint64_t paddr)
 {
@@ -825,7 +825,7 @@ lkcd_lseek(physaddr_t paddr)
 	lkcd->curpos = paddr & ((physaddr_t)(lkcd->page_size-1));
         lkcd->curpaddr = paddr & ~((physaddr_t)(lkcd->page_size-1));
 
-	if (page_is_cached()) 
+	if (page_is_cached())
 		return TRUE;
 
 	/* Faster than paging in lkcd->page_offsets[page] */
@@ -850,7 +850,7 @@ lkcd_lseek(physaddr_t paddr)
 	if (err == LKCD_DUMPFILE_OK) {
 	    return(cache_page());
 	}
-    }	
+    }
 
     /* We have to grind through some more of the dump file */
     lseek(lkcd->fd, lkcd->page_offset_max, SEEK_SET);
@@ -870,7 +870,7 @@ lkcd_lseek(physaddr_t paddr)
 		continue;
 	}
 
-	physaddr = lkcd->get_dp_flags() & 
+	physaddr = lkcd->get_dp_flags() &
 	    (LKCD_DUMP_MCLX_V0|LKCD_DUMP_MCLX_V1) ?
 	    (lkcd->get_dp_address() - lkcd->kvbase) << lkcd->page_shift:
 	    lkcd->get_dp_address() - lkcd->kvbase;
@@ -891,7 +891,7 @@ lkcd_lseek(physaddr_t paddr)
  *    lkcd->curbufptr points to the uncompressed page base.
  *    lkcd->curpos is the offset into the buffer.
  */
-long 
+long
 lkcd_read(void *buf, long count)
 {
 	char *p;
@@ -899,14 +899,14 @@ lkcd_read(void *buf, long count)
 	lkcd->total_reads++;
 
 	p = lkcd->curbufptr + lkcd->curpos;
-	
+
 	BCOPY(p, buf, count);
 	return count;
 }
 
 /*
  *  Check whether lkcd->curpaddr is already cached.  If it is, update
- *  lkcd->curbufptr to point to the page's uncompressed data.  
+ *  lkcd->curbufptr to point to the page's uncompressed data.
  */
 static int
 page_is_cached(void)
@@ -932,7 +932,7 @@ page_is_cached(void)
 
 /*
  *  For an incoming page:
- *  
+ *
  *   (1) If it's already hashed just return TRUE.
  *   (2) If the base page_hash_entry is unused, fill it up and return TRUE;
  *   (3) Otherwise, find the last page_hash_entry on the list, allocate and
@@ -952,7 +952,7 @@ hash_page(ulong type)
 
 	index = LKCD_PAGE_HASH_INDEX(lkcd->curpaddr);
 
-	for (phe = &lkcd->page_hash[index]; LKCD_VALID_PAGE(phe->pg_flags); 
+	for (phe = &lkcd->page_hash[index]; LKCD_VALID_PAGE(phe->pg_flags);
 	     phe = phe->next) {
 		if (phe->pg_addr == lkcd->curpaddr)
 			return TRUE;
@@ -998,7 +998,7 @@ page_is_hashed(long *pp)
 
 	index = LKCD_PAGE_HASH_INDEX(lkcd->curpaddr);
 
-	for (phe = &lkcd->page_hash[index]; LKCD_VALID_PAGE(phe->pg_flags); 
+	for (phe = &lkcd->page_hash[index]; LKCD_VALID_PAGE(phe->pg_flags);
 	     phe = phe->next) {
 		if (phe->pg_addr == lkcd->curpaddr) {
 			*pp = (long)(lkcd->curpaddr >> lkcd->page_shift);
@@ -1015,7 +1015,7 @@ page_is_hashed(long *pp)
 }
 
 /*
- *  The caller stores the incoming page's page header offset in 
+ *  The caller stores the incoming page's page header offset in
  *  lkcd->curhdroffs.
  */
 int
@@ -1033,7 +1033,7 @@ set_mb_benchmark(ulong page)
 
 	return TRUE;
 }
-	
+
 /*
  *  Coming into this routine:
  *
@@ -1087,9 +1087,9 @@ cache_page(void)
 	switch (type)
 	{
 	case LKCD_DUMP_COMPRESSED:
-		if (LKCD_DEBUG(2)) 
+		if (LKCD_DEBUG(2))
 			dump_dump_page("cmp: ", lkcd->dump_page);
-		
+
 		newsz = 0;
 		BZERO(lkcd->compressed_page, lkcd->page_size);
                 bytes = read(lkcd->fd, lkcd->compressed_page, lkcd->get_dp_size());
@@ -1104,11 +1104,11 @@ cache_page(void)
 		case LKCD_DUMP_COMPRESS_RLE:
 			if (!lkcd_uncompress_RLE((unsigned char *)
 			    lkcd->compressed_page,
-			    (unsigned char *)lkcd->page_cache_hdr[i].pg_bufptr, 	
-			    lkcd->get_dp_size(), &newsz) || 
+			    (unsigned char *)lkcd->page_cache_hdr[i].pg_bufptr,
+			    lkcd->get_dp_size(), &newsz) ||
 			    (newsz != lkcd->page_size)) {
 				lkcd_print("uncompress of page ");
-				lkcd_print(BITS32() ? 
+				lkcd_print(BITS32() ?
 					"%llx failed!\n" : "%lx failed!\n",
 					lkcd->get_dp_address());
 				lkcd_print("newsz returned: %d\n", newsz);
@@ -1119,10 +1119,10 @@ cache_page(void)
 		case LKCD_DUMP_COMPRESS_GZIP:
 			if (!lkcd_uncompress_gzip((unsigned char *)
 			    lkcd->page_cache_hdr[i].pg_bufptr, lkcd->page_size,
-			    (unsigned char *)lkcd->compressed_page, 
+			    (unsigned char *)lkcd->compressed_page,
 			    lkcd->get_dp_size())) {
                                 lkcd_print("uncompress of page ");
-                                lkcd_print(BITS32() ? 
+                                lkcd_print(BITS32() ?
                                         "%llx failed!\n" : "%lx failed!\n",
                                         lkcd->get_dp_address());
 				return FALSE;
@@ -1133,13 +1133,13 @@ cache_page(void)
 		break;
 
 	case LKCD_DUMP_RAW:
-		if (LKCD_DEBUG(2)) 
+		if (LKCD_DEBUG(2))
 			dump_dump_page("raw: ", lkcd->dump_page);
 		if ((rawsz = lkcd->get_dp_size()) == 0)
-			BZERO(lkcd->page_cache_hdr[i].pg_bufptr, 
+			BZERO(lkcd->page_cache_hdr[i].pg_bufptr,
 				lkcd->page_size);
 		else if (rawsz == lkcd->page_size)
-			bytes = read(lkcd->fd, lkcd->page_cache_hdr[i].pg_bufptr, 
+			bytes = read(lkcd->fd, lkcd->page_cache_hdr[i].pg_bufptr,
 				lkcd->page_size);
 		else {
 			lkcd_print("cache_page: "
@@ -1167,7 +1167,7 @@ cache_page(void)
  *  Uncompress an RLE-encoded buffer.
  */
 static int
-lkcd_uncompress_RLE(unsigned char *cbuf, unsigned char *ucbuf, 
+lkcd_uncompress_RLE(unsigned char *cbuf, unsigned char *ucbuf,
 	       uint32_t blk_size, int *new_size)
 {
         int i;
@@ -1196,7 +1196,7 @@ lkcd_uncompress_RLE(unsigned char *cbuf, unsigned char *ucbuf,
 
                 /* if our write index is beyond the page size, exit out */
                 if (wi > /* PAGE_SIZE */ lkcd->page_size) {
-			lkcd_print( 
+			lkcd_print(
            "Attempted to decompress beyond page boundaries: file corrupted!\n");
                         return (0);
                 }
@@ -1261,14 +1261,14 @@ uncompress_recover(unsigned char *dest, ulong destlen,
  *    a non-negative value of uncompress_errloc indicates the location of
  *    a single-bit error, and the data may be used.
  */
-static int 
-lkcd_uncompress_gzip(unsigned char *dest, ulong destlen, 
+static int
+lkcd_uncompress_gzip(unsigned char *dest, ulong destlen,
 	unsigned char *source, ulong sourcelen)
 {
         ulong retlen = destlen;
         int rc = FALSE;
 
-	switch (uncompress(dest, &retlen, source, sourcelen)) 
+	switch (uncompress(dest, &retlen, source, sourcelen))
 	{
 	case Z_OK:
 		if (retlen == destlen)
@@ -1311,7 +1311,7 @@ lkcd_uncompress_gzip(unsigned char *dest, ulong destlen,
 /*
  *  Generic print routine to handle integral and remote daemon usage of
  */
-void 
+void
 lkcd_print(char *fmt, ...)
 {
 	char buf[BUFSIZE];
@@ -1348,10 +1348,10 @@ lkcd_load_dump_page_header(void *dp, ulong page)
 	/* This is wasted effort */
         page_offset = lkcd->curhdroffs = lseek(lkcd->fd, 0, SEEK_CUR);
 
-        if (read(lkcd->fd, dp, lkcd->page_header_size) != 
+        if (read(lkcd->fd, dp, lkcd->page_header_size) !=
 	    lkcd->page_header_size) {
-		if (page > lkcd->total_pages) 
-			lkcd_dumpfile_complaint(page, lkcd->total_pages, 
+		if (page > lkcd->total_pages)
+			lkcd_dumpfile_complaint(page, lkcd->total_pages,
 				LKCD_DUMPFILE_EOF);
                 return LKCD_DUMPFILE_EOF;
 	}
@@ -1363,28 +1363,28 @@ lkcd_load_dump_page_header(void *dp, ulong page)
                 return LKCD_DUMPFILE_END;
         }
 
-	if ((lkcd->flags & LKCD_VALID) && (page > lkcd->total_pages)) 
+	if ((lkcd->flags & LKCD_VALID) && (page > lkcd->total_pages))
 		lkcd->total_pages = page;
 
 #ifdef X86
 	/*
-	 *  Ugly leftover from very early x86 LKCD versions which used 
+	 *  Ugly leftover from very early x86 LKCD versions which used
 	 *  the kernel unity-mapped virtual address as the dp_address.
 	 */
-        if ((page == 0) && !(lkcd->flags & LKCD_VALID) && 
-	    (lkcd->version == LKCD_DUMP_V1) && 
-	    (dp_address == 0xc0000000)) 
+        if ((page == 0) && !(lkcd->flags & LKCD_VALID) &&
+	    (lkcd->version == LKCD_DUMP_V1) &&
+	    (dp_address == 0xc0000000))
         	lkcd->kvbase = dp_address;
 #endif
 
 	physaddr = dp_flags & (LKCD_DUMP_MCLX_V0|LKCD_DUMP_MCLX_V1) ?
-		(dp_address - lkcd->kvbase) << lkcd->page_shift : 
+		(dp_address - lkcd->kvbase) << lkcd->page_shift :
         	dp_address - lkcd->kvbase;
 
 
 	if ((ret = save_offset(physaddr, page_offset)) < 0) {
 	    return LKCD_DUMPFILE_EOF; /* really an error */
-	} 
+	}
 
 	lkcd->zoned_offsets += ret;  /* return = 0 if already known */
 
@@ -1405,7 +1405,7 @@ lkcd_dumpfile_complaint(uint32_t realpages, uint32_t dh_num_pages, int retval)
 {
 	if (lkcd->flags & LKCD_BAD_DUMP)
 		return;
-	
+
 	lkcd->flags |= LKCD_BAD_DUMP;
 
 	if (realpages > dh_num_pages) {

@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  */
 
-#include "defs.h"    
+#include "defs.h"
 #include <sys/time.h>
 #include <linux/types.h>
 #include <elf.h>
@@ -22,12 +22,12 @@
 void snap_init(void);
 void snap_fini(void);
 
-void cmd_snap(void);     
+void cmd_snap(void);
 char *help_snap[];
 
 static struct command_table_entry command_table[] = {
-	{ "snap", cmd_snap, help_snap, 0 },    
-	{ NULL }                               
+	{ "snap", cmd_snap, help_snap, 0 },
+	{ NULL }
 };
 
 static char *generate_elf_header(int, int, char *);
@@ -41,19 +41,19 @@ int supported = TRUE;
 int supported = FALSE;
 #endif
 
-void __attribute__((constructor)) 
+void __attribute__((constructor))
 snap_init(void) /* Register the command set. */
-{ 
+{
         register_extension(command_table);
 }
- 
+
 void __attribute__((destructor))
-snap_fini(void) 
-{ 
+snap_fini(void)
+{
 }
 
 
-/* 
+/*
  *  Just pass in an unused filename.
  */
 void
@@ -75,7 +75,7 @@ cmd_snap(void)
 			pc->machine_type);
 
 	filename = NULL;
-	buf = GETBUF(PAGESIZE()); 
+	buf = GETBUF(PAGESIZE());
 	type = KDUMP_ELF64;
 
         while ((c = getopt(argcnt, args, "n")) != EOF) {
@@ -128,7 +128,7 @@ cmd_snap(void)
 		for (c = 0; c < nt->size; c++, paddr += PAGESIZE()) {
 			if (!verify_paddr(paddr))
 				continue;
-			if (!readmem(paddr, PHYSADDR, &buf[0], PAGESIZE(), 
+			if (!readmem(paddr, PHYSADDR, &buf[0], PAGESIZE(),
 			    "memory page", QUIET|RETURN_ON_ERROR))
 				continue;
 
@@ -155,7 +155,7 @@ char *help_snap[] = {
         "snap",                     /* command name */
         "take a memory snapshot",   /* short description */
         "[-n] dumpfile",            /* filename */
- 
+
         "  This command takes a snapshot of physical memory and creates an ELF vmcore.",
 	"  The default vmcore is a kdump-style dumpfile.  Supported on x86, x86_64,",
 	"  ia64 and ppc64 architectures only.",
@@ -168,14 +168,14 @@ char *help_snap[] = {
  *  Architecture-specific and -generic ELF header data borrowed from the
  *  netdump.h file in the netdump package, modified slightly to also create
  *  a kdump-style vmcore.
- */ 
+ */
 
 /******************************************************************************
  *                       Elf core dumping                                     *
  ******************************************************************************/
 
 /*
- *  Host-platform independent data 
+ *  Host-platform independent data
  */
 #define ELF_PRARGSZ	(80)	/* Number of chars for args */
 struct elf_prpsinfo_64
@@ -194,7 +194,7 @@ struct elf_prpsinfo_64
 };
 
 /*
- *  i386 specific 
+ *  i386 specific
  */
 struct user_regs_struct_i386 {
         __u32 ebx, ecx, edx, esi, edi, ebp, eax;
@@ -215,7 +215,7 @@ struct elf_prstatus_i386 {
 	__u32 pr_fpvalid;		/* True if math co-processor being used.  */
 };
 
-/* 
+/*
  *  x86_64 specific
  */
 struct user_regs_struct_x86_64 {
@@ -238,7 +238,7 @@ struct elf_prstatus_x86_64 {
 
 /*
  *  ppc64 specific
- */ 
+ */
 struct user_regs_struct_ppc64 {
         __u64 gpr[32];
 	__u64 nip;
@@ -266,7 +266,7 @@ struct elf_prstatus_ppc64 {
 
 /*
  *  ia64 specific
- */ 
+ */
 struct _ia64_fpreg {
         union {
                 __u64 bits[2];
@@ -355,8 +355,8 @@ struct elf_prstatus_ia64 {
 };
 
 union prstatus {
-	struct elf_prstatus_i386 x86; 
-	struct elf_prstatus_x86_64 x86_64; 
+	struct elf_prstatus_i386 x86;
+	struct elf_prstatus_x86_64 x86_64;
 	struct elf_prstatus_ppc64 ppc64;
 	struct elf_prstatus_ia64 ia64;
 };
@@ -610,7 +610,7 @@ static void
 init_ram_segments(void)
 {
 	int i, errflag;
-        FILE *iomem; 
+        FILE *iomem;
 	char buf[BUFSIZE], *p1, *p2;
 	physaddr_t start, end;
 
@@ -656,7 +656,7 @@ init_ram_segments(void)
 			if (PAGEOFFSET(end) == (PAGESIZE()-1))
 				ram_segments[i].end += PAGESIZE();
 			console("ram_segments[%d]: %016llx %016llx [%s-%s]\n", i,
-				(ulonglong)ram_segments[i].start, 
+				(ulonglong)ram_segments[i].start,
 				(ulonglong)ram_segments[i].end, p1, p2);
 			i++;
 		}
@@ -671,7 +671,7 @@ fail_iomem:
 	if (ram_segments)
 		FREEBUF(ram_segments);
 
-	return; 
+	return;
 }
 
 static int
@@ -707,13 +707,13 @@ verify_paddr(physaddr_t paddr)
 			console("reject: %llx\n", (ulonglong)paddr);
 		return FALSE;
 	}
-	
+
 	return TRUE;
 }
 
 /*
- *  Borrowed from makedumpfile, prints a percentage-done value 
- *  once per second. 
+ *  Borrowed from makedumpfile, prints a percentage-done value
+ *  once per second.
  */
 static int
 print_progress(const char *filename, ulong current)

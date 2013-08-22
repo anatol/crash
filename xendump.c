@@ -1,6 +1,6 @@
-/* 
- * xendump.c 
- * 
+/*
+ * xendump.c
+ *
  * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 David Anderson
  * Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Red Hat, Inc. All rights reserved.
  *
@@ -73,14 +73,14 @@ is_xendump(char *file)
                 }
         }
 
-	if (read(xd->xfd, buf, BUFSIZE) != BUFSIZE) 
+	if (read(xd->xfd, buf, BUFSIZE) != BUFSIZE)
 		return FALSE;
 
         if (machine_type("X86") || machine_type("X86_64"))
                 xd->page_size = 4096;
 	else if (machine_type("IA64") && !machdep->pagesize)
 		xd->page_size = 16384;
-	else 
+	else
                 xd->page_size = machdep->pagesize;
 
 	verified = xc_save_verify(buf) || xc_core_verify(file, buf);
@@ -105,12 +105,12 @@ xc_core_verify(char *file, char *buf)
 	if (xc_core_elf_verify(file, buf))
 		return TRUE;
 
-	if ((xcp->xch_magic != XC_CORE_MAGIC) && 
+	if ((xcp->xch_magic != XC_CORE_MAGIC) &&
 	    (xcp->xch_magic != XC_CORE_MAGIC_HVM))
 		return FALSE;
 
 	if (!xcp->xch_nr_vcpus) {
-		error(INFO, 
+		error(INFO,
 		    "faulty xc_core dump file header: xch_nr_vcpus is 0\n\n");
 
         	fprintf(stderr, "         xch_magic: %x\n", xcp->xch_magic);
@@ -148,7 +148,7 @@ xc_core_verify(char *file, char *buf)
                 error(FATAL, "cannot malloc pfn_offset_cache\n");
 	xd->last_pfn = ~(0UL);
 
-	if (CRASHDEBUG(1)) 
+	if (CRASHDEBUG(1))
                 xendump_memory_dump(stderr);
 
 	return TRUE;
@@ -173,7 +173,7 @@ xc_core_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
                 if (!redundant) {
                         if (lseek(xd->xfd, offset, SEEK_SET) == -1)
                                 return SEEK_ERROR;
-                        if (read(xd->xfd, xd->page, xd->page_size) != 
+                        if (read(xd->xfd, xd->page, xd->page_size) !=
 			    xd->page_size)
                                 return READ_ERROR;
 			xd->last_pfn = pfn;
@@ -183,14 +183,14 @@ xc_core_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
                 return cnt;
         }
 
-	if ((page_index = xc_core_pfn_to_page_index(pfn)) == 
+	if ((page_index = xc_core_pfn_to_page_index(pfn)) ==
 	    PFN_NOT_FOUND)
 		return READ_ERROR;
 
 	offset = (off_t)xd->xc_core.header.xch_pages_offset +
 		((off_t)(page_index) * (off_t)xd->page_size);
 
-	if (lseek(xd->xfd, offset, SEEK_SET) == -1) 
+	if (lseek(xd->xfd, offset, SEEK_SET) == -1)
  		return SEEK_ERROR;
 
 	if (read(xd->xfd, xd->page, xd->page_size) != xd->page_size)
@@ -244,13 +244,13 @@ xc_save_verify(char *buf)
 	flags = XC_SAVE;
 
 	if (CRASHDEBUG(1)) {
-		fprintf(stderr, "\"%s\"\n", buf); 
-		fprintf(stderr, "endian: %d %s\n", __BYTE_ORDER, 
+		fprintf(stderr, "\"%s\"\n", buf);
+		fprintf(stderr, "endian: %d %s\n", __BYTE_ORDER,
 		    __BYTE_ORDER == __BIG_ENDIAN ? "__BIG_ENDIAN" :
-		    (__BYTE_ORDER == __LITTLE_ENDIAN ? 
+		    (__BYTE_ORDER == __LITTLE_ENDIAN ?
 		    "__LITTLE_ENDIAN" : "???"));
 	}
-		  
+
 	/*
 	 *  size of vmconfig data structure (big-endian)
 	 */
@@ -261,11 +261,11 @@ xc_save_verify(char *buf)
 
 	if (CRASHDEBUG(1) && BYTE_SWAP_REQUIRED(__BIG_ENDIAN)) {
 		fprintf(stderr, "byte-swap required for this:\n");
-		for (i = 0; i < sizeof(int); i++) 
+		for (i = 0; i < sizeof(int); i++)
 			fprintf(stderr, "[%x]", buf[i] & 0xff);
 		fprintf(stderr, ": %x -> ", *intptr);
 	}
-	
+
 	xd->xc_save.vmconfig_size = swab32(*intptr);
 
 	if (CRASHDEBUG(1))
@@ -276,14 +276,14 @@ xc_save_verify(char *buf)
 		error(FATAL, "cannot malloc xc_save vmconfig space.");
 
 	if (!xd->page_size)
-		error(FATAL, 
+		error(FATAL,
 		    "unknown page size: use -p <pagesize> command line option\n");
 
 	if (!(xd->page = (char *)malloc(xd->page_size)))
 		error(FATAL, "cannot malloc page space.");
 
 	if (!(xd->poc = (struct pfn_offset_cache *)calloc
-	    (PFN_TO_OFFSET_CACHE_ENTRIES, 
+	    (PFN_TO_OFFSET_CACHE_ENTRIES,
 	    sizeof(struct pfn_offset_cache))))
 		error(FATAL, "cannot malloc pfn_offset_cache\n");
 	xd->last_pfn = ~(0UL);
@@ -292,7 +292,7 @@ xc_save_verify(char *buf)
 	    (MAX_BATCH_SIZE, sizeof(ulong))))
 		error(FATAL, "cannot malloc region_pfn_type\n");
 
-	if (read(xd->xfd, xd->xc_save.vmconfig_buf, 
+	if (read(xd->xfd, xd->xc_save.vmconfig_buf,
 	    xd->xc_save.vmconfig_size) != xd->xc_save.vmconfig_size)
 		goto xc_save_bailout;
 
@@ -315,24 +315,24 @@ xc_save_verify(char *buf)
 	if (machine_type("IA64"))
 		goto xc_save_ia64;
 
-    	/* 
-	 *  Get a local copy of the live_P2M_frame_list 
+    	/*
+	 *  Get a local copy of the live_P2M_frame_list
 	 */
-	if (!(xd->xc_save.p2m_frame_list = (unsigned long *)malloc(P2M_FL_SIZE))) 
+	if (!(xd->xc_save.p2m_frame_list = (unsigned long *)malloc(P2M_FL_SIZE)))
         	error(FATAL, "cannot allocate p2m_frame_list array");
 
-	if (!(xd->xc_save.batch_offsets = (off_t *)calloc((size_t)P2M_FL_ENTRIES, 
+	if (!(xd->xc_save.batch_offsets = (off_t *)calloc((size_t)P2M_FL_ENTRIES,
 	    sizeof(off_t))))
         	error(FATAL, "cannot allocate batch_offsets array");
 
 	xd->xc_save.batch_count = P2M_FL_ENTRIES;
-		
-	if (read(xd->xfd, xd->xc_save.p2m_frame_list, P2M_FL_SIZE) != 
+
+	if (read(xd->xfd, xd->xc_save.p2m_frame_list, P2M_FL_SIZE) !=
 	    P2M_FL_SIZE)
 		goto xc_save_bailout;
 
 	if (CRASHDEBUG(1))
-		fprintf(stderr, "pre-batch file pointer: %lld\n", 
+		fprintf(stderr, "pre-batch file pointer: %lld\n",
 			(ulonglong)lseek(xd->xfd, 0L, SEEK_CUR));
 
 	/*
@@ -359,8 +359,8 @@ xc_save_verify(char *buf)
 			goto xc_save_bailout;
 
 		if (CRASHDEBUG(1))
-			fprintf(stderr, "batch[%ld]: %d ", 
-				batch_index, batch_count); 
+			fprintf(stderr, "batch[%ld]: %d ",
+				batch_index, batch_count);
 
 		batch_index++;
 
@@ -374,8 +374,8 @@ xc_save_verify(char *buf)
 	 	{
 	 	case 0:
 			if (CRASHDEBUG(1)) {
-	 		    fprintf(stderr, 
-			        ": Batch work is done: %ld pages read (P2M_FL_ENTRIES: %ld)\n", 
+	 		    fprintf(stderr,
+			        ": Batch work is done: %ld pages read (P2M_FL_ENTRIES: %ld)\n",
 				    total_pages_read, P2M_FL_ENTRIES);
 			}
 			done_batch = TRUE;
@@ -389,7 +389,7 @@ xc_save_verify(char *buf)
 	 	default:
 	 		if (batch_count > MAX_BATCH_SIZE) {
 				if (CRASHDEBUG(1))
-	             		    fprintf(stderr, 
+	             		    fprintf(stderr,
 					": Max batch size exceeded. Giving up.\n");
 				done_batch = TRUE;
 				continue;
@@ -399,51 +399,51 @@ xc_save_verify(char *buf)
 			break;
 		}
 
-		if (read(xd->xfd, xd->xc_save.region_pfn_type, batch_count * sizeof(ulong)) != 
+		if (read(xd->xfd, xd->xc_save.region_pfn_type, batch_count * sizeof(ulong)) !=
 	    	    batch_count * sizeof(ulong))
 			goto xc_save_bailout;
 
 		for (i = 0; i < batch_count; i++) {
 			unsigned long pagetype;
 			unsigned long pfn;
-	
+
 	            	pfn = xd->xc_save.region_pfn_type[i] & ~LTAB_MASK;
 	            	pagetype = xd->xc_save.region_pfn_type[i] & LTAB_MASK;
-	
-		        if (pagetype == XTAB) 
+
+		        if (pagetype == XTAB)
 			    /* a bogus/unmapped page: skip it */
 	                	continue;
-	
+
 	            	if (pfn > xd->xc_save.nr_pfns) {
 				if (CRASHDEBUG(1))
-	                	    fprintf(stderr, 
+	                	    fprintf(stderr,
 				 	"batch_count: %d pfn %ld out of range",
 						batch_count, pfn);
 	            	}
 
 			if (lseek(xd->xfd, xd->page_size, SEEK_CUR) == -1)
 				goto xc_save_bailout;
-	
+
 			total_pages_read++;
 		}
-	}	
+	}
 
-	/* 
-	 *  Get the list of PFNs that are not in the psuedo-phys map 
+	/*
+	 *  Get the list of PFNs that are not in the psuedo-phys map
 	 */
-	if (read(xd->xfd, &xd->xc_save.pfns_not, 
+	if (read(xd->xfd, &xd->xc_save.pfns_not,
 	    sizeof(xd->xc_save.pfns_not)) != sizeof(xd->xc_save.pfns_not))
 		goto xc_save_bailout;
 
 	if (CRASHDEBUG(1))
-		fprintf(stderr, "PFNs not in pseudo-phys map: %d\n", 
+		fprintf(stderr, "PFNs not in pseudo-phys map: %d\n",
 			xd->xc_save.pfns_not);
 
-	if ((total_pages_read + xd->xc_save.pfns_not) != 
+	if ((total_pages_read + xd->xc_save.pfns_not) !=
 	    xd->xc_save.nr_pfns)
-		error(WARNING, 
+		error(WARNING,
 		    "nr_pfns: %ld != (total pages: %ld + pages not saved: %d)\n",
-			xd->xc_save.nr_pfns, total_pages_read, 
+			xd->xc_save.nr_pfns, total_pages_read,
 			xd->xc_save.pfns_not);
 
 	xd->xc_save.pfns_not_offset = lseek(xd->xfd, 0L, SEEK_CUR);
@@ -478,13 +478,13 @@ xc_save_ia64:
          *    page data
          *    ...
 	 */
-	free(xd->poc); 
+	free(xd->poc);
 	xd->poc = NULL;
-	free(xd->xc_save.region_pfn_type); 
+	free(xd->xc_save.region_pfn_type);
 	xd->xc_save.region_pfn_type = NULL;
 
-	if (!(xd->xc_save.ia64_page_offsets = 
-	    (ulong *)calloc(xd->xc_save.nr_pfns, sizeof(off_t)))) 
+	if (!(xd->xc_save.ia64_page_offsets =
+	    (ulong *)calloc(xd->xc_save.nr_pfns, sizeof(off_t))))
         	error(FATAL, "cannot allocate ia64_page_offsets array");
 
         /*
@@ -496,18 +496,18 @@ xc_save_ia64:
 	xd->xc_save.ia64_version = *((ulong *)buf);
 
 	if (CRASHDEBUG(1))
-		fprintf(stderr, "ia64 version: %lx\n", 
+		fprintf(stderr, "ia64 version: %lx\n",
 			xd->xc_save.ia64_version);
 
 	/*
 	 *  xen_domctl_arch_setup structure
 	 */
-        if (read(xd->xfd, buf, sizeof(xen_domctl_arch_setup_t)) != 
+        if (read(xd->xfd, buf, sizeof(xen_domctl_arch_setup_t)) !=
 	    sizeof(xen_domctl_arch_setup_t))
                 goto xc_save_bailout;
 
 	if (CRASHDEBUG(1)) {
-		xen_domctl_arch_setup_t *setup = 
+		xen_domctl_arch_setup_t *setup =
 			(xen_domctl_arch_setup_t *)buf;
 
 		fprintf(stderr, "xen_domctl_arch_setup:\n");
@@ -523,17 +523,17 @@ xc_save_ia64:
                 	goto xc_save_bailout;
 
 		if (N < xd->xc_save.nr_pfns)
-			xd->xc_save.ia64_page_offsets[N] = 
+			xd->xc_save.ia64_page_offsets[N] =
 				lseek(xd->xfd, 0, SEEK_CUR);
 		else
-			error(WARNING, 	
-			    "[%d]: pfn of %lx (0x%lx) in ia64 canonical page list exceeds %ld\n",	
+			error(WARNING,
+			    "[%d]: pfn of %lx (0x%lx) in ia64 canonical page list exceeds %ld\n",
 				i, N, N, xd->xc_save.nr_pfns);
 
 		if (CRASHDEBUG(1)) {
-			if ((i < 10) || (N >= (xd->xc_save.nr_pfns-10))) 
+			if ((i < 10) || (N >= (xd->xc_save.nr_pfns-10)))
 				fprintf(stderr, "[%d]: %ld\n%s", i, N,
-					i == 9 ? "...\n" : "");	
+					i == 9 ? "...\n" : "");
 		}
 
 		if ((N+1) >= xd->xc_save.nr_pfns)
@@ -562,7 +562,7 @@ xc_save_ia64:
 
 xc_save_bailout:
 
-	error(INFO, 
+	error(INFO,
 	    "xc_save_verify: \"LinuxGuestRecord\" file handling/format error\n");
 
 	if (xd->xc_save.p2m_frame_list) {
@@ -599,7 +599,7 @@ xc_save_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 	reqpfn = (ulong)BTOP(paddr);
 
 	if (CRASHDEBUG(8))
-	    fprintf(xd->ofp, 
+	    fprintf(xd->ofp,
 	        "xc_save_read(bufptr: %lx cnt: %d addr: %lx paddr: %llx (%ld, 0x%lx)\n",
 		    (ulong)bufptr, cnt, addr, (ulonglong)paddr, reqpfn, reqpfn);
 
@@ -619,12 +619,12 @@ xc_save_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 				    "xc_save_read: pfn %lx not stored in xendump\n",
 					reqpfn);
 			return SEEK_ERROR;
-		}	
+		}
 
        		if (reqpfn != xd->last_pfn) {
 	        	if (lseek(xd->xfd, file_offset, SEEK_SET) == -1)
 				return SEEK_ERROR;
-	
+
 			if (read(xd->xfd, xd->page, xd->page_size) != xd->page_size)
 	               		return READ_ERROR;
 		} else {
@@ -690,9 +690,9 @@ xc_save_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 
                 default:
 			if (CRASHDEBUG(8))
-		    	    fprintf(xd->ofp, 
+		    	    fprintf(xd->ofp,
 				"batch[%d]: offset: %llx batch count: %d\n",
-				    b, (ulonglong)xd->xc_save.batch_offsets[b], 
+				    b, (ulonglong)xd->xc_save.batch_offsets[b],
 				    batch_count);
                         break;
                 }
@@ -723,7 +723,7 @@ xc_save_read(void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 				file_offset = lseek(xd->xfd, 0, SEEK_CUR);
 				poc_store(pfn, file_offset);
 
-				if (read(xd->xfd, xd->page, xd->page_size) != 
+				if (read(xd->xfd, xd->page, xd->page_size) !=
 				    xd->page_size)
                 			return READ_ERROR;
 
@@ -949,11 +949,11 @@ xendump_memory_dump(FILE *fp)
  		fprintf(fp, "(%ld%%)\n", xd->redundant * 100 / xd->accesses);
 	else
 		fprintf(fp, "\n");
-	for (i = used = 0; i < PFN_TO_OFFSET_CACHE_ENTRIES; i++) 
+	for (i = used = 0; i < PFN_TO_OFFSET_CACHE_ENTRIES; i++)
 		if (xd->poc && xd->poc[i].cnt)
 			used++;
 	if (xd->poc)
-		fprintf(fp, "    poc[%d]: %lx %s", PFN_TO_OFFSET_CACHE_ENTRIES, 
+		fprintf(fp, "    poc[%d]: %lx %s", PFN_TO_OFFSET_CACHE_ENTRIES,
 		(ulong)xd->poc, xd->poc ? "" : "(none)");
 	else
 		fprintf(fp, "       poc[0]: (unused)\n");
@@ -967,7 +967,7 @@ xendump_memory_dump(FILE *fp)
 		} else if (!i)
 			fprintf(fp, "(%d used)\n", used);
 		if (CRASHDEBUG(2))
-			fprintf(fp, 
+			fprintf(fp,
 		  	    "  [%d]: pfn: %ld (0x%lx) count: %ld file_offset: %llx\n",
 			    	i,
 			    	xd->poc[i].pfn,
@@ -979,12 +979,12 @@ xendump_memory_dump(FILE *fp)
 		fprintf(fp, "\n");
 
 	fprintf(fp, "\n      xc_save:\n");
-	fprintf(fp, "                  nr_pfns: %ld (0x%lx)\n", 
-		xd->xc_save.nr_pfns, xd->xc_save.nr_pfns); 
-	fprintf(fp, "            vmconfig_size: %d (0x%x)\n", xd->xc_save.vmconfig_size, 
+	fprintf(fp, "                  nr_pfns: %ld (0x%lx)\n",
+		xd->xc_save.nr_pfns, xd->xc_save.nr_pfns);
+	fprintf(fp, "            vmconfig_size: %d (0x%x)\n", xd->xc_save.vmconfig_size,
 		xd->xc_save.vmconfig_size);
 	fprintf(fp, "             vmconfig_buf: %lx\n", (ulong)xd->xc_save.vmconfig_buf);
-	if (xd->flags & XC_SAVE) 
+	if (xd->flags & XC_SAVE)
 		xen_dump_vmconfig(fp);
 	fprintf(fp, "           p2m_frame_list: %lx ", (ulong)xd->xc_save.p2m_frame_list);
 	if ((xd->flags & XC_SAVE) && xd->xc_save.p2m_frame_list) {
@@ -996,19 +996,19 @@ xendump_memory_dump(FILE *fp)
 	} else
 		fprintf(fp, "(none)\n");
 	fprintf(fp, "                 pfns_not: %d\n", xd->xc_save.pfns_not);
-	fprintf(fp, "          pfns_not_offset: %lld\n", 
+	fprintf(fp, "          pfns_not_offset: %lld\n",
 		(ulonglong)xd->xc_save.pfns_not_offset);
-	fprintf(fp, "         vcpu_ctxt_offset: %lld\n", 
+	fprintf(fp, "         vcpu_ctxt_offset: %lld\n",
 		(ulonglong)xd->xc_save.vcpu_ctxt_offset);
-	fprintf(fp, "  shared_info_page_offset: %lld\n", 
+	fprintf(fp, "  shared_info_page_offset: %lld\n",
 		(ulonglong)xd->xc_save.shared_info_page_offset);
 	fprintf(fp, "          region_pfn_type: %lx\n", (ulong)xd->xc_save.region_pfn_type);
 	fprintf(fp, "              batch_count: %ld\n", (ulong)xd->xc_save.batch_count);
-	fprintf(fp, "            batch_offsets: %lx %s\n", 
-		(ulong)xd->xc_save.batch_offsets, 
+	fprintf(fp, "            batch_offsets: %lx %s\n",
+		(ulong)xd->xc_save.batch_offsets,
 		xd->xc_save.batch_offsets ? "" : "(none)");
 	for (i = linefeed = 0; i < xd->xc_save.batch_count; i++) {
-		fprintf(fp, "[%d]: %llx ", i, 
+		fprintf(fp, "[%d]: %llx ", i,
 			(ulonglong)xd->xc_save.batch_offsets[i]);
 		if (((i+1)%4) == 0) {
 			fprintf(fp, "\n");
@@ -1023,11 +1023,11 @@ xendump_memory_dump(FILE *fp)
 	if (xd->xc_save.ia64_page_offsets)
 		fprintf(fp, "(%ld entries)\n\n", xd->xc_save.nr_pfns);
 	else
-		fprintf(fp, "(none)\n\n");	
+		fprintf(fp, "(none)\n\n");
 
 	fprintf(fp, "      xc_core:\n");
 	fprintf(fp, "                   header:\n");
-	fprintf(fp, "                xch_magic: %x ", 
+	fprintf(fp, "                xch_magic: %x ",
 		xd->xc_core.header.xch_magic);
 	if (xd->xc_core.header.xch_magic == XC_CORE_MAGIC)
 		fprintf(fp, "(XC_CORE_MAGIC)\n");
@@ -1035,12 +1035,12 @@ xendump_memory_dump(FILE *fp)
 		fprintf(fp, "(XC_CORE_MAGIC_HVM)\n");
 	else
 		fprintf(fp, "(unknown)\n");
-	fprintf(fp, "             xch_nr_vcpus: %d\n", 
+	fprintf(fp, "             xch_nr_vcpus: %d\n",
 		xd->xc_core.header.xch_nr_vcpus);
 	fprintf(fp, "             xch_nr_pages: %d (0x%x)\n",
 		xd->xc_core.header.xch_nr_pages,
 		xd->xc_core.header.xch_nr_pages);
-	fprintf(fp, "          xch_ctxt_offset: %ld (0x%lx)\n", 
+	fprintf(fp, "          xch_ctxt_offset: %ld (0x%lx)\n",
 		xd->xc_core.header.xch_ctxt_offset,
 		xd->xc_core.header.xch_ctxt_offset);
 	fprintf(fp, "         xch_index_offset: %ld (0x%lx)\n",
@@ -1052,39 +1052,39 @@ xendump_memory_dump(FILE *fp)
 
 	fprintf(fp, "                elf_class: %s\n", xd->xc_core.elf_class == ELFCLASS64 ? "ELFCLASS64" :
 		xd->xc_core.elf_class == ELFCLASS32 ? "ELFCLASS32" : "n/a");
-	fprintf(fp, "        elf_strtab_offset: %lld (0x%llx)\n", 
+	fprintf(fp, "        elf_strtab_offset: %lld (0x%llx)\n",
 		(ulonglong)xd->xc_core.elf_strtab_offset,
 		(ulonglong)xd->xc_core.elf_strtab_offset);
-	fprintf(fp, "           format_version: %016llx\n", 
+	fprintf(fp, "           format_version: %016llx\n",
 		(ulonglong)xd->xc_core.format_version);
-	fprintf(fp, "       shared_info_offset: %lld (0x%llx)\n", 
+	fprintf(fp, "       shared_info_offset: %lld (0x%llx)\n",
 		(ulonglong)xd->xc_core.shared_info_offset,
 		(ulonglong)xd->xc_core.shared_info_offset);
 	if (machine_type("IA64"))
-		fprintf(fp, "  ia64_mapped_regs_offset: %lld (0x%llx)\n", 
+		fprintf(fp, "  ia64_mapped_regs_offset: %lld (0x%llx)\n",
 			(ulonglong)xd->xc_core.ia64_mapped_regs_offset,
 			(ulonglong)xd->xc_core.ia64_mapped_regs_offset);
 	fprintf(fp, "       elf_index_pfn[%d]: %s", INDEX_PFN_COUNT,
 		xd->xc_core.elf_class ? "\n" : "(none used)\n");
 	if (xd->xc_core.elf_class) {
 		for (i = 0; i < INDEX_PFN_COUNT; i++) {
-			fprintf(fp, "%ld:%ld ", 
+			fprintf(fp, "%ld:%ld ",
 			    xd->xc_core.elf_index_pfn[i].index,
 			    xd->xc_core.elf_index_pfn[i].pfn);
 		}
 		fprintf(fp, "\n");
 	}
 	fprintf(fp, "               last_batch:\n");
-	fprintf(fp, "                    index: %ld (%ld - %ld)\n", 
+	fprintf(fp, "                    index: %ld (%ld - %ld)\n",
 		xd->xc_core.last_batch.index,
 		xd->xc_core.last_batch.start, xd->xc_core.last_batch.end);
-	fprintf(fp, "                 accesses: %ld\n", 
+	fprintf(fp, "                 accesses: %ld\n",
 		xd->xc_core.last_batch.accesses);
-	fprintf(fp, "               duplicates: %ld ", 
+	fprintf(fp, "               duplicates: %ld ",
 		xd->xc_core.last_batch.duplicates);
         if (xd->xc_core.last_batch.accesses)
-                fprintf(fp, "(%ld%%)\n", 
-			xd->xc_core.last_batch.duplicates * 100 / 
+                fprintf(fp, "(%ld%%)\n",
+			xd->xc_core.last_batch.duplicates * 100 /
 			xd->xc_core.last_batch.accesses);
         else
                 fprintf(fp, "\n");
@@ -1092,12 +1092,12 @@ xendump_memory_dump(FILE *fp)
 	fprintf(fp, "                    elf32: %lx\n", (ulong)xd->xc_core.elf32);
 	fprintf(fp, "                    elf64: %lx\n", (ulong)xd->xc_core.elf64);
 
-	fprintf(fp, "               p2m_frames: %d\n", 
+	fprintf(fp, "               p2m_frames: %d\n",
 		xd->xc_core.p2m_frames);
 	fprintf(fp, "     p2m_frame_index_list: %s\n",
 		(xd->flags & (XC_CORE_NO_P2M|XC_SAVE)) ? "(not used)" : "");
 	for (i = 0; i < xd->xc_core.p2m_frames; i++) {
-		fprintf(fp, "%ld ", 
+		fprintf(fp, "%ld ",
 			xd->xc_core.p2m_frame_index_list[i]);
 	}
 	fprintf(fp, xd->xc_core.p2m_frames ? "\n" : "");
@@ -1163,8 +1163,8 @@ xen_dump_vmconfig(FILE *fp)
 }
 
 /*
- *  Looking at the active set, try to determine who panicked, 
- *  or who was the "suspend" kernel thread. 
+ *  Looking at the active set, try to determine who panicked,
+ *  or who was the "suspend" kernel thread.
  */
 ulong get_xendump_panic_task(void)
 {
@@ -1186,7 +1186,7 @@ ulong get_xendump_panic_task(void)
                         	continue;
 			tc = task_to_context(task);
 			if (is_kernel_thread(task) &&
-			    STREQ(tc->comm, "suspend")) 
+			    STREQ(tc->comm, "suspend"))
 				return tc->task;
         	}
 		break;
@@ -1219,19 +1219,19 @@ void get_xendump_regs(struct bt_info *bt, ulong *pc, ulong *sp)
 		break;
 
 	case XC_SAVE:
-		if (tt->panic_task != bt->task) 
+		if (tt->panic_task != bt->task)
 			break;
 
                 for (i = 0, up = (ulong *)bt->stackbuf;
                      i < LONGS_PER_STACK; i++, up++) {
                         if (is_kernel_text(*up) &&
-		       	    (STREQ(closest_symbol(*up), 
+		       	    (STREQ(closest_symbol(*up),
 			    "__do_suspend"))) {
 				*pc = *up;
 				*sp = tt->flags & THREAD_INFO ?
                                		bt->tc->thread_info +
                                         (i * sizeof(long)) :
-                                        bt->task + 
+                                        bt->task +
 					(i * sizeof(long));
 				xd->panic_pc = *pc;
 				xd->panic_sp = *sp;
@@ -1245,16 +1245,16 @@ void get_xendump_regs(struct bt_info *bt, ulong *pc, ulong *sp)
 
 /*
  *  Farm out most of the work to the proper architecture to create
- *  the p2m table.  For ELF core dumps, create the index;pfn table. 
+ *  the p2m table.  For ELF core dumps, create the index;pfn table.
  */
-static void 
+static void
 xc_core_create_pfn_tables(void)
 {
         if (xd->flags & XC_CORE_P2M_CREATE) {
 		if (!machdep->xendump_p2m_create)
-			error(FATAL, 
+			error(FATAL,
 			    "xen xc_core dumpfiles not supported on this architecture");
-	
+
 		if (!machdep->xendump_p2m_create((void *)xd))
 			error(FATAL,
 			    "cannot create xen pfn-to-mfn mapping\n");
@@ -1295,7 +1295,7 @@ xc_core_mfn_to_page(ulong mfn, char *pgbuf)
 	if (xd->flags & XC_CORE_64BIT_HOST)
 		nr_pages *= 2;
 
-        for (b = 0, idx = -1, done = FALSE; 
+        for (b = 0, idx = -1, done = FALSE;
 	     !done && (b < nr_pages); b += MAX_BATCH_SIZE) {
 		size = sizeof(ulong) * MIN(MAX_BATCH_SIZE, nr_pages - b);
                 if (read(xd->xfd, tmp, size) != size) {
@@ -1366,7 +1366,7 @@ xc_core_elf_mfn_to_page(ulong mfn, char *pgbuf)
         if (lseek(xd->xfd, offset, SEEK_SET) == -1)
                 error(FATAL, "cannot lseek to page index\n");
 
-        for (b = 0, idx = -1, done = FALSE; 
+        for (b = 0, idx = -1, done = FALSE;
 	     !done && (b < nr_pages); b += MAX_BATCH_SIZE) {
 		size = sizeof(struct xen_dumpcore_p2m) *
 			MIN(MAX_BATCH_SIZE, nr_pages - b);
@@ -1423,7 +1423,7 @@ xc_core_elf_mfn_to_page(ulong mfn, char *pgbuf)
 /*
  *  Find and return the page index containing the mfn.
  */
-int 
+int
 xc_core_mfn_to_page_index(ulong mfn)
 {
         int i, b;
@@ -1454,10 +1454,10 @@ xc_core_mfn_to_page_index(ulong mfn)
 		for (i = 0; i < MAX_BATCH_SIZE; i++) {
 			if ((b+i) >= nr_pages)
 				break;
-			
+
                 	if (tmp[i] == mfn) {
 				if (CRASHDEBUG(4))
-                        		fprintf(xd->ofp, 
+                        		fprintf(xd->ofp,
 				            "index: batch: %d found mfn %ld (0x%lx) at index %d\n",
                                 		b/MAX_BATCH_SIZE, mfn, mfn, i+b);
                         	return (i+b);
@@ -1498,12 +1498,12 @@ xc_core_elf_mfn_to_page_index(ulong mfn)
 		for (i = 0; i < MAX_BATCH_SIZE; i++) {
 			if ((b+i) >= nr_pages)
 				break;
-			
+
 			tmp = (ulong)p2m_batch[i].gmfn;
 
                 	if (tmp == mfn) {
 				if (CRASHDEBUG(4))
-                        		fprintf(xd->ofp, 
+                        		fprintf(xd->ofp,
 				            "index: batch: %d found mfn %ld (0x%lx) at index %d\n",
                                 		b/MAX_BATCH_SIZE, mfn, mfn, i+b);
                         	return (i+b);
@@ -1554,7 +1554,7 @@ check_next_4:
 			goto check_next_4;
 
 		if (CRASHDEBUG(2))
-			fprintf(ofp, "mfns: %08lx %08lx %08lx %08lx\n", 
+			fprintf(ofp, "mfns: %08lx %08lx %08lx %08lx\n",
 					tmp[0], tmp[1], tmp[2], tmp[3]);
 
 		if (tmp[0] && !tmp[1] && tmp[2] && !tmp[3])
@@ -1577,14 +1577,14 @@ check_next_4:
 	                        error(INFO, "cannot read index page %d\n", b);
 	                        return FALSE;
 	                }
-	
+
 			if (b) fprintf(ofp, "\n");
 
 	                for (i = 0; i < MAX_BATCH_SIZE; i++) {
 				if ((b+i) >= nr_pages)
 					break;
 				if ((i%8) == 0)
-					fprintf(ofp, "%s[%d]:", 
+					fprintf(ofp, "%s[%d]:",
 						i ? "\n" : "", b+i);
 				if (tmp[i] == 0xffffffff)
 					fprintf(ofp, " INVALID");
@@ -1593,7 +1593,7 @@ check_next_4:
 			}
 		}
 
-		fprintf(ofp, "\nxch_nr_pages: %d\n", 
+		fprintf(ofp, "\nxch_nr_pages: %d\n",
 			xd->xc_core.header.xch_nr_pages);
 		return TRUE;
 
@@ -1610,14 +1610,14 @@ show_64bit_mfns:
 	                        error(INFO, "cannot read index page %d\n", b);
 	                        return FALSE;
 	                }
-	
+
 			if (b) fprintf(ofp, "\n");
 
 	                for (i = 0; i < MAX_BATCH_SIZE; i++) {
 				if ((b+i) >= nr_pages)
 					break;
 				if ((i%8) == 0)
-					fprintf(ofp, "%s[%d]:", 
+					fprintf(ofp, "%s[%d]:",
 						i ? "\n" : "", b+i);
 				if (tmp64[i] == 0xffffffffffffffffULL)
 					fprintf(ofp, " INVALID");
@@ -1637,7 +1637,7 @@ show_64bit_mfns:
 /*
  *  Given a normal kernel pfn, determine the page index in the dumpfile.
  *
- *  -  First determine which of the pages making up the 
+ *  -  First determine which of the pages making up the
  *     phys_to_machine_mapping[] array would contain the pfn.
  *  -  From the phys_to_machine_mapping page, determine the mfn.
  *  -  Find the mfn in the dumpfile page index.
@@ -1662,7 +1662,7 @@ xc_core_pfn_to_page_index(ulong pfn)
 
 	case XC_CORE_NO_P2M:
 		return(xc_core_pfn_valid(pfn) ? pfn : PFN_NOT_FOUND);
-	
+
 	case XC_CORE_ELF:
 		return xc_core_elf_pfn_to_page_index(pfn);
 	}
@@ -1670,7 +1670,7 @@ xc_core_pfn_to_page_index(ulong pfn)
 	idx = pfn/PFNS_PER_PAGE;
 
 	if (idx >= xd->xc_core.p2m_frames) {
-		error(INFO, "pfn: %lx is too large for dumpfile\n", 
+		error(INFO, "pfn: %lx is too large for dumpfile\n",
 			pfn);
 		return PFN_NOT_FOUND;
 	}
@@ -1701,7 +1701,7 @@ xc_core_pfn_to_page_index(ulong pfn)
 	mfn = *up;
 
 	if ((mfn_idx = xc_core_mfn_to_page_index(mfn)) == MFN_NOT_FOUND) {
-		if (!STREQ(pc->curcmd, "search"))	
+		if (!STREQ(pc->curcmd, "search"))
 			error(INFO, "cannot find mfn in page index\n");
 		return PFN_NOT_FOUND;
 	}
@@ -1711,7 +1711,7 @@ xc_core_pfn_to_page_index(ulong pfn)
 
 
 /*
- *  Search the .xen_p2m array for the target pfn, starting at a 
+ *  Search the .xen_p2m array for the target pfn, starting at a
  *  higher batch if appropriate.  This presumes that the pfns
  *  are laid out in ascending order.
  */
@@ -1765,12 +1765,12 @@ xc_core_elf_pfn_to_page_index(ulong pfn)
 		for (i = 0; i < MAX_BATCH_SIZE; i++) {
 			if ((b+i) >= nr_pages)
 				break;
-			
+
 			tmp = (ulong)p2m_batch[i].pfn;
 
                 	if (tmp == pfn) {
 				if (CRASHDEBUG(4))
-                        		fprintf(xd->ofp, 
+                        		fprintf(xd->ofp,
 				            "index: batch: %d found pfn %ld (0x%lx) at index %d\n",
                                 		b/MAX_BATCH_SIZE, pfn, pfn, i+b);
 
@@ -1792,7 +1792,7 @@ xc_core_elf_pfn_to_page_index(ulong pfn)
  *  In xendumps containing INVALID_MFN markers in the page index,
  *  return the validity of the pfn.
  */
-static int 
+static int
 xc_core_pfn_valid(ulong pfn)
 {
 	ulong mfn;
@@ -1809,19 +1809,19 @@ xc_core_pfn_valid(ulong pfn)
 		offset += (off_t)(pfn * sizeof(ulong));
 
 	/*
-	 *  The lseek and read should never fail, so report 
+	 *  The lseek and read should never fail, so report
 	 *  any errors unconditionally.
 	 */
 	if (lseek(xd->xfd, offset, SEEK_SET) == -1) {
-		error(INFO, 
-		    "xendump: cannot lseek to page index for pfn %lx\n", 
+		error(INFO,
+		    "xendump: cannot lseek to page index for pfn %lx\n",
 			pfn);
 		return FALSE;
 	}
 
 	if (read(xd->xfd, &mfn, sizeof(ulong)) != sizeof(ulong)) {
-		error(INFO, 
-		    "xendump: cannot read index page for pfn %lx\n", 
+		error(INFO,
+		    "xendump: cannot read index page for pfn %lx\n",
 			pfn);
 		return FALSE;
 	}
@@ -1832,11 +1832,11 @@ xc_core_pfn_valid(ulong pfn)
 	 */
 	if (mfn == INVALID_MFN) {
 		if (CRASHDEBUG(1) && !STREQ(pc->curcmd, "search"))
-			error(INFO, 
-		    	    "xendump: pfn %lx contains INVALID_MFN\n", 
+			error(INFO,
+		    	    "xendump: pfn %lx contains INVALID_MFN\n",
 				pfn);
 		return FALSE;
-	} 
+	}
 
 	return TRUE;
 }
@@ -1894,12 +1894,12 @@ xc_core_elf_pfn_valid(ulong pfn)
 		for (i = 0; i < MAX_BATCH_SIZE; i++) {
 			if ((b+i) >= nr_pages)
 				break;
-			
+
 			tmp = (ulong)pfn_batch[i];
 
                 	if (tmp == pfn) {
 				if (CRASHDEBUG(4))
-                        		fprintf(xd->ofp, 
+                        		fprintf(xd->ofp,
 				            "index: batch: %d found pfn %ld (0x%lx) at index %d\n",
                                 		b/MAX_BATCH_SIZE, pfn, pfn, i+b);
 
@@ -1936,7 +1936,7 @@ xendump_panic_hook(char *stack)
 
         argc = parse_line(buf, arglist);
 
-	if ((value = htol(strip_ending_char(arglist[0], ':'), 
+	if ((value = htol(strip_ending_char(arglist[0], ':'),
 	    RETURN_ON_ERROR, &err)) == BADADDR)
 		return;
 	for (sp = (ulong *)value, i = 1; i < argc; i++, sp++) {
@@ -1977,7 +1977,7 @@ xendump_print(char *fmt, ...)
                 fprintf(xd->ofp, buf);
         else if (!XENDUMP_VALID() && CRASHDEBUG(7))
 		fprintf(stderr, buf);
-                
+
 }
 
 /*
@@ -1999,9 +1999,9 @@ xc_core_elf_verify(char *file, char *buf)
 	if (!STRNEQ(eheader, ELFMAG) || eheader[EI_VERSION] != EV_CURRENT)
 		goto bailout;
 
-	swap = (((eheader[EI_DATA] == ELFDATA2LSB) && 
+	swap = (((eheader[EI_DATA] == ELFDATA2LSB) &&
 	     (__BYTE_ORDER == __BIG_ENDIAN)) ||
-	    ((eheader[EI_DATA] == ELFDATA2MSB) && 
+	    ((eheader[EI_DATA] == ELFDATA2MSB) &&
 	     (__BYTE_ORDER == __LITTLE_ENDIAN)));
 
 	elf32 = (Elf32_Ehdr *)buf;
@@ -2037,7 +2037,7 @@ xc_core_elf_verify(char *file, char *buf)
 	} else if ((elf64->e_ident[EI_CLASS] == ELFCLASS64) &&
 	    (swap16(elf64->e_type, swap) == ET_CORE) &&
 	    (swap32(elf64->e_version, swap) == EV_CURRENT) &&
-	    (swap16(elf64->e_shnum, swap) > 0)) { 
+	    (swap16(elf64->e_shnum, swap) > 0)) {
 		switch (swap16(elf64->e_machine, swap))
 		{
 		case EM_IA_64:
@@ -2117,7 +2117,7 @@ xc_core_elf_verify(char *file, char *buf)
 	for (i = 0; i < INDEX_PFN_COUNT; i++)
         	xd->xc_core.elf_index_pfn[i].pfn = ~0UL;
 
-	if (CRASHDEBUG(1)) 
+	if (CRASHDEBUG(1))
                 xendump_memory_dump(fp);
 
 	return TRUE;
@@ -2127,7 +2127,7 @@ bailout:
 }
 
 /*
- *  Dump the relevant ELF header. 
+ *  Dump the relevant ELF header.
  */
 static void
 xc_core_elf_dump(void)
@@ -2147,7 +2147,7 @@ xc_core_elf_dump(void)
 /*
  *  Dump the 32-bit ELF header, and grab a pointer to the strtab section.
  */
-static void 
+static void
 xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 {
 	char buf[BUFSIZE];
@@ -2155,9 +2155,9 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 	Elf32_Shdr shdr;
 
 	BZERO(buf, BUFSIZE);
-	BCOPY(elf->e_ident, buf, SELFMAG); 
+	BCOPY(elf->e_ident, buf, SELFMAG);
 	xendump_print("\nElf32_Ehdr:\n");
-	xendump_print("                e_ident: \\%o%s\n", buf[0], 
+	xendump_print("                e_ident: \\%o%s\n", buf[0],
 		&buf[1]);
 	xendump_print("      e_ident[EI_CLASS]: %d ", elf->e_ident[EI_CLASS]);
 	switch (elf->e_ident[EI_CLASS])
@@ -2184,7 +2184,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 	case ELFDATANONE:
 		xendump_print("(ELFDATANONE)\n");
 		break;
-	case ELFDATA2LSB: 
+	case ELFDATA2LSB:
 		xendump_print("(ELFDATA2LSB)\n");
 		break;
 	case ELFDATA2MSB:
@@ -2196,7 +2196,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
         default:
                 xendump_print("(?)\n");
 	}
-	xendump_print("    e_ident[EI_VERSION]: %d ", 
+	xendump_print("    e_ident[EI_VERSION]: %d ",
 		elf->e_ident[EI_VERSION]);
 	if (elf->e_ident[EI_VERSION] == EV_CURRENT)
 		xendump_print("(EV_CURRENT)\n");
@@ -2205,13 +2205,13 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 	xendump_print("      e_ident[EI_OSABI]: %d ", elf->e_ident[EI_OSABI]);
 	switch (elf->e_ident[EI_OSABI])
 	{
-	case ELFOSABI_SYSV:   
+	case ELFOSABI_SYSV:
 		xendump_print("(ELFOSABI_SYSV)\n");
 		break;
-	case ELFOSABI_HPUX:    
+	case ELFOSABI_HPUX:
 		xendump_print("(ELFOSABI_HPUX)\n");
 		break;
-	case ELFOSABI_ARM:      
+	case ELFOSABI_ARM:
 		xendump_print("(ELFOSABI_ARM)\n");
 		break;
 	case ELFOSABI_STANDALONE:
@@ -2220,7 +2220,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
         default:
                 xendump_print("(?)\n");
 	}
-	xendump_print(" e_ident[EI_ABIVERSION]: %d\n", 
+	xendump_print(" e_ident[EI_ABIVERSION]: %d\n",
 		elf->e_ident[EI_ABIVERSION]);
 
 	xendump_print("                 e_type: %d ", elf->e_type);
@@ -2261,7 +2261,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 	}
 
         xendump_print("              e_machine: %d ", elf->e_machine);
-	switch (elf->e_machine) 
+	switch (elf->e_machine)
 	{
 	case EM_386:
 		xendump_print("(EM_386)\n");
@@ -2272,7 +2272,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 	}
 
         xendump_print("              e_version: %ld ", (ulong)elf->e_version);
-	xendump_print("%s\n", elf->e_version == EV_CURRENT ? 
+	xendump_print("%s\n", elf->e_version == EV_CURRENT ?
 		"(EV_CURRENT)" : "");
 
         xendump_print("                e_entry: %lx\n", (ulong)elf->e_entry);
@@ -2287,15 +2287,15 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
         xendump_print("             e_shstrndx: %x\n", elf->e_shstrndx);
 
 	/* Determine the strtab location. */
-	
+
 	offset32 = elf->e_shoff +
 		(elf->e_shstrndx * elf->e_shentsize);
 
         if (lseek(xd->xfd, offset32, SEEK_SET) != offset32)
-                error(FATAL, 
+                error(FATAL,
 		    "xc_core_dump_Elf32_Ehdr: cannot seek to strtab Elf32_Shdr\n");
         if (read(xd->xfd, &shdr, sizeof(Elf32_Shdr)) != sizeof(Elf32_Shdr))
-                error(FATAL, 
+                error(FATAL,
 		    "xc_core_dump_Elf32_Ehdr: cannot read strtab Elf32_Shdr\n");
 
 	xd->xc_core.elf_strtab_offset = (ulonglong)shdr.sh_offset;
@@ -2304,7 +2304,7 @@ xc_core_dump_Elf32_Ehdr(Elf32_Ehdr *elf)
 /*
  *  Dump the 64-bit ELF header, and grab a pointer to the strtab section.
  */
-static void 
+static void
 xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
 {
 	char buf[BUFSIZE];
@@ -2312,9 +2312,9 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
         Elf64_Shdr shdr;
 
 	BZERO(buf, BUFSIZE);
-	BCOPY(elf->e_ident, buf, SELFMAG); 
+	BCOPY(elf->e_ident, buf, SELFMAG);
 	xendump_print("\nElf64_Ehdr:\n");
-	xendump_print("                e_ident: \\%o%s\n", buf[0], 
+	xendump_print("                e_ident: \\%o%s\n", buf[0],
 		&buf[1]);
 	xendump_print("      e_ident[EI_CLASS]: %d ", elf->e_ident[EI_CLASS]);
 	switch (elf->e_ident[EI_CLASS])
@@ -2341,7 +2341,7 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
 	case ELFDATANONE:
 		xendump_print("(ELFDATANONE)\n");
 		break;
-	case ELFDATA2LSB: 
+	case ELFDATA2LSB:
 		xendump_print("(ELFDATA2LSB)\n");
 		break;
 	case ELFDATA2MSB:
@@ -2353,7 +2353,7 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
         default:
                 xendump_print("(?)\n");
 	}
-	xendump_print("    e_ident[EI_VERSION]: %d ", 
+	xendump_print("    e_ident[EI_VERSION]: %d ",
 		elf->e_ident[EI_VERSION]);
 	if (elf->e_ident[EI_VERSION] == EV_CURRENT)
 		xendump_print("(EV_CURRENT)\n");
@@ -2362,13 +2362,13 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
 	xendump_print("      e_ident[EI_OSABI]: %d ", elf->e_ident[EI_OSABI]);
 	switch (elf->e_ident[EI_OSABI])
 	{
-	case ELFOSABI_SYSV:   
+	case ELFOSABI_SYSV:
 		xendump_print("(ELFOSABI_SYSV)\n");
 		break;
-	case ELFOSABI_HPUX:    
+	case ELFOSABI_HPUX:
 		xendump_print("(ELFOSABI_HPUX)\n");
 		break;
-	case ELFOSABI_ARM:      
+	case ELFOSABI_ARM:
 		xendump_print("(ELFOSABI_ARM)\n");
 		break;
 	case ELFOSABI_STANDALONE:
@@ -2377,7 +2377,7 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
         default:
                 xendump_print("(?)\n");
 	}
-	xendump_print(" e_ident[EI_ABIVERSION]: %d\n", 
+	xendump_print(" e_ident[EI_ABIVERSION]: %d\n",
 		elf->e_ident[EI_ABIVERSION]);
 
 	xendump_print("                 e_type: %d ", elf->e_type);
@@ -2438,7 +2438,7 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
         }
 
         xendump_print("              e_version: %ld ", (ulong)elf->e_version);
-	xendump_print("%s\n", elf->e_version == EV_CURRENT ? 
+	xendump_print("%s\n", elf->e_version == EV_CURRENT ?
 		"(EV_CURRENT)" : "");
 
         xendump_print("                e_entry: %lx\n", (ulong)elf->e_entry);
@@ -2458,10 +2458,10 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
 		(elf->e_shstrndx * elf->e_shentsize);
 
         if (lseek(xd->xfd, offset64, SEEK_SET) != offset64)
-                error(FATAL, 
+                error(FATAL,
 		    "xc_core_dump_Elf64_Ehdr: cannot seek to strtab Elf32_Shdr\n");
         if (read(xd->xfd, &shdr, sizeof(Elf32_Shdr)) != sizeof(Elf32_Shdr))
-                error(FATAL, 
+                error(FATAL,
 		    "xc_core_dump_Elf64_Ehdr:  cannot read strtab Elf32_Shdr\n");
 
 	xd->xc_core.elf_strtab_offset = (ulonglong)shdr.sh_offset;
@@ -2470,7 +2470,7 @@ xc_core_dump_Elf64_Ehdr(Elf64_Ehdr *elf)
 /*
  *  Dump each 32-bit section header and the data that they reference.
  */
-static void 
+static void
 xc_core_dump_Elf32_Shdr(Elf32_Off offset, int store)
 {
 	Elf32_Shdr shdr;
@@ -2479,10 +2479,10 @@ xc_core_dump_Elf32_Shdr(Elf32_Off offset, int store)
 	char c;
 
 	if (lseek(xd->xfd, offset, SEEK_SET) != offset)
-		error(FATAL, 
+		error(FATAL,
 		    "xc_core_dump_Elf32_Shdr: cannot seek to Elf32_Shdr\n");
-	if (read(xd->xfd, &shdr, sizeof(Elf32_Shdr)) != sizeof(Elf32_Shdr)) 
-		error(FATAL, 
+	if (read(xd->xfd, &shdr, sizeof(Elf32_Shdr)) != sizeof(Elf32_Shdr))
+		error(FATAL,
 		    "xc_core_dump_Elf32_Shdr: cannot read Elf32_Shdr\n");
 
 	xendump_print("\nElf32_Shdr:\n");
@@ -2517,15 +2517,15 @@ xc_core_dump_Elf32_Shdr(Elf32_Off offset, int store)
 	xendump_print("             sh_entsize: %lx\n", shdr.sh_entsize);
 
 	if (STREQ(name, ".shstrtab")) {
-		if (lseek(xd->xfd, xd->xc_core.elf_strtab_offset, SEEK_SET) != 
+		if (lseek(xd->xfd, xd->xc_core.elf_strtab_offset, SEEK_SET) !=
 		    xd->xc_core.elf_strtab_offset)
 			error(FATAL,
 			    "xc_core_dump_Elf32_Shdr: cannot seek to strtab data\n");
 
 		xendump_print("                         ");
 		for (i = 0; i < shdr.sh_size; i++) {
-			if (read(xd->xfd, &c, sizeof(char)) != sizeof(char)) 
-				error(FATAL, 
+			if (read(xd->xfd, &c, sizeof(char)) != sizeof(char))
+				error(FATAL,
 				    "xc_core_dump_Elf32_Shdr: cannot read strtab data\n");
 			if (i && !c)
 				xendump_print("\n                         ");
@@ -2535,14 +2535,14 @@ xc_core_dump_Elf32_Shdr(Elf32_Off offset, int store)
         }
 
 	if (STREQ(name, ".note.Xen"))
-		xc_core_dump_elfnote((off_t)shdr.sh_offset, 
+		xc_core_dump_elfnote((off_t)shdr.sh_offset,
 			(size_t)shdr.sh_size, store);
 
 	if (!store)
 		return;
 
 	if (STREQ(name, ".xen_prstatus"))
-		xd->xc_core.header.xch_ctxt_offset = 
+		xd->xc_core.header.xch_ctxt_offset =
 			(unsigned long)shdr.sh_offset;
 
 	if (STREQ(name, ".xen_shared_info"))
@@ -2559,18 +2559,18 @@ xc_core_dump_Elf32_Shdr(Elf32_Off offset, int store)
 	}
 
 	if (STREQ(name, ".xen_pages"))
-		xd->xc_core.header.xch_pages_offset = 
+		xd->xc_core.header.xch_pages_offset =
 			(unsigned long)shdr.sh_offset;
 
 	if (STREQ(name, ".xen_ia64_mapped_regs"))
-		xd->xc_core.ia64_mapped_regs_offset = 
+		xd->xc_core.ia64_mapped_regs_offset =
 			(off_t)shdr.sh_offset;
 }
 
 /*
  *  Dump each 64-bit section header and the data that they reference.
  */
-static void 
+static void
 xc_core_dump_Elf64_Shdr(Elf64_Off offset, int store)
 {
 	Elf64_Shdr shdr;
@@ -2579,10 +2579,10 @@ xc_core_dump_Elf64_Shdr(Elf64_Off offset, int store)
 	char c;
 
 	if (lseek(xd->xfd, offset, SEEK_SET) != offset)
-		error(FATAL, 
+		error(FATAL,
 		    "xc_core_dump_Elf64_Shdr: cannot seek to Elf64_Shdr\n");
 	if (read(xd->xfd, &shdr, sizeof(Elf64_Shdr)) != sizeof(Elf64_Shdr))
-		error(FATAL, 
+		error(FATAL,
 		    "xc_core_dump_Elf64_Shdr: cannot read Elf64_Shdr\n");
 
 	xendump_print("\nElf64_Shdr:\n");
@@ -2617,15 +2617,15 @@ xc_core_dump_Elf64_Shdr(Elf64_Off offset, int store)
 	xendump_print("             sh_entsize: %lx\n", shdr.sh_entsize);
 
 	if (STREQ(name, ".shstrtab")) {
-		if (lseek(xd->xfd, xd->xc_core.elf_strtab_offset, SEEK_SET) != 
+		if (lseek(xd->xfd, xd->xc_core.elf_strtab_offset, SEEK_SET) !=
 		    xd->xc_core.elf_strtab_offset)
 			error(FATAL,
 			    "xc_core_dump_Elf64_Shdr: cannot seek to strtab data\n");
 
 		xendump_print("                         ");
 		for (i = 0; i < shdr.sh_size; i++) {
-			if (read(xd->xfd, &c, sizeof(char)) != sizeof(char)) 
-				error(FATAL, 
+			if (read(xd->xfd, &c, sizeof(char)) != sizeof(char))
+				error(FATAL,
 				    "xc_core_dump_Elf64_Shdr: cannot read strtab data\n");
 			if (i && !c)
 				xendump_print("\n                         ");
@@ -2635,14 +2635,14 @@ xc_core_dump_Elf64_Shdr(Elf64_Off offset, int store)
 	}
 
 	if (STREQ(name, ".note.Xen"))
-		xc_core_dump_elfnote((off_t)shdr.sh_offset, 
+		xc_core_dump_elfnote((off_t)shdr.sh_offset,
 			(size_t)shdr.sh_size, store);
 
 	if (!store)
 		return;
 
 	if (STREQ(name, ".xen_prstatus"))
-		xd->xc_core.header.xch_ctxt_offset = 
+		xd->xc_core.header.xch_ctxt_offset =
 			(unsigned long)shdr.sh_offset;
 
 	if (STREQ(name, ".xen_shared_info"))
@@ -2659,11 +2659,11 @@ xc_core_dump_Elf64_Shdr(Elf64_Off offset, int store)
 	}
 
 	if (STREQ(name, ".xen_pages"))
-		xd->xc_core.header.xch_pages_offset = 
+		xd->xc_core.header.xch_pages_offset =
 			(unsigned long)shdr.sh_offset;
 
 	if (STREQ(name, ".xen_ia64_mapped_regs"))
-		xd->xc_core.ia64_mapped_regs_offset = 
+		xd->xc_core.ia64_mapped_regs_offset =
 			(off_t)shdr.sh_offset;
 }
 
@@ -2680,7 +2680,7 @@ xc_core_strtab(uint32_t index, char *buf)
 	offset = xd->xc_core.elf_strtab_offset + index;
 
 	if (lseek(xd->xfd, offset, SEEK_SET) != offset)
-		error(FATAL, 
+		error(FATAL,
 		    "xc_core_strtab: cannot seek to Elf64_Shdr\n");
 
 	BZERO(buf, BUFSIZE);
@@ -2698,10 +2698,10 @@ xc_core_strtab(uint32_t index, char *buf)
 
 /*
  *  Dump the array of elfnote structures, storing relevant info
- *  when requested during initialization.  This function is 
+ *  when requested during initialization.  This function is
  *  common to both 32-bit and 64-bit ELF files.
  */
-static void 
+static void
 xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
 {
 	int i, lf, index;
@@ -2718,7 +2718,7 @@ xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
                 error(FATAL, "cannot malloc notes space.");
 
 	if (lseek(xd->xfd, sh_offset, SEEK_SET) != sh_offset)
-		error(FATAL, 
+		error(FATAL,
 		    "xc_core_dump_elfnote: cannot seek to sh_offset\n");
 
         if (read(xd->xfd, notes_buffer, sh_size) != sh_size)
@@ -2730,9 +2730,9 @@ xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
 		xendump_print("                 namesz: %d\n", elfnote->namesz);
 		xendump_print("                  descz: %d\n", elfnote->descsz);
 		xendump_print("                   type: %x ", elfnote->type);
-		switch (elfnote->type) 
+		switch (elfnote->type)
 		{
-		case XEN_ELFNOTE_DUMPCORE_NONE:           
+		case XEN_ELFNOTE_DUMPCORE_NONE:
 			xendump_print("(XEN_ELFNOTE_DUMPCORE_NONE)\n");
 			break;
 		case XEN_ELFNOTE_DUMPCORE_HEADER:
@@ -2740,7 +2740,7 @@ xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
 			elfnote_header = (struct xen_dumpcore_elfnote_header_desc *)
 				(elfnote+1);
 			break;
-		case XEN_ELFNOTE_DUMPCORE_XEN_VERSION:   
+		case XEN_ELFNOTE_DUMPCORE_XEN_VERSION:
 			xendump_print("(XEN_ELFNOTE_DUMPCORE_XEN_VERSION)\n");
 			break;
 		case XEN_ELFNOTE_DUMPCORE_FORMAT_VERSION:
@@ -2787,7 +2787,7 @@ xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
 		case FORMAT_VERSION_0000000000000001:
 			break;
 		default:
-			error(WARNING, 
+			error(WARNING,
 			    "unsupported xen dump-core format version: %016llx\n",
 				format_version->version);
 		}
@@ -2800,7 +2800,7 @@ xc_core_dump_elfnote(off_t sh_offset, size_t sh_size, int store)
  *  Initialize the batching list for the .xen_p2m or .xen_pfn
  *  arrays.
  */
-static void 
+static void
 xc_core_elf_pfn_init(void)
 {
 	int i, c, chunk;
@@ -2808,7 +2808,7 @@ xc_core_elf_pfn_init(void)
 	struct xen_dumpcore_p2m p2m;
 	uint64_t pfn;
 
-	switch (xd->flags & (XC_CORE_ELF|XC_CORE_NO_P2M)) 
+	switch (xd->flags & (XC_CORE_ELF|XC_CORE_NO_P2M))
 	{
 	case (XC_CORE_ELF|XC_CORE_NO_P2M):
 		chunk = xd->xc_core.header.xch_nr_pages/INDEX_PFN_COUNT;
@@ -2818,11 +2818,11 @@ xc_core_elf_pfn_init(void)
 				(off_t)(c * sizeof(uint64_t));
 
 	        	if (lseek(xd->xfd, offset, SEEK_SET) == -1)
-	                	error(FATAL, 
+	                	error(FATAL,
 				    "cannot lseek to page index %d\n", c);
-			if (read(xd->xfd, &pfn, sizeof(uint64_t)) != 
+			if (read(xd->xfd, &pfn, sizeof(uint64_t)) !=
 			    sizeof(uint64_t))
-	                	error(FATAL, 
+	                	error(FATAL,
 				    "cannot read page index %d\n", c);
 
 			xd->xc_core.elf_index_pfn[i].index = c;
@@ -2832,19 +2832,19 @@ xc_core_elf_pfn_init(void)
 
 	case XC_CORE_ELF:
 		chunk = xd->xc_core.header.xch_nr_pages/INDEX_PFN_COUNT;
-	
+
 		for (i = c = 0; i < INDEX_PFN_COUNT; i++, c += chunk) {
 			offset = (off_t)xd->xc_core.header.xch_index_offset +
 				(off_t)(c * sizeof(struct xen_dumpcore_p2m));
 
 	        	if (lseek(xd->xfd, offset, SEEK_SET) == -1)
-	                	error(FATAL, 
+	                	error(FATAL,
 				    "cannot lseek to page index %d\n", c);
 			if (read(xd->xfd, &p2m, sizeof(struct xen_dumpcore_p2m)) !=
 				sizeof(struct xen_dumpcore_p2m))
-	                	error(FATAL, 
+	                	error(FATAL,
 				    "cannot read page index %d\n", c);
-	
+
 			xd->xc_core.elf_index_pfn[i].index = c;
 			xd->xc_core.elf_index_pfn[i].pfn = (ulong)p2m.pfn;
 		}

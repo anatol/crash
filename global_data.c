@@ -19,13 +19,13 @@
 
 /*
  *  Data output FILE pointer.  The contents of fp are changed on the fly
- *  depending upon whether the output is going to stdout, redirected to a 
+ *  depending upon whether the output is going to stdout, redirected to a
  *  user-designated pipe or file, or to the "standard" scrolling pipe.
  *  Regardless of where it ends up, fprintf(fp, ...) is used throughout
  *  instead of printf().
  */
 
-FILE *fp;   
+FILE *fp;
 
 /*
  *  The state of the program is kept in the program_context structure.
@@ -37,7 +37,7 @@ struct program_context *pc = &program_context;
 
 /*
  *  The same thing goes for accesses to the frequently-accessed task_table,
- *  kernel_table, vm_table, symbol_table_data and machdep_table, making the 
+ *  kernel_table, vm_table, symbol_table_data and machdep_table, making the
  *  "tt", "kt", "vt", "st" and "machdep" pointers globally available.
  */
 struct task_table task_table = { 0 };
@@ -56,7 +56,7 @@ struct machdep_table machdep_table = { 0 };
 struct machdep_table *machdep = &machdep_table;
 
 /*
- *  Command functions are entered with the args[] array and argcnt value 
+ *  Command functions are entered with the args[] array and argcnt value
  *  pre-set for issuance to getopt().
  */
 

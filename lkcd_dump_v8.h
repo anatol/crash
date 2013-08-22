@@ -48,9 +48,9 @@
 #define TRUE 1
 #endif
 
-#ifndef MCLX                   
+#ifndef MCLX
 
-/* 
+/*
  *  MCLX NOTE: the architecture-specific headers are being ignored until
  *  deemed necessary; crash has never used them functionally, and only
  *  referencing them in the dump_sgi_environment() helper routines.
@@ -128,7 +128,7 @@
 /*
  * Structure: dump_header_t
  *  Function: This is the header dumped at the top of every valid crash
- *            dump.  
+ *            dump.
  *            easy reassembly of each crash dump page.  The address bits
  *            are split to make things easier for 64-bit/32-bit system
  *            conversions.
@@ -207,7 +207,7 @@ typedef struct _dump_header_s {
  *            conversions.
  */
 typedef struct _dump_page_s {
-    
+
 	/* the address of this dump page */
 	uint64_t             dp_address;
 

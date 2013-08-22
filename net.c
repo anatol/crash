@@ -23,7 +23,7 @@
 
 /*
  *  Cache values we need that can change based on OS version, or any other
- *  variables static to this file.  These are setup in net_init().  Dump 
+ *  variables static to this file.  These are setup in net_init().  Dump
  *  the table during runtime via "help -n".
  */
 struct net_table {
@@ -105,7 +105,7 @@ net_init(void)
 		net->netdevice = "net_device";
 		net->dev_next = MEMBER_OFFSET_INIT(net_device_next,
 			"net_device", "next");
-		net->dev_name = MEMBER_OFFSET_INIT(net_device_name, 
+		net->dev_name = MEMBER_OFFSET_INIT(net_device_name,
 			"net_device", "name");
 		net->dev_type = MEMBER_OFFSET_INIT(net_device_type,
 			"net_device", "type");
@@ -122,19 +122,19 @@ net_init(void)
 		STRUCT_SIZE_INIT(device, "device");
 		if (VALID_STRUCT(device)) {
 			net->netdevice = "device";
-			net->dev_next = MEMBER_OFFSET_INIT(device_next, 
+			net->dev_next = MEMBER_OFFSET_INIT(device_next,
 				"device", "next");
-			net->dev_name = MEMBER_OFFSET_INIT(device_name, 
+			net->dev_name = MEMBER_OFFSET_INIT(device_name,
 				"device", "name");
-	                net->dev_type = MEMBER_OFFSET_INIT(device_type, 
+	                net->dev_type = MEMBER_OFFSET_INIT(device_type,
 				"device", "type");
-			net->dev_ip_ptr = MEMBER_OFFSET_INIT(device_ip_ptr, 
+			net->dev_ip_ptr = MEMBER_OFFSET_INIT(device_ip_ptr,
 				"device", "ip_ptr");
-	                net->dev_addr_len = MEMBER_OFFSET_INIT(device_addr_len, 
+	                net->dev_addr_len = MEMBER_OFFSET_INIT(device_addr_len,
 				"device", "addr_len");
 			net->flags |= (NETDEV_INIT|STRUCT_DEVICE);
-		} else 
-			error(WARNING, 
+		} else
+			error(WARNING,
 				"net_init: unknown device type for net device");
 	}
 
@@ -145,11 +145,11 @@ net_init(void)
 
 		MEMBER_OFFSET_INIT(socket_sk, "socket", "sk");
 		MEMBER_OFFSET_INIT(neighbour_next, "neighbour", "next");
-        	MEMBER_OFFSET_INIT(neighbour_primary_key,  
+        	MEMBER_OFFSET_INIT(neighbour_primary_key,
 			"neighbour", "primary_key");
         	MEMBER_OFFSET_INIT(neighbour_ha, "neighbour", "ha");
         	MEMBER_OFFSET_INIT(neighbour_dev, "neighbour", "dev");
-        	MEMBER_OFFSET_INIT(neighbour_nud_state,  
+        	MEMBER_OFFSET_INIT(neighbour_nud_state,
 			"neighbour", "nud_state");
 		MEMBER_OFFSET_INIT(neigh_table_nht_ptr, "neigh_table", "nht");
 		if (VALID_MEMBER(neigh_table_nht_ptr)) {
@@ -168,11 +168,11 @@ net_init(void)
 		MEMBER_OFFSET_INIT(neigh_table_key_len,
 			"neigh_table", "key_len");
 
-        	MEMBER_OFFSET_INIT(in_device_ifa_list,  
+        	MEMBER_OFFSET_INIT(in_device_ifa_list,
 			"in_device", "ifa_list");
-        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_next,  
+        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_next,
 			"in_ifaddr", "ifa_next");
-        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_address, 
+        	MEMBER_OFFSET_INIT(in_ifaddr_ifa_address,
 			"in_ifaddr", "ifa_address");
 
 		STRUCT_SIZE_INIT(sock, "sock");
@@ -236,9 +236,9 @@ net_init(void)
 					MEMBER_OFFSET_INIT(inet_opt_sport, "inet_sock", "inet_sport");
 					MEMBER_OFFSET_INIT(inet_opt_num, "inet_sock", "inet_num");
 				}
-			}	
+			}
 
-			if (VALID_STRUCT(inet_sock) && 
+			if (VALID_STRUCT(inet_sock) &&
 			    INVALID_MEMBER(inet_sock_inet)) {
 				/*
 				 *  gdb can't seem to figure out the inet_sock
@@ -247,32 +247,32 @@ net_init(void)
 				 *  struct inet_sock {
 				 *      <no data fields>
 			         *  }
-				 *  
+				 *
 				 *  It does know the struct size, so kludge it
 			         *  to subtract the size of the inet_opt struct
 				 *  from the size of the containing inet_sock.
 				 */
 				net->flags |= NO_INET_SOCK;
-				ASSIGN_OFFSET(inet_sock_inet) = 
+				ASSIGN_OFFSET(inet_sock_inet) =
 				    SIZE(inet_sock) - STRUCT_SIZE("inet_opt");
 			}
 
-			/* 
+			/*
 			 *  If necessary, set inet_sock size and inet_sock_inet offset,
 			 *  accounting for the configuration-dependent, intervening,
-			 *  struct ipv6_pinfo pointer located in between the sock and 
+			 *  struct ipv6_pinfo pointer located in between the sock and
 			 *  inet_opt members of the inet_sock.
 			 */
-			if (!VALID_STRUCT(inet_sock)) 
+			if (!VALID_STRUCT(inet_sock))
 			{
-				if (symbol_exists("tcpv6_protocol") && 
+				if (symbol_exists("tcpv6_protocol") &&
 				    symbol_exists("udpv6_protocol")) {
-					ASSIGN_SIZE(inet_sock) = SIZE(sock) + 
+					ASSIGN_SIZE(inet_sock) = SIZE(sock) +
 						sizeof(void *) + STRUCT_SIZE("inet_opt");
-					ASSIGN_OFFSET(inet_sock_inet) = SIZE(sock) + 
+					ASSIGN_OFFSET(inet_sock_inet) = SIZE(sock) +
 						sizeof(void *);
 				} else {
-					ASSIGN_SIZE(inet_sock) = SIZE(sock) + 
+					ASSIGN_SIZE(inet_sock) = SIZE(sock) +
 						STRUCT_SIZE("inet_opt");
 					ASSIGN_OFFSET(inet_sock_inet) = SIZE(sock);
 				}
@@ -285,7 +285,7 @@ net_init(void)
 
 			net->flags |= SOCK_V2;
 		}
-	}	
+	}
 }
 
 /*
@@ -317,7 +317,7 @@ cmd_net(void)
 	struct in_addr in_addr;
 	struct reference reference, *ref;
 
-	if (!(net->flags & NETDEV_INIT)) 
+	if (!(net->flags & NETDEV_INIT))
 		error(FATAL, "net subsystem not initialized!");
 
 	ref = NULL;
@@ -347,7 +347,7 @@ cmd_net(void)
 
 		case 's':
 			if (sflag & S_FLAG)
-				error(INFO, 
+				error(INFO,
 				    "only one -s or -S option allowed\n");
 			else
 				sflag |= s_FLAG;
@@ -355,7 +355,7 @@ cmd_net(void)
 
 		case 'S':
 			if (sflag & s_FLAG)
-				error(INFO, 
+				error(INFO,
 				    "only one -s or -S option allowed\n");
 			else
 				sflag |= S_FLAG;
@@ -381,7 +381,7 @@ cmd_net(void)
 		}
 	}
 
-	if (argerrs) 
+	if (argerrs)
 		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	if (sflag)
@@ -421,11 +421,11 @@ show_net_devices(void)
 	flen = MAX(VADDR_PRLEN, strlen(net->netdevice));
 
 	fprintf(fp, "%s  NAME   IP ADDRESS(ES)\n",
-		mkstring(upper_case(net->netdevice, buf), 
+		mkstring(upper_case(net->netdevice, buf),
 			flen, CENTER|LJUST, NULL));
 
 	do {
-                fprintf(fp, "%s  ", 
+                fprintf(fp, "%s  ",
                     mkstring(buf, flen, CENTER|RJUST|LONG_HEX, MKSTR(next)));
 
 		get_device_name(next, buf);
@@ -434,7 +434,7 @@ show_net_devices(void)
 		get_device_address(next, buf);
 		fprintf(fp, "%s\n", buf);
 
-        	readmem(next+net->dev_next, KVADDR, &next, 
+        	readmem(next+net->dev_next, KVADDR, &next,
 			sizeof(void *), "(net_)device.next", FAULT_ON_ERROR);
 	} while (next);
 }
@@ -455,7 +455,7 @@ show_net_devices_v2(void)
 	flen = MAX(VADDR_PRLEN, strlen(net->netdevice));
 
 	fprintf(fp, "%s  NAME   IP ADDRESS(ES)\n",
-		mkstring(upper_case(net->netdevice, buf), 
+		mkstring(upper_case(net->netdevice, buf),
 			flen, CENTER|LJUST, NULL));
 
 	net_device_buf = GETBUF(SIZE(net_device));
@@ -487,7 +487,7 @@ show_net_devices_v2(void)
 		get_device_address(ndevlist[i], buf);
 		fprintf(fp, "%s\n", buf);
 	}
-	
+
 	FREEBUF(ndevlist);
 	FREEBUF(net_device_buf);
 }
@@ -508,7 +508,7 @@ show_net_devices_v3(void)
 	flen = MAX(VADDR_PRLEN, strlen(net->netdevice));
 
 	fprintf(fp, "%s  NAME   IP ADDRESS(ES)\n",
-		mkstring(upper_case(net->netdevice, buf), 
+		mkstring(upper_case(net->netdevice, buf),
 			flen, CENTER|LJUST, NULL));
 
 	net_device_buf = GETBUF(SIZE(net_device));
@@ -543,7 +543,7 @@ show_net_devices_v3(void)
 		get_device_address(ndevlist[i], buf);
 		fprintf(fp, "%s\n", buf);
 	}
-	
+
 	FREEBUF(ndevlist);
 	FREEBUF(net_device_buf);
 }
@@ -568,7 +568,7 @@ dump_arp(void)
 	int	hash_mask = 0;
 	ulong	nht;
 
-	if (!symbol_exists("arp_tbl")) 
+	if (!symbol_exists("arp_tbl"))
 		error(FATAL, "arp_tbl does not exist in this kernel\n");
 
 	arp_tbl = symbol_value("arp_tbl");
@@ -613,7 +613,7 @@ dump_arp(void)
 		nhash_buckets = hash_mask + 1;
 	} else
 		nhash_buckets = (i = ARRAY_LENGTH(neigh_table_hash_buckets)) ?
-			i : get_array_length("neigh_table.hash_buckets", 
+			i : get_array_length("neigh_table.hash_buckets",
 				NULL, sizeof(void *));
 
 	if (nhash_buckets == 0) {
@@ -637,15 +637,15 @@ dump_arp(void)
 		readmem(hash, KVADDR, hash_buckets, hash_bytes,
 			"neigh_hash_table hash_buckets", FAULT_ON_ERROR);
 	} else if (hash_mask) {
-		readmem(arp_tbl + OFFSET(neigh_table_hash_buckets), 
+		readmem(arp_tbl + OFFSET(neigh_table_hash_buckets),
 			KVADDR, &hash, sizeof(hash),
 			"neigh_table hash_buckets pointer", FAULT_ON_ERROR);
-		
+
 		readmem(hash,
 			KVADDR, hash_buckets, hash_bytes,
 			"neigh_table hash_buckets", FAULT_ON_ERROR);
 	} else
-		readmem(arp_tbl + OFFSET(neigh_table_hash_buckets), 
+		readmem(arp_tbl + OFFSET(neigh_table_hash_buckets),
 			KVADDR, hash_buckets, hash_bytes,
 			"neigh_table hash_buckets", FAULT_ON_ERROR);
 
@@ -685,8 +685,8 @@ print_neighbour_q(ulong addr, int key_len)
 	ha_buf = (unsigned char *)GETBUF(ha_size);
 
 	while (addr) {
-		readmem(addr + OFFSET(neighbour_primary_key), KVADDR, 
-			&ipaddr, sizeof(ipaddr), "neighbour primary_key", 
+		readmem(addr + OFFSET(neighbour_primary_key), KVADDR,
+			&ipaddr, sizeof(ipaddr), "neighbour primary_key",
 			FAULT_ON_ERROR);
 
 		readmem(addr + OFFSET(neighbour_ha), KVADDR, ha_buf, ha_size,
@@ -696,8 +696,8 @@ print_neighbour_q(ulong addr, int key_len)
 			"neighbour dev", FAULT_ON_ERROR);
 		get_netdev_info(dev, &dinfo);
 
-		readmem(addr + OFFSET(neighbour_nud_state), KVADDR, 
-			&state, sizeof(state), "neighbour nud_state", 
+		readmem(addr + OFFSET(neighbour_nud_state), KVADDR,
+			&state, sizeof(state), "neighbour nud_state",
 			FAULT_ON_ERROR);
 
 		in_addr.s_addr = ipaddr;
@@ -735,7 +735,7 @@ print_neighbour_q(ulong addr, int key_len)
 			break;
 		case ARPHRD_IEEE802:
 			fprintf(fp, "%-10s ", "IEEE802");
-			dump_hw_addr(ha_buf, dinfo.dev_addr_len);	
+			dump_hw_addr(ha_buf, dinfo.dev_addr_len);
 			break;
 		case ARPHRD_ARCNET:
 			fprintf(fp, "%-10s ", "ARCNET");
@@ -763,7 +763,7 @@ print_neighbour_q(ulong addr, int key_len)
 
 		arp_state_to_flags(state);
 
-		readmem(addr + OFFSET(neighbour_next), KVADDR, 
+		readmem(addr + OFFSET(neighbour_next), KVADDR,
 			&addr, sizeof(addr), "neighbour next", FAULT_ON_ERROR);
 	}
 
@@ -771,7 +771,7 @@ print_neighbour_q(ulong addr, int key_len)
 }
 
 /*
- * read netdevice info.... 
+ * read netdevice info....
  */
 static void
 get_netdev_info(ulong devaddr, struct devinfo *dip)
@@ -780,7 +780,7 @@ get_netdev_info(ulong devaddr, struct devinfo *dip)
 
 	get_device_name(devaddr, dip->dev_name);
 
-	readmem(devaddr + net->dev_type, KVADDR, 
+	readmem(devaddr + net->dev_type, KVADDR,
 		&dev_type, sizeof(dev_type), net->dev_type_t, FAULT_ON_ERROR);
 
 	dip->dev_type = dev_type;
@@ -803,10 +803,10 @@ get_device_name(ulong devaddr, char *buf)
 	case STRUCT_NET_DEVICE:
 		if (net->net_device_name_index > 0) {
                 	readmem(devaddr + net->dev_name, KVADDR,
-                        	buf, net->net_device_name_index, 
+                        	buf, net->net_device_name_index,
 				net->dev_name_t, FAULT_ON_ERROR);
 			return;
-		} 
+		}
 
 		/* fallthrough */
 
@@ -824,9 +824,9 @@ get_device_name(ulong devaddr, char *buf)
  *
  *  {net_}device->ip_ptr points to in_device.
  *  in_device->in_ifaddr points to in_ifaddr list.
- *  in_ifaddr->ifa_address contains the address. 
+ *  in_ifaddr->ifa_address contains the address.
  *  in_ifaddr->ifa_next points to the next in_ifaddr in the list (if any).
- * 
+ *
  */
 static void
 get_device_address(ulong devaddr, char *buf)
@@ -847,10 +847,10 @@ get_device_address(ulong devaddr, char *buf)
 
 	while (ifa_list) {
         	readmem(ifa_list + OFFSET(in_ifaddr_ifa_address), KVADDR,
-        		&ifa_address, sizeof(struct in_addr), "ifa_address", 
+        		&ifa_address, sizeof(struct in_addr), "ifa_address",
 			FAULT_ON_ERROR);
 
-		sprintf(&buf[strlen(buf)], "%s%s", 
+		sprintf(&buf[strlen(buf)], "%s%s",
 			strlen(buf) ? ", " : "",
 			inet_ntoa(ifa_address));
 
@@ -889,9 +889,9 @@ get_sock_info(ulong sock, char *buf)
 	{
 	case SOCK_V1:
 		sockbuf = GETBUF(SIZE(sock));
-	        readmem(sock, KVADDR, sockbuf, SIZE(sock), 
+	        readmem(sock, KVADDR, sockbuf, SIZE(sock),
 			"sock buffer", FAULT_ON_ERROR);
-	
+
 		daddr = UINT(sockbuf + OFFSET(sock_daddr));
 		rcv_saddr = UINT(sockbuf + OFFSET(sock_rcv_saddr));
 		dport = USHORT(sockbuf + OFFSET(sock_dport));
@@ -903,7 +903,7 @@ get_sock_info(ulong sock, char *buf)
 
 	case SOCK_V2:
 		inet_sockbuf = GETBUF(SIZE(inet_sock));
-	        readmem(sock, KVADDR, inet_sockbuf, SIZE(inet_sock), 
+	        readmem(sock, KVADDR, inet_sockbuf, SIZE(inet_sock),
 			"inet_sock buffer", FAULT_ON_ERROR);
 
 		daddr = UINT(inet_sockbuf + OFFSET(inet_sock_inet) +
@@ -926,13 +926,13 @@ get_sock_info(ulong sock, char *buf)
 	{
 	case AF_UNSPEC:
 		sprintf(buf, "UNSPEC:"); break;
-	case AF_UNIX: 
+	case AF_UNIX:
 		sprintf(buf, "UNIX:"); break;
-	case AF_INET: 
+	case AF_INET:
 		sprintf(buf, "INET:"); break;
-	case AF_AX25: 
+	case AF_AX25:
 		sprintf(buf, "AX25:"); break;
-	case AF_IPX:  
+	case AF_IPX:
 		sprintf(buf, "IPX:"); break;
 	case AF_APPLETALK:
 		sprintf(buf, "APPLETALK:"); break;
@@ -942,36 +942,36 @@ get_sock_info(ulong sock, char *buf)
 		sprintf(buf, "BRIDGE:"); break;
 	case AF_ATMPVC:
 		sprintf(buf, "ATMPVC:"); break;
-	case AF_X25:  
+	case AF_X25:
 		sprintf(buf, "X25:"); break;
 	case AF_INET6:
 		sprintf(buf, "INET6:"); break;
-	case AF_ROSE: 
+	case AF_ROSE:
 		sprintf(buf, "ROSE:"); break;
 	case AF_DECnet:
 		sprintf(buf, "DECnet:"); break;
 	case AF_NETBEUI:
 		sprintf(buf, "NETBEUI:"); break;
-	case AF_SECURITY: 
+	case AF_SECURITY:
 		sprintf(buf, "SECURITY/KEY:"); break;
-	case AF_NETLINK: 
+	case AF_NETLINK:
 		sprintf(buf, "NETLINK/ROUTE:"); break;
-	case AF_PACKET:  
+	case AF_PACKET:
 		sprintf(buf, "PACKET:"); break;
-	case AF_ASH:     
+	case AF_ASH:
 		sprintf(buf, "ASH:"); break;
-	case AF_ECONET:  
+	case AF_ECONET:
 		sprintf(buf, "ECONET:"); break;
-	case AF_ATMSVC: 
+	case AF_ATMSVC:
 		sprintf(buf, "ATMSVC:"); break;
-	case AF_SNA:    
+	case AF_SNA:
 		sprintf(buf, "SNA:"); break;
-	case AF_IRDA:   
+	case AF_IRDA:
 		sprintf(buf, "IRDA:"); break;
 #ifndef AF_PPPOX
 #define AF_PPPOX 24
 #endif
-	case AF_PPPOX:  
+	case AF_PPPOX:
 		sprintf(buf, "PPPOX:"); break;
 	default:
 		sprintf(buf, "%d:", family); break;
@@ -985,7 +985,7 @@ get_sock_info(ulong sock, char *buf)
 		sprintf(&buf[strlen(buf)], "DGRAM "); break;
 	case SOCK_RAW:
 		sprintf(&buf[strlen(buf)], "RAW"); break;
-	case SOCK_RDM: 
+	case SOCK_RDM:
 		sprintf(&buf[strlen(buf)], "RDM"); break;
 	case SOCK_SEQPACKET:
 		sprintf(&buf[strlen(buf)], "SEQPACKET"); break;
@@ -998,7 +998,7 @@ get_sock_info(ulong sock, char *buf)
 	/* make sure we have room at the end... */
 //	sprintf(&buf[strlen(buf)], "%s", space(MINSPACE-1));
 	sprintf(&buf[strlen(buf)], " ");
-           
+
 	if (family == AF_INET) {
 		if (BITS32()) {
 			in_addr.s_addr = rcv_saddr;
@@ -1011,7 +1011,7 @@ get_sock_info(ulong sock, char *buf)
 			in_addr.s_addr = daddr;
 			sprintf(&buf[strlen(buf)], "%*s-%-*d%s",
 				BYTES_IP_ADDR,
-				inet_ntoa(in_addr), 
+				inet_ntoa(in_addr),
 				BYTES_PORT_NUM,
 				ntohs(dport),
 				space(1));
@@ -1129,7 +1129,7 @@ arp_state_to_flags(unsigned char state)
 	char flag_buffer[FLAGBUF_SIZE];
 	int had_flags = 0;
 
-	if (!state) { 
+	if (!state) {
 		fprintf(fp, "\n");
 		return;
 	}
@@ -1239,7 +1239,7 @@ dump_net_table(void)
 		fprintf(fp, "%sSOCK_V2", others++ ? "|" : "");
 	fprintf(fp, ")\n");
 
-	fprintf(fp, "            netdevice: \"%s\"\n", net->netdevice); 
+	fprintf(fp, "            netdevice: \"%s\"\n", net->netdevice);
 	fprintf(fp, "           dev_name_t: \"%s\"\n", net->dev_name_t);
 	fprintf(fp, "           dev_type_t: \"%s\"\n", net->dev_type_t);
 	fprintf(fp, "           dev_addr_t: \"%s\"\n", net->dev_addr_t);
@@ -1262,7 +1262,7 @@ dump_sockets(ulong flag, struct reference *ref)
     	ulong value;
     	int subsequent;
 
-    	if (!args[optind]) { 
+    	if (!args[optind]) {
 		if (!NET_REFERENCE_CHECK(ref))
             		print_task_header(fp, CURRENT_CONTEXT(), 0);
         	dump_sockets_workhorse(CURRENT_TASK(), flag, ref);
@@ -1317,7 +1317,7 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
 	int sockets_found = 0;
 	ulong value;
 
-       /* 
+       /*
         * Steps to getting open sockets:
         *
         * 1)  task->files (struct files_struct)
@@ -1383,10 +1383,10 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
             		sizeof(void *), "files_struct fd addr", FAULT_ON_ERROR);
 	}
 
-	if (open_fds_addr) 
+	if (open_fds_addr)
 		readmem(open_fds_addr, KVADDR, &open_fds, sizeof(fd_set),
 	               	"files_struct open_fds", FAULT_ON_ERROR);
-    	if (!open_fds_addr || !fd) { 
+    	if (!open_fds_addr || !fd) {
 		if (!NET_REFERENCE_CHECK(ref))
 			fprintf(fp, "No open sockets.\n");
         	return;
@@ -1422,11 +1422,11 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
 	        set = open_fds.__fds_bits[j++];
 	        while (set) {
 	            	if (set & 1) {
-		                readmem(fd + i*sizeof(struct file *), KVADDR, 
-		                        &file, sizeof(struct file *), 
+		                readmem(fd + i*sizeof(struct file *), KVADDR,
+		                        &file, sizeof(struct file *),
 		                        "fd file", FAULT_ON_ERROR);
 		                if (file) {
-		                    	if (sym_socket_dump(file, i, 
+		                    	if (sym_socket_dump(file, i,
 					    sockets_found, flag, ref)) {
 		                        	sockets_found++;
 					}
@@ -1451,15 +1451,15 @@ dump_sockets_workhorse(ulong task, ulong flag, struct reference *ref)
  *  Return TRUE if we found a socket, FALSE otherwise.
  */
 
-static char *socket_hdr_32 = 
+static char *socket_hdr_32 =
 "FD   SOCKET     SOCK    FAMILY:TYPE          SOURCE-PORT      DESTINATION-PORT";
-static char *socket_hdr_64 = 
+static char *socket_hdr_64 =
 "FD      SOCKET            SOCK       FAMILY:TYPE SOURCE-PORT DESTINATION-PORT";
 
 static int
-sym_socket_dump(ulong file, 
-		int fd, 
-		int sockets_found, 
+sym_socket_dump(ulong file,
+		int fd,
+		int sockets_found,
 		ulong flag,
 		struct reference *ref)
 {
@@ -1492,7 +1492,7 @@ sym_socket_dump(ulong file,
 	inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
 
     	if (!inode)
-        	return FALSE; 
+        	return FALSE;
 
 	inode_buf = fill_inode_cache(inode);
 
@@ -1516,10 +1516,10 @@ sym_socket_dump(ulong file,
     	if (!S_ISSOCK(mode))
         	return FALSE;
 
-	/* 
-	 * 2.6 (SOCK_V2) -- socket is inode addr minus sizeof(struct socket) 
+	/*
+	 * 2.6 (SOCK_V2) -- socket is inode addr minus sizeof(struct socket)
 	 */
-	switch (net->flags & (SOCK_V1|SOCK_V2))  
+	switch (net->flags & (SOCK_V1|SOCK_V2))
 	{
 	case SOCK_V1:
     		struct_socket = inode + OFFSET(inode_u);
@@ -1527,8 +1527,8 @@ sym_socket_dump(ulong file,
 		break;
 
 	case SOCK_V2:
-		if (!VALID_SIZE(inet_sock)) 
-			error(FATAL, 
+		if (!VALID_SIZE(inet_sock))
+			error(FATAL,
               	           "cannot determine what an inet_sock structure is\n");
     		struct_socket = inode - OFFSET(socket_alloc_vfs_inode);
 		socket_buf = GETBUF(SIZE(socket));
@@ -1537,7 +1537,7 @@ sym_socket_dump(ulong file,
 		sock = ULONG(socket_buf + OFFSET(socket_sk));
 		FREEBUF(socket_buf);
 		break;
-	} 
+	}
 
 	if (NET_REFERENCE_CHECK(ref)) {
 		if ((ref->cmdflags & NET_REF_HEXNUM) &&
@@ -1574,14 +1574,14 @@ sym_socket_dump(ulong file,
 			mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "SOCKET"),
 			mkstring(buf2, VADDR_PRLEN, CENTER|LJUST, "SOCK"));
 		fprintf(fp, "%2d  %s  %s\n\n",
-			fd, 
-			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, 
+			fd,
+			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
 			MKSTR(struct_socket)),
-			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX, 
+			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX,
 			MKSTR(sock)));
 
     		dump_struct("socket", struct_socket, radix);
-		switch (net->flags & (SOCK_V1|SOCK_V2))  
+		switch (net->flags & (SOCK_V1|SOCK_V2))
 		{
 		case SOCK_V1:
     			dump_struct("sock", sock, radix);
@@ -1602,13 +1602,13 @@ sym_socket_dump(ulong file,
 			fprintf(fp, "%s\n", socket_hdr);
 		}
 		fprintf(fp, "%2d%s%s%s%s%s",
-			fd, space(MINSPACE), 
-			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, 
+			fd, space(MINSPACE),
+			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
 			MKSTR(struct_socket)),
 			space(MINSPACE),
 			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX,
                         MKSTR(sock)),
-		        space(MINSPACE)); 
+		        space(MINSPACE));
 
 		buf1[0] = NULLCHAR;
 		get_sock_info(sock, buf1);

@@ -21,8 +21,8 @@
 
 static FILE * s390_file;
 
-int 
-is_s390_dump(char *file) 
+int
+is_s390_dump(char *file)
 {
 	FILE* fh;
 	long long int magic;
@@ -55,10 +55,10 @@ read_s390_dumpfile(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 {
 	paddr += S390_DUMP_HEADER_SIZE;
 
-        if (fseek(s390_file, (ulong)paddr, SEEK_SET) != 0) 
+        if (fseek(s390_file, (ulong)paddr, SEEK_SET) != 0)
 		return SEEK_ERROR;
 
-        if (fread(bufptr, 1 , cnt, s390_file) != cnt) 
+        if (fread(bufptr, 1 , cnt, s390_file) != cnt)
 		return READ_ERROR;
 
 	return 0;
@@ -79,31 +79,31 @@ s390_page_size(void)
 	return S390_PAGE_SIZE;
 }
 
-int 
+int
 s390_memory_used(void)
 {
 	return 0;
 }
 
-int 
+int
 s390_free_memory(void)
 {
 	return 0;
 }
 
-int 
+int
 s390_memory_dump(FILE *fp)
 {
 	return 0;
 }
 
-ulong 
+ulong
 get_s390_panic_task(void)
 {
 	return BADVAL;
 }
 
-void 
+void
 get_s390_panicmsg(char *buf)
 {
 	return;

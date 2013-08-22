@@ -22,7 +22,7 @@
  * Created by: Matt Robinson (yakker@sgi.com)
  *
  * Copyright 1999 Silicon Graphics, Inc. All rights reserved.
- * 
+ *
  */
 
 /* This header file includes all structure definitions for crash dumps. */
@@ -65,7 +65,7 @@ typedef unsigned int u32;
 /*
  * Structure: dump_header_t
  *  Function: This is the header dumped at the top of every valid crash
- *            dump.  
+ *            dump.
  *            easy reassembly of each crash dump page.  The address bits
  *            are split to make things easier for 64-bit/32-bit system
  *            conversions.
@@ -136,7 +136,7 @@ typedef struct _dump_header_s {
  *            conversions.
  */
 typedef struct _dump_page_s {
-    
+
 	/* the address of this dump page */
 	uint64_t             dp_address;
 

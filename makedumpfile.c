@@ -1,6 +1,6 @@
-/* 
+/*
  * makedumpfile.c
- * 
+ *
  * This code is for reading a dumpfile ganarated by makedumpfile command.
  *
  * Copyright (C) 2011  NEC Soft, Ltd.
@@ -79,7 +79,7 @@ store_flat_data_array(char *file, struct flat_data **fda)
 					 * num_allocated;
 			ptr = realloc(ptr, size_allocated);
 			if (ptr == NULL) {
-				error(INFO, 
+				error(INFO,
 				    "unable to realloc flat_data structures\n");
 				break;
 			}
@@ -193,7 +193,7 @@ check_flattened_format(char *file)
 		fh.type    = bswap_64(fh.type);
 		fh.version = bswap_64(fh.version);
 	}
-	if ((strncmp(fh.signature, MAKEDUMPFILE_SIGNATURE, sizeof(MAKEDUMPFILE_SIGNATURE)) != 0) || 
+	if ((strncmp(fh.signature, MAKEDUMPFILE_SIGNATURE, sizeof(MAKEDUMPFILE_SIGNATURE)) != 0) ||
 	    (fh.type != TYPE_FLAT_HEADER))
 		return;
 

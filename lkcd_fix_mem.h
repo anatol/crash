@@ -82,7 +82,7 @@
 /*
  * Structure: dump_header_t
  *  Function: This is the header dumped at the top of every valid crash
- *            dump.  
+ *            dump.
  *            easy reassembly of each crash dump page.  The address bits
  *            are split to make things easier for 64-bit/32-bit system
  *            conversions.
@@ -158,7 +158,7 @@ typedef struct _dump_header_s {
  *            conversions.
  */
 typedef struct _dump_page_s {
-    
+
 	/* the address of this dump page */
 	uint64_t             dp_address;
 
@@ -300,9 +300,9 @@ typedef struct _dump_header_asm_s {
 	uint32_t	     dha_smp_num_cpus;
 	uint32_t 	     dha_dumping_cpu;	// v4 changed this
 	struct pt_regs	     dha_smp_regs[NR_CPUS];
-	uint64_t 	     dha_smp_current_task[NR_CPUS]; // v4 changed this 
-	uint64_t     	     dha_stack[NR_CPUS];  // v4 changed this 
-	uint64_t     	     dha_switch_stack[NR_CPUS]; // v4 changed this 
+	uint64_t 	     dha_smp_current_task[NR_CPUS]; // v4 changed this
+	uint64_t     	     dha_stack[NR_CPUS];  // v4 changed this
+	uint64_t     	     dha_switch_stack[NR_CPUS]; // v4 changed this
 
 } __attribute__((packed)) dump_header_asm_t;
 

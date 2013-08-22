@@ -1,4 +1,4 @@
-/* dev.c - core analysis suite 
+/* dev.c - core analysis suite
  *
  * Copyright (C) 2001, 2002 Mission Critical Linux, Inc.
  * Copyright (C) 2002-2013 David Anderson
@@ -23,16 +23,16 @@ static void dump_blkdevs_v2(ulong);
 static void dump_blkdevs_v3(ulong);
 static ulong search_cdev_map_probes(char *, int, int, ulong *);
 static ulong search_bdev_map_probes(char *, int, int, ulong *);
-static void do_pci(void); 
+static void do_pci(void);
 static void do_io(void);
 static void do_resource_list(ulong, char *, int);
 
-static const char *pci_strclass (uint, char *); 
-static const char *pci_strvendor(uint, char *); 
-static const char *pci_strdev(uint, uint, char *); 
+static const char *pci_strclass (uint, char *);
+static const char *pci_strvendor(uint, char *);
+static const char *pci_strdev(uint, uint, char *);
 
 static void diskio_option(void);
- 
+
 static struct dev_table {
         ulong flags;
 } dev_table = { 0 };
@@ -67,13 +67,13 @@ dev_init(void)
 	} else {
 		STRUCT_SIZE_INIT(resource_entry_t, "resource_entry_t");
 		if (VALID_SIZE(resource_entry_t)) {
-			MEMBER_OFFSET_INIT(resource_entry_t_from, 
+			MEMBER_OFFSET_INIT(resource_entry_t_from,
 				"resource_entry_t", "from");
-			MEMBER_OFFSET_INIT(resource_entry_t_num, 
+			MEMBER_OFFSET_INIT(resource_entry_t_num,
 				"resource_entry_t", "num");
-			MEMBER_OFFSET_INIT(resource_entry_t_name, 
+			MEMBER_OFFSET_INIT(resource_entry_t_name,
 				"resource_entry_t", "name");
-			MEMBER_OFFSET_INIT(resource_entry_t_next, 
+			MEMBER_OFFSET_INIT(resource_entry_t_next,
 				"resource_entry_t", "next");
 		}
 	}
@@ -154,7 +154,7 @@ dump_chrdevs(ulong flags)
 	} chrdevs[MAX_DEV], *cp;
 	ulong *cdp;
 	char *char_device_struct_buf;
-	ulong next, savenext, name, fops, cdev; 
+	ulong next, savenext, name, fops, cdev;
 	int major, minor;
 	int name_typecode;
 	size_t name_size;
@@ -163,7 +163,7 @@ dump_chrdevs(ulong flags)
 		error(FATAL, "chrdevs: symbol does not exist\n");
 
 	addr = symbol_value("chrdevs");
-	size = VALID_STRUCT(char_device_struct) ? 
+	size = VALID_STRUCT(char_device_struct) ?
 		sizeof(void *) : sizeof(struct chrdevs);
 
         readmem(addr, KVADDR, &chrdevs[0], size * MAX_DEV,
@@ -186,11 +186,11 @@ dump_chrdevs(ulong flags)
                         	fprintf(fp, "%-11s ", buf);
                 	else
                         	fprintf(fp, "%-11s ", "(unknown)");
-			
+
 		} else
                       	fprintf(fp, "%-11s ", "(unknown)");
 
-		sprintf(buf, "%s%%%dlx  ", 
+		sprintf(buf, "%s%%%dlx  ",
 			strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
 			VADDR_PRLEN);
 		fprintf(fp, buf, cp->ops);
@@ -207,24 +207,24 @@ char_device_struct:
 	char_device_struct_buf = GETBUF(SIZE(char_device_struct));
 	cdp = (ulong *)&chrdevs[0];
 	name_typecode = MEMBER_TYPE("char_device_struct", "name");
-	name_size = (size_t)MEMBER_SIZE("char_device_struct", "name"); 
+	name_size = (size_t)MEMBER_SIZE("char_device_struct", "name");
 
 	for (i = 0; i < MAX_DEV; i++, cdp++) {
 		if (!(*cdp))
 			continue;
 
-       		readmem(*cdp, KVADDR, char_device_struct_buf, 
+       		readmem(*cdp, KVADDR, char_device_struct_buf,
 			SIZE(char_device_struct),
                 	"char_device_struct", FAULT_ON_ERROR);
 
-		next = ULONG(char_device_struct_buf + 
+		next = ULONG(char_device_struct_buf +
 			OFFSET(char_device_struct_next));
-		name = ULONG(char_device_struct_buf + 
+		name = ULONG(char_device_struct_buf +
 			OFFSET(char_device_struct_name));
 		switch (name_typecode)
 		{
 		case TYPE_CODE_ARRAY:
-			snprintf(buf, name_size, char_device_struct_buf +	
+			snprintf(buf, name_size, char_device_struct_buf +
 			    OFFSET(char_device_struct_name));
 			break;
 		case TYPE_CODE_PTR:
@@ -233,31 +233,31 @@ char_device_struct:
 				break;
 		}
 
-		major = INT(char_device_struct_buf + 
+		major = INT(char_device_struct_buf +
 			OFFSET(char_device_struct_major));
-		minor = INT(char_device_struct_buf + 
+		minor = INT(char_device_struct_buf +
 			OFFSET(char_device_struct_baseminor));
 
 		cdev = fops = 0;
 		if (VALID_MEMBER(char_device_struct_cdev) &&
 				VALID_STRUCT(cdev)) {
-			cdev = ULONG(char_device_struct_buf + 
+			cdev = ULONG(char_device_struct_buf +
 				OFFSET(char_device_struct_cdev));
 			if (cdev) {
 				addr = cdev + OFFSET(cdev_ops);
-				readmem(addr, KVADDR, &fops, 
+				readmem(addr, KVADDR, &fops,
 					sizeof(void *),
 					"cdev ops", FAULT_ON_ERROR);
 			}
 		} else {
-			fops = ULONG(char_device_struct_buf + 
+			fops = ULONG(char_device_struct_buf +
 				OFFSET(char_device_struct_fops));
 		}
 
 		if (!fops)
 			fops = search_cdev_map_probes(buf, major, minor, &cdev);
 
-		if (!fops) { 
+		if (!fops) {
 			fprintf(fp, " %3d      ", major);
 			fprintf(fp, "%-13s ", buf);
 			fprintf(fp, "%s%s\n", VADDR_PRLEN == 8 ? "  " : " ",
@@ -278,7 +278,7 @@ char_device_struct:
 		}
 
 		if (CRASHDEBUG(1))
-			fprintf(fp, 
+			fprintf(fp,
 		    	    "%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
 				*cdp, major, minor, buf, next, cdev, fops);
 
@@ -294,7 +294,7 @@ char_device_struct:
 			switch (name_typecode)
 			{
 			case TYPE_CODE_ARRAY:
-				snprintf(buf, name_size, char_device_struct_buf +	
+				snprintf(buf, name_size, char_device_struct_buf +
 			    		OFFSET(char_device_struct_name));
 				break;
 			case TYPE_CODE_PTR:
@@ -312,7 +312,7 @@ char_device_struct:
 			fops = cdev = 0;
 			if (VALID_MEMBER(char_device_struct_cdev) &&
 					VALID_STRUCT(cdev)) {
-				cdev = ULONG(char_device_struct_buf + 
+				cdev = ULONG(char_device_struct_buf +
 					OFFSET(char_device_struct_cdev));
 				if (cdev) {
 					addr = cdev + OFFSET(cdev_ops);
@@ -321,10 +321,10 @@ char_device_struct:
 						"cdev ops", FAULT_ON_ERROR);
 				}
 			} else {
-				fops = ULONG(char_device_struct_buf + 
+				fops = ULONG(char_device_struct_buf +
 					OFFSET(char_device_struct_fops));
 			}
- 
+
 			if (!fops)
 				fops = search_cdev_map_probes(buf, major, minor, &cdev);
 
@@ -333,11 +333,11 @@ char_device_struct:
 				fprintf(fp, "%-13s ", buf);
 				fprintf(fp, "%s%s\n", VADDR_PRLEN == 8 ? "  " : " ",
 					mkstring(buf, VADDR_PRLEN, CENTER, "(none)"));
-			} else { 
+			} else {
 				fprintf(fp, " %3d      ", major);
 				fprintf(fp, "%-13s ", buf);
 				sprintf(buf2, "%s%%%dlx  ",
-					strlen("OPERATIONS") < VADDR_PRLEN ? 
+					strlen("OPERATIONS") < VADDR_PRLEN ?
 					" " : "  ", VADDR_PRLEN);
 				fprintf(fp, buf2, cdev);
 				value_to_symstr(fops, buf2, 0);
@@ -347,7 +347,7 @@ char_device_struct:
 					fprintf(fp, "%lx", fops);
 				fprintf(fp, "\n");
 			}
-	
+
 			if (CRASHDEBUG(1))
 	                	fprintf(fp,
 	                        "%lx: major: %d minor: %d name: %s next: %lx cdev: %lx fops: %lx\n",
@@ -364,7 +364,7 @@ char_device_struct:
  *  points to a cdev structure containing the file_operations
  *  pointer.
  */
-static ulong 
+static ulong
 search_cdev_map_probes(char *name, int major, int minor, ulong *cdev)
 {
 	char *probe_buf;
@@ -393,14 +393,14 @@ search_cdev_map_probes(char *name, int major, int minor, ulong *cdev)
 
 		probe_dev = UINT(probe_buf + OFFSET(probe_dev));
 
-		if ((MAJOR(probe_dev) == major) && 
+		if ((MAJOR(probe_dev) == major) &&
 		    (MINOR(probe_dev) == minor)) {
 			probe_data = ULONG(probe_buf + OFFSET(probe_data));
 			addr = probe_data + OFFSET(cdev_ops);
 			if (!readmem(addr, KVADDR, &ops, sizeof(void *),
 	    		    "cdev ops", QUIET|RETURN_ON_ERROR))
 				ops = 0;
-			else 
+			else
 				*cdev = probe_data;
 			break;
 		}
@@ -426,7 +426,7 @@ dump_blkdevs(ulong flags)
                 ulong ops;
         } blkdevs[MAX_DEV], *bp;
 
-	if (kernel_symbol_exists("major_names") && 
+	if (kernel_symbol_exists("major_names") &&
 	    kernel_symbol_exists("bdev_map")) {
                 dump_blkdevs_v3(flags);
 		return;
@@ -444,7 +444,7 @@ dump_blkdevs(ulong flags)
         readmem(addr, KVADDR, &blkdevs[0], sizeof(struct blkdevs) * MAX_DEV,
                 "blkdevs array", FAULT_ON_ERROR);
 
-	fprintf(fp, "%s%s\n", blkdev_hdr, 
+	fprintf(fp, "%s%s\n", blkdev_hdr,
 		mkstring(buf, VADDR_PRLEN, CENTER, "OPERATIONS"));
 
 	for (i = 0, bp = &blkdevs[0]; i < MAX_DEV; i++, bp++) {
@@ -458,10 +458,10 @@ dump_blkdevs(ulong flags)
                         else
                                 fprintf(fp, "%-11s ", "(unknown)");
 
-                } else 
+                } else
                         fprintf(fp, "%-11s ", "(unknown)");
 
-		sprintf(buf, "%s%%%dlx  ", 
+		sprintf(buf, "%s%%%dlx  ",
 			strlen("OPERATIONS") < VADDR_PRLEN ? " " : "  ",
 			VADDR_PRLEN);
 		fprintf(fp, buf, bp->ops);
@@ -475,7 +475,7 @@ dump_blkdevs(ulong flags)
 }
 
 /*
- *  block device dump for 2.6 
+ *  block device dump for 2.6
  */
 static void
 dump_blkdevs_v2(ulong flags)
@@ -484,12 +484,12 @@ dump_blkdevs_v2(ulong flags)
 	ulong *major_fops, *bdevlist, *gendisklist, *majorlist;
 	int i, j, bdevcnt, len;
 	char *block_device_buf, *gendisk_buf, *blk_major_name_buf;
-	ulong next, savenext, fops; 
+	ulong next, savenext, fops;
 	int major, total;
 	char buf[BUFSIZE];
 
-	if (!symbol_exists("major_names")) 
-		error(FATAL, 
+	if (!symbol_exists("major_names"))
+		error(FATAL,
 			"major_names[] array doesn't exist in this kernel\n");
 
 	len = get_array_length("major_names", NULL, 0);
@@ -520,35 +520,35 @@ dump_blkdevs_v2(ulong flags)
 	 *      ret += bdev->bd_inode->i_mapping->nrpages;
 	 */
 	for (i = 0; i < bdevcnt; i++) {
-                readmem(bdevlist[i], KVADDR, block_device_buf, 
-			SIZE(block_device), "block_device buffer", 
+                readmem(bdevlist[i], KVADDR, block_device_buf,
+			SIZE(block_device), "block_device buffer",
 			FAULT_ON_ERROR);
-		gendisklist[i] = ULONG(block_device_buf + 
+		gendisklist[i] = ULONG(block_device_buf +
 			OFFSET(block_device_bd_disk));
 		if (CRASHDEBUG(1))
-			fprintf(fp, "[%d] %lx -> %lx\n", 
+			fprintf(fp, "[%d] %lx -> %lx\n",
 				i, bdevlist[i], gendisklist[i]);
 	}
 
 	for (i = 1; i < bdevcnt; i++) {
 		for (j = 0; j < i; j++) {
-			if (gendisklist[i] == gendisklist[j]) 
+			if (gendisklist[i] == gendisklist[j])
 				gendisklist[i] = 0;
 		}
 	}
 
 	for (i = 0; i < bdevcnt; i++) {
-		if (!gendisklist[i]) 
+		if (!gendisklist[i])
 			continue;
-                readmem(gendisklist[i], KVADDR, gendisk_buf, 
-			SIZE(gendisk), "gendisk buffer", 
+                readmem(gendisklist[i], KVADDR, gendisk_buf,
+			SIZE(gendisk), "gendisk buffer",
 			FAULT_ON_ERROR);
 		fops = ULONG(gendisk_buf + OFFSET(gendisk_fops));
 		major = UINT(gendisk_buf + OFFSET(gendisk_major));
 		strncpy(buf, gendisk_buf + OFFSET(gendisk_disk_name), 32);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "%lx: name: [%s] major: %d fops: %lx\n", 
-				gendisklist[i], buf, major, fops);	
+			fprintf(fp, "%lx: name: [%s] major: %d fops: %lx\n",
+				gendisklist[i], buf, major, fops);
 
 		if (fops && (major < total))
 			major_fops[major] = fops;
@@ -563,31 +563,31 @@ dump_blkdevs_v2(ulong flags)
 		fprintf(fp, "major_names[%d]\n", len);
 	majorlist = (ulong *)GETBUF(len * sizeof(void *));
 	blk_major_name_buf = GETBUF(SIZE(blk_major_name));
-	readmem(symbol_value("major_names"), KVADDR, &majorlist[0], 
+	readmem(symbol_value("major_names"), KVADDR, &majorlist[0],
 		sizeof(void *) * len, "major_names array", FAULT_ON_ERROR);
 
-	fprintf(fp, "%s%s\n", blkdev_hdr, 
+	fprintf(fp, "%s%s\n", blkdev_hdr,
 		mkstring(buf, VADDR_PRLEN, CENTER, "OPERATIONS"));
 
 	for (i = 0; i < len; i++) {
 		if (!majorlist[i])
 			continue;
 
-                readmem(majorlist[i], KVADDR, blk_major_name_buf, 
-			SIZE(blk_major_name), "blk_major_name buffer", 
+                readmem(majorlist[i], KVADDR, blk_major_name_buf,
+			SIZE(blk_major_name), "blk_major_name buffer",
 			FAULT_ON_ERROR);
-		
-		major = UINT(blk_major_name_buf + 
+
+		major = UINT(blk_major_name_buf +
 			OFFSET(blk_major_name_major));
 		buf[0] = NULLCHAR;
-		strncpy(buf, blk_major_name_buf + 
+		strncpy(buf, blk_major_name_buf +
 			OFFSET(blk_major_name_name), 16);
 		next = ULONG(blk_major_name_buf +
                         OFFSET(blk_major_name_next));
 		if (CRASHDEBUG(1))
-			fprintf(fp, 
+			fprintf(fp,
 		    	    "[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
-				i, majorlist[i], major, buf, next, 
+				i, majorlist[i], major, buf, next,
 				major_fops[major]);
 
                 fprintf(fp, " %3d      ", major);
@@ -600,13 +600,13 @@ dump_blkdevs_v2(ulong flags)
                 	value_to_symstr(major_fops[major], buf, 0);
                 	if (strlen(buf))
                         	fprintf(fp, "<%s>", buf);
-		} else 
+		} else
 			fprintf(fp, " (unknown)");
                 fprintf(fp, "\n");
 
 		while (next) {
-                	readmem(savenext = next, KVADDR, blk_major_name_buf, 
-				SIZE(blk_major_name), "blk_major_name buffer", 
+                	readmem(savenext = next, KVADDR, blk_major_name_buf,
+				SIZE(blk_major_name), "blk_major_name buffer",
 				FAULT_ON_ERROR);
                 	major = UINT(blk_major_name_buf +
                         	OFFSET(blk_major_name_major));
@@ -615,16 +615,16 @@ dump_blkdevs_v2(ulong flags)
                 	next = ULONG(blk_major_name_buf +
                         	OFFSET(blk_major_name_next));
 			if (CRASHDEBUG(1))
-                		fprintf(fp, 
+                		fprintf(fp,
 			    "[%d] %lx major: %d name: %s next: %lx fops: %lx\n",
-                        		i, savenext, major, buf, next, 
+                        		i, savenext, major, buf, next,
 					major_fops[major]);
 
                 	fprintf(fp, " %3d      ", major);
                 	fprintf(fp, "%-12s ", strlen(buf) ? buf : "(unknown)");
                 	if (major_fops[major]) {
                         	sprintf(buf, "%s%%%dlx  ",
-                                	strlen("OPERATIONS") < VADDR_PRLEN ? 
+                                	strlen("OPERATIONS") < VADDR_PRLEN ?
 						" " : "  ", VADDR_PRLEN);
                         	fprintf(fp, buf, major_fops[major]);
                         	value_to_symstr(major_fops[major], buf, 0);
@@ -635,7 +635,7 @@ dump_blkdevs_v2(ulong flags)
 			fprintf(fp, "\n");
 		}
 	}
-	
+
 	FREEBUF(majorlist);
 	FREEBUF(major_fops);
 	FREEBUF(blk_major_name_buf);
@@ -650,7 +650,7 @@ dump_blkdevs_v3(ulong flags)
 	char buf[BUFSIZE];
 	uint major;
 	ulong gendisk, addr, fops;
-	
+
 	if (!(len = get_array_length("major_names", NULL, 0)))
 		len = MAX_DEV;
 
@@ -672,22 +672,22 @@ dump_blkdevs_v3(ulong flags)
 		readmem(blk_major_name, KVADDR, blk_major_name_buf,
 			SIZE(blk_major_name), "blk_major_name", FAULT_ON_ERROR);
 
-		major = UINT(blk_major_name_buf + 
+		major = UINT(blk_major_name_buf +
 			OFFSET(blk_major_name_major));
 		buf[0] = NULLCHAR;
-		strncpy(buf, blk_major_name_buf +  
+		strncpy(buf, blk_major_name_buf +
 			OFFSET(blk_major_name_name), 16);
 
-		fops = search_bdev_map_probes(buf, major == i ? major : i, 
+		fops = search_bdev_map_probes(buf, major == i ? major : i,
 			UNUSED, &gendisk);
 
 		if (CRASHDEBUG(1))
-			fprintf(fp, "blk_major_name: %lx block major: %d name: %s gendisk: %lx fops: %lx\n", 
+			fprintf(fp, "blk_major_name: %lx block major: %d name: %s gendisk: %lx fops: %lx\n",
 				blk_major_name, major, buf, gendisk, fops);
 
 		if (!fops) {
 			fprintf(fp, " %3d      ", major);
-			fprintf(fp, "%-13s ", 
+			fprintf(fp, "%-13s ",
 				strlen(buf) ? buf : "(unknown)");
 			fprintf(fp, "%s%s\n", VADDR_PRLEN == 8 ? "  " : " ",
 				mkstring(buf, VADDR_PRLEN, CENTER, "(none)"));
@@ -709,7 +709,7 @@ dump_blkdevs_v3(ulong flags)
 	}
 }
 
-static ulong 
+static ulong
 search_bdev_map_probes(char *name, int major, int minor, ulong *gendisk)
 {
 	char *probe_buf, *gendisk_buf;
@@ -729,7 +729,7 @@ search_bdev_map_probes(char *name, int major, int minor, ulong *gendisk)
 
 	fops = 0;
 
-	for (next = probes[major]; next; 
+	for (next = probes[major]; next;
 	     next = ULONG(probe_buf + OFFSET(probe_next))) {
 
 		if (!readmem(next, KVADDR, probe_buf, SIZE(probe),
@@ -832,7 +832,7 @@ ioport_list:
 		fprintf(fp, "%lx  ", resource_list[i]);
 		readmem(resource_list[i], KVADDR, resource_buf,
 			SIZE(resource_entry_t), "resource_entry_t",
-			FAULT_ON_ERROR); 
+			FAULT_ON_ERROR);
 		start = ULONG(resource_buf + OFFSET(resource_entry_t_from));
 		end = ULONG(resource_buf + OFFSET(resource_entry_t_num));
 		end += start;
@@ -866,8 +866,8 @@ ioport_list:
 
 resource_list:
         resource_buf = GETBUF(SIZE(resource));
-	/* 
-	 * ioport 
+	/*
+	 * ioport
 	 */
         readmem(symbol_value("ioport_resource") + OFFSET(resource_end),
                 KVADDR, &end, sizeof(long), "ioport_resource.end",
@@ -877,12 +877,12 @@ resource_list:
 
         fprintf(fp, "%s  %s  NAME\n",
                 mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "RESOURCE"),
-                mkstring(buf2, (size*2) + 1, 
+                mkstring(buf2, (size*2) + 1,
 		CENTER|LJUST, "RANGE"));
 	do_resource_list(symbol_value("ioport_resource"), resource_buf, size);
 
-	/* 
-	 * iomem 
+	/*
+	 * iomem
 	 */
         readmem(symbol_value("iomem_resource") + OFFSET(resource_end),
                 KVADDR, &end, sizeof(long), "iomem_resource.end",
@@ -938,7 +938,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 			fprintf(fp, "  %s\n", buf1);
 		else {
 			len = wrap + strlen(buf1) - 80;
-			for (c = 0, p1 = &buf1[strlen(buf1)-1]; 
+			for (c = 0, p1 = &buf1[strlen(buf1)-1];
 			     p1 > buf1; p1--, c++) {
 				if (*p1 != ' ')
 					continue;
@@ -954,7 +954,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 			}
 		}
 
-		if (child && (child != entry)) 
+		if (child && (child != entry))
 			do_resource_list(child, resource_buf, size);
 
                 entry = sibling;
@@ -963,7 +963,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 
 
 /*
- *  PCI defines taken from 2.2.17 version of pci.h 
+ *  PCI defines taken from 2.2.17 version of pci.h
  */
 
 #define USE_2_2_17_PCI_H
@@ -1008,7 +1008,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 #define  PCI_STATUS_FAST_BACK	0x80	/* Accept fast-back to back */
 #define  PCI_STATUS_PARITY	0x100	/* Detected parity error */
 #define  PCI_STATUS_DEVSEL_MASK	0x600	/* DEVSEL timing */
-#define  PCI_STATUS_DEVSEL_FAST	0x000	
+#define  PCI_STATUS_DEVSEL_FAST	0x000
 #define  PCI_STATUS_DEVSEL_MEDIUM 0x200
 #define  PCI_STATUS_DEVSEL_SLOW 0x400
 #define  PCI_STATUS_SIG_TARGET_ABORT 0x800 /* Set on target abort */
@@ -1037,8 +1037,8 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 
 /*
  * Base addresses specify locations in memory or I/O space.
- * Decoded size can be determined by writing a value of 
- * 0xffffffff to the register, and reading it back.  Only 
+ * Decoded size can be determined by writing a value of
+ * 0xffffffff to the register, and reading it back.  Only
  * 1 bits are decoded.
  */
 #define PCI_BASE_ADDRESS_0	0x10	/* 32 bits */
@@ -1062,7 +1062,7 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 /* Header type 0 (normal devices) */
 #define PCI_CARDBUS_CIS		0x28
 #define PCI_SUBSYSTEM_VENDOR_ID	0x2c
-#define PCI_SUBSYSTEM_ID	0x2e  
+#define PCI_SUBSYSTEM_ID	0x2e
 #define PCI_ROM_ADDRESS		0x30	/* Bits 31..11 are address, 10..1 reserved */
 #define  PCI_ROM_ADDRESS_ENABLE	0x01
 #define PCI_ROM_ADDRESS_MASK	(~0x7ffUL)
@@ -1458,8 +1458,8 @@ do_resource_list(ulong first_entry, char *resource_buf, int size)
 #define PCI_DEVICE_ID_PCTECH_SAMURAI_1	0x3010
 #define PCI_DEVICE_ID_PCTECH_SAMURAI_IDE 0x3020
 
-#define PCI_VENDOR_ID_DPT               0x1044   
-#define PCI_DEVICE_ID_DPT               0xa400  
+#define PCI_VENDOR_ID_DPT               0x1044
+#define PCI_DEVICE_ID_DPT               0xa400
 
 #define PCI_VENDOR_ID_OPTI		0x1045
 #define PCI_DEVICE_ID_OPTI_92C178	0xc178
@@ -2269,14 +2269,14 @@ do_pci(void)
 		/*
 		 * Get the pci bus number
 		 */
-		readmem(devlist[i] + OFFSET(pci_dev_bus), KVADDR, &bus, 
+		readmem(devlist[i] + OFFSET(pci_dev_bus), KVADDR, &bus,
 			sizeof(void *), "pci bus", FAULT_ON_ERROR);
-		readmem(bus + OFFSET(pci_bus_number), KVADDR, &busno, 
+		readmem(bus + OFFSET(pci_bus_number), KVADDR, &busno,
 			sizeof(char), "pci bus number", FAULT_ON_ERROR);
 		readmem(devlist[i] + OFFSET(pci_dev_devfn), KVADDR,
 			&devfn, sizeof(ulong), "pci devfn", FAULT_ON_ERROR);
 
-		fprintf(fp, "%lx %02x:%02lx.%lx  ", devlist[i], 
+		fprintf(fp, "%lx %02x:%02lx.%lx  ", devlist[i],
 			busno, PCI_SLOT(devfn), PCI_FUNC(devfn));
 
 		/*
@@ -2285,14 +2285,14 @@ do_pci(void)
 		readmem(devlist[i] + OFFSET(pci_dev_class), KVADDR,
 			&class, sizeof(int), "pci class", FAULT_ON_ERROR);
 		readmem(devlist[i] + OFFSET(pci_dev_device),
-			KVADDR, &device, sizeof(short), "pci device", 
+			KVADDR, &device, sizeof(short), "pci device",
 			FAULT_ON_ERROR);
 		readmem(devlist[i] + OFFSET(pci_dev_vendor),KVADDR,
 			&vendor, sizeof(short), "pci vendor", FAULT_ON_ERROR);
 
-		fprintf(fp, "%s: %s %s", 
+		fprintf(fp, "%s: %s %s",
 			pci_strclass(class, buf1),
-			pci_strvendor(vendor, buf2), 
+			pci_strvendor(vendor, buf2),
 			pci_strdev(vendor, device, buf3));
 
 		fprintf(fp, "\n");
@@ -2718,7 +2718,7 @@ struct pci_dev_info dev_info[] = {
 	DEVICE( ZEITNET,	ZEITNET_1225,	"1225"),
 	DEVICE( OMEGA,		OMEGA_82C092G,	"82C092G"),
 	DEVICE( LITEON,		LITEON_LNE100TX,"LNE100TX"),
-	DEVICE( NP,		NP_PCI_FDDI,	"NP-PCI"),       
+	DEVICE( NP,		NP_PCI_FDDI,	"NP-PCI"),
 	DEVICE( ATT,		ATT_L56XMF,	"L56xMF"),
 	DEVICE( ATT,		ATT_L56DVP,	"L56DV+P"),
 	DEVICE( SPECIALIX,	SPECIALIX_IO8,	"IO8+/PCI"),
@@ -2921,7 +2921,7 @@ pci_lookup_dev(unsigned int vendor, unsigned int dev)
 	    order = dev_info[i].vendor - (long) vendor;
 	    if (!order)
 		order = dev_info[i].device - (long) dev;
-	
+
 	    if (order < 0)
 	    {
 		    min = i + 1;
@@ -2937,7 +2937,7 @@ pci_lookup_dev(unsigned int vendor, unsigned int dev)
 		       return 0;
 		    continue;
 	    }
-  	   
+
 	    return & dev_info[ i ];
 	}
 }
@@ -2950,193 +2950,193 @@ pci_strclass (unsigned int class, char *buf)
 
 	switch (class >> 8) {
 	case PCI_CLASS_NOT_DEFINED:
-		s = "Non-VGA device"; 
+		s = "Non-VGA device";
 		break;
 	case PCI_CLASS_NOT_DEFINED_VGA:
-		s = "VGA compatible device"; 
+		s = "VGA compatible device";
 		break;
 	case PCI_CLASS_STORAGE_SCSI:
-		s = "SCSI storage controller"; 
+		s = "SCSI storage controller";
 		break;
 	case PCI_CLASS_STORAGE_IDE:
-		s = "IDE interface"; 
+		s = "IDE interface";
 		break;
 	case PCI_CLASS_STORAGE_FLOPPY:
-		s = "Floppy disk controller"; 
+		s = "Floppy disk controller";
 		break;
 	case PCI_CLASS_STORAGE_IPI:
-		s = "IPI storage controller"; 
+		s = "IPI storage controller";
 		break;
 	case PCI_CLASS_STORAGE_RAID:
-		s = "RAID storage controller"; 
+		s = "RAID storage controller";
 		break;
 	case PCI_CLASS_STORAGE_OTHER:
-		s = "Unknown mass storage controller"; 
+		s = "Unknown mass storage controller";
 		break;
 
 	case PCI_CLASS_NETWORK_ETHERNET:
-		s = "Ethernet controller"; 
+		s = "Ethernet controller";
 		break;
 	case PCI_CLASS_NETWORK_TOKEN_RING:
-		s = "Token ring network controller"; 
+		s = "Token ring network controller";
 		break;
 	case PCI_CLASS_NETWORK_FDDI:
-		s = "FDDI network controller"; 
+		s = "FDDI network controller";
 		break;
 	case PCI_CLASS_NETWORK_ATM:
-		s = "ATM network controller"; 
+		s = "ATM network controller";
 		break;
 	case PCI_CLASS_NETWORK_OTHER:
-		s = "Network controller"; 
+		s = "Network controller";
 		break;
 
 	case PCI_CLASS_DISPLAY_VGA:
-		s = "VGA compatible controller"; 
+		s = "VGA compatible controller";
 		break;
 	case PCI_CLASS_DISPLAY_XGA:
-		s = "XGA compatible controller"; 
+		s = "XGA compatible controller";
 		break;
 	case PCI_CLASS_DISPLAY_OTHER:
-		s = "Display controller"; 
+		s = "Display controller";
 		break;
 
 	case PCI_CLASS_MULTIMEDIA_VIDEO:
-		s = "Multimedia video controller"; 
+		s = "Multimedia video controller";
 		break;
 	case PCI_CLASS_MULTIMEDIA_AUDIO:
-		s = "Multimedia audio controller"; 
+		s = "Multimedia audio controller";
 		break;
 	case PCI_CLASS_MULTIMEDIA_OTHER:
-		s = "Multimedia controller"; 
+		s = "Multimedia controller";
 		break;
 
 	case PCI_CLASS_MEMORY_RAM:
-		s = "RAM memory"; 
+		s = "RAM memory";
 		break;
 	case PCI_CLASS_MEMORY_FLASH:
-		s = "FLASH memory"; 
+		s = "FLASH memory";
 		break;
 	case PCI_CLASS_MEMORY_OTHER:
-		s = "Memory"; 
+		s = "Memory";
 		break;
 
 	case PCI_CLASS_BRIDGE_HOST:
-		s = "Host bridge"; 
+		s = "Host bridge";
 		break;
 	case PCI_CLASS_BRIDGE_ISA:
-		s = "ISA bridge"; 
+		s = "ISA bridge";
 		break;
 	case PCI_CLASS_BRIDGE_EISA:
-		s = "EISA bridge"; 
+		s = "EISA bridge";
 		break;
 	case PCI_CLASS_BRIDGE_MC:
-		s = "MicroChannel bridge"; 
+		s = "MicroChannel bridge";
 		break;
 	case PCI_CLASS_BRIDGE_PCI:
-		s = "PCI bridge"; 
+		s = "PCI bridge";
 		break;
 	case PCI_CLASS_BRIDGE_PCMCIA:
-		s = "PCMCIA bridge"; 
+		s = "PCMCIA bridge";
 		break;
 	case PCI_CLASS_BRIDGE_NUBUS:
-		s = "NuBus bridge"; 
+		s = "NuBus bridge";
 		break;
 	case PCI_CLASS_BRIDGE_CARDBUS:
-		s = "CardBus bridge"; 
+		s = "CardBus bridge";
 		break;
 	case PCI_CLASS_BRIDGE_OTHER:
-		s = "Bridge"; 
+		s = "Bridge";
 		break;
 
 	case PCI_CLASS_COMMUNICATION_SERIAL:
-		s = "Serial controller"; 
+		s = "Serial controller";
 		break;
 	case PCI_CLASS_COMMUNICATION_PARALLEL:
-		s = "Parallel controller"; 
+		s = "Parallel controller";
 		break;
 	case PCI_CLASS_COMMUNICATION_OTHER:
-		s = "Communication controller"; 
+		s = "Communication controller";
 		break;
 
 	case PCI_CLASS_SYSTEM_PIC:
-		s = "PIC"; 
+		s = "PIC";
 		break;
 	case PCI_CLASS_SYSTEM_DMA:
-		s = "DMA controller"; 
+		s = "DMA controller";
 		break;
 	case PCI_CLASS_SYSTEM_TIMER:
-		s = "Timer"; 
+		s = "Timer";
 		break;
 	case PCI_CLASS_SYSTEM_RTC:
-		s = "RTC"; 
+		s = "RTC";
 		break;
 	case PCI_CLASS_SYSTEM_OTHER:
-		s = "System peripheral"; 
+		s = "System peripheral";
 		break;
 
 	case PCI_CLASS_INPUT_KEYBOARD:
-		s = "Keyboard controller"; 
+		s = "Keyboard controller";
 		break;
 	case PCI_CLASS_INPUT_PEN:
-		s = "Digitizer Pen"; 
+		s = "Digitizer Pen";
 		break;
 	case PCI_CLASS_INPUT_MOUSE:
-		s = "Mouse controller"; 
+		s = "Mouse controller";
 		break;
 	case PCI_CLASS_INPUT_OTHER:
-		s = "Input device controller"; 
+		s = "Input device controller";
 		break;
 
 	case PCI_CLASS_DOCKING_GENERIC:
-		s = "Generic Docking Station"; 
+		s = "Generic Docking Station";
 		break;
 	case PCI_CLASS_DOCKING_OTHER:
-		s = "Docking Station"; 
+		s = "Docking Station";
 		break;
 
 	case PCI_CLASS_PROCESSOR_386:
-		s = "386"; 
+		s = "386";
 		break;
 	case PCI_CLASS_PROCESSOR_486:
-		s = "486"; 
+		s = "486";
 		break;
 	case PCI_CLASS_PROCESSOR_PENTIUM:
-		s = "Pentium"; 
+		s = "Pentium";
 		break;
 	case PCI_CLASS_PROCESSOR_ALPHA:
-		s = "Alpha"; 
+		s = "Alpha";
 		break;
 	case PCI_CLASS_PROCESSOR_POWERPC:
-		s = "Power PC"; 
+		s = "Power PC";
 		break;
 	case PCI_CLASS_PROCESSOR_CO:
-		s = "Co-processor"; 
+		s = "Co-processor";
 		break;
 
 	case PCI_CLASS_SERIAL_FIREWIRE:
-		s = "FireWire (IEEE 1394)"; 
+		s = "FireWire (IEEE 1394)";
 		break;
 	case PCI_CLASS_SERIAL_ACCESS:
-		s = "ACCESS Bus"; 
+		s = "ACCESS Bus";
 		break;
 	case PCI_CLASS_SERIAL_SSA:
-		s = "SSA"; 
+		s = "SSA";
 		break;
 	case PCI_CLASS_SERIAL_USB:
-		s = "USB Controller"; 
+		s = "USB Controller";
 		break;
 	case PCI_CLASS_SERIAL_FIBER:
-		s = "Fiber Channel"; 
+		s = "Fiber Channel";
 		break;
 	case PCI_CLASS_SERIAL_SMBUS:
-		s = "SM Bus"; 
+		s = "SM Bus";
 		break;
 
 	case PCI_CLASS_HOT_SWAP_CONTROLLER:
-		s = "Hot Swap Controller"; 
+		s = "Hot Swap Controller";
 		break;
 
-	default:					
+	default:
 		sprintf(buf, "[PCI_CLASS %x]", class);
 		s = buf;
 		break;
@@ -3152,423 +3152,423 @@ pci_strvendor(unsigned int vendor, char *buf)
 	char *s;
 
 	switch (vendor) {
-	case PCI_VENDOR_ID_COMPAQ:	
-		s = "Compaq"; 
+	case PCI_VENDOR_ID_COMPAQ:
+		s = "Compaq";
 		break;
-	case PCI_VENDOR_ID_NCR:		
-		s = "NCR"; 
+	case PCI_VENDOR_ID_NCR:
+		s = "NCR";
 		break;
-	case PCI_VENDOR_ID_ATI:		
-		s = "ATI"; 
+	case PCI_VENDOR_ID_ATI:
+		s = "ATI";
 		break;
-	case PCI_VENDOR_ID_VLSI:		
-		s = "VLSI"; 
+	case PCI_VENDOR_ID_VLSI:
+		s = "VLSI";
 		break;
-	case PCI_VENDOR_ID_ADL:		
-		s = "Avance Logic"; 
+	case PCI_VENDOR_ID_ADL:
+		s = "Avance Logic";
 		break;
-	case PCI_VENDOR_ID_NS:		
-		s = "NS"; 
+	case PCI_VENDOR_ID_NS:
+		s = "NS";
 		break;
-	case PCI_VENDOR_ID_TSENG:		
-		s = "Tseng'Lab"; 
+	case PCI_VENDOR_ID_TSENG:
+		s = "Tseng'Lab";
 		break;
-	case PCI_VENDOR_ID_WEITEK:	
-		s = "Weitek"; 
+	case PCI_VENDOR_ID_WEITEK:
+		s = "Weitek";
 		break;
-	case PCI_VENDOR_ID_DEC:		
-		s = "DEC"; 
+	case PCI_VENDOR_ID_DEC:
+		s = "DEC";
 		break;
-	case PCI_VENDOR_ID_CIRRUS:	
-		s = "Cirrus Logic"; 
+	case PCI_VENDOR_ID_CIRRUS:
+		s = "Cirrus Logic";
 		break;
-	case PCI_VENDOR_ID_IBM:		
-		s = "IBM"; 
+	case PCI_VENDOR_ID_IBM:
+		s = "IBM";
 		break;
-	case PCI_VENDOR_ID_WD:		
-		s = "Western Digital"; 
+	case PCI_VENDOR_ID_WD:
+		s = "Western Digital";
 		break;
-	case PCI_VENDOR_ID_AMD:		
-		s = "AMD"; 
+	case PCI_VENDOR_ID_AMD:
+		s = "AMD";
 		break;
-	case PCI_VENDOR_ID_TRIDENT:	
-		s = "Trident"; 
+	case PCI_VENDOR_ID_TRIDENT:
+		s = "Trident";
 		break;
-	case PCI_VENDOR_ID_AI:		
-		s = "Acer Incorporated"; 
+	case PCI_VENDOR_ID_AI:
+		s = "Acer Incorporated";
 		break;
-	case PCI_VENDOR_ID_MATROX:	
-		s = "Matrox"; 
+	case PCI_VENDOR_ID_MATROX:
+		s = "Matrox";
 		break;
-	case PCI_VENDOR_ID_CT:		
-		s = "Chips & Technologies"; 
+	case PCI_VENDOR_ID_CT:
+		s = "Chips & Technologies";
 		break;
-	case PCI_VENDOR_ID_MIRO:		
-		s = "Miro"; 
+	case PCI_VENDOR_ID_MIRO:
+		s = "Miro";
 		break;
-	case PCI_VENDOR_ID_NEC:		
-		s = "NEC"; 
+	case PCI_VENDOR_ID_NEC:
+		s = "NEC";
 		break;
-	case PCI_VENDOR_ID_FD:		
-		s = "Future Domain"; 
+	case PCI_VENDOR_ID_FD:
+		s = "Future Domain";
 		break;
-	case PCI_VENDOR_ID_SI:		
-		s = "Silicon Integrated Systems"; 
+	case PCI_VENDOR_ID_SI:
+		s = "Silicon Integrated Systems";
 		break;
-	case PCI_VENDOR_ID_HP:		
-		s = "Hewlett Packard"; 
+	case PCI_VENDOR_ID_HP:
+		s = "Hewlett Packard";
 		break;
-	case PCI_VENDOR_ID_PCTECH:	
-		s = "PCTECH"; 
+	case PCI_VENDOR_ID_PCTECH:
+		s = "PCTECH";
 		break;
-	case PCI_VENDOR_ID_DPT:		
-		s = "DPT"; 
+	case PCI_VENDOR_ID_DPT:
+		s = "DPT";
 		break;
-	case PCI_VENDOR_ID_OPTI:		
-		s = "OPTi"; 
+	case PCI_VENDOR_ID_OPTI:
+		s = "OPTi";
 		break;
-	case PCI_VENDOR_ID_SGS:		
-		s = "SGS Thomson"; 
+	case PCI_VENDOR_ID_SGS:
+		s = "SGS Thomson";
 		break;
-	case PCI_VENDOR_ID_BUSLOGIC:	
-		s = "BusLogic"; 
+	case PCI_VENDOR_ID_BUSLOGIC:
+		s = "BusLogic";
 		break;
-	case PCI_VENDOR_ID_TI:		
-		s = "Texas Instruments"; 
+	case PCI_VENDOR_ID_TI:
+		s = "Texas Instruments";
 		break;
-	case PCI_VENDOR_ID_OAK: 		
-		s = "OAK"; 
+	case PCI_VENDOR_ID_OAK:
+		s = "OAK";
 		break;
-	case PCI_VENDOR_ID_WINBOND2:	
-		s = "Winbond"; 
+	case PCI_VENDOR_ID_WINBOND2:
+		s = "Winbond";
 		break;
-	case PCI_VENDOR_ID_MOTOROLA:	
-		s = "Motorola"; 
+	case PCI_VENDOR_ID_MOTOROLA:
+		s = "Motorola";
 		break;
-	case PCI_VENDOR_ID_MOTOROLA_OOPS:	
-		s = "Motorola"; 
+	case PCI_VENDOR_ID_MOTOROLA_OOPS:
+		s = "Motorola";
 		break;
-	case PCI_VENDOR_ID_PROMISE:	
-		s = "Promise Technology"; 
+	case PCI_VENDOR_ID_PROMISE:
+		s = "Promise Technology";
 		break;
-	case PCI_VENDOR_ID_N9:		
-		s = "Number Nine"; 
+	case PCI_VENDOR_ID_N9:
+		s = "Number Nine";
 		break;
-	case PCI_VENDOR_ID_UMC:		
-		s = "UMC"; 
+	case PCI_VENDOR_ID_UMC:
+		s = "UMC";
 		break;
-	case PCI_VENDOR_ID_X:		
-		s = "X TECHNOLOGY"; 
+	case PCI_VENDOR_ID_X:
+		s = "X TECHNOLOGY";
 		break;
-	case PCI_VENDOR_ID_MYLEX:		
-		s = "Mylex"; 
+	case PCI_VENDOR_ID_MYLEX:
+		s = "Mylex";
 		break;
-	case PCI_VENDOR_ID_PICOP:		
-		s = "PicoPower"; 
+	case PCI_VENDOR_ID_PICOP:
+		s = "PicoPower";
 		break;
-	case PCI_VENDOR_ID_APPLE:		
-		s = "Apple"; 
+	case PCI_VENDOR_ID_APPLE:
+		s = "Apple";
 		break;
-	case PCI_VENDOR_ID_NEXGEN:	
-		s = "Nexgen"; 
+	case PCI_VENDOR_ID_NEXGEN:
+		s = "Nexgen";
 		break;
-	case PCI_VENDOR_ID_QLOGIC:	
-		s = "Q Logic"; 
+	case PCI_VENDOR_ID_QLOGIC:
+		s = "Q Logic";
 		break;
-	case PCI_VENDOR_ID_CYRIX:		
-		s = "Cyrix"; 
+	case PCI_VENDOR_ID_CYRIX:
+		s = "Cyrix";
 		break;
-	case PCI_VENDOR_ID_LEADTEK:	
-		s = "Leadtek Research"; 
+	case PCI_VENDOR_ID_LEADTEK:
+		s = "Leadtek Research";
 		break;
-	case PCI_VENDOR_ID_CONTAQ:	
-		s = "Contaq"; 
+	case PCI_VENDOR_ID_CONTAQ:
+		s = "Contaq";
 		break;
-	case PCI_VENDOR_ID_FOREX:		
-		s = "Forex"; 
+	case PCI_VENDOR_ID_FOREX:
+		s = "Forex";
 		break;
-	case PCI_VENDOR_ID_OLICOM:	
-		s = "Olicom"; 
+	case PCI_VENDOR_ID_OLICOM:
+		s = "Olicom";
 		break;
-	case PCI_VENDOR_ID_SUN:		
-		s = "Sun Microsystems"; 
+	case PCI_VENDOR_ID_SUN:
+		s = "Sun Microsystems";
 		break;
-	case PCI_VENDOR_ID_CMD:		
-		s = "CMD"; 
+	case PCI_VENDOR_ID_CMD:
+		s = "CMD";
 		break;
-	case PCI_VENDOR_ID_VISION:	
-		s = "Vision"; 
+	case PCI_VENDOR_ID_VISION:
+		s = "Vision";
 		break;
-	case PCI_VENDOR_ID_BROOKTREE:	
-		s = "Brooktree"; 
+	case PCI_VENDOR_ID_BROOKTREE:
+		s = "Brooktree";
 		break;
-	case PCI_VENDOR_ID_SIERRA:	
-		s = "Sierra"; 
+	case PCI_VENDOR_ID_SIERRA:
+		s = "Sierra";
 		break;
-	case PCI_VENDOR_ID_ACC:		
-		s = "ACC MICROELECTRONICS"; 
+	case PCI_VENDOR_ID_ACC:
+		s = "ACC MICROELECTRONICS";
 		break;
-	case PCI_VENDOR_ID_WINBOND:	
-		s = "Winbond"; 
+	case PCI_VENDOR_ID_WINBOND:
+		s = "Winbond";
 		break;
-	case PCI_VENDOR_ID_DATABOOK:	
-		s = "Databook"; 
+	case PCI_VENDOR_ID_DATABOOK:
+		s = "Databook";
 		break;
-	case PCI_VENDOR_ID_PLX:		
-		s = "PLX"; 
+	case PCI_VENDOR_ID_PLX:
+		s = "PLX";
 		break;
-	case PCI_VENDOR_ID_MADGE:		
-		s = "Madge Networks"; 
+	case PCI_VENDOR_ID_MADGE:
+		s = "Madge Networks";
 		break;
-	case PCI_VENDOR_ID_3COM:		
-		s = "3Com"; 
+	case PCI_VENDOR_ID_3COM:
+		s = "3Com";
 		break;
-	case PCI_VENDOR_ID_SMC:		
-		s = "SMC"; 
+	case PCI_VENDOR_ID_SMC:
+		s = "SMC";
 		break;
-	case PCI_VENDOR_ID_AL:		
-		s = "Acer Labs"; 
+	case PCI_VENDOR_ID_AL:
+		s = "Acer Labs";
 		break;
-	case PCI_VENDOR_ID_MITSUBISHI:	
-		s = "Mitsubishi"; 
+	case PCI_VENDOR_ID_MITSUBISHI:
+		s = "Mitsubishi";
 		break;
-	case PCI_VENDOR_ID_SURECOM:	
-		s = "Surecom"; 
+	case PCI_VENDOR_ID_SURECOM:
+		s = "Surecom";
 		break;
-	case PCI_VENDOR_ID_NEOMAGIC:	
-		s = "Neomagic"; 
+	case PCI_VENDOR_ID_NEOMAGIC:
+		s = "Neomagic";
 		break;
-	case PCI_VENDOR_ID_ASP:		
-		s = "Advanced System Products"; 
+	case PCI_VENDOR_ID_ASP:
+		s = "Advanced System Products";
 		break;
-	case PCI_VENDOR_ID_MACRONIX:	
-		s = "Macronix"; 
+	case PCI_VENDOR_ID_MACRONIX:
+		s = "Macronix";
 		break;
-	case PCI_VENDOR_ID_CERN:		
-		s = "CERN"; 
+	case PCI_VENDOR_ID_CERN:
+		s = "CERN";
 		break;
-	case PCI_VENDOR_ID_NVIDIA:	
-		s = "NVidia"; 
+	case PCI_VENDOR_ID_NVIDIA:
+		s = "NVidia";
 		break;
-	case PCI_VENDOR_ID_IMS:		
-		s = "IMS"; 
+	case PCI_VENDOR_ID_IMS:
+		s = "IMS";
 		break;
-	case PCI_VENDOR_ID_TEKRAM2:	
-		s = "Tekram"; 
+	case PCI_VENDOR_ID_TEKRAM2:
+		s = "Tekram";
 		break;
-	case PCI_VENDOR_ID_TUNDRA:	
-		s = "Tundra"; 
+	case PCI_VENDOR_ID_TUNDRA:
+		s = "Tundra";
 		break;
-	case PCI_VENDOR_ID_AMCC:		
-		s = "AMCC"; 
+	case PCI_VENDOR_ID_AMCC:
+		s = "AMCC";
 		break;
-	case PCI_VENDOR_ID_INTERG:	
-		s = "Intergraphics"; 
+	case PCI_VENDOR_ID_INTERG:
+		s = "Intergraphics";
 		break;
-	case PCI_VENDOR_ID_REALTEK:	
-		s = "Realtek"; 
+	case PCI_VENDOR_ID_REALTEK:
+		s = "Realtek";
 		break;
-	case PCI_VENDOR_ID_TRUEVISION:	
-		s = "Truevision"; 
+	case PCI_VENDOR_ID_TRUEVISION:
+		s = "Truevision";
 		break;
-	case PCI_VENDOR_ID_INIT:		
-		s = "Initio Corp"; 
+	case PCI_VENDOR_ID_INIT:
+		s = "Initio Corp";
 		break;
-	case PCI_VENDOR_ID_TTI:		
-		s = "Triones Technologies, Inc."; 
+	case PCI_VENDOR_ID_TTI:
+		s = "Triones Technologies, Inc.";
 		break;
-	case PCI_VENDOR_ID_VIA:		
-		s = "VIA Technologies"; 
+	case PCI_VENDOR_ID_VIA:
+		s = "VIA Technologies";
 		break;
-	case PCI_VENDOR_ID_SMC2:		
-		s = "SMC"; 
+	case PCI_VENDOR_ID_SMC2:
+		s = "SMC";
 		break;
-	case PCI_VENDOR_ID_VORTEX:	
-		s = "VORTEX"; 
+	case PCI_VENDOR_ID_VORTEX:
+		s = "VORTEX";
 		break;
-	case PCI_VENDOR_ID_EF:		
-		s = "Efficient Networks"; 
+	case PCI_VENDOR_ID_EF:
+		s = "Efficient Networks";
 		break;
-	case PCI_VENDOR_ID_FORE:		
-		s = "Fore Systems"; 
+	case PCI_VENDOR_ID_FORE:
+		s = "Fore Systems";
 		break;
-	case PCI_VENDOR_ID_IMAGINGTECH:	
-		s = "Imaging Technology"; 
+	case PCI_VENDOR_ID_IMAGINGTECH:
+		s = "Imaging Technology";
 		break;
-	case PCI_VENDOR_ID_PHILIPS:	
-		s = "Philips"; 
+	case PCI_VENDOR_ID_PHILIPS:
+		s = "Philips";
 		break;
-	case PCI_VENDOR_ID_CYCLONE:	
-		s = "Cyclone"; 
+	case PCI_VENDOR_ID_CYCLONE:
+		s = "Cyclone";
 		break;
-	case PCI_VENDOR_ID_ALLIANCE:	
-		s = "Alliance"; 
+	case PCI_VENDOR_ID_ALLIANCE:
+		s = "Alliance";
 		break;
-	case PCI_VENDOR_ID_VMIC:		
-		s = "VMIC"; 
+	case PCI_VENDOR_ID_VMIC:
+		s = "VMIC";
 		break;
-	case PCI_VENDOR_ID_DIGI:		
-		s = "Digi Intl."; 
+	case PCI_VENDOR_ID_DIGI:
+		s = "Digi Intl.";
 		break;
-	case PCI_VENDOR_ID_MUTECH:	
-		s = "Mutech"; 
+	case PCI_VENDOR_ID_MUTECH:
+		s = "Mutech";
 		break;
-	case PCI_VENDOR_ID_RENDITION:	
-		s = "Rendition"; 
+	case PCI_VENDOR_ID_RENDITION:
+		s = "Rendition";
 		break;
-	case PCI_VENDOR_ID_TOSHIBA:	
-		s = "Toshiba"; 
+	case PCI_VENDOR_ID_TOSHIBA:
+		s = "Toshiba";
 		break;
-	case PCI_VENDOR_ID_RICOH:		
-		s = "Ricoh"; 
+	case PCI_VENDOR_ID_RICOH:
+		s = "Ricoh";
 		break;
-	case PCI_VENDOR_ID_ARTOP:		
-		s = "Artop Electronics"; 
+	case PCI_VENDOR_ID_ARTOP:
+		s = "Artop Electronics";
 		break;
-	case PCI_VENDOR_ID_ZEITNET:	
-		s = "ZeitNet"; 
+	case PCI_VENDOR_ID_ZEITNET:
+		s = "ZeitNet";
 		break;
-	case PCI_VENDOR_ID_OMEGA:		
-		s = "Omega Micro"; 
+	case PCI_VENDOR_ID_OMEGA:
+		s = "Omega Micro";
 		break;
-	case PCI_VENDOR_ID_LITEON:	
-		s = "LiteOn"; 
+	case PCI_VENDOR_ID_LITEON:
+		s = "LiteOn";
 		break;
-	case PCI_VENDOR_ID_NP:		
-		s = "Network Peripherals"; 
+	case PCI_VENDOR_ID_NP:
+		s = "Network Peripherals";
 		break;
-	case PCI_VENDOR_ID_ATT:		
-		s = "Lucent (ex-AT&T) Microelectronics"; 
+	case PCI_VENDOR_ID_ATT:
+		s = "Lucent (ex-AT&T) Microelectronics";
 		break;
-	case PCI_VENDOR_ID_SPECIALIX:	
-		s = "Specialix"; 
+	case PCI_VENDOR_ID_SPECIALIX:
+		s = "Specialix";
 		break;
-	case PCI_VENDOR_ID_AURAVISION:	
-		s = "Auravision"; 
+	case PCI_VENDOR_ID_AURAVISION:
+		s = "Auravision";
 		break;
-	case PCI_VENDOR_ID_IKON:		
-		s = "Ikon"; 
+	case PCI_VENDOR_ID_IKON:
+		s = "Ikon";
 		break;
-	case PCI_VENDOR_ID_ZORAN:		
-		s = "Zoran"; 
+	case PCI_VENDOR_ID_ZORAN:
+		s = "Zoran";
 		break;
-	case PCI_VENDOR_ID_KINETIC:	
-		s = "Kinetic"; 
+	case PCI_VENDOR_ID_KINETIC:
+		s = "Kinetic";
 		break;
-	case PCI_VENDOR_ID_COMPEX:	
-		s = "Compex"; 
+	case PCI_VENDOR_ID_COMPEX:
+		s = "Compex";
 		break;
-	case PCI_VENDOR_ID_RP:		
-		s = "Comtrol"; 
+	case PCI_VENDOR_ID_RP:
+		s = "Comtrol";
 		break;
-	case PCI_VENDOR_ID_CYCLADES:	
-		s = "Cyclades"; 
+	case PCI_VENDOR_ID_CYCLADES:
+		s = "Cyclades";
 		break;
-	case PCI_VENDOR_ID_ESSENTIAL:	
-		s = "Essential Communications"; 
+	case PCI_VENDOR_ID_ESSENTIAL:
+		s = "Essential Communications";
 		break;
-	case PCI_VENDOR_ID_O2:		
-		s = "O2 Micro"; 
+	case PCI_VENDOR_ID_O2:
+		s = "O2 Micro";
 		break;
-	case PCI_VENDOR_ID_3DFX:		
-		s = "3Dfx"; 
+	case PCI_VENDOR_ID_3DFX:
+		s = "3Dfx";
 		break;
-	case PCI_VENDOR_ID_SIGMADES:	
-		s = "Sigma Designs"; 
+	case PCI_VENDOR_ID_SIGMADES:
+		s = "Sigma Designs";
 		break;
-	case PCI_VENDOR_ID_AVM:		
-		s = "AVM"; 
+	case PCI_VENDOR_ID_AVM:
+		s = "AVM";
 		break;
-	case PCI_VENDOR_ID_CCUBE:		
-		s = "C-Cube"; 
+	case PCI_VENDOR_ID_CCUBE:
+		s = "C-Cube";
 		break;
-	case PCI_VENDOR_ID_DIPIX:		
-		s = "Dipix"; 
+	case PCI_VENDOR_ID_DIPIX:
+		s = "Dipix";
 		break;
-	case PCI_VENDOR_ID_STALLION:	
-		s = "Stallion Technologies"; 
+	case PCI_VENDOR_ID_STALLION:
+		s = "Stallion Technologies";
 		break;
-	case PCI_VENDOR_ID_OPTIBASE:	
-		s = "Optibase"; 
+	case PCI_VENDOR_ID_OPTIBASE:
+		s = "Optibase";
 		break;
-	case PCI_VENDOR_ID_SATSAGEM:	
-		s = "SatSagem"; 
+	case PCI_VENDOR_ID_SATSAGEM:
+		s = "SatSagem";
 		break;
-	case PCI_VENDOR_ID_HUGHES:	
-		s = "Hughes"; 
+	case PCI_VENDOR_ID_HUGHES:
+		s = "Hughes";
 		break;
-	case PCI_VENDOR_ID_ENSONIQ:	
-		s = "Ensoniq"; 
+	case PCI_VENDOR_ID_ENSONIQ:
+		s = "Ensoniq";
 		break;
-	case PCI_VENDOR_ID_ALTEON:	
-		s = "Alteon"; 
+	case PCI_VENDOR_ID_ALTEON:
+		s = "Alteon";
 		break;
-	case PCI_VENDOR_ID_PICTUREL:	
-		s = "Picture Elements"; 
+	case PCI_VENDOR_ID_PICTUREL:
+		s = "Picture Elements";
 		break;
-	case PCI_VENDOR_ID_NVIDIA_SGS:	
-		s = "NVidia/SGS Thomson"; 
+	case PCI_VENDOR_ID_NVIDIA_SGS:
+		s = "NVidia/SGS Thomson";
 		break;
-	case PCI_VENDOR_ID_CBOARDS:	
-		s = "ComputerBoards"; 
+	case PCI_VENDOR_ID_CBOARDS:
+		s = "ComputerBoards";
 		break;
-	case PCI_VENDOR_ID_TIMEDIA:	
-		s = "Timedia Technology"; 
+	case PCI_VENDOR_ID_TIMEDIA:
+		s = "Timedia Technology";
 		break;
-	case PCI_VENDOR_ID_SYMPHONY:	
-		s = "Symphony"; 
+	case PCI_VENDOR_ID_SYMPHONY:
+		s = "Symphony";
 		break;
-	case PCI_VENDOR_ID_COMPUTONE:	
-		s = "Computone Corporation"; 
+	case PCI_VENDOR_ID_COMPUTONE:
+		s = "Computone Corporation";
 		break;
-	case PCI_VENDOR_ID_TEKRAM:	
-		s = "Tekram"; 
+	case PCI_VENDOR_ID_TEKRAM:
+		s = "Tekram";
 		break;
-	case PCI_VENDOR_ID_3DLABS:	
-		s = "3Dlabs"; 
+	case PCI_VENDOR_ID_3DLABS:
+		s = "3Dlabs";
 		break;
-	case PCI_VENDOR_ID_AVANCE:	
-		s = "Avance"; 
+	case PCI_VENDOR_ID_AVANCE:
+		s = "Avance";
 		break;
-	case PCI_VENDOR_ID_NETVIN:	
-		s = "NetVin"; 
+	case PCI_VENDOR_ID_NETVIN:
+		s = "NetVin";
 		break;
-	case PCI_VENDOR_ID_S3:		
-		s = "S3 Inc."; 
+	case PCI_VENDOR_ID_S3:
+		s = "S3 Inc.";
 		break;
-	case PCI_VENDOR_ID_DCI:		
-		s = "Decision Computer Int."; 
+	case PCI_VENDOR_ID_DCI:
+		s = "Decision Computer Int.";
 		break;
-	case PCI_VENDOR_ID_GENROCO:	
-		s = "Genroco"; 
+	case PCI_VENDOR_ID_GENROCO:
+		s = "Genroco";
 		break;
-	case PCI_VENDOR_ID_INTEL:		
-		s = "Intel"; 
+	case PCI_VENDOR_ID_INTEL:
+		s = "Intel";
 		break;
-	case PCI_VENDOR_ID_KTI:		
-		s = "KTI"; 
+	case PCI_VENDOR_ID_KTI:
+		s = "KTI";
 		break;
-	case PCI_VENDOR_ID_ADAPTEC:	
-		s = "Adaptec"; 
+	case PCI_VENDOR_ID_ADAPTEC:
+		s = "Adaptec";
 		break;
-	case PCI_VENDOR_ID_ADAPTEC2:	
-		s = "Adaptec"; 
+	case PCI_VENDOR_ID_ADAPTEC2:
+		s = "Adaptec";
 		break;
-	case PCI_VENDOR_ID_ATRONICS:	
-		s = "Atronics"; 
+	case PCI_VENDOR_ID_ATRONICS:
+		s = "Atronics";
 		break;
-	case PCI_VENDOR_ID_TIGERJET:	
-		s = "TigerJet"; 
+	case PCI_VENDOR_ID_TIGERJET:
+		s = "TigerJet";
 		break;
-	case PCI_VENDOR_ID_ARK:		
-		s = "ARK Logic"; 
+	case PCI_VENDOR_ID_ARK:
+		s = "ARK Logic";
 		break;
-	case PCI_VENDOR_ID_SYSKONNECT:	
-		s = "SysKonnect"; 
+	case PCI_VENDOR_ID_SYSKONNECT:
+		s = "SysKonnect";
 		break;
 
-        default:				
-		sprintf(buf, "[PCI_VENDOR %x]", vendor); 
+        default:
+		sprintf(buf, "[PCI_VENDOR %x]", vendor);
 		s = buf;
 		break;
 	}
@@ -3600,7 +3600,7 @@ static char *skipped_disk_name[] = {
 	NULL
 };
 
-static int 
+static int
 is_skipped_disk(char *name)
 {
 	char **p = skipped_disk_name;
@@ -3662,28 +3662,28 @@ struct iter {
 };
 
 /* kernel version <= 2.6.24 */
-static unsigned long 
+static unsigned long
 get_gendisk_1(unsigned long entry)
 {
 	return entry - OFFSET(kobject_entry) - OFFSET(gendisk_kobj);
 }
 
 /* 2.6.24 < kernel version <= 2.6.27 */
-static unsigned long 
+static unsigned long
 get_gendisk_2(unsigned long entry)
 {
 	return entry - OFFSET(device_node) - OFFSET(gendisk_dev);
 }
 
 /* kernel version > 2.6.27 && struct gendisk contains dev/__dev */
-static unsigned long 
+static unsigned long
 get_gendisk_3(unsigned long entry)
 {
 	return entry - OFFSET(device_knode_class) - OFFSET(gendisk_dev);
 }
 
 /* kernel version > 2.6.27 && struct gendisk does not contain dev/__dev */
-static unsigned long 
+static unsigned long
 get_gendisk_4(unsigned long entry)
 {
 	return entry - OFFSET(device_knode_class) - OFFSET(hd_struct_dev) -
@@ -3691,7 +3691,7 @@ get_gendisk_4(unsigned long entry)
 }
 
 /* 2.6.24 < kernel version <= 2.6.27 */
-static int 
+static int
 match_list(struct iter *i, unsigned long entry)
 {
 	unsigned long device_address;
@@ -3707,7 +3707,7 @@ match_list(struct iter *i, unsigned long entry)
 }
 
 /* kernel version > 2.6.27 */
-static int 
+static int
 match_klist(struct iter *i, unsigned long entry)
 {
 	unsigned long device_address;
@@ -3723,7 +3723,7 @@ match_klist(struct iter *i, unsigned long entry)
 }
 
 /* old kernel(version <= 2.6.27): list */
-static unsigned long 
+static unsigned long
 next_disk_list(struct iter *i)
 {
 	unsigned long list_head_address, next_address;
@@ -3753,7 +3753,7 @@ again:
 }
 
 /* new kernel(version > 2.6.27): klist */
-static unsigned long 
+static unsigned long
 next_disk_klist(struct iter* i)
 {
 	unsigned long klist_node_address, list_head_address, next_address;
@@ -3799,7 +3799,7 @@ again:
 }
 
 /* read request_queue.rq.count[2] */
-static void 
+static void
 get_diskio_1(unsigned long rq, struct diskio *io)
 {
 	int count[2];
@@ -3813,7 +3813,7 @@ get_diskio_1(unsigned long rq, struct diskio *io)
 }
 
 /* request_queue.in_flight contains total requests */
-static unsigned int 
+static unsigned int
 get_in_flight_1(unsigned long rq)
 {
 	unsigned int in_flight;
@@ -3824,7 +3824,7 @@ get_in_flight_1(unsigned long rq)
 }
 
 /* request_queue.in_flight[2] contains read/write requests */
-static unsigned int 
+static unsigned int
 get_in_flight_2(unsigned long rq)
 {
 	unsigned int in_flight[2];
@@ -3834,7 +3834,7 @@ get_in_flight_2(unsigned long rq)
 	return in_flight[0] + in_flight[1];
 }
 
-static void 
+static void
 init_iter(struct iter *i)
 {
 	ARRAY_LENGTH_INIT(i->diskname_len, gendisk.disk_name,
@@ -3933,7 +3933,7 @@ init_iter(struct iter *i)
 	}
 }
 
-static void 
+static void
 display_one_diskio(struct iter *i, unsigned long gendisk)
 {
 	char disk_name[BUFSIZE + 1];
@@ -3982,7 +3982,7 @@ display_one_diskio(struct iter *i, unsigned long gendisk)
 		in_flight);
 }
 
-static void 
+static void
 display_all_diskio(void)
 {
 	struct iter i;
@@ -4020,7 +4020,7 @@ display_all_diskio(void)
 		display_one_diskio(&i, gendisk);
 }
 
-static 
+static
 void diskio_init(void)
 {
 	if (dt->flags & DISKIO_INIT)
@@ -4066,7 +4066,7 @@ void diskio_init(void)
 	dt->flags |= DISKIO_INIT;
 }
 
-static void 
+static void
 diskio_option(void)
 {
 	diskio_init();

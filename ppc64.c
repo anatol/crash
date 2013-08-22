@@ -30,7 +30,7 @@ static int ppc64_eframe_search(struct bt_info *);
 static void ppc64_back_trace_cmd(struct bt_info *);
 static void ppc64_back_trace(struct gnu_request *, struct bt_info *);
 static void get_ppc64_frame(struct bt_info *, ulong *, ulong *);
-static void ppc64_print_stack_entry(int,struct gnu_request *, 
+static void ppc64_print_stack_entry(int,struct gnu_request *,
 	ulong, ulong, struct bt_info *);
 static void ppc64_dump_irq(int);
 static ulong ppc64_get_sp(ulong);
@@ -46,7 +46,7 @@ static ulong ppc64_get_stacktop(ulong);
 void ppc64_compiler_warning_stub(void);
 static ulong ppc64_in_irqstack(ulong);
 static char * ppc64_check_eframe(struct ppc64_pt_regs *);
-static void ppc64_print_eframe(char *, struct ppc64_pt_regs *, 
+static void ppc64_print_eframe(char *, struct ppc64_pt_regs *,
 		struct bt_info *);
 static void parse_cmdline_args(void);
 static int ppc64_paca_init(int);
@@ -74,8 +74,8 @@ static int ppc64_is_vmaddr(ulong addr)
 }
 
 
-struct machine_specific ppc64_machine_specific = { 
-	.hwintrstack = { 0 }, 
+struct machine_specific ppc64_machine_specific = {
+	.hwintrstack = { 0 },
 	.hwstackbuf = 0,
 	.hwstacksize = 0,
 	.pte_shift = PTE_SHIFT,
@@ -96,7 +96,7 @@ struct machine_specific book3e_machine_specific = {
 	.hwintrstack = { 0 },
 	.hwstackbuf = 0,
 	.hwstacksize = 0,
-	.pte_shift = PTE_SHIFT_L4_BOOK3E_64K, 
+	.pte_shift = PTE_SHIFT_L4_BOOK3E_64K,
 	._page_present = 0x1UL,
 	._page_user = 0xCUL,
 	._page_rw = 0x30UL,
@@ -178,8 +178,8 @@ ppc64_init(int when)
 		if ((machdep->machspec->level4 = (char *)malloc(PAGESIZE())) == NULL)
 			error(FATAL, "cannot malloc level4 space.");
 
-		machdep->identity_map_base = symbol_value("_stext"); 
-                machdep->is_kvaddr = machdep->machspec->is_kvaddr; 
+		machdep->identity_map_base = symbol_value("_stext");
+                machdep->is_kvaddr = machdep->machspec->is_kvaddr;
                 machdep->is_uvaddr = generic_is_uvaddr;
 	        machdep->eframe_search = ppc64_eframe_search;
 	        machdep->back_trace = ppc64_back_trace_cmd;
@@ -202,7 +202,7 @@ ppc64_init(int when)
 		machdep->init_kernel_pgd = NULL;
 		if (symbol_exists("vmemmap_populate")) {
 			machdep->flags |= VMEMMAP;
-			machdep->machspec->vmemmap_base = 
+			machdep->machspec->vmemmap_base =
 				VMEMMAP_REGION_ID << REGION_SHIFT;
 		}
 		machdep->get_irq_affinity = generic_get_irq_affinity;
@@ -233,7 +233,7 @@ ppc64_init(int when)
 				m->l4_index_size = PGD_INDEX_SIZE_L4_64K;
 				if (!(machdep->flags & BOOK3E))
 					m->pte_shift = symbol_exists("demote_segment_4k") ?
-						PTE_SHIFT_L4_64K_V2 : PTE_SHIFT_L4_64K_V1; 
+						PTE_SHIFT_L4_64K_V2 : PTE_SHIFT_L4_64K_V1;
 				m->l2_masked_bits = PMD_MASKED_BITS_64K;
 			} else {
 				/* 4K pagesize */
@@ -241,8 +241,8 @@ ppc64_init(int when)
 				m->l2_index_size = PMD_INDEX_SIZE_L4_4K;
 				m->l3_index_size = PUD_INDEX_SIZE_L4_4K;
 				m->l4_index_size = PGD_INDEX_SIZE_L4_4K;
-				m->pte_shift = (machdep->flags & BOOK3E) ? 
-					PTE_SHIFT_L4_BOOK3E_4K : PTE_SHIFT_L4_4K; 
+				m->pte_shift = (machdep->flags & BOOK3E) ?
+					PTE_SHIFT_L4_BOOK3E_4K : PTE_SHIFT_L4_4K;
 				m->l2_masked_bits = PMD_MASKED_BITS_4K;
 			}
 
@@ -311,15 +311,15 @@ ppc64_init(int when)
 		else
 			machdep->nr_irqs = 0;
 
-		if (symbol_exists("paca") && 
+		if (symbol_exists("paca") &&
 			MEMBER_EXISTS("paca_struct", "xHrdIntStack")) {
 			ulong paca_sym, offset;
 			uint cpu, paca_size = STRUCT_SIZE("paca_struct");
-			
+
 			/*
 			 * Get the HW Interrupt stack base and top values.
 			 * Note that, this stack will be used to store frames
-			 * when the CPU received IPI (only for 2.4 kernel). 
+			 * when the CPU received IPI (only for 2.4 kernel).
 			 * Hence it is needed to retrieve IPI symbols
 			 * (Ex: smp_message_recv, xics_ipi_action, and etc)
 			 * and to get the top SP in the process's stack.
@@ -328,7 +328,7 @@ ppc64_init(int when)
 			paca_sym  = symbol_value("paca");
 			for (cpu = 0; cpu < kt->cpus; cpu++)  {
 				readmem(paca_sym + (paca_size * cpu) + offset,
-					KVADDR, 
+					KVADDR,
 					&machdep->machspec->hwintrstack[cpu],
 					sizeof(ulong), "PPC64 HW_intr_stack",
 					FAULT_ON_ERROR);
@@ -339,8 +339,8 @@ ppc64_init(int when)
 				error(FATAL, "cannot malloc hwirqstack space.");
 		} else
 			/*
-			 * 'xHrdIntStack' member in "paca_struct" is not 
-			 * available for 2.6 kernel. 
+			 * 'xHrdIntStack' member in "paca_struct" is not
+			 * available for 2.6 kernel.
 			 */
 			BZERO(&machdep->machspec->hwintrstack,
 				NR_CPUS*sizeof(ulong));
@@ -352,7 +352,7 @@ ppc64_init(int when)
 		/*
 		 * IRQ stacks are introduced in 2.6 and also configurable.
 		 */
-		if ((THIS_KERNEL_VERSION >= LINUX(2,6,0)) && 
+		if ((THIS_KERNEL_VERSION >= LINUX(2,6,0)) &&
 			symbol_exists("hardirq_ctx"))
 			ASSIGN_SIZE(irq_ctx) = STACKSIZE();
 
@@ -371,32 +371,32 @@ ppc64_init(int when)
 #define KSYMS_START 1
 #endif
 
-static ulong 
+static ulong
 ppc64_task_to_stackbase(ulong task)
 {
 	if (tt->flags & THREAD_INFO)
 		return task_to_thread_info(task);
-	else 
+	else
 		return task;
 }
-static ulong 
+static ulong
 ppc64_get_stackbase(ulong task)
 {
 	return ppc64_task_to_stackbase(task);
 }
 
-static ulong 
+static ulong
 ppc64_get_stacktop(ulong task)
 {
 	return ppc64_task_to_stackbase(task) + STACKSIZE();
 }
 
-	
+
 void
 ppc64_dump_machdep_table(ulong arg)
 {
-        int i, c, others; 
- 
+        int i, c, others;
+
         others = 0;
         fprintf(fp, "              flags: %lx (", machdep->flags);
 	if (machdep->flags & KSYMS_START)
@@ -422,7 +422,7 @@ ppc64_dump_machdep_table(ulong arg)
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
         fprintf(fp, "                 hz: %d\n", machdep->hz);
         fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-        fprintf(fp, "            memsize: %ld (0x%lx)\n", 
+        fprintf(fp, "            memsize: %ld (0x%lx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
@@ -444,9 +444,9 @@ ppc64_dump_machdep_table(ulong arg)
 	fprintf(fp, "         dis_filter: ppc64_dis_filter()\n");
 	fprintf(fp, "           cmd_mach: ppc64_cmd_mach()\n");
 	fprintf(fp, "       get_smp_cpus: ppc64_get_smp_cpus()\n");
-        fprintf(fp, "          is_kvaddr: %s\n", 
-		machdep->is_kvaddr == book3e_is_kvaddr ? 
-		"book3e_is_kvaddr()" : "generic_is_kvaddr()"); 
+        fprintf(fp, "          is_kvaddr: %s\n",
+		machdep->is_kvaddr == book3e_is_kvaddr ?
+		"book3e_is_kvaddr()" : "generic_is_kvaddr()");
         fprintf(fp, "          is_uvaddr: generic_is_uvaddr()\n");
         fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
         fprintf(fp, "  get_kvaddr_ranges: ppc64_get_kvaddr_ranges()\n");
@@ -472,11 +472,11 @@ ppc64_dump_machdep_table(ulong arg)
                         machdep->cmdline_args[i] : "(unused)");
         }
 	fprintf(fp, "           machspec: %lx\n", (ulong)machdep->machspec);
-	fprintf(fp, "            is_kvaddr: %s\n", 
-		machdep->machspec->is_kvaddr == book3e_is_kvaddr ? 
+	fprintf(fp, "            is_kvaddr: %s\n",
+		machdep->machspec->is_kvaddr == book3e_is_kvaddr ?
 		"book3e_is_kvaddr()" : "generic_is_kvaddr()");
-	fprintf(fp, "            is_vmaddr: %s\n", 
-		machdep->machspec->is_vmaddr == book3e_is_vmaddr ? 
+	fprintf(fp, "            is_vmaddr: %s\n",
+		machdep->machspec->is_vmaddr == book3e_is_vmaddr ?
 		"book3e_is_vmaddr()" : "ppc64_is_vmaddr()");
 	fprintf(fp, "    hwintrstack[%d]: ", NR_CPUS);
        	for (c = 0; c < NR_CPUS; c++) {
@@ -485,13 +485,13 @@ ppc64_dump_machdep_table(ulong arg)
 				others++;
 		}
 		if (!others) {
-			fprintf(fp, "%s%s", 
+			fprintf(fp, "%s%s",
 			        c && ((c % 4) == 0) ? "\n  " : "",
 				c ? "(remainder unused)" : "(unused)");
 			break;
 		}
 
-		fprintf(fp, "%s%016lx ", 
+		fprintf(fp, "%s%016lx ",
 			((c % 4) == 0) ? "\n  " : "",
 			machdep->machspec->hwintrstack[c]);
 	}
@@ -513,19 +513,19 @@ ppc64_dump_machdep_table(ulong arg)
 	fprintf(fp, "             l1_shift: %d\n", machdep->machspec->l1_shift);
 	fprintf(fp, "            pte_shift: %d\n", machdep->machspec->pte_shift);
 	fprintf(fp, "       l2_masked_bits: %x\n", machdep->machspec->l2_masked_bits);
-	fprintf(fp, "         vmemmap_base: "); 
+	fprintf(fp, "         vmemmap_base: ");
 	if (machdep->machspec->vmemmap_base)
 		fprintf(fp, "%lx\n", machdep->machspec->vmemmap_base);
 	else
 		fprintf(fp, "(unused)\n");
 	if (machdep->machspec->vmemmap_cnt) {
-		fprintf(fp, "          vmemmap_cnt: %d\n", 
+		fprintf(fp, "          vmemmap_cnt: %d\n",
 			machdep->machspec->vmemmap_cnt);
-		fprintf(fp, "        vmemmap_psize: %d\n", 
+		fprintf(fp, "        vmemmap_psize: %d\n",
 			machdep->machspec->vmemmap_psize);
 		for (i = 0; i < machdep->machspec->vmemmap_cnt; i++) {
-			fprintf(fp, 
-			    "      vmemmap_list[%d]: virt: %lx  phys: %lx\n", i, 
+			fprintf(fp,
+			    "      vmemmap_list[%d]: virt: %lx  phys: %lx\n", i,
 				machdep->machspec->vmemmap_list[i].virt,
 				machdep->machspec->vmemmap_list[i].phys);
 		}
@@ -552,7 +552,7 @@ ppc64_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 	if (verbose)
 		fprintf(fp, "PAGE DIRECTORY: %lx\n", (ulong)pgd);
 
-	if (THIS_KERNEL_VERSION < LINUX(2,6,0)) 
+	if (THIS_KERNEL_VERSION < LINUX(2,6,0))
 		page_dir = (ulong *)((uint *)pgd + PGD_OFFSET_24(vaddr));
 	else
 		page_dir = (ulong *)((uint *)pgd + PGD_OFFSET(vaddr));
@@ -578,7 +578,7 @@ ppc64_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 	if (!(pmd_pte))
 		return FALSE;
 
-	if (THIS_KERNEL_VERSION < LINUX(2,6,0)) 
+	if (THIS_KERNEL_VERSION < LINUX(2,6,0))
 		pmd_pte <<= PAGESHIFT();
 	else
 		pmd_pte = ((pmd_pte << PAGESHIFT()) >> PMD_TO_PTEPAGE_SHIFT);
@@ -688,7 +688,7 @@ ppc64_vtop_level4(ulong vaddr, ulong *level4, physaddr_t *paddr, int verbose)
 	if (!pte)
 		return FALSE;
 
-	*paddr = PAGEBASE(PTOB(pte >> machdep->machspec->pte_shift)) 
+	*paddr = PAGEBASE(PTOB(pte >> machdep->machspec->pte_shift))
 			+ PAGEOFFSET(vaddr);
 
 	if (verbose) {
@@ -698,7 +698,7 @@ ppc64_vtop_level4(ulong vaddr, ulong *level4, physaddr_t *paddr, int verbose)
 
 	return TRUE;
 }
-	
+
 /*
  *  Translates a user virtual address to its physical address.  cmd_vtop()
  *  sets the verbose flag so that the pte translation gets displayed; all
@@ -710,7 +710,7 @@ ppc64_vtop_level4(ulong vaddr, ulong *level4, physaddr_t *paddr, int verbose)
  */
 
 static int
-ppc64_uvtop(struct task_context *tc, ulong vaddr, 
+ppc64_uvtop(struct task_context *tc, ulong vaddr,
 		physaddr_t *paddr, int verbose)
 {
 	ulong mm, active_mm;
@@ -727,7 +727,7 @@ ppc64_uvtop(struct task_context *tc, ulong vaddr,
 		else {
 			if (INVALID_MEMBER(task_struct_active_mm))
 				error(FATAL, "no pg_tables or active_mm?\n");
-	
+
 			readmem(tc->task + OFFSET(task_struct_active_mm),
 				KVADDR, &active_mm, sizeof(void *),
 				"task active_mm contents", FAULT_ON_ERROR);
@@ -762,13 +762,13 @@ ppc64_uvtop(struct task_context *tc, ulong vaddr,
  *  other callers quietly accept the translation.
  */
 static int
-ppc64_kvtop(struct task_context *tc, ulong kvaddr, 
+ppc64_kvtop(struct task_context *tc, ulong kvaddr,
 	physaddr_t *paddr, int verbose)
 {
         if (!IS_KVADDR(kvaddr))
                 return FALSE;
 
-	if ((machdep->flags & VMEMMAP) && 
+	if ((machdep->flags & VMEMMAP) &&
 	    (kvaddr >= machdep->machspec->vmemmap_base))
 		return ppc64_vmemmap_to_phys(kvaddr, paddr, verbose);
 
@@ -778,7 +778,7 @@ ppc64_kvtop(struct task_context *tc, ulong kvaddr,
 	}
 	if (!IS_VMALLOC_ADDR(kvaddr)) {
 		*paddr = VTOP(kvaddr);
-		if (!verbose) 
+		if (!verbose)
 			return TRUE;
 	}
 
@@ -802,7 +802,7 @@ void ppc64_vmemmap_init(void)
 	ulong *vmemmap_list;
 	char *vmemmap_buf;
 	struct machine_specific *ms;
-	
+
 	if (!(kernel_symbol_exists("vmemmap_list")) ||
 	    !(kernel_symbol_exists("mmu_psize_defs")) ||
 	    !(kernel_symbol_exists("mmu_vmemmap_psize")) ||
@@ -822,7 +822,7 @@ void ppc64_vmemmap_init(void)
 	list_offset = MEMBER_OFFSET("vmemmap_backing", "list");
 
 	if (!readmem(symbol_value("mmu_vmemmap_psize"),
-	    KVADDR, &psize, sizeof(int), "mmu_vmemmap_psize", 
+	    KVADDR, &psize, sizeof(int), "mmu_vmemmap_psize",
 	    RETURN_ON_ERROR))
 		return;
 	if (!readmem(symbol_value("mmu_psize_defs") +
@@ -855,7 +855,7 @@ void ppc64_vmemmap_init(void)
 
         vmemmap_buf = GETBUF(backing_size);
 	for (i = 0; i < cnt; i++) {
-		if (!readmem(vmemmap_list[i], KVADDR, vmemmap_buf, 
+		if (!readmem(vmemmap_list[i], KVADDR, vmemmap_buf,
 		   backing_size, "vmemmap_backing", RETURN_ON_ERROR)) {
 			free(ms->vmemmap_list);
 			goto out;
@@ -880,7 +880,7 @@ out:
 
 /*
  *  If the vmemmap address translation information is stored in the kernel,
- *  make the translation. 
+ *  make the translation.
  */
 static int
 ppc64_vmemmap_to_phys(ulong kvaddr, physaddr_t *paddr, int verbose)
@@ -895,15 +895,15 @@ ppc64_vmemmap_to_phys(ulong kvaddr, physaddr_t *paddr, int verbose)
 		 */
 		if (vt->flags & VM_INIT)
 			error(FATAL, "cannot translate vmemmap address: %lx\n",
-				 kvaddr); 
+				 kvaddr);
 		/*
 		 *  During vm_init() initialization, print a warning message.
 		 */
-		error(WARNING, 
+		error(WARNING,
 		    "cannot translate vmemmap kernel virtual addresses:\n"
 		    "         commands requiring page structure contents"
 		    " will fail\n\n");
-	
+
 		return FALSE;
 	}
 
@@ -931,7 +931,7 @@ ppc64_vmalloc_start(void)
 }
 
 /*
- * 
+ *
  */
 static int
 ppc64_is_task_addr(ulong task)
@@ -952,7 +952,7 @@ ppc64_is_task_addr(ulong task)
 
 
 /*
- * 
+ *
  */
 static ulong
 ppc64_processor_speed(void)
@@ -991,7 +991,7 @@ ppc64_processor_speed(void)
                                 KVADDR, &node, sizeof(ulong), "node allnext",
                                 FAULT_ON_ERROR);
                 }
-		
+
                 /* now, if we found a CPU node, get the speed property */
                 if(node) {
                         readmem(node+OFFSET(device_node_properties),
@@ -1052,7 +1052,7 @@ ppc64_processor_speed(void)
 				return (machdep->mhz = 0);
                         }
                 }
-	} 
+	}
 
 	/* for machines w/o OF */
         /* untested, but in theory this should work on prep machines */
@@ -1233,23 +1233,23 @@ ppc64_translate_pte(ulong pte, void *physaddr, ulonglong pte_shift)
 }
 
 /*
- * The user specified SP could be in HW interrupt stack for tasks running on 
+ * The user specified SP could be in HW interrupt stack for tasks running on
  * other CPUs. Hence, get the SP which is in process's stack.
  */
 static ulong
 ppc64_check_sp_in_HWintrstack(ulong sp, struct bt_info *bt)
 {
 	/*
-	 * Since the separate HW Interrupt stack is involved to store 
-	 * IPI frames, printing all stack symbols or searching for exception 
-	 * frames for running tasks on other CPUS is tricky. The simple 
+	 * Since the separate HW Interrupt stack is involved to store
+	 * IPI frames, printing all stack symbols or searching for exception
+	 * frames for running tasks on other CPUS is tricky. The simple
 	 * solution is - ignore HW intr stack and search in the process stack.
-	 * Anyway the user will be interested only frames that are 
+	 * Anyway the user will be interested only frames that are
 	 * involved before receiving CALL_FUNCTION_IPI.
-	 * So, if the SP is not within the stack, read the top value 
-	 * from the HW Interrupt stack which is the SP points to top 
+	 * So, if the SP is not within the stack, read the top value
+	 * from the HW Interrupt stack which is the SP points to top
 	 * frame in the process's stack.
-	 * 
+	 *
 	 * Note: HW Interrupt stack is used only in 2.4 kernel.
 	 */
 	if (is_task_active(bt->task) && (tt->panic_task != bt->task) &&
@@ -1258,7 +1258,7 @@ ppc64_check_sp_in_HWintrstack(ulong sp, struct bt_info *bt)
 		readmem(machdep->machspec->hwintrstack[bt->tc->processor],
 			KVADDR, &newsp, sizeof(ulong),
 			"stack pointer", FAULT_ON_ERROR);
-		if (INSTACK(newsp, bt))  
+		if (INSTACK(newsp, bt))
 			sp = newsp;
 	}
 
@@ -1268,7 +1268,7 @@ ppc64_check_sp_in_HWintrstack(ulong sp, struct bt_info *bt)
 /*
  *  Look for likely exception frames in a stack.
  */
-static int 
+static int
 ppc64_eframe_search(struct bt_info *bt_in)
 {
 	ulong addr;
@@ -1277,7 +1277,7 @@ ppc64_eframe_search(struct bt_info *bt_in)
 	ulong irqstack;
         char *mode;
 	ulong eframe_addr;
-	int c, cnt; 
+	int c, cnt;
 	struct ppc64_pt_regs *regs;
 
 	bt = bt_in;
@@ -1315,7 +1315,7 @@ ppc64_eframe_search(struct bt_info *bt_in)
 
 		return 0;
 	}
-	
+
 	if (bt->hp && bt->hp->esp) {
 		BCOPY(bt_in, &bt_local, sizeof(struct bt_info));
 		bt = &bt_local;
@@ -1345,56 +1345,56 @@ ppc64_eframe_search(struct bt_info *bt_in)
 		addr = bt->stackbase +
 			roundup(SIZE(task_struct), sizeof(ulong));
 
-	if (!INSTACK(addr, bt)) 
+	if (!INSTACK(addr, bt))
 		return(0);
 
 	stack = (ulong *)bt->stackbuf;
 	first = stack + ((addr - bt->stackbase) / sizeof(ulong));
 	last = stack + (((bt->stacktop - bt->stackbase) - SIZE(pt_regs)) /
 		sizeof(ulong));
-	
+
 	for ( ; first <= last; first++) {
 		char *efrm_str = NULL;
 		eframe_addr = bt->stackbase + sizeof(ulong) * (first - stack);
 		if (THIS_KERNEL_VERSION < LINUX(2,6,0)) {
 			regs = (struct ppc64_pt_regs *)first;
-			if (!IS_KVADDR(regs->gpr[1]) || !IS_KVADDR(regs->nip) 
-				|| !is_kernel_text(regs->nip)) 
+			if (!IS_KVADDR(regs->gpr[1]) || !IS_KVADDR(regs->nip)
+				|| !is_kernel_text(regs->nip))
 				if (!IS_UVADDR(regs->gpr[1], bt->tc) ||
-					!IS_UVADDR(regs->nip, bt->tc)) 
+					!IS_UVADDR(regs->nip, bt->tc))
 					continue;
 		} else {
 			/*
-			 * In 2.6 or later, 0x7265677368657265 is saved in the 
-			 * stack (sp + 96) for the exception frame. Also, 
-			 * pt_regs will be saved at sp + 112. 
+			 * In 2.6 or later, 0x7265677368657265 is saved in the
+			 * stack (sp + 96) for the exception frame. Also,
+			 * pt_regs will be saved at sp + 112.
 			 * Hence, once we know the location of exception marker
-			 * in the stack, pt_regs is saved at 
-			 * <marker location> - 96 + 112. ==> first + 16. 
+			 * in the stack, pt_regs is saved at
+			 * <marker location> - 96 + 112. ==> first + 16.
 			 */
 			if (*first == EXCP_FRAME_MARKER) {
 				ulong *sp;
-				/* 
-				 * SP points to <marker location> - 96/8; 
+				/*
+				 * SP points to <marker location> - 96/8;
 				 */
 				sp = (ulong *)(first - 12);
-				if (!IS_KVADDR(*sp)) 
+				if (!IS_KVADDR(*sp))
 					if (!IS_UVADDR(*sp, bt->tc))
 						continue;
 
 				first = (ulong *)((char *)first + 16);
 				regs = (struct ppc64_pt_regs *)first;
-			} 
-			else 
+			}
+			else
 				continue;
 		}
-		
+
 		if ((efrm_str = ppc64_check_eframe(regs)) != NULL) {
-			if ((((regs)->msr) >> MSR_PR_LG) & 0x1) 
+			if ((((regs)->msr) >> MSR_PR_LG) & 0x1)
 				mode = "USER-MODE";
 			else
 				mode = "KERNEL-MODE";
-			fprintf(fp, "%s  %s EXCEPTION FRAME AT %lx:\n",	
+			fprintf(fp, "%s  %s EXCEPTION FRAME AT %lx:\n",
 				bt->flags & BT_EFRAME_SEARCH ? "\n" : "",
 				mode, eframe_addr);
 			ppc64_print_eframe(efrm_str, regs, bt);
@@ -1403,11 +1403,11 @@ ppc64_eframe_search(struct bt_info *bt_in)
 	return 0;
 }
 
-static ulong 
+static ulong
 ppc64_in_irqstack(ulong addr)
 {
 	int c;
-	
+
 	if (!(tt->flags & IRQSTACKS))
 		return 0;
 
@@ -1416,7 +1416,7 @@ ppc64_in_irqstack(ulong addr)
 			if ((addr >= tt->hardirq_ctx[c]) &&
 			    (addr < (tt->hardirq_ctx[c] + SIZE(irq_ctx))))
 				return(tt->hardirq_ctx[c]);
-	
+
                 }
                 if (tt->softirq_ctx[c]) {
                        if ((addr >= tt->softirq_ctx[c]) &&
@@ -1466,7 +1466,7 @@ ppc64_back_trace_cmd(struct bt_info *bt)
 			req->sp = ppc64_check_sp_in_HWintrstack(req->sp, bt);
 		print_stack_text_syms(bt, req->sp, req->pc);
 	} else {
-				
+
         	if (bt->flags & BT_USE_GDB) {
                 	strcpy(req->buf, "backtrace");
                 	gdb_interface(req);
@@ -1503,7 +1503,7 @@ ppc64_back_trace_cmd(struct bt_info *bt)
  *   no functions have been called from the current function.
  */
  /* HACK: put an initial lr in this var for find_trace().  It will be
-  * cleared during the trace.  
+  * cleared during the trace.
   */
 static void
 ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
@@ -1524,7 +1524,7 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 		} else if (ms->hwintrstack[bt->tc->processor]) {
 			bt->stacktop = ms->hwintrstack[bt->tc->processor] +
 				sizeof(ulong);
-			bt->stackbase = ms->hwintrstack[bt->tc->processor] - 
+			bt->stackbase = ms->hwintrstack[bt->tc->processor] -
 				ms->hwstacksize + STACK_FRAME_OVERHEAD;
 			bt->stackbuf = ms->hwstackbuf;
 			alter_stackbuf(bt);
@@ -1535,8 +1535,8 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 			return;
 		}
 	}
-	
-		
+
+
 	while (INSTACK(req->sp, bt)) {
 		newsp = *(ulong *)&bt->stackbuf[req->sp - bt->stackbase];
 		if ((req->name = closest_symbol(req->pc)) == NULL) {
@@ -1550,15 +1550,15 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 		bt->flags |= BT_SAVE_LASTSP;
 		ppc64_print_stack_entry(frame, req, newsp, lr, bt);
 		bt->flags &= ~(ulonglong)BT_SAVE_LASTSP;
-		lr = 0;	
+		lr = 0;
 		if (IS_KVADDR(newsp)) {
 			/*
 			 * In 2.4, HW interrupt stack will be used to save
-			 * smp_call_functions symbols. i.e, when the dumping 
-			 * CPU is issued IPI call to freeze other CPUS, 
+			 * smp_call_functions symbols. i.e, when the dumping
+			 * CPU is issued IPI call to freeze other CPUS,
 			 */
 			if (INSTACK(newsp, bt) && (newsp + 16 > bt->stacktop))
-				newsp = 
+				newsp =
 				*(ulong *)&bt->stackbuf[newsp - bt->stackbase];
 			if (!INSTACK(newsp, bt)) {
                         	/*
@@ -1567,7 +1567,7 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
                         	bt->stackbase = GET_STACKBASE(bt->task);
                         	bt->stacktop = GET_STACKTOP(bt->task);
                         	alter_stackbuf(bt);
-                	}  
+                	}
 			if (IS_KVADDR(newsp) && INSTACK(newsp, bt))
 				newpc = *(ulong *)&bt->stackbuf[newsp + 16 -
 						bt->stackbase];
@@ -1575,7 +1575,7 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 
 		if (BT_REFERENCE_FOUND(bt))
 			return;
-		
+
 		eframe_found =  FALSE;
 		/*
 		 * Is this frame an execption one?
@@ -1586,13 +1586,13 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 			if (frame && (newsp - req->sp - STACK_FRAME_OVERHEAD) >=
 				sizeof(struct ppc64_pt_regs))
 				eframe_found = TRUE;
-			else if (STREQ(req->name, ".ret_from_except")) 
+			else if (STREQ(req->name, ".ret_from_except"))
 				eframe_found = TRUE;
-		} else if ((newsp - req->sp - STACK_FRAME_OVERHEAD) >= 
+		} else if ((newsp - req->sp - STACK_FRAME_OVERHEAD) >=
 				sizeof(struct ppc64_pt_regs)) {
-			 readmem(req->sp+0x60, KVADDR, &marker, 
+			 readmem(req->sp+0x60, KVADDR, &marker,
 				sizeof(ulong), "stack frame", FAULT_ON_ERROR);
-		        if (marker == EXCP_FRAME_MARKER) 
+		        if (marker == EXCP_FRAME_MARKER)
 				eframe_found = TRUE;
 		}
 		if (eframe_found) {
@@ -1608,7 +1608,7 @@ ppc64_back_trace(struct gnu_request *req, struct bt_info *bt)
 				lr = regs.link;
 				newpc = regs.nip;
 				newsp = regs.gpr[1];
-			} 
+			}
 		}
 
 		/*
@@ -1634,7 +1634,7 @@ ppc64_display_full_frame(struct bt_info *bt, ulong nextsp, FILE *ofp)
         ulong words, addr;
 	char buf[BUFSIZE];
 
-	if (!INSTACK(nextsp, bt)) 
+	if (!INSTACK(nextsp, bt))
 		nextsp =  bt->stacktop;
 
         words = (nextsp - bt->frameptr) / sizeof(ulong);
@@ -1655,11 +1655,11 @@ ppc64_display_full_frame(struct bt_info *bt, ulong nextsp, FILE *ofp)
 /*
  *  print one entry of a stack trace
  */
-static void 
-ppc64_print_stack_entry(int frame, 
-		      struct gnu_request *req, 
+static void
+ppc64_print_stack_entry(int frame,
+		      struct gnu_request *req,
 		      ulong newsp,
-		      ulong lr, 	
+		      ulong lr,
 		      struct bt_info *bt)
 {
 	struct load_module *lm;
@@ -1686,27 +1686,27 @@ ppc64_print_stack_entry(int frame,
 		name_plus_offset = NULL;
 		if (bt->flags & BT_SYMBOL_OFFSET) {
 			sp = value_search(req->pc, &offset);
-			if (sp && offset) 
+			if (sp && offset)
 				name_plus_offset = value_to_symstr(req->pc, buf, bt->radix);
 		}
-		
+
 		fprintf(fp, "%s#%d [%lx] %s at %lx",
 			frame < 10 ? " " : "", frame,
-			req->sp, name_plus_offset ? name_plus_offset : req->name, 
+			req->sp, name_plus_offset ? name_plus_offset : req->name,
 			req->pc);
 		if (module_symbol(req->pc, NULL, &lm, NULL, 0))
 			fprintf(fp, " [%s]", lm->mod_name);
-	
+
 		if (req->ra) {
 			/*
-			 * Previous frame is an exception one. If the func 
-			 * symbol for the current frame is same as with 
+			 * Previous frame is an exception one. If the func
+			 * symbol for the current frame is same as with
 			 * the previous frame's LR value, print "(unreliable)".
 			 */
 			lrname = closest_symbol(req->ra);
 			req->ra = 0;
 			if (!lrname) {
-				if (CRASHDEBUG(1)) 
+				if (CRASHDEBUG(1))
 					error(FATAL,
 					"ppc64_back_trace hit unknown symbol (%lx).\n",
 						req->ra);
@@ -1731,17 +1731,17 @@ ppc64_print_stack_entry(int frame,
 			}
 			req->ra = lr;
 		}
-		if (!req->name || STREQ(req->name,lrname)) 
+		if (!req->name || STREQ(req->name,lrname))
 			fprintf(fp, "  (unreliable)");
-		
-		fprintf(fp, "\n"); 
+
+		fprintf(fp, "\n");
 	}
 
 	if (bt->flags & BT_SAVE_LASTSP)
 		req->lastsp = req->sp;
 
 	bt->frameptr = req->sp;
-	if (bt->flags & BT_FULL) 
+	if (bt->flags & BT_FULL)
 		if (IS_KVADDR(newsp))
 			ppc64_display_full_frame(bt, newsp, fp);
 	if (bt->flags & BT_LINE_NUMBERS)
@@ -1790,7 +1790,7 @@ ppc64_check_eframe(struct ppc64_pt_regs *regs)
 	case 0xf00:
 		return("Performance Monitor");
 	}
-	
+
 	/* No exception frame exists */
 	return NULL;
 }
@@ -1809,8 +1809,8 @@ ppc64_print_regs(struct ppc64_pt_regs *regs)
                         ((i < 10) ? " " : ""), regs->gpr[i]);
 		/*
 		 * In 2.6, some stack frame contains only partial regs set.
-		 * For the partial set, only 14 regs will be saved and trap 
-		 * field will contain 1 in the least significant bit. 
+		 * For the partial set, only 14 regs will be saved and trap
+		 * field will contain 1 in the least significant bit.
 		 */
 		if ((i == 13) && (regs->trap & 1))
 			break;
@@ -1876,23 +1876,23 @@ ppc64_kdump_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 		if (IN_TASK_VMA(bt_in->task, *ksp))
 			fprintf(fp, "%0lx: Task is running in user space\n",
 				bt_in->task);
-		else 
+		else
 			fprintf(fp, "%0lx: Invalid Stack Pointer %0lx\n",
 				bt_in->task, *ksp);
 		*nip = pt_regs->nip;
 	}
 
-	if (bt_in->flags && 
-	((BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT))) 
+	if (bt_in->flags &&
+	((BT_TEXT_SYMBOLS|BT_TEXT_SYMBOLS_PRINT|BT_TEXT_SYMBOLS_NOPRINT)))
 		return TRUE;
 
 	/*
 	 * Print the collected regs for the active task
 	 */
 	ppc64_print_regs(pt_regs);
-	if (!IS_KVADDR(*ksp)) 
+	if (!IS_KVADDR(*ksp))
 		return FALSE;
-	
+
 	fprintf(fp, " NIP [%016lx] %s\n", pt_regs->nip,
 		closest_symbol(pt_regs->nip));
 	if (unip != pt_regs->link)
@@ -1922,9 +1922,9 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 	int check_intrstack = TRUE;
 	struct ppc64_pt_regs *pt_regs;
 
-	/* 
+	/*
 	 * For the kdump vmcore, Use SP and IP values that are saved in ptregs.
-	 */ 
+	 */
 	if (pc->flags & KDUMP)
 		return ppc64_kdump_stack_frame(bt_in, nip, ksp);
 
@@ -1932,7 +1932,7 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
         BCOPY(bt_in, bt, sizeof(struct bt_info));
         ms = machdep->machspec;
         ur_nip = ur_ksp = 0;
-	
+
 	panic_task = tt->panic_task == bt->task ? TRUE : FALSE;
 
 	check_hardirq = check_softirq = tt->flags & IRQSTACKS ? TRUE : FALSE;
@@ -1952,13 +1952,13 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 			/*
 			 * The dump_header struct is specified in the module.
 			 */
-			ulong offset = roundup(STRUCT_SIZE("timespec") + 
+			ulong offset = roundup(STRUCT_SIZE("timespec") +
 				STRUCT_SIZE("new_utsname") + 52, 8);
 			offset += sizeof(ulong) * bt->tc->processor;
 			readmem(symbol_value("dump_header") + offset, KVADDR,
 				&task_addr, sizeof(ulong), "Task Address",
 				FAULT_ON_ERROR);
-			if (task_addr) 
+			if (task_addr)
 				cpu_frozen = TRUE;
 		}
 		if (!cpu_frozen && symbol_exists("cpus_frozen")) { /* Netdump */
@@ -1974,11 +1974,11 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 			 * know the top symbol name. Hence, move the SP to next
 			 * frame.
 			 */
-			if (cpu_frozen) 
+			if (cpu_frozen)
 				readmem(ur_ksp, KVADDR, &ur_ksp, sizeof(ulong),
 					"Stack Pointer", FAULT_ON_ERROR);
 			else
-				fprintf(fp, 
+				fprintf(fp,
 				"%0lx: GPR1 register value (SP) was not saved\n",
 					bt->task);
 			if (IS_KVADDR(ur_ksp))
@@ -1991,7 +1991,7 @@ ppc64_get_dumpfile_stack_frame(struct bt_info *bt_in, ulong *nip, ulong *ksp)
 			*ksp = ur_ksp;
 			*nip = ur_nip;
 		} else {
-			*ksp = ur_ksp; 
+			*ksp = ur_ksp;
 			fprintf(fp, "Could not find SP for task %0lx\n",
 				bt->task);
 		}
@@ -2012,22 +2012,22 @@ retry:
 	     i < (bt->stacktop - bt->stackbase)/sizeof(ulong); i++, up++) {
                 sym = closest_symbol(*up);
 
-                if (STREQ(sym, ".netconsole_netdump") || 
+                if (STREQ(sym, ".netconsole_netdump") ||
 			STREQ(sym, ".netpoll_start_netdump") ||
 		 	STREQ(sym, ".start_disk_dump") ||
 		 	STREQ(sym, ".crash_kexec") ||
 			STREQ(sym, ".crash_fadump") ||
 			STREQ(sym, ".disk_dump")) {
                         *nip = *up;
-                        *ksp = bt->stackbase + 
+                        *ksp = bt->stackbase +
 				((char *)(up) - 16 - bt->stackbuf);
                         return TRUE;
                 }
 	}
 
-	if (panic) 
+	if (panic)
 		return TRUE;
-	
+
 	bt->flags &= ~(BT_HARDIRQ|BT_SOFTIRQ);
 
 	if (check_hardirq &&
@@ -2048,18 +2048,18 @@ retry:
 		bt->flags |= BT_SOFTIRQ;
 		check_softirq = FALSE;
 		goto retry;
-	} 
+	}
 
 	if (check_intrstack && ms->hwintrstack[bt->tc->processor]) {
 		bt->stacktop = ms->hwintrstack[bt->tc->processor] +
 			sizeof(ulong);
 		bt->stackbase = ms->hwintrstack[bt->tc->processor] -
-			ms->hwstacksize + STACK_FRAME_OVERHEAD; 
+			ms->hwstacksize + STACK_FRAME_OVERHEAD;
 		bt->stackbuf = ms->hwstackbuf;
 		alter_stackbuf(bt);
 		check_intrstack = FALSE;
 		goto retry;
-	} 
+	}
 	/*
 	 *  We didn't find what we were looking for, so just use what was
 	 *  passed in the ELF header.
@@ -2083,10 +2083,10 @@ static void
 ppc64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 {
 	ulong ksp, nip;
-	
+
 	nip = ksp = 0;
 
-	if (DUMPFILE() && is_task_active(bt->task)) 
+	if (DUMPFILE() && is_task_active(bt->task))
 		ppc64_get_dumpfile_stack_frame(bt, &nip, &ksp);
 	else
 		get_ppc64_frame(bt, &nip, &ksp);
@@ -2137,10 +2137,10 @@ get_ppc64_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 	sp = ppc64_get_sp(task);
 	if (!INSTACK(sp, bt))
 		goto out;
-	readmem(sp+STACK_FRAME_OVERHEAD, KVADDR, &regs, 
+	readmem(sp+STACK_FRAME_OVERHEAD, KVADDR, &regs,
 		sizeof(struct ppc64_pt_regs),
 		"PPC64 pt_regs", FAULT_ON_ERROR);
-	ip = regs.nip; 
+	ip = regs.nip;
 	if (STREQ(closest_symbol(ip), ".__switch_to")) {
 		/* NOTE: _switch_to() calls _switch() which
 		 * is asm.  _switch leaves pc == lr.
@@ -2157,7 +2157,7 @@ get_ppc64_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 		if (!INSTACK(sp+16, bt))
 			goto out;
 		ip = stack[(sp + 16 - bt->stackbase)/sizeof(ulong)];
-	} 
+	}
 out:
 	*getsp = sp;
 	*getpc = ip;
@@ -2166,7 +2166,7 @@ out:
 /*
  *  Do the work for cmd_irq().
  */
-static void 
+static void
 ppc64_dump_irq(int irq)
 {
         ulong irq_desc_addr, addr;
@@ -2340,7 +2340,7 @@ ppc64_dump_irq(int irq)
 /*
  *  Filter disassembly output if the output radix is not gdb's default 10
  */
-static int 
+static int
 ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
         char buf1[BUFSIZE];
@@ -2350,11 +2350,11 @@ ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
         char *argv[MAXARGS];
         ulong value;
 
-	if (!inbuf) 
+	if (!inbuf)
 		return TRUE;
 /*
  *  For some reason gdb can go off into the weeds translating text addresses,
- *  (on alpha -- not necessarily seen on ppc64) so this routine both fixes the 
+ *  (on alpha -- not necessarily seen on ppc64) so this routine both fixes the
  *  references as well as imposing the current output radix on the translations.
  */
 	console("IN: %s", inbuf);
@@ -2371,10 +2371,10 @@ ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	strcpy(buf1, inbuf);
 	argc = parse_line(buf1, argv);
 
-	if ((FIRSTCHAR(argv[argc-1]) == '<') && 
+	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
 	    (LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
-		while ((p1 > inbuf) && !STRNEQ(p1, " 0x")) 
+		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
 
 		if (!STRNEQ(p1, " 0x"))
@@ -2384,7 +2384,7 @@ ppc64_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 		if (!extract_hex(p1, &value, NULLCHAR, TRUE))
 			return FALSE;
 
-		sprintf(buf1, "0x%lx <%s>\n", value,	
+		sprintf(buf1, "0x%lx <%s>\n", value,
 			value_to_symstr(value, buf2, output_radix));
 
 		sprintf(p1, buf1);
@@ -2418,7 +2418,7 @@ ppc64_cmd_mach(void)
                 {
 		case 'c':
 		case 'm':
-			fprintf(fp, "PPC64: '-%c' option is not supported\n", 
+			fprintf(fp, "PPC64: '-%c' option is not supported\n",
 				c);
 			break;
                 default:
@@ -2464,7 +2464,7 @@ ppc64_display_machine_stats(void)
 	if (tt->flags & IRQSTACKS) {
 		fprintf(fp, "HARD IRQ STACK SIZE: %ld\n", STACKSIZE());
 		fprintf(fp, "    HARD IRQ STACKS:\n");
-	
+
 		for (c = 0; c < kt->cpus; c++) {
 			if (!tt->hardirq_ctx[c])
 				break;
@@ -2625,7 +2625,7 @@ ppc64_compiler_warning_stub(void)
 /*
  *  Force the VM address-range selection via:
  *
- *   --machdep vm=orig 
+ *   --machdep vm=orig
  *   --machdep vm=2.6.14
  */
 
@@ -2642,22 +2642,22 @@ parse_cmdline_args(void)
 
 		if (!machdep->cmdline_args[index])
 			break;
-	
+
 		if (!strstr(machdep->cmdline_args[index], "=")) {
 			error(WARNING, "ignoring --machdep option: %s\n\n",
 				machdep->cmdline_args[index]);
 			continue;
 	        }
-	
+
 		strcpy(buf, machdep->cmdline_args[index]);
-	
+
 		for (p = buf; *p; p++) {
 			if (*p == ',')
 				 *p = ' ';
 		}
-	
+
 		c = parse_line(buf, arglist);
-	
+
 		for (i = 0; i < c; i++) {
 			if (STRNEQ(arglist[i], "vm=")) {
 				p = arglist[i] + strlen("vm=");
@@ -2671,30 +2671,30 @@ parse_cmdline_args(void)
 					}
 				}
 			}
-	
+
 			error(WARNING, "ignoring --machdep option: %s\n", arglist[i]);
 			lines++;
-		} 
-	
+		}
+
 		switch (machdep->flags & (VM_ORIG|VM_4_LEVEL))
 		{
 		case VM_ORIG:
 			error(NOTE, "using original PPC64 VM address ranges\n");
 			lines++;
 			break;
-	
+
 		case VM_4_LEVEL:
 			error(NOTE, "using 4-level pagetable PPC64 VM address ranges\n");
 			lines++;
 			break;
-	
+
 		case (VM_ORIG|VM_4_LEVEL):
 			error(WARNING, "cannot set both vm=orig and vm=2.6.14\n");
 			lines++;
 			machdep->flags &= ~(VM_ORIG|VM_4_LEVEL);
 			break;
-		} 
-	
+		}
+
 		if (lines)
 			fprintf(fp, "\n");
 	}
@@ -2730,7 +2730,7 @@ ppc64_paca_init(int map)
 
 	if (!MEMBER_EXISTS("paca_struct", "data_offset"))
 		return kt->cpus;
-	
+
 	STRUCT_SIZE_INIT(ppc64_paca, "paca_struct");
 	data_offset = MEMBER_OFFSET("paca_struct", "data_offset");
 
@@ -2740,12 +2740,12 @@ ppc64_paca_init(int map)
 		nr_paca = (kt->kernel_NR_CPUS ? kt->kernel_NR_CPUS : NR_CPUS);
 
 	if (nr_paca > NR_CPUS) {
-		error(WARNING, 
-			"PPC64: Number of paca entries (%d) greater than NR_CPUS (%d)\n", 
+		error(WARNING,
+			"PPC64: Number of paca entries (%d) greater than NR_CPUS (%d)\n",
 			nr_paca, NR_CPUS);
 		error(FATAL, "Recompile crash with larger NR_CPUS\n");
 	}
-	
+
 	for (i = cpus = 0; i < nr_paca; i++) {
 		/*
 		 * CPU present or online or can exist in the system(possible)?
@@ -2843,7 +2843,7 @@ ppc64_clear_machdep_cache(void)
         	machdep->machspec->last_level4_read = 0;
 }
 
-static int 
+static int
 ppc64_get_kvaddr_ranges(struct vaddr_range *vrp)
 {
 	int cnt;
@@ -2863,7 +2863,7 @@ ppc64_get_kvaddr_ranges(struct vaddr_range *vrp)
 	if (machdep->flags & VMEMMAP) {
  		phys1 = (physaddr_t)(0);
 		phys2 = (physaddr_t)VTOP((vt->high_memory - PAGESIZE()));
-		if (phys_to_page(phys1, &pp1) && 
+		if (phys_to_page(phys1, &pp1) &&
 	    	    phys_to_page(phys2, &pp2)) {
 			vrp[cnt].type = KVADDR_VMEMMAP;
 			vrp[cnt].start = pp1;
@@ -2873,4 +2873,4 @@ ppc64_get_kvaddr_ranges(struct vaddr_range *vrp)
 
 	return cnt;
 }
-#endif /* PPC64 */ 
+#endif /* PPC64 */

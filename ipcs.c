@@ -195,7 +195,7 @@ ipcs_init(void)
 	ipcs_table.seq_multiplier = 32768;
 }
 
-/* 
+/*
  *  Arguments are passed to the command functions in the global args[argcnt]
  *  array.  See getopt(3) for info on dash arguments.  Check out defs.h and
  *  other crash commands for usage of the myriad of utility routines available
@@ -222,7 +222,7 @@ cmd_ipcs(void)
 	msg = 0;
 	verbose = 0;
 	tc = NULL;
-	
+
 	while ((c = getopt(argcnt, args, "smMqn:")) != EOF) {
 		switch(c) {
 			case 's':
@@ -419,7 +419,7 @@ dump_semaphore_arrays(int specified, ulong specified_value, int verbose, ulong t
 	}
 
 	dump_sem = dump_sem_info;
-	
+
 	if (VALID_MEMBER(kern_ipc_perm_id)) {
 		ipc_search = ipc_search_idr;
 	} else {
@@ -432,7 +432,7 @@ dump_semaphore_arrays(int specified, ulong specified_value, int verbose, ulong t
 		readmem(task + OFFSET(task_struct_nsproxy), KVADDR,
 			&nsproxy_p, sizeof(ulong), "task_struct.nsproxy",
 			FAULT_ON_ERROR);
-		
+
 		if (!readmem(nsproxy_p + OFFSET(nsproxy_ipc_ns), KVADDR,
 			&ipc_ns_p, sizeof(ulong), "nsproxy.ipc_ns",
 			FAULT_ON_ERROR|QUIET))
@@ -478,7 +478,7 @@ dump_message_queues(int specified, ulong specified_value, int verbose, ulong tas
 	}
 
 	dump_msg = dump_msg_info;
-	
+
 	if (VALID_MEMBER(kern_ipc_perm_id)) {
 		ipc_search = ipc_search_idr;
 	} else {
@@ -580,7 +580,7 @@ ipc_search_idr(ulong ipc_ids_p, int specified, ulong specified_value, int (*fn)(
 	int next_id, total;
 	int found = 0;
 
-	readmem(ipc_ids_p + OFFSET(ipc_ids_in_use), KVADDR, &in_use, 
+	readmem(ipc_ids_p + OFFSET(ipc_ids_in_use), KVADDR, &in_use,
 		sizeof(int), "ipc_ids.in_use", FAULT_ON_ERROR);
 
 	ipcs_idr_p = ipc_ids_p + OFFSET(ipc_ids_ipcs_idr);
@@ -595,7 +595,7 @@ ipc_search_idr(ulong ipc_ids_p, int specified, ulong specified_value, int (*fn)(
 		ipc = idr_find(ipcs_idr_p, next_id);
 		if (ipc == 0)
 			continue;
-		
+
 		total++;
 		if (fn(ipc, specified, specified_value, next_id, verbose)) {
 			found = 1;
@@ -603,7 +603,7 @@ ipc_search_idr(ulong ipc_ids_p, int specified, ulong specified_value, int (*fn)(
 				break;
 		}
 	}
-	
+
 	if (!verbose && specified == SPECIFIED_NOTHING)
 		fprintf(fp, "\n");
 
@@ -653,7 +653,7 @@ idr_find(ulong idp, int id)
 			sizeof(ulong) * index, KVADDR, &idr_layer_p,
 			sizeof(ulong), "idr_layer.ary", FAULT_ON_ERROR);
 	}
-	
+
 	return idr_layer_p;
 }
 
@@ -676,7 +676,7 @@ dump_shm_info(ulong shp, int specified, ulong specified_value, int id, int verbo
 	char buf7[BUFSIZE];
 
 	get_shm_info(&shm_info, shp, id);
-	
+
 	if (shm_info.deleted)
 		return 0;
 
@@ -874,7 +874,7 @@ get_shm_info(struct shm_info *shm_info, ulong shp, int id)
 		"file.f_dentry", FAULT_ON_ERROR);
 	readmem(dentryp + OFFSET(dentry_d_inode), KVADDR, &inodep,
 		sizeof(ulong), "dentry.d_inode", FAULT_ON_ERROR);
-	/* 
+	/*
 	 * shm_inode here is the vfs_inode of struct shmem_inode_info
 	 */
 	shm_info->shm_inode = inodep;
@@ -893,7 +893,7 @@ static void
 get_sem_info(struct sem_info *sem_info, ulong shp, int id)
 {
 	char buf[BUFSIZE];
-	
+
 	sem_info->sem_array = shp - OFFSET(sem_array_sem_perm);
 
 	/*
@@ -975,7 +975,7 @@ get_msg_info(struct msg_info *msg_info, ulong shp, int id)
 	msg_info->bytes = ULONG(buf + OFFSET(msg_queue_q_cbytes));
 
 	msg_info->messages = ULONG(buf + OFFSET(msg_queue_q_qnum));
-	
+
 	msg_info->deleted = UINT(buf + OFFSET(msg_queue_q_perm) +
 				OFFSET(kern_ipc_perm_deleted));
 }

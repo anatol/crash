@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 2000, 2002 Hewlett-Packard Co
  *       David Mosberger-Tang <davidm@hpl.hp.com>
- */ 
+ */
 
 /*
  *  unwind_i.h
@@ -18,7 +18,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- * 
+ *
  *  Adapted from:
  *
  *    arch/ia64/kernel/unwind_i.h   (kernel-2.4.18-6.23)

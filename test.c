@@ -34,7 +34,7 @@ cmd_test(void)
 	int c;
 	int option_index;
 
-        while ((c = getopt_long(argcnt, args, "", 
+        while ((c = getopt_long(argcnt, args, "",
 		test_long_options, &option_index)) != EOF) {
                 switch(c)
                 {
@@ -60,15 +60,15 @@ cmd_test(void)
         }
 }
 
-/* 
+/*
  *  Scratch routine for testing a feature on a per-task basis by entering
  *  the "foreach test" command.  Like cmd_test(), anything that's being done
  *  below in this routine can be considered trash.
- */     
+ */
 void
 foreach_test(ulong task, ulong flags)
 {
- 
+
 }
 
 /*

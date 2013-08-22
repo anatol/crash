@@ -539,7 +539,7 @@ arm_get_crash_notes(void)
 	 * Read crash_notes for the first CPU. crash_notes are in standard ELF
 	 * note format.
 	 */
-	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1], 
+	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1],
 	    sizeof(notes_ptrs[kt->cpus-1]), "crash_notes",
 		     RETURN_ON_ERROR)) {
 		error(WARNING, "cannot read crash_notes\n");
@@ -551,14 +551,14 @@ arm_get_crash_notes(void)
 
 		/* Add __per_cpu_offset for each cpu to form the pointer to the notes */
 		for (i = 0; i<kt->cpus; i++)
-			notes_ptrs[i] = notes_ptrs[kt->cpus-1] + kt->__per_cpu_offset[i];	
+			notes_ptrs[i] = notes_ptrs[kt->cpus-1] + kt->__per_cpu_offset[i];
 	}
 
 	buf = GETBUF(SIZE(note_buf));
 
 	if (!(panic_task_regs = malloc(kt->cpus*sizeof(*panic_task_regs))))
 		error(FATAL, "cannot malloc panic_task_regs space\n");
-	
+
 	for  (i=0;i<kt->cpus;i++) {
 
 		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf), "note_buf_t",
@@ -1169,7 +1169,7 @@ arm_get_dumpfile_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
 
 	if (!is_task_active(bt->task))
 		return FALSE;
-	
+
 	/*
 	 * We got registers for panic task from crash_notes. Just return them.
 	 */
@@ -1317,20 +1317,20 @@ arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
 		symp = value_search(bt->instptr, &symbol_offset);
 
 		if (symp && symbol_offset)
-			name_plus_offset = 
+			name_plus_offset =
 				value_to_symstr(bt->instptr, buf, bt->radix);
 	}
 
 	if (module_symbol(bt->instptr, NULL, &lm, NULL, 0)) {
 		fprintf(fp, "%s#%d [<%08lx>] (%s [%s]) from [<%08lx>]\n",
 			level < 10 ? " " : "",
-			level, bt->instptr, 
+			level, bt->instptr,
 			name_plus_offset ? name_plus_offset : name,
 			lm->mod_name, from);
 	} else {
 		fprintf(fp, "%s#%d [<%08lx>] (%s) from [<%08lx>]\n",
 			level < 10 ? " " : "",
-			level, bt->instptr, 
+			level, bt->instptr,
 			name_plus_offset ? name_plus_offset : name, from);
 	}
 

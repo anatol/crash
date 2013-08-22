@@ -97,13 +97,13 @@ arm64_init(int when)
 		case 4096:
 			machdep->flags |= VM_L3_4K;
 			machdep->ptrs_per_pgd = PTRS_PER_PGD_L3_4K;
-			if ((machdep->pgd = 
+			if ((machdep->pgd =
 			    (char *)malloc(PTRS_PER_PGD_L3_4K * 8)) == NULL)
 				error(FATAL, "cannot malloc pgd space.");
-			if ((machdep->pmd = 
+			if ((machdep->pmd =
 			    (char *)malloc(PTRS_PER_PMD_L3_4K * 8)) == NULL)
 				error(FATAL, "cannot malloc pmd space.");
-			if ((machdep->ptbl = 
+			if ((machdep->ptbl =
 			    (char *)malloc(PTRS_PER_PTE_L3_4K * 8)) == NULL)
 				error(FATAL, "cannot malloc ptbl space.");
 			machdep->pud = NULL;  /* not used */
@@ -112,10 +112,10 @@ arm64_init(int when)
 		case 65536:
 			machdep->flags |= VM_L2_64K;
 			machdep->ptrs_per_pgd = PTRS_PER_PGD_L2_64K;
-			if ((machdep->pgd = 
+			if ((machdep->pgd =
 			    (char *)malloc(PTRS_PER_PGD_L2_64K * 8)) == NULL)
 				error(FATAL, "cannot malloc pgd space.");
-			if ((machdep->ptbl = 
+			if ((machdep->ptbl =
 			    (char *)malloc(PTRS_PER_PTE_L2_64K * 8)) == NULL)
 				error(FATAL, "cannot malloc ptbl space.");
 			machdep->pmd = NULL;  /* not used */
@@ -123,7 +123,7 @@ arm64_init(int when)
 			break;
 
 		default:
-			error(FATAL, "invalid/unknown page size: %d\n", 
+			error(FATAL, "invalid/unknown page size: %d\n",
 				machdep->pagesize);
 		}
 		machdep->last_pud_read = 0;  /* not used */
@@ -143,10 +143,10 @@ arm64_init(int when)
 		machdep->machspec->modules_end = ARM64_MODULES_END;
 
 		machdep->kvbase = ARM64_VMALLOC_START;
-		machdep->identity_map_base = ARM64_PAGE_OFFSET; 
+		machdep->identity_map_base = ARM64_PAGE_OFFSET;
 
 		arm64_calc_phys_offset();
-		
+
 		machdep->uvtop = arm64_uvtop;
 		machdep->kvtop = arm64_kvtop;
 		machdep->is_kvaddr = generic_is_kvaddr;
@@ -286,10 +286,10 @@ arm64_dump_machdep_table(ulong arg)
 	fprintf(fp, "  in_alternate_stack: arm64_in_alternate_stack()\n");
 	fprintf(fp, "     processor_speed: arm64_processor_speed()\n");
 	fprintf(fp, "               uvtop: arm64_uvtop()->%s()\n",
-		machdep->flags & VM_L3_4K ? 
+		machdep->flags & VM_L3_4K ?
 		"arm64_vtop_3level_4k" : "arm64_vtop_2level_64k");
 	fprintf(fp, "               kvtop: arm64_kvtop()->%s()\n",
-		machdep->flags & VM_L3_4K ? 
+		machdep->flags & VM_L3_4K ?
 		"arm64_vtop_3level_4k" : "arm64_vtop_2level_64k");
 	fprintf(fp, "        get_task_pgd: arm64_get_task_pgd()\n");
 	fprintf(fp, "            dump_irq: generic_dump_irq()\n");
@@ -591,7 +591,7 @@ arm64_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbos
 	}
 }
 
-static int 
+static int
 arm64_vtop_2level_64k(ulong pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 {
 	ulong *pgd_base, *pgd_ptr, pgd_val;
@@ -604,21 +604,21 @@ arm64_vtop_2level_64k(ulong pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 	FILL_PGD(pgd_base, KVADDR, PTRS_PER_PGD_L2_64K * sizeof(ulong));
 	pgd_ptr = pgd_base + (((vaddr) >> PGDIR_SHIFT_L2_64K) & (PTRS_PER_PGD_L2_64K - 1));
         pgd_val = ULONG(machdep->pgd + PAGEOFFSET(pgd_ptr));
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "   PGD: %lx => %lx\n", (ulong)pgd_ptr, pgd_val);
 	if (!pgd_val)
 		goto no_page;
 
-	/* 
-	 * #define __PAGETABLE_PUD_FOLDED 
-	 * #define __PAGETABLE_PMD_FOLDED 
+	/*
+	 * #define __PAGETABLE_PUD_FOLDED
+	 * #define __PAGETABLE_PMD_FOLDED
 	 */
 
 	pte_base = (ulong *)PTOV(pgd_val & PHYS_MASK & (s32)machdep->pagemask);
 	FILL_PTBL(pte_base, KVADDR, PTRS_PER_PTE_L2_64K * sizeof(ulong));
 	pte_ptr = pte_base + (((vaddr) >> machdep->pageshift) & (PTRS_PER_PTE_L2_64K - 1));
         pte_val = ULONG(machdep->ptbl + PAGEOFFSET(pte_ptr));
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "   PTE: %lx => %lx\n", (ulong)pte_ptr, pte_val);
 	if (!pte_val)
 		goto no_page;
@@ -642,7 +642,7 @@ no_page:
 	return FALSE;
 }
 
-static int 
+static int
 arm64_vtop_3level_4k(ulong pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 {
 	ulong *pgd_base, *pgd_ptr, pgd_val;
@@ -656,20 +656,20 @@ arm64_vtop_3level_4k(ulong pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 	FILL_PGD(pgd_base, KVADDR, PTRS_PER_PGD_L3_4K * sizeof(ulong));
 	pgd_ptr = pgd_base + (((vaddr) >> PGDIR_SHIFT_L3_4K) & (PTRS_PER_PGD_L3_4K - 1));
         pgd_val = ULONG(machdep->pgd + PAGEOFFSET(pgd_ptr));
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "   PGD: %lx => %lx\n", (ulong)pgd_ptr, pgd_val);
 	if (!pgd_val)
 		goto no_page;
 
-	/* 
-	 * #define __PAGETABLE_PUD_FOLDED 
+	/*
+	 * #define __PAGETABLE_PUD_FOLDED
 	 */
 
 	pmd_base = (ulong *)PTOV(pgd_val & PHYS_MASK & (s32)machdep->pagemask);
 	FILL_PMD(pmd_base, KVADDR, PTRS_PER_PMD_L3_4K * sizeof(ulong));
 	pmd_ptr = pmd_base + (((vaddr) >> PMD_SHIFT_L3_4K) & (PTRS_PER_PMD_L3_4K - 1));
         pmd_val = ULONG(machdep->pmd + PAGEOFFSET(pmd_ptr));
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "   PMD: %lx => %lx\n", (ulong)pmd_ptr, pmd_val);
 	if (!pmd_val)
 		goto no_page;
@@ -678,7 +678,7 @@ arm64_vtop_3level_4k(ulong pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 	FILL_PTBL(pte_base, KVADDR, PTRS_PER_PTE_L3_4K * sizeof(ulong));
 	pte_ptr = pte_base + (((vaddr) >> machdep->pageshift) & (PTRS_PER_PTE_L3_4K - 1));
         pte_val = ULONG(machdep->ptbl + PAGEOFFSET(pte_ptr));
-        if (verbose) 
+        if (verbose)
                 fprintf(fp, "   PTE: %lx => %lx\n", (ulong)pte_ptr, pte_val);
 	if (!pte_val)
 		goto no_page;
@@ -702,7 +702,7 @@ no_page:
 	return FALSE;
 }
 
-static ulong 
+static ulong
 arm64_get_task_pgd(ulong task)
 {
 	struct task_context *tc;
@@ -716,8 +716,8 @@ arm64_get_task_pgd(ulong task)
 		return NO_TASK;
 }
 
-static ulong 
-arm64_processor_speed(void) 
+static ulong
+arm64_processor_speed(void)
 {
 	return 0;
 };
@@ -738,9 +738,9 @@ arm64_stackframe_init(void)
 	MEMBER_OFFSET_INIT(elf_prstatus_pr_pid, "elf_prstatus", "pr_pid");
 	MEMBER_OFFSET_INIT(elf_prstatus_pr_reg, "elf_prstatus", "pr_reg");
 
-	machdep->machspec->__exception_text_start = 
+	machdep->machspec->__exception_text_start =
 		symbol_value("__exception_text_start");
-	machdep->machspec->__exception_text_end = 
+	machdep->machspec->__exception_text_end =
 		symbol_value("__exception_text_end");
 
 	task_struct_thread = MEMBER_OFFSET("task_struct", "thread");
@@ -748,7 +748,7 @@ arm64_stackframe_init(void)
 
 	if ((task_struct_thread == INVALID_OFFSET) ||
 	    (thread_struct_context == INVALID_OFFSET)) {
-		error(INFO, 
+		error(INFO,
 		    "cannot determine task_struct.thread.context offset\n");
 		return;
 	}
@@ -756,17 +756,17 @@ arm64_stackframe_init(void)
 	/*
 	 *  Pay for the convenience of using a hardcopy of a kernel structure.
 	 */
-	if (offsetof(struct arm64_stackframe, sp) != 
+	if (offsetof(struct arm64_stackframe, sp) !=
 	    MEMBER_OFFSET("stackframe", "sp")) {
 		error(INFO, "builtin stackframe.sp offset incorrect!\n");
 		return;
 	}
-	if (offsetof(struct arm64_stackframe, fp) != 
+	if (offsetof(struct arm64_stackframe, fp) !=
 	    MEMBER_OFFSET("stackframe", "fp")) {
 		error(INFO, "builtin stackframe.fp offset incorrect!\n");
 		return;
 	}
-	if (offsetof(struct arm64_stackframe, pc) != 
+	if (offsetof(struct arm64_stackframe, pc) !=
 	    MEMBER_OFFSET("stackframe", "pc")) {
 		error(INFO, "builtin stackframe.pc offset incorrect!\n");
 		return;
@@ -809,7 +809,7 @@ arm64_in_exception_text(ulong ptr)
                (ptr < ms->__exception_text_end));
 }
 
-static void 
+static void
 arm64_print_stackframe_entry(struct bt_info *bt, int level, struct arm64_stackframe *frame)
 {
 	char *name, *name_plus_offset;
@@ -841,7 +841,7 @@ static int arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame
 {
         unsigned long high, low, fp;
 	unsigned long stack_mask;
-	
+
 	stack_mask = (unsigned long)(ARM64_STACK_SIZE) - 1;
 	fp = frame->fp;
 
@@ -905,7 +905,7 @@ arm64_get_dumpfile_stackframe(struct bt_info *bt, struct arm64_stackframe *frame
 	frame->pc = ptregs->pc;
 	frame->fp = ptregs->regs[29];
 
-	if (!is_kernel_text(frame->pc) && 
+	if (!is_kernel_text(frame->pc) &&
 	    in_user_stack(bt->tc->task, frame->sp))
 		bt->flags |= BT_USER_SPACE;
 
@@ -913,7 +913,7 @@ arm64_get_dumpfile_stackframe(struct bt_info *bt, struct arm64_stackframe *frame
 }
 
 static int
-arm64_get_stackframe(struct bt_info *bt, struct arm64_stackframe *frame) 
+arm64_get_stackframe(struct bt_info *bt, struct arm64_stackframe *frame)
 {
 	if (!fill_task_struct(bt->task))
 		return FALSE;
@@ -937,7 +937,7 @@ arm64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 		ret = arm64_get_stackframe(bt, &stackframe);
 
 	if (!ret) {
-		error(WARNING, 
+		error(WARNING,
 			"cannot get stackframe for task %lx\n", bt->task);
 		return;
 	}
@@ -973,7 +973,7 @@ arm64_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 		*((ulong *)physaddr) = paddr;
 		return page_present;
 	}
-        
+
 	sprintf(ptebuf, "%lx", pte);
 	len1 = MAX(strlen(ptebuf), strlen("PTE"));
 	fprintf(fp, "%s  ", mkstring(buf1, len1, CENTER|LJUST, "PTE"));
@@ -1025,7 +1025,7 @@ arm64_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 				fprintf(fp, "%sPROTNONE", others++ ? "|" : "");
 			if (pte & machdep->machspec->pte_file)
 				fprintf(fp, "%sFILE", others++ ? "|" : "");
-		} 
+		}
 		if (pte & PTE_USER)
 			fprintf(fp, "%sUSER", others++ ? "|" : "");
 		if (pte & PTE_RDONLY)
@@ -1206,7 +1206,7 @@ arm64_get_crash_notes(void)
 	 * Read crash_notes for the first CPU. crash_notes are in standard ELF
 	 * note format.
 	 */
-	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1], 
+	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1],
 	    sizeof(notes_ptrs[kt->cpus-1]), "crash_notes", RETURN_ON_ERROR)) {
 		error(WARNING, "cannot read crash_notes\n");
 		FREEBUF(notes_ptrs);
@@ -1214,21 +1214,21 @@ arm64_get_crash_notes(void)
 	}
 
 	if (symbol_exists("__per_cpu_offset")) {
-		/* 
+		/*
 		 * Add __per_cpu_offset for each cpu to form the notes pointer.
 		 */
 		for (i = 0; i<kt->cpus; i++)
-			notes_ptrs[i] = notes_ptrs[kt->cpus-1] + kt->__per_cpu_offset[i];	
+			notes_ptrs[i] = notes_ptrs[kt->cpus-1] + kt->__per_cpu_offset[i];
 	}
 
 	buf = GETBUF(SIZE(note_buf));
 
 	if (!(ms->panic_task_regs = malloc(kt->cpus * sizeof(struct arm64_pt_regs))))
 		error(FATAL, "cannot malloc panic_task_regs space\n");
-	
+
 	for  (i = 0; i < kt->cpus; i++) {
 
-		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf), 
+		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf),
 		    "note_buf_t", RETURN_ON_ERROR)) {
 			error(WARNING, "failed to read note_buf_t\n");
 			goto fail;
@@ -1319,7 +1319,7 @@ arm64_get_kvaddr_ranges(struct vaddr_range *vrp)
 	if (st->mods_installed) {
 		vrp[cnt].type = KVADDR_MODULES;
 		vrp[cnt].start = lowest_module_address();
-		vrp[cnt++].end = roundup(highest_module_address(), 
+		vrp[cnt++].end = roundup(highest_module_address(),
 			PAGESIZE());
 	}
 

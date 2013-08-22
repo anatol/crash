@@ -13,7 +13,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- */ 
+ */
 #ifdef PPC
 #include "defs.h"
 #include <elf.h>
@@ -21,7 +21,7 @@
 
 #define MAX_PLATFORM_LEN	32	/* length for platform string */
 
-/* 
+/*
  *  This structure was copied from kernel source
  *  in include/asm-ppc/ptrace.h
  */
@@ -359,7 +359,7 @@ ppc_init(int when)
 			PTE_RPN_SHIFT = PAGE_SHIFT;
 
 		machdep->vmalloc_start = ppc_vmalloc_start;
-		MEMBER_OFFSET_INIT(thread_struct_pg_tables, 
+		MEMBER_OFFSET_INIT(thread_struct_pg_tables,
  			"thread_struct", "pg_tables");
 
 		if (VALID_SIZE(irq_desc_t)) {
@@ -380,16 +380,16 @@ ppc_init(int when)
 		}
 
                 MEMBER_OFFSET_INIT(device_node_type, "device_node", "type");
-                MEMBER_OFFSET_INIT(device_node_allnext,  
+                MEMBER_OFFSET_INIT(device_node_allnext,
 			"device_node", "allnext");
-                MEMBER_OFFSET_INIT(device_node_properties,  
+                MEMBER_OFFSET_INIT(device_node_properties,
 			"device_node", "properties");
 		MEMBER_OFFSET_INIT(property_name, "property", "name");
 		MEMBER_OFFSET_INIT(property_value, "property", "value");
 		MEMBER_OFFSET_INIT(property_next, "property", "next");
-		MEMBER_OFFSET_INIT(machdep_calls_setup_residual, 
+		MEMBER_OFFSET_INIT(machdep_calls_setup_residual,
                         "machdep_calls", "setup_residual");
-		MEMBER_OFFSET_INIT(RESIDUAL_VitalProductData, 
+		MEMBER_OFFSET_INIT(RESIDUAL_VitalProductData,
                         "RESIDUAL", "VitalProductData");
 		MEMBER_OFFSET_INIT(VPD_ProcessorHz, "VPD", "ProcessorHz");
 		MEMBER_OFFSET_INIT(bd_info_bi_intfreq, "bd_info", "bi_intfreq");
@@ -408,7 +408,7 @@ ppc_init(int when)
 		}
 		if (symbol_exists("cur_cpu_spec")) {
 			get_symbol_data("cur_cpu_spec", sizeof(void *), &cur_cpu_spec);
-			readmem(cur_cpu_spec + MEMBER_OFFSET("cpu_spec", "cpu_user_features"), 
+			readmem(cur_cpu_spec + MEMBER_OFFSET("cpu_spec", "cpu_user_features"),
 				KVADDR, &cpu_features, sizeof(uint), "cpu user features",
 				FAULT_ON_ERROR);
 			if (cpu_features & CPU_BOOKE)
@@ -441,8 +441,8 @@ ppc_init(int when)
 void
 ppc_dump_machdep_table(ulong arg)
 {
-        int others; 
- 
+        int others;
+
         others = 0;
 	fprintf(fp, "           platform: %s\n", PPC_PLATFORM);
         fprintf(fp, "              flags: %lx (", machdep->flags);
@@ -468,7 +468,7 @@ ppc_dump_machdep_table(ulong arg)
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
         fprintf(fp, "                 hz: %d\n", machdep->hz);
         fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-        fprintf(fp, "            memsize: %lld (0x%llx)\n", 
+        fprintf(fp, "            memsize: %lld (0x%llx)\n",
 		machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
@@ -536,7 +536,7 @@ ppc_pgd_vtop(ulong *pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 
 	/*
  	 * Size of a pgd could be more than a PAGE.
- 	 * So use PAGEBASE(page_dir), instead of 
+ 	 * So use PAGEBASE(page_dir), instead of
  	 * PAGEBASE(pgd) for FILL_PGD()
  	 */
         FILL_PGD(PAGEBASE((ulong)page_dir), KVADDR, PAGESIZE());
@@ -568,10 +568,10 @@ ppc_pgd_vtop(ulong *pgd, ulong vaddr, physaddr_t *paddr, int verbose)
 	else
 	        pte = ULONG(machdep->ptbl + PTE_SIZE * pte_index);
 
-	if (verbose) 
+	if (verbose)
 		fprintf(fp, "  PTE: %lx => %llx\n", pgd_pte, pte);
 
-	if (!(pte & _PAGE_PRESENT)) { 
+	if (!(pte & _PAGE_PRESENT)) {
 		if (pte && verbose) {
 			fprintf(fp, "\n");
 			ppc_translate_pte((ulong)pte, 0, pte);
@@ -614,23 +614,23 @@ ppc_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose)
 
 	*paddr = 0;
 
-        if (is_kernel_thread(tc->task) && IS_KVADDR(vaddr)) { 
-	    	if (VALID_MEMBER(thread_struct_pg_tables)) 
+        if (is_kernel_thread(tc->task) && IS_KVADDR(vaddr)) {
+	    	if (VALID_MEMBER(thread_struct_pg_tables))
                 	pgd = (ulong *)machdep->get_task_pgd(tc->task);
 		else {
 			if (INVALID_MEMBER(task_struct_active_mm))
 				error(FATAL, "no pg_tables or active_mm?\n");
 
-                	readmem(tc->task + OFFSET(task_struct_active_mm), 
+                	readmem(tc->task + OFFSET(task_struct_active_mm),
 				KVADDR, &active_mm, sizeof(void *),
                         	"task active_mm contents", FAULT_ON_ERROR);
 
 			if (!active_mm)
-				error(FATAL, 
+				error(FATAL,
 				     "no active_mm for this kernel thread\n");
 
-			readmem(active_mm + OFFSET(mm_struct_pgd), 
-				KVADDR, &pgd, sizeof(long), 
+			readmem(active_mm + OFFSET(mm_struct_pgd),
+				KVADDR, &pgd, sizeof(long),
 				"mm_struct pgd", FAULT_ON_ERROR);
 		}
         } else {
@@ -638,8 +638,8 @@ ppc_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose)
                         pgd = ULONG_PTR(tt->mm_struct +
                                 OFFSET(mm_struct_pgd));
                 else
-			readmem(tc->mm_struct + OFFSET(mm_struct_pgd), 
-				KVADDR, &pgd, sizeof(long), "mm_struct pgd", 
+			readmem(tc->mm_struct + OFFSET(mm_struct_pgd),
+				KVADDR, &pgd, sizeof(long), "mm_struct pgd",
 				FAULT_ON_ERROR);
 	}
 
@@ -664,7 +664,7 @@ ppc_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbose)
 		return TRUE;
 	}
 
-	if (!IS_VMALLOC_ADDR(kvaddr)) { 
+	if (!IS_VMALLOC_ADDR(kvaddr)) {
 		*paddr = VTOP(kvaddr);
 		if (!verbose)
 			return TRUE;
@@ -729,15 +729,15 @@ ppc_processor_speed(void)
 			readmem(node+OFFSET(device_node_type),
 				KVADDR, &type, sizeof(ulong), "node type",
 				FAULT_ON_ERROR);
-			
+
 			if(type != 0) {
-				len = read_string(type, str_buf, 
+				len = read_string(type, str_buf,
 					sizeof(str_buf));
 
 				if(len && (strcasecmp(str_buf, "cpu") == 0))
 					break;
 			}
-			
+
 			readmem(node+OFFSET(device_node_allnext),
 				KVADDR, &node, sizeof(ulong), "node allnext",
 				FAULT_ON_ERROR);
@@ -746,29 +746,29 @@ ppc_processor_speed(void)
 		/* now, if we found a CPU node, get the speed property */
 		if(node) {
 			readmem(node+OFFSET(device_node_properties),
-				KVADDR, &properties, sizeof(ulong), 
+				KVADDR, &properties, sizeof(ulong),
 				"node properties", FAULT_ON_ERROR);
-			
+
 			while(properties) {
-				readmem(properties+OFFSET(property_name), 
-					KVADDR, &name, 
+				readmem(properties+OFFSET(property_name),
+					KVADDR, &name,
 					sizeof(ulong), "property name",
 					FAULT_ON_ERROR);
-				
-				len = read_string(name, str_buf, 
+
+				len = read_string(name, str_buf,
 					sizeof(str_buf));
 
-				if (len && (strcasecmp(str_buf, 
+				if (len && (strcasecmp(str_buf,
 			            "clock-frequency") == 0)) {
 					/* found the right cpu property */
 
 					readmem(properties+
 					    OFFSET(property_value),
-					    KVADDR, &value, sizeof(ulong), 
+					    KVADDR, &value, sizeof(ulong),
 					    "clock freqency pointer",
 					    FAULT_ON_ERROR);
-					readmem(value, KVADDR, &mhz, 
-					    sizeof(ulong), 
+					readmem(value, KVADDR, &mhz,
+					    sizeof(ulong),
 					    "clock frequency value",
                                             FAULT_ON_ERROR);
 					mhz /= 1000000;
@@ -792,7 +792,7 @@ ppc_processor_speed(void)
 				/* keep looking */
 				readmem(properties+
 					OFFSET(property_next),
-					KVADDR, &properties, sizeof(ulong), 
+					KVADDR, &properties, sizeof(ulong),
 					"property next", FAULT_ON_ERROR);
 			}
 			if(!properties) {
@@ -806,38 +806,38 @@ ppc_processor_speed(void)
 
 	if (symbol_exists("res") && !mhz) {
 		get_symbol_data("res", sizeof(void *), &res);
-			
+
 		if (symbol_exists("prep_setup_residual")) {
-			get_symbol_data("prep_setup_residual", 
+			get_symbol_data("prep_setup_residual",
 				sizeof(void *), &prep_setup_res);
-			get_symbol_data("ppc_md", sizeof(void *), 
+			get_symbol_data("ppc_md", sizeof(void *),
 				&ppc_md);
-			readmem(ppc_md + 
-		 		OFFSET(machdep_calls_setup_residual), 
-				KVADDR, &md_setup_res, 
+			readmem(ppc_md +
+		 		OFFSET(machdep_calls_setup_residual),
+				KVADDR, &md_setup_res,
 				sizeof(ulong), "ppc_md setup_residual",
 				FAULT_ON_ERROR);
-				
+
 			if(prep_setup_res == md_setup_res) {
 				/* PREP machine */
 				readmem(res+
 					OFFSET(RESIDUAL_VitalProductData)+
 					OFFSET(VPD_ProcessorHz),
-					KVADDR, &mhz, sizeof(ulong), 
-					"res VitalProductData", 
+					KVADDR, &mhz, sizeof(ulong),
+					"res VitalProductData",
 					FAULT_ON_ERROR);
-					
+
 				mhz = (mhz > 1024) ? mhz >> 20 : mhz;
 			}
 		}
-			
+
 		if(!mhz) {
 			/* everything else seems to do this the same way... */
-			readmem(res + 
+			readmem(res +
 				OFFSET(bd_info_bi_intfreq),
-				KVADDR, &mhz, sizeof(ulong), 
+				KVADDR, &mhz, sizeof(ulong),
 				"bd_info bi_intfreq", FAULT_ON_ERROR);
-				
+
 			mhz /= 1000000;
 		}
 	}
@@ -878,8 +878,8 @@ ppc_get_task_pgd(ulong task)
                 OFFSET(task_struct_thread) : OFFSET(task_struct_tss);
 
 	if (INVALID_MEMBER(thread_struct_pg_tables))
-		error(FATAL, 
-		   "pg_tables does not exist in this kernel's thread_struct\n"); 
+		error(FATAL,
+		   "pg_tables does not exist in this kernel's thread_struct\n");
 	offset += OFFSET(thread_struct_pg_tables);
 
         readmem(task + offset, KVADDR, &pg_tables,
@@ -947,9 +947,9 @@ ppc_translate_pte(ulong pte32, void *physaddr, ulonglong pte64)
 
 	fprintf(fp, "FLAGS\n");
 
-	fprintf(fp, "%s  %s  ",  
+	fprintf(fp, "%s  %s  ",
 		mkstring(ptebuf, len1, CENTER|RJUST, NULL),
-		mkstring(physbuf, len2, CENTER|RJUST, NULL)); 
+		mkstring(physbuf, len2, CENTER|RJUST, NULL));
 	fprintf(fp, "(");
 	others = 0;
 
@@ -1000,7 +1000,7 @@ ppc_translate_pte(ulong pte32, void *physaddr, ulonglong pte64)
  *  Look for likely exception frames in a stack.
  */
 
-static int 
+static int
 ppc_eframe_search(struct bt_info *bt)
 {
 	return (error(FATAL, "ppc_eframe_search: function not written yet!\n"));
@@ -1099,7 +1099,7 @@ ppc_back_trace(struct gnu_request *req, struct bt_info *bt)
 							STACK_FRAME_LR_SAVE -
 							bt->stackbase];
 		if ((req->name = closest_symbol(req->pc)) == NULL) {
-			error(FATAL, 
+			error(FATAL,
 				"ppc_back_trace hit unknown symbol (%lx).\n",
 				req->pc);
 			break;
@@ -1191,11 +1191,11 @@ ppc_display_full_frame(struct bt_info *bt, ulong nextsp, FILE *ofp)
 /*
  *  print one entry of a stack trace
  */
-static void 
-ppc_print_stack_entry(int frame, 
-		      struct gnu_request *req, 
-		      ulong newsp, 	
-		      ulong lr, 
+static void
+ppc_print_stack_entry(int frame,
+		      struct gnu_request *req,
+		      ulong newsp,
+		      ulong lr,
 		      struct bt_info *bt)
 {
 	struct load_module *lm;
@@ -1209,12 +1209,12 @@ ppc_print_stack_entry(int frame,
                 switch (bt->ref->cmdflags & (BT_REF_SYMBOL|BT_REF_HEXVAL))
                 {
                 case BT_REF_SYMBOL:
-                        if (STREQ(req->name, bt->ref->str)) 
+                        if (STREQ(req->name, bt->ref->str))
                         	bt->ref->cmdflags |= BT_REF_FOUND;
                         break;
 
                 case BT_REF_HEXVAL:
-                        if (bt->ref->hexval == req->pc) 
+                        if (bt->ref->hexval == req->pc)
                                 bt->ref->cmdflags |= BT_REF_FOUND;
                         break;
                 }
@@ -1222,10 +1222,10 @@ ppc_print_stack_entry(int frame,
 		name_plus_offset = NULL;
 		if (bt->flags & BT_SYMBOL_OFFSET) {
 			sp = value_search(req->pc, &offset);
-			if (sp && offset) 
+			if (sp && offset)
 				name_plus_offset = value_to_symstr(req->pc, buf, bt->radix);
 		}
-		
+
 		fprintf(fp, "%s#%d [%lx] %s at %lx",
         		frame < 10 ? " " : "", frame,
                 	req->sp, name_plus_offset ? name_plus_offset : req->name, req->pc);
@@ -1394,7 +1394,7 @@ ppc_kdump_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
 		if (IN_TASK_VMA(bt->task, *ksp))
 			fprintf(fp, "%0lx: Task is running in user space\n",
 				bt->task);
-		else 
+		else
 			fprintf(fp, "%0lx: Invalid Stack Pointer %0lx\n",
 				bt->task, *ksp);
 	}
@@ -1406,18 +1406,18 @@ ppc_kdump_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
 	if (ksp)
 		*ksp = sp;
 
-	if (bt->flags && 
+	if (bt->flags &&
 		((BT_TEXT_SYMBOLS | BT_TEXT_SYMBOLS_PRINT |
-			BT_TEXT_SYMBOLS_NOPRINT))) 
+			BT_TEXT_SYMBOLS_NOPRINT)))
 		return;
 	/*
 	 * Print the collected regs for the active task
 	 */
 	ppc_print_regs(pt_regs);
 
-	if (!IS_KVADDR(sp)) 
+	if (!IS_KVADDR(sp))
 		return;
-	
+
 	fprintf(fp, " NIP [%016lx] %s\n", pt_regs->nip,
 		closest_symbol(pt_regs->nip));
 	fprintf(fp, " LR  [%016lx] %s\n", pt_regs->link,
@@ -1426,22 +1426,22 @@ ppc_kdump_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
 	fprintf(fp, "\n");
 
 	return;
-}	
-	
+}
+
 static void
 ppc_dumpfile_stack_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 {
 	struct syment *sp;
 
-	/* 
-	 * For KDUMP and compressed KDUMP get the SP, PC from pt_regs 
-	 * read from the Elf Note. 
+	/*
+	 * For KDUMP and compressed KDUMP get the SP, PC from pt_regs
+	 * read from the Elf Note.
 	 */
 	if (ELF_NOTES_VALID()) {
 		ppc_kdump_stack_frame(bt, getpc, getsp);
 		return;
 	}
-	
+
 	if (getpc) {
 		if (!(sp = next_symbol("crash_save_current_state", NULL)))
 			*getpc = (symbol_value("crash_save_current_state")+16);
@@ -1479,13 +1479,13 @@ get_ppc_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 	task = bt->task;
 	stack = (ulong *)bt->stackbuf;
 
-        if ((tt->flags & THREAD_INFO) && VALID_MEMBER(task_struct_thread_ksp)) 
+        if ((tt->flags & THREAD_INFO) && VALID_MEMBER(task_struct_thread_ksp))
                 readmem(task + OFFSET(task_struct_thread_ksp), KVADDR,
                         &sp, sizeof(void *),
                         "thread_struct ksp", FAULT_ON_ERROR);
-	else if (VALID_MEMBER(task_struct_tss_ksp)) 
+	else if (VALID_MEMBER(task_struct_tss_ksp))
                 sp = stack[OFFSET(task_struct_tss_ksp)/sizeof(long)];
-	else 
+	else
                 sp = stack[OFFSET(task_struct_thread_ksp)/sizeof(long)];
 
 	if (!INSTACK(sp, bt))
@@ -1537,7 +1537,7 @@ static void ppc_dump_irq(int irq)
 	int len;
 
         irq_desc_addr = symbol_value("irq_desc") + (SIZE(irqdesc) * irq);
-	
+
 	readmem(irq_desc_addr + OFFSET(irqdesc_level), KVADDR, &level,
                 sizeof(int), "irq_desc entry", FAULT_ON_ERROR);
         readmem(irq_desc_addr + OFFSET(irqdesc_action), KVADDR, &action,
@@ -1548,10 +1548,10 @@ static void ppc_dump_irq(int irq)
 	fprintf(fp, "    IRQ: %d\n", irq);
 	fprintf(fp, " STATUS: 0\n");
         fprintf(fp, "HANDLER: ");
-	
+
 	if (value_symbol(ctl)) {
                 fprintf(fp, "%lx  ", ctl);
-                pad_line(fp, VADDR_PRLEN == 8 ? 
+                pad_line(fp, VADDR_PRLEN == 8 ?
 			VADDR_PRLEN+2 : VADDR_PRLEN-6, ' ');
                 fprintf(fp, "<%s>\n", value_symbol(ctl));
 	} else
@@ -1562,11 +1562,11 @@ static void ppc_dump_irq(int irq)
 		readmem(ctl + OFFSET(hw_interrupt_type_typename), KVADDR, &addr,
 			sizeof(ulong), "typename pointer", FAULT_ON_ERROR);
 		len = read_string(addr, typename, 32);
-		
+
 		if(len)
-			fprintf(fp, "         typename: %08lx  \"%s\"\n", 
+			fprintf(fp, "         typename: %08lx  \"%s\"\n",
 				addr, typename);
-		
+
 		/* startup...I think this is always 0 */
 		readmem(ctl + OFFSET(hw_interrupt_type_startup), KVADDR, &addr,
 			sizeof(ulong), "interrupt startup", FAULT_ON_ERROR);
@@ -1575,7 +1575,7 @@ static void ppc_dump_irq(int irq)
 			fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
 		} else
 			fprintf(fp, "%lx\n", addr);
-		
+
 		/* shutdown...I think this is always 0 */
 		readmem(ctl + OFFSET(hw_interrupt_type_shutdown), KVADDR, &addr,
 			sizeof(ulong), "interrupt shutdown", FAULT_ON_ERROR);
@@ -1587,17 +1587,17 @@ static void ppc_dump_irq(int irq)
 
 		if (VALID_MEMBER(hw_interrupt_type_handle)) {
 	                /* handle */
-	                readmem(ctl + OFFSET(hw_interrupt_type_handle), 
-				KVADDR, &addr, sizeof(ulong), 
+	                readmem(ctl + OFFSET(hw_interrupt_type_handle),
+				KVADDR, &addr, sizeof(ulong),
 				"interrupt handle", FAULT_ON_ERROR);
 	                fprintf(fp, "           handle: ");
 	                if(value_symbol(addr)) {
-	                        fprintf(fp, "%08lx  <%s>\n", addr, 
+	                        fprintf(fp, "%08lx  <%s>\n", addr,
 					value_symbol(addr));
 	                } else
 	                        fprintf(fp, "%lx\n", addr);
 		}
-		
+
 		/* enable/disable */
 		readmem(ctl + OFFSET(hw_interrupt_type_enable), KVADDR, &addr,
 			sizeof(ulong), "interrupt enable", FAULT_ON_ERROR);
@@ -1606,7 +1606,7 @@ static void ppc_dump_irq(int irq)
 			fprintf(fp, "%08lx  <%s>\n", addr, value_symbol(addr));
 		} else
 			fprintf(fp, "%lx\n", addr);
-		
+
 		readmem(ctl + OFFSET(hw_interrupt_type_disable), KVADDR, &addr,
 			sizeof(ulong), "interrupt disable", FAULT_ON_ERROR);
 		fprintf(fp, "          disable: ");
@@ -1616,7 +1616,7 @@ static void ppc_dump_irq(int irq)
 			fprintf(fp, "0\n");
 	}
 
-	/* next, the action... and its submembers */	
+	/* next, the action... and its submembers */
 	if(!action)
 		fprintf(fp, " ACTION: (none)\n");
 
@@ -1676,9 +1676,9 @@ static void ppc_dump_irq(int irq)
 		readmem(action + OFFSET(irqaction_name), KVADDR, &addr,
 			sizeof(ulong), "action name", FAULT_ON_ERROR);
 		len = read_string(addr, typename, 32);
-		
+
 		if(len)
-			fprintf(fp, "             name: %08lx  \"%s\"\n", 
+			fprintf(fp, "             name: %08lx  \"%s\"\n",
 				addr, typename);
 
 		/* dev_id */
@@ -1701,7 +1701,7 @@ static void ppc_dump_irq(int irq)
 /*
  *  Filter disassembly output if the output radix is not gdb's default 10
  */
-static int 
+static int
 ppc_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
         char buf1[BUFSIZE];
@@ -1711,11 +1711,11 @@ ppc_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
         char *argv[MAXARGS];
         ulong value;
 
-	if (!inbuf) 
+	if (!inbuf)
 		return TRUE;
 /*
  *  For some reason gdb can go off into the weeds translating text addresses,
- *  (on alpha -- not necessarily seen on ppc) so this routine both fixes the 
+ *  (on alpha -- not necessarily seen on ppc) so this routine both fixes the
  *  references as well as imposing the current output radix on the translations.
  */
 	console("IN: %s", inbuf);
@@ -1732,10 +1732,10 @@ ppc_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	strcpy(buf1, inbuf);
 	argc = parse_line(buf1, argv);
 
-	if ((FIRSTCHAR(argv[argc-1]) == '<') && 
+	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
 	    (LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
-		while ((p1 > inbuf) && !STRNEQ(p1, " 0x")) 
+		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
 
 		if (!STRNEQ(p1, " 0x"))
@@ -1745,7 +1745,7 @@ ppc_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 		if (!extract_hex(p1, &value, NULLCHAR, TRUE))
 			return FALSE;
 
-		sprintf(buf1, "0x%lx <%s>\n", value,	
+		sprintf(buf1, "0x%lx <%s>\n", value,
 			value_to_symstr(value, buf2, output_radix));
 
 		sprintf(p1, buf1);
@@ -1963,7 +1963,7 @@ try_closest:
                 fprintf(fp, "    %s\n", buf);
         } else {
                 if (retries)
-                        fprintf(fp, GDB_PATCHED() ? 
+                        fprintf(fp, GDB_PATCHED() ?
 			  "" : "    (cannot determine file and line number)\n");
                 else {
                         retries++;

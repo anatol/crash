@@ -57,7 +57,7 @@ void set_vas_debug(ulong);
 
 extern int monitor_memory(long *, long *, long *, long *);
 
-int Page_Size;  
+int Page_Size;
 ulong vas_debug = 0;
 
 extern void *malloc(size_t);
@@ -72,7 +72,7 @@ int va_server_init(char *crash_file, u_long *start, u_long *end, u_long *stride)
 		vas_version = 1;
 		return 0;
 	}
-	
+
 	vas_version = 2;
 	zero_page = (char *)malloc(Page_Size);
 	bzero((void *)zero_page, Page_Size);
@@ -93,7 +93,7 @@ int vas_lseek(u_long position, int whence)
 {
 	if(vas_version < 2)
 		return vas_lseek_v1(position, whence);
-	
+
 	if(whence != SEEK_SET)
 		return -1;
 
@@ -216,7 +216,7 @@ int find_data(u_long va, u_long *buf, u_long *len, u_long *offset)
 		*len = Page_Size;
 
 	if (vas_debug && !saved)
-		fprintf(stderr, "find_data: page containing %lx not saved\n", 
+		fprintf(stderr, "find_data: page containing %lx not saved\n",
 			(u_long)trunc_page(va));
 
 	if(buf)
@@ -282,7 +282,7 @@ load_data_retry2:
 			printf("load_data, bad ret Z_DATA_ERROR from uncompress\n");
 		else
 			printf("load_data, bad ret %d from uncompress\n", ret);
-		
+
 		clean_exit(1);
 	}
 	free((void *)compr_buf);
@@ -352,17 +352,17 @@ vas_free_memory(char *s)
 	long swap_usage;
 	int blks;
 
-        if (vas_version < 2) 
+        if (vas_version < 2)
                 return 0;
 
 	if (s) {
         	fprintf(stderr, "\nWARNING: %s  ", s);
 
         	if (monitor_memory(NULL, NULL, NULL, &swap_usage))
-        		fprintf(stderr, "(swap space usage: %ld%%)", 
+        		fprintf(stderr, "(swap space usage: %ld%%)",
 				swap_usage);
 
-		fprintf(stderr, 
+		fprintf(stderr,
      "\nWARNING: memory/swap exhaustion may cause this session to be killed\n");
 	}
 
@@ -383,7 +383,7 @@ vas_memory_used(void)
         struct crash_map_entry *m;
 	int blks;
 
-	if (vas_version < 2) 
+	if (vas_version < 2)
 		return 0;
 
         for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
@@ -408,7 +408,7 @@ vas_memory_dump(FILE *fp)
 	int blks;
 
 	if (vas_version < 2) {
-		fprintf(fp, "%s\n", vas_version ? 
+		fprintf(fp, "%s\n", vas_version ?
 			"version 1: not supported" : "no dumpfile");
 		return 0;
 	}
@@ -420,7 +420,7 @@ vas_memory_dump(FILE *fp)
 
         for (blks = 0, m = vas_map_base->map; m->start_va; m++) {
 		fprintf(fp, fmt,
-			m->start_va, m->exp_data, m->start_blk, m->num_blks); 
+			m->start_va, m->exp_data, m->start_blk, m->num_blks);
 		if (m->exp_data)
 			blks += m->num_blks;
         }
@@ -436,7 +436,7 @@ mclx_page_size(void)
 	return (Page_Size);
 }
 
-void 
+void
 set_vas_debug(ulong value)
 {
 	vas_debug = value;

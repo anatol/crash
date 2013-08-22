@@ -42,7 +42,7 @@ static int GPL_version = GPLv2;
 static int GPL_version = GPLv3;
 #endif
 
-static 
+static
 char *program_usage_info[] = {
     "",
     "USAGE:",
@@ -171,7 +171,7 @@ char *program_usage_info[] = {
     "",
     "  --buildinfo",
     "    Display the crash binary's build date, the user ID of the builder,",
-    "    the hostname of the machine where the build was done, the target", 
+    "    the hostname of the machine where the build was done, the target",
     "    architecture, the version number, and the compiler version.",
     "",
     "  --memory_module modname",
@@ -350,7 +350,7 @@ program_usage(int form)
 {
 	if (form == SHORT_FORM) {
 		fprintf(fp, "\nUsage:\n\n");
-		fprintf(fp, "%s\n%s\n", program_usage_info[3], 
+		fprintf(fp, "%s\n%s\n", program_usage_info[3],
 			program_usage_info[4]);
 		fprintf(fp, "\nEnter \"%s -h\" for details.\n",
 			pc->program_name);
@@ -403,7 +403,7 @@ help_init(void)
 	}
 
         if (!pc->cmdlist) {
-		pc->cmdlistsz = pc->ncmds;        
+		pc->cmdlistsz = pc->ncmds;
         	if ((pc->cmdlist = (char **)
                 	malloc(sizeof(char *) * pc->cmdlistsz)) == NULL)
                         	error(FATAL,
@@ -412,7 +412,7 @@ help_init(void)
 		pc->cmdlistsz = pc->ncmds;
 		if ((pc->cmdlist = (char **)realloc(pc->cmdlist,
                 	sizeof(char *) * pc->cmdlistsz)) == NULL)
-				error(FATAL, 
+				error(FATAL,
 					"cannot realloc command list space\n");
 	}
 
@@ -430,7 +430,7 @@ reshuffle_cmdlist(void)
         struct command_table_entry *cp;
 	struct extension_table *ext;
 
-	for (i = 0; i < pc->cmdlistsz; i++) 
+	for (i = 0; i < pc->cmdlistsz; i++)
 		pc->cmdlist[i] = NULL;
 
         for (cnt = 0, cp = pc->cmd_table; cp->name; cp++) {
@@ -466,7 +466,7 @@ sort_command_name(const void *name1, const void *name2)
 	s1 = (char **)name1;
 	s2 = (char **)name2;
 
-	if (STREQ(*s1, "q"))  
+	if (STREQ(*s1, "q"))
 		return 1;
 
 	return strcmp(*s1, *s2);
@@ -485,7 +485,7 @@ cmd_help(void)
 
 	oflag = 0;
 
-        while ((c = getopt(argcnt, args, 
+        while ((c = getopt(argcnt, args,
 	        "efNDdmM:ngcaBbHhkKsvVoptTzLxOr")) != EOF) {
                 switch(c)
                 {
@@ -626,7 +626,7 @@ cmd_help(void)
 			dump_registers();
 			return;
 
-                default:  
+                default:
 			argerrs++;
                         break;
                 }
@@ -636,17 +636,17 @@ cmd_help(void)
                 cmd_usage(pc->curcmd, COMPLETE_HELP);
 
 	if (!args[optind]) {
-		if (oflag) 
+		if (oflag)
 			dump_offset_table(NULL, FALSE);
-		else 
+		else
 			display_help_screen("");
 		return;
 	}
 
         do {
-		if (oflag) 
+		if (oflag)
 			dump_offset_table(args[optind], FALSE);
-		else	
+		else
         		cmd_usage(args[optind], COMPLETE_HELP|MUST_HELP);
 		optind++;
         } while (args[optind]);
@@ -691,7 +691,7 @@ display_help_screen(char *indent)
         }
 
         fprintf(fp, "\n%s%s version: %-6s   gdb version: %s\n", indent,
-		pc->program_name, pc->program_version, pc->gdb_version); 
+		pc->program_name, pc->program_version, pc->gdb_version);
 	fprintf(fp,
 		"%sFor help on any command above, enter \"help <command>\".\n",
 		indent);
@@ -737,15 +737,15 @@ display_commands(void)
 
 /*
  *  Help data for a command must be formatted using the following template:
- 
+
 "command-name",
-"command description line", 
+"command description line",
 "argument-usage line",
 "description...",
 "description...",
 "description...",
 NULL,
- 
+
  *  The first line is concatenated with the second line, and will follow the
  *  help command's "NAME" header.
  *  The first and third lines will also be concatenated, and will follow the
@@ -768,7 +768,7 @@ char *help_foreach[] = {
 "  with any, or all, tasks in the system, without having to set the context",
 "  to each targeted task.\n",
 "      pid  perform the command(s) on this PID.",
-"    taskp  perform the command(s) on task referenced by this hexadecimal", 
+"    taskp  perform the command(s) on task referenced by this hexadecimal",
 "           task_struct pointer.",
 "     name  perform the command(s) on all tasks with this name.  If the",
 "           task name can be confused with a foreach command name, then",
@@ -882,7 +882,7 @@ char *help_ascii[] = {
 "    62696c2f7273752f: /usr/lib",
 "\n  Display an ASCII chart:",
 "\n    %s> ascii",
-" ",  
+" ",
 "          0    1   2   3   4   5   6   7",
 "        +-------------------------------",
 "      0 | NUL DLE  SP  0   @   P   '   p",
@@ -921,10 +921,10 @@ char *help_exit[] = {
 "  Bail out of the current %s session.",
 "\nNOTE",
 "  This command is equivalent to the \"q\" command.",
-NULL            
+NULL
 };
 
-char *help_help[] = { 
+char *help_help[] = {
 "help",
 "get help",
 "[command | all] [-<option>]",
@@ -962,7 +962,7 @@ char *help_help[] = {
 "    -v - vm_table",
 "    -V - vm_table (verbose)",
 "    -x - text cache",
-NULL               
+NULL
 };
 
 char *help_set[] = {
@@ -1008,7 +1008,7 @@ char *help_set[] = {
 "   zero_excluded  on | off     controls whether excluded pages from a dumpfile",
 "                               should return zero-filled memory.",
 "       null-stop  on | off     if on, gdb's printing of character arrays will",
-"                               stop at the first NULL encountered.", 
+"                               stop at the first NULL encountered.",
 "             gdb  on | off     if on, the %s session will be run in a mode",
 "                               where all commands will be passed directly to",
 "                               gdb, and the command prompt will change to ",
@@ -1017,7 +1017,7 @@ char *help_set[] = {
 "                               the \"crash\" directive.",
 "           scope  text-addr    sets the text scope for viewing the definition",
 "                               of data structures; the \"text-addr\" argument",
-"                               must be a kernel or module text address, which", 
+"                               must be a kernel or module text address, which",
 "                               may be expressed symbolically or as a hexadecimal",
 "                               value.",
 " ",
@@ -1051,7 +1051,7 @@ char *help_set[] = {
 "    %s> set scroll off",
 "    scroll: off (/usr/bin/less)",
 " ",
-"  Show the current state of %s internal variables:\n", 
+"  Show the current state of %s internal variables:\n",
 "    %s> set -v",
 "            scroll: on (/usr/bin/less)",
 "             radix: 10 (decimal)",
@@ -1076,7 +1076,7 @@ char *help_set[] = {
 "        TASK: c1ede000",
 "         CPU: 0",
 "       STATE: TASK_INTERRUPTIBLE\n",
-NULL               
+NULL
 };
 
 char *help_p[] = {
@@ -1088,7 +1088,7 @@ char *help_p[] = {
 "    expression   The expression to be evaluated.",
 "            -x  override default output format with hexadecimal format.",
 "            -d  override default output format with decimal format.",
-"            -u  the expression evaluates to a user address reference.", 
+"            -u  the expression evaluates to a user address reference.",
 "",
 "  The default output format is decimal, but that can be changed at any time",
 "  with the two built-in aliases \"hex\" and \"dec\".  Alternatively, there",
@@ -1104,7 +1104,7 @@ char *help_p[] = {
 "    %s> pd jiffies",
 "    jiffies = $8 = 166533160",
 " ",
-"  Print the contents of the vm_area_struct \"init_mm\":\n", 
+"  Print the contents of the vm_area_struct \"init_mm\":\n",
 "    %s> p init_mm",
 "    init_mm = $5 = {",
 "      mmap = 0xc022d540, ",
@@ -1143,7 +1143,7 @@ char *help_p[] = {
 "      swap_address = 0x0, ",
 "      segments = 0x0",
 "    }",
-NULL               
+NULL
 };
 
 char *help_ps[] = {
@@ -1194,7 +1194,7 @@ char *help_ps[] = {
 "  per-task time usage data, argument/environment data, thread groups,",
 "  or resource limits may be displayed:",
 " ",
-"       -p  display the parental hierarchy of selected, or all, tasks.",  
+"       -p  display the parental hierarchy of selected, or all, tasks.",
 "       -c  display the children of selected, or all, tasks.",
 "       -t  display the task run time, start time, and cumulative user",
 "           and system times.",
@@ -1453,7 +1453,7 @@ char *help_ps[] = {
 "      PID: 6520   TASK: c20aa030  CPU: 0   COMMAND: \"firefox-bin\"",
 "      PID: 6523   TASK: c20ab0b0  CPU: 0   COMMAND: \"firefox-bin\"",
 "      PID: 6614   TASK: f1f181b0  CPU: 0   COMMAND: \"firefox-bin\"",
-" ",   
+" ",
 "  Display the tasks in the thread group for each instance of the",
 "  program named \"multi-thread\":\n",
 "    %s> ps -g multi-thread",
@@ -1492,7 +1492,7 @@ char *help_ps[] = {
 "          10      2   1  ffff880212969710  IN   0.0      0      0  [migration/1]",
 "          15      2   2  ffff880212989710  IN   0.0      0      0  [migration/2]",
 "          20      2   3  ffff8802129a9710  IN   0.0      0      0  [migration/3]",
-NULL               
+NULL
 };
 
 char *help_rd[] = {
@@ -1548,7 +1548,7 @@ char *help_rd[] = {
 "  Display the kernel's version string:\n",
 "    %s> rd -a linux_banner",
 "    c082a020:  Linux version 2.6.32-119.el6.i686 (mockbuild@hs20-bc2-4.buil",
-"    c082a05c:  d.redhat.com) (gcc version 4.4.4 20100726 (Red Hat 4.4.4-13)",  
+"    c082a05c:  d.redhat.com) (gcc version 4.4.4 20100726 (Red Hat 4.4.4-13)",
 "    c082a098:   (GCC) ) #1 SMP Tue Mar 1 18:16:57 EST 2011",
 "",
 "  Display the same block of memory, first without symbols, again",
@@ -1603,7 +1603,7 @@ char *help_rd[] = {
 "    c009bf3c:  0000002a 00000004 c57d77e8 00000104   *........w}.....",
 "    c009bf4c:  0000000b c009a000 7fffffff 00000000   ................",
 "    c009bf5c:  00000000                              ....",
-NULL               
+NULL
 };
 
 char *help_wr[] = {
@@ -1624,8 +1624,8 @@ char *help_wr[] = {
 "      -64  write data in a 64-bit values (default on 64-bit machines).",
 "  address  address to write.  The address is considered virtual unless the",
 "           -p option is used.  If a virtual address is specified, the",
-"           -u or -k options are necessary only if the address space cannot", 
-"           be determined from the address value itself.  If a user virtual",  
+"           -u or -k options are necessary only if the address space cannot",
+"           be determined from the address value itself.  If a user virtual",
 "           address is specified, the address space of the current context",
 "           implied.  The address must be expressed in hexadecimal format.",
 "   symbol  symbol of starting address to write.",
@@ -1633,7 +1633,7 @@ char *help_wr[] = {
 "\nEXAMPLES",
 "  Turn on a debug flag:\n",
 "    %s> wr my_debug_flag 1",
-NULL               
+NULL
 };
 
 char *help_bt[] = {
@@ -1678,10 +1678,10 @@ char *help_bt[] = {
 "           that were compiled without the -fomit-frame_pointer; subsequent usage",
 "           of this option toggles the backtrace method.",
 "           x86_64: use old backtrace method by default; subsequent usage of this",
-"           option toggles the backtrace method.",  
+"           option toggles the backtrace method.",
 "   -R ref  display stack trace only if there is a reference to this symbol",
 "           or text address.",
-"       -s  display the symbol name plus its offset.", 
+"       -s  display the symbol name plus its offset.",
 "       -x  when displaying a symbol offset with the -s option, override the",
 "           default output format with hexadecimal format.",
 "       -d  when displaying a symbol offset with the -s option, override the",
@@ -1793,7 +1793,7 @@ char *help_bt[] = {
 "        c0cedff4: 00000286  bffed458  0000002b  ",
 " ",
 "    Typically the arguments passed to a function will be the last values",
-"    that were pushed onto the stack by the next higher-numbered function, i.e.,", 
+"    that were pushed onto the stack by the next higher-numbered function, i.e.,",
 "    the lowest stack addresses in the frame above the called function's",
 "    stack frame.  That can be verified by disassembling the calling function.",
 "    For example, the arguments passed from sys_read() to pipe_read() above",
@@ -1897,7 +1897,7 @@ char *help_bt[] = {
 "        R10: 0000000000000000  R11: 0000000000000202  R12: ffff88007ac97300",
 "        R13: 0000000000000000  R14: 00007f571e104a80  R15: 00007f571e305048",
 "        ORIG_RAX: 0000000000000029  CS: 0033  SS: 002b",
-NULL               
+NULL
 };
 
 char *help_btop[] = {
@@ -1908,26 +1908,26 @@ char *help_btop[] = {
 "\nEXAMPLES",
 "    %s> btop 512a000",
 "    512a000: 512a",
-NULL               
+NULL
 };
 
 char *help_extend[] = {
 "extend",
-"extend the %s command set",  
+"extend the %s command set",
 "[shared-object ...] | [-u [shared-object ...]]",
 "  This command dynamically loads or unloads %s extension shared object",
 "  libraries:\n",
 "    shared-object     load the specified shared object file; more than one",
 "                      one object file may be entered.",
 "    -u shared-object  unload the specified shared object file; if no file",
-"                      arguments are specified, unload all objects.", 
+"                      arguments are specified, unload all objects.",
 "\n  If the shared-object filename is not expressed with a fully-qualified",
 "  pathname, the following directories will be searched in the order shown,",
 "  and the first instance of the file that is found will be selected:\n",
 "     1. the current working directory",
 "     2. the directory specified in the CRASH_EXTENSIONS environment variable",
 "     3. /usr/lib64/crash/extensions (64-bit architectures)",
-"     4. /usr/lib/crash/extensions", 
+"     4. /usr/lib/crash/extensions",
 "\n  If no arguments are entered, the current set of shared object files and ",
 "  a list of their commands will be displayed.  The registered commands",
 "  contained in each shared object file will appear automatically in the ",
@@ -2054,7 +2054,7 @@ char *help_extend[] = {
 "        fprintf(fp, \"\\n\");",
 "}",
 "",
-"/* ",  
+"/* ",
 " *  The optional help data is simply an array of strings in a defined format.",
 " *  For example, the \"help echo\" command will use the help_echo[] string",
 " *  array below to create a help page that looks like this:",
@@ -2089,21 +2089,21 @@ char *help_extend[] = {
 "        NULL",
 "};",
 "",
-NULL               
+NULL
 };
 
 char *help_mach[] = {
 "mach",
-"machine specific data",    
+"machine specific data",
 "[-m | -c -[xd]]",
 "  This command displays data specific to a machine type.\n",
 "    -m  Display the physical memory map (x86, x86_64 and ia64 only).",
 "    -c  Display each cpu's cpuinfo structure (x86, x86_64 and ia64 only).",
-"        Display each cpu's x8664_pda structure (x86_64 only),", 
+"        Display each cpu's x8664_pda structure (x86_64 only),",
 "        Display the hwrpb_struct, and each cpu's percpu_struct (alpha only).",
 "    -x  override default output format with hexadecimal format.",
 "    -d  override default output format with decimal format.",
-"\nEXAMPLES", 
+"\nEXAMPLES",
 "    %s> mach",
 "           MACHINE TYPE: i686",
 "            MEMORY SIZE: 512 MB",
@@ -2129,23 +2129,23 @@ char *help_mach[] = {
 "    00000000fec00000 - 00000000fec90000  E820_RESERVED",
 "    00000000fee00000 - 00000000fee10000  E820_RESERVED",
 "    00000000ffb00000 - 0000000100000000  E820_RESERVED",
-NULL               
+NULL
 };
 
 char *help_map[] = {
 "map",
-"store KVM dumpfile memory map data",    
+"store KVM dumpfile memory map data",
 "[-a][-f [filename]]",
 "  The layout of KVM guest dumpfiles created with \"virsh dump\" does not allow",
 "  the crash utility to access the system's memory in a random access manner.",
 "  Therefore, during crash session initialization, a potentially time-consuming",
 "  dumpfile scan procedure is required to create a physical-memory-to-file-offset",
 "  map for use during the session.",
-" ",  
+" ",
 "  This command may be used to append the memory map data to the dumpfile or",
 "  to store it in a permanent file.  After this has been done, subsequent crash",
 "  sessions using the dumpfile will no longer require the scan procedure:",
-" ", 
+" ",
 "    -a  Append the memory map to the end of the KVM dumpfile.",
 "    -f  Create a memory map file.  If no filename argument is entered, the",
 "        filename will consist of the dumpfile name with \".map\" appended,",
@@ -2154,7 +2154,7 @@ char *help_map[] = {
 "        However, if a \"filename\" argument is entered, and the default location",
 "        and naming convention are not used, then the new memory map file will",
 "        have to be added to the %s command line during invocation.",
-"\nEXAMPLES", 
+"\nEXAMPLES",
 "    %s> map",
 "    MAP FILE IN USE: vmcore.map",
 "    %s> map -a",
@@ -2304,7 +2304,7 @@ char *help_timer[] = {
 "      1492850155229325  ea01ef6c  c0436a1e  <hrtimer_wakeup>",
 "    ...",
 " ",
-NULL               
+NULL
 };
 
 
@@ -2412,7 +2412,7 @@ char *help_runq[] = {
 "          [120] PID: 14724  TASK: ffff880139632080  COMMAND: \"sh\"",
 "       [120] PID: 14742  TASK: ffff880126762aa0  COMMAND: \"sh\"",
 "       [120] PID: 14736  TASK: ffff88010626e040  COMMAND: \"sh\"",
-NULL               
+NULL
 };
 
 
@@ -2450,7 +2450,7 @@ char *help_repeat[] = {
 "    jiffies = $17 = 155552695",
 "    jiffies = $18 = 155552796",
 "    ...",
-NULL               
+NULL
 };
 
 
@@ -2469,7 +2469,7 @@ char *help_pte[] = {
 "    %s> pte 13f600",
 "     PTE      SWAP     OFFSET",
 "    13f600  /dev/hda2   5104",
-NULL               
+NULL
 };
 
 
@@ -2482,7 +2482,7 @@ char *help_swap[] = {
 "  %s> swap",
 "  SWAP_INFO_STRUCT    TYPE       SIZE       USED    PCT  PRI  FILENAME",
 "  ffff880153d45f40  PARTITION  7192568k   1200580k  16%   -1  /dev/dm-1",
-NULL               
+NULL
 };
 
 
@@ -2633,7 +2633,7 @@ char *help_dev[] = {
 "        8 ffff81012dc77000   sdb      ffff81012d8b5740       0     0     0     0",
 "        8 ffff81012d8d0c00   sdc      ffff81012d8ae9c0       0     0     0     0",
 
-NULL               
+NULL
 };
 
 
@@ -2657,7 +2657,7 @@ char *help_search[] = {
 "              of kernel virtual address space.  This option is the default.",
 "          -K  Same as -k, except that mapped kernel virtual memory that was",
 "              allocated by vmalloc(), module memory, or virtual mem_map regions",
-"              will not be searched.", 
+"              will not be searched.",
 "          -V  Same as -k, except that unity-mapped kernel virtual memory and",
 "              mapped kernel-text/static-data (x86_64 and ia64) will not be",
 "              searched.",
@@ -2814,7 +2814,7 @@ char *help_search[] = {
 "    ffff8100399565a8: ffffffff80493d60 (anon_inode_inode)",
 "    ffff81003a278cd0: ffffffff800649d6 (__down_interruptible+191)",
 "    ffff81003cc23e08: ffffffff800649d6 (__down_interruptible+191)",
-NULL               
+NULL
 };
 
 
@@ -2826,7 +2826,7 @@ char *help_irq[] = {
 "  associated hw_interrupt_type and irqaction structure data, into a",
 "  consolidated per-IRQ display.  For kernel versions 2.6.37 and later",
 "  the display consists of the irq_desc/irq_data address, its irqaction",
-"  address(es), and the irqaction name strings.  Alternatively, the", 
+"  address(es), and the irqaction name strings.  Alternatively, the",
 "  intel interrupt descriptor table, bottom half data, cpu affinity for",
 "  in-use irqs, or kernel irq stats may be displayed.  If no index value",
 "  argument(s) nor any options are entered, the IRQ data for all IRQs will",
@@ -2842,7 +2842,7 @@ char *help_irq[] = {
 "            specified cpu[s]; cpu can be specified as \"1,3,5\", \"1-3\",",
 "            or \"1,3,5-7,10\".",
 "\nEXAMPLES",
-"  Display the relevant data for IRQ 18 from a pre-2.6.37 kernel:\n", 
+"  Display the relevant data for IRQ 18 from a pre-2.6.37 kernel:\n",
 "    %s> irq 18",
 "        IRQ: 18",
 "     STATUS: 0 ",
@@ -2868,7 +2868,7 @@ char *help_irq[] = {
 "               dev_id: c0091078",
 "                 next: 0",
 "      DEPTH: 0\n",
-"  Display the relevant data for IRQ 21 from a 2.6.37 kernel:\n", 
+"  Display the relevant data for IRQ 21 from a 2.6.37 kernel:\n",
 "    %s> irq 21",
 "     IRQ   IRQ_DESC/_DATA      IRQACTION      NAME",
 "     21   ffff88003787f780  ffff8800379a8b40  \"ehci_hcd:usb2\"",
@@ -2962,15 +2962,15 @@ char *help_irq[] = {
 "     86:          3          0 IR-PCI-MSI-edge     ioat-msix",
 "     87:          3          0 IR-PCI-MSI-edge     ioat-msix",
 "     88:         24        295 IR-PCI-MSI-edge     eth4",
-NULL               
+NULL
 };
 
 
 char *help_ipcs[] = {
-"ipcs",                            
-"System V IPC facilities",  
+"ipcs",
+"System V IPC facilities",
 "[-smMq] [-n pid|task] [id | addr]",
- 
+
 "  This command provides information on the System V IPC facilities.  With no",
 "  arguments, the command will display kernel usage of all three factilities.",
 "  ",
@@ -3000,8 +3000,8 @@ char *help_ipcs[] = {
 "    ffff88046f826910 00000000 32769      0     600   1         ",
 "    ",
 "    MSG_QUEUE        KEY      MSQID      UID   PERMS USED-BYTES   MESSAGES",
-"    ffff8100036bb8d0 000079d7 0          3369  666   16640        104",         
-"    ffff8100036bb3d0 000079d8 32769      3369  666   12960        81",          
+"    ffff8100036bb8d0 000079d7 0          3369  666   16640        104",
+"    ffff8100036bb3d0 000079d8 32769      3369  666   12960        81",
 "    ffff810026d751d0 000079d9 65538      3369  666   10880        68",
 "    ",
 "  Display shared memory usage with detailed information:\n",
@@ -3045,7 +3045,7 @@ char *help_cpu[] = {
 "        TASK: c0b3a000 ",
 "         CPU: 1 ",
 "       STATE: TASK_RUNNING (ACTIVE)",
-NULL               
+NULL
 };
 
 
@@ -3064,7 +3064,7 @@ char *help_sys[] = {
 "                      displayed in hexadecimal.",
 "    config            If the kernel was configured with CONFIG_IKCONFIG, then",
 "                      dump the in-kernel configuration data.",
-"    -panic            Panic a live system.  Requires write permission to", 
+"    -panic            Panic a live system.  Requires write permission to",
 "                      /dev/mem.  Results in the %s context causing an",
 "                      \"Attempted to kill the idle task!\" panic.  (The dump",
 "                      will indicate that the %s context has a PID of 0).",
@@ -3128,7 +3128,7 @@ char *help_sys[] = {
 " ",
 "    If the current output radix has been set to 16, the system call numbers",
 "    will be displayed in hexadecimal.",
-NULL               
+NULL
 };
 
 char *help_log[] = {
@@ -3137,7 +3137,7 @@ char *help_log[] = {
 "[-tdm]",
 "  This command dumps the kernel log_buf contents in chronological order.  The",
 "  command supports the older log_buf formats, which may or may not contain a",
-"  timestamp inserted prior to each message, as well as the newer variable-length", 
+"  timestamp inserted prior to each message, as well as the newer variable-length",
 "  record format, where the timestamp is contained in each log entry's header.",
 "  ",
 "    -t  Display the message text without the timestamp; only applicable to the",
@@ -3149,7 +3149,7 @@ char *help_log[] = {
 "        the variable-length record format, the level will be displayed in ",
 "        hexadecimal, and depending upon the kernel version, also contains the",
 "        facility or flags bits.",
-" ",        
+" ",
 "\nEXAMPLES",
 "  Dump the kernel message buffer:\n",
 "    %s> log",
@@ -3241,7 +3241,7 @@ char *help_log[] = {
 "    SUBSYSTEM=pci",
 "    DEVICE=+pci:0000:ff:03.1",
 "    ...",
-NULL               
+NULL
 };
 
 char *help_whatis[] = {
@@ -3253,14 +3253,14 @@ char *help_whatis[] = {
 "    struct  a structure name. The output is the same as if the \"struct\"",
 "            command was used.",
 "     union  a union name. The output is the same as if the \"union\" command",
-"            was used.", 
+"            was used.",
 "   typedef  a typedef name. If the typedef translates to a structure or union",
 "            the output is the same as if the \"struct\" or \"union\" command",
 "            was used. If the typedef is a primitive datatype, the one-line",
 "            declaration is displayed.",
 "    symbol  a kernel symbol.  ",
 "\nEXAMPLES",
-"   Display the definition of a linux_binfmt structure:\n", 
+"   Display the definition of a linux_binfmt structure:\n",
 "    %s> whatis linux_binfmt",
 "    struct linux_binfmt {",
 "      struct linux_binfmt  *next;",
@@ -3291,7 +3291,7 @@ char *help_whatis[] = {
 "    };",
 "    SIZE: 4  (0x4)",
 "    ",
-"  Display the type data of sys_read() and jiffies text and data symbols:\n", 
+"  Display the type data of sys_read() and jiffies text and data symbols:\n",
 "    %s> whatis sys_read",
 "    ssize_t sys_read(unsigned int, char *, size_t);",
 " ",
@@ -3301,7 +3301,7 @@ char *help_whatis[] = {
 "    %s> whatis kdev_t",
 "    typedef short unsigned int kdev_t;",
 "    SIZE: 2  (0x2)",
-NULL               
+NULL
 };
 
 
@@ -3349,12 +3349,12 @@ char *help_mount[] = {
 "  is shown:\n",
 "    %s> mount",
 "         MOUNT           SUPERBLK     TYPE   DEVNAME   DIRNAME",
-"    ffff880212fb8200 ffff880212fc0800 rootfs rootfs    /   ",      
-"    ffff88020ffbea00 ffff880212fc2000 proc   proc      proc",     
-"    ffff880211db7f00 ffff88020e01a800 sysfs  sysfs     /sys",     
-"    ffff88020ffe1300 ffff880212a40000 devtmpfs devtmpfs /dev",     
-"    ffff88020ff15000 ffff880212bbc800 devpts devpts    /dev/pts",  
-"    ffff88020e542800 ffff88020e62b800 tmpfs  tmpfs     /dev/shm",  
+"    ffff880212fb8200 ffff880212fc0800 rootfs rootfs    /   ",
+"    ffff88020ffbea00 ffff880212fc2000 proc   proc      proc",
+"    ffff880211db7f00 ffff88020e01a800 sysfs  sysfs     /sys",
+"    ffff88020ffe1300 ffff880212a40000 devtmpfs devtmpfs /dev",
+"    ffff88020ff15000 ffff880212bbc800 devpts devpts    /dev/pts",
+"    ffff88020e542800 ffff88020e62b800 tmpfs  tmpfs     /dev/shm",
 "    ...",
 " ",
 "  Display the open files associated with each mounted filesystem:\n",
@@ -3387,14 +3387,14 @@ char *help_mount[] = {
 "  Display the mounted filesystem containing inode c5000aa8:\n",
 "    %s> mount c5000aa8",
 "    VFSMOUNT SUPERBLK TYPE   DEVNAME   DIRNAME",
-"    c0089f30 c0088600 ext2   /dev/sda6 /usr ",               
+"    c0089f30 c0088600 ext2   /dev/sda6 /usr ",
 " ",
 "  Display the mounted filesystem containing inode ffff8801f4245e40:\n",
 "    %s> mount ffff8801f4245e40",
 "         MOUNT           SUPERBLK     TYPE   DEVNAME  DIRNAME",
-"    ffff88020ffbea00 ffff880212fc2000 proc   proc     /proc",     
+"    ffff88020ffbea00 ffff880212fc2000 proc   proc     /proc",
 " ",
-NULL               
+NULL
 };
 
 
@@ -3430,14 +3430,14 @@ char *help_alias[] = {
 "    builtin  man      help ",
 "    builtin  ?        help ",
 "    builtin  quit     q",
-"    builtin  sf       set scroll off", 
-"    builtin  sn       set scroll on", 
+"    builtin  sf       set scroll off",
+"    builtin  sn       set scroll on",
 "    builtin  hex      set radix 16",
 "    builtin  dec      set radix 10",
 "    builtin  g        gdb",
 "    builtin  px       p -x",
 "    builtin  pd       p -d",
-"    builtin  for      foreach", 
+"    builtin  for      foreach",
 "    builtin  size     *",
 "    builtin  dmesg    log",
 "    builtin  lsmod    mod",
@@ -3454,7 +3454,7 @@ char *help_alias[] = {
 "  Remove an alias:\n",
 "    %s> alias kp \"\"",
 "    alias deleted: kp",
-NULL               
+NULL
 };
 
 char *help_pointer[] = {
@@ -3483,7 +3483,7 @@ char *help_pointer[] = {
 "      buffers = 0x0",
 "    }",
 
-NULL               
+NULL
 };
 
 
@@ -3588,11 +3588,11 @@ char *help_vtop[] = {
 "    c7200ae0  40104000  40b08000    73   ",
 " ",
 "    SWAP: /dev/sda8  OFFSET: 22716",
-NULL               
+NULL
 };
 
 
-char *help_vm[] = { 
+char *help_vm[] = {
 "vm",
 "virtual memory",
 "[-p | -P vmaddr | -v | -m | -x | -d | [-R reference] | [-f vm_flags]]"
@@ -3609,7 +3609,7 @@ char *help_vm[] = {
 "  Alternatively, the -m or -v options may be used to dump the task's mm_struct",
 "  or all of its vm_area_structs respectively.  The -p, -v, -m, -R and -f",
 "  options are all mutually exclusive.\n",
-"            -p  translate each virtual page to its physical address, or if", 
+"            -p  translate each virtual page to its physical address, or if",
 "                the page is not mapped, its swap device and offset, or",
 "                filename and offset.",
 "     -P vmaddr  similar to -p, but only translate the pages belonging to the",
@@ -3619,9 +3619,9 @@ char *help_vm[] = {
 "            -v  dump all of the vm_area_structs associated with the task.",
 "            -x  override the default output format for the -m or -v options",
 "                with hexadecimal format.",
-"            -d  override the default output format for the -m or -v options", 
+"            -d  override the default output format for the -m or -v options",
 "                with decimal format.",
-"   -f vm_flags  translate the bits of a FLAGS (vm_flags) value.", 
+"   -f vm_flags  translate the bits of a FLAGS (vm_flags) value.",
 "           pid  a process PID.",
 "         taskp  a hexadecimal task_struct pointer.",
 "\nEXAMPLES",
@@ -3815,7 +3815,7 @@ char *help_vm[] = {
 "    f64000    3ff35000",
 "    f65000    FILE: /lib/libnss_files-2.12.so  OFFSET: a000",
 "    f66000    FILE: /lib/libnss_files-2.12.so  OFFSET: b000",
-NULL               
+NULL
 };
 
 char *help_task[] = {
@@ -3832,7 +3832,7 @@ char *help_task[] = {
 "        pid  a process PID.",
 "      taskp  a hexadecimal task_struct pointer.",
 "  -R member  a comma-separated list of one or more task_struct and/or",
-"             thread_info structure members.",  
+"             thread_info structure members.",
 "         -x  override default output format with hexadecimal format.",
 "         -d  override default output format with decimal format.",
 "\nEXAMPLES",
@@ -3887,7 +3887,7 @@ char *help_task[] = {
 "  is not necessary to include the \"-R\" before the task_struct/thread_info",
 "  member name(s).",
 
-NULL               
+NULL
 };
 
 char *help_sig[] = {
@@ -3906,14 +3906,14 @@ char *help_sig[] = {
 "    2.  Whether the task has an unblocked signal pending.",
 "    3.  The contents of the \"blocked\" and \"signal\" sigset_t structures",
 "        from the task_struct/signal_struct, both of which are represented ",
-"        as a 64-bit hexadecimal value.", 
+"        as a 64-bit hexadecimal value.",
 "    4.  For each queued signal, private and/or shared, if any, its signal",
 "        number and associated siginfo structure address.",
 " ",
 "  The -l option lists the signal numbers and their name(s).  The -s option",
 "  translates a 64-bit hexadecimal value representing the contents of a",
 "  sigset_t structure into the signal names whose bits are set.",
-" ",        
+" ",
 "        pid  a process PID.",
 "      taskp  a hexadecimal task_struct pointer.",
 "         -g  displays signal information for all threads in a task's ",
@@ -4085,7 +4085,7 @@ char *help_sig[] = {
 "    [64] SIGRTMAX",
 
 
-NULL               
+NULL
 };
 
 char *help_struct[] = {
@@ -4107,7 +4107,7 @@ char *help_struct[] = {
 "                 be preceded by its virtual address.",
 "      -l offset  if the address argument is a pointer to a structure member that",
 "                 is contained by the target data structure, typically a pointer",
-"                 to an embedded list_head, the offset to the embedded member may", 
+"                 to an embedded list_head, the offset to the embedded member may",
 "                 be entered in either of the following manners:",
 "                   1. in \"structure.member\" format.",
 "                   2. a number of bytes. ",
@@ -4118,11 +4118,11 @@ char *help_struct[] = {
 "             -x  override default output format with hexadecimal format.",
 "             -d  override default output format with decimal format.",
 "             -p  if a structure member is a pointer value, show the member's",
-"                 data type on the output line; and on the subsequent line(s),", 
+"                 data type on the output line; and on the subsequent line(s),",
 "                 dereference the pointer, display the pointer target's symbol",
 "                 value in brackets if appropriate, and if possible, display the",
 "                 target data; requires an address argument.",
-"        address  hexadecimal address of a structure; if the address points",  
+"        address  hexadecimal address of a structure; if the address points",
 "                 to an embedded list_head structure contained within the",
 "                 target data structure, then the \"-l\" option must be used.",
 "         symbol  symbolic reference to the address of a structure.",
@@ -4374,7 +4374,7 @@ char *help_struct[] = {
 "    %s> tcp_sl_timer tcp_slt_array 4\n",
 "  Lastly, the short-cut \"*\" pointer-to command may also be used to negate",
 "  the need to enter the \"struct\" command name (enter \"help *\" for details).",
-NULL               
+NULL
 };
 
 
@@ -4475,7 +4475,7 @@ char *help_union[] = {
 " ",
 "  Lastly, the short-cut \"*\" (pointer-to) command may also be used to negate",
 "  the need to enter the \"union\" command name (enter \"help *\" for details).",
-NULL               
+NULL
 };
 
 char *help_ptov[] = {
@@ -4489,7 +4489,7 @@ char *help_ptov[] = {
 "    %s> ptov 56e000",
 "    VIRTUAL   PHYSICAL",
 "    c056e000  56e000",
-NULL               
+NULL
 };
 
 char *help_mod[] = {
@@ -4699,7 +4699,7 @@ char *help_mod[] = {
 "    vxglm     P(U)",
 "    vxgms     P(U)",
 "    vxodm     P(U)",
-NULL               
+NULL
 };
 
 
@@ -4816,7 +4816,7 @@ char *help__list[] = {
 "    struct task_struct {",
 "       [136] struct task_struct *p_pptr;",
 "    }",
-" ",    
+" ",
 "  That being the case, given a task_struct pointer of c169a000, show its ",
 "  parental hierarchy back to the \"init_task\" (the \"swapper\" task):\n",
 "    %s> list task_struct.p_pptr c169a000",
@@ -5001,7 +5001,7 @@ char *help__list[] = {
 "      pid = 14138",
 "    ffff88012b8f4100",
 "      pid = 14183",
-NULL               
+NULL
 };
 
 char *help_tree[] = {
@@ -5014,7 +5014,7 @@ char *help_tree[] = {
 "             \"radix\" or \"rbtree\", although only the first two characters",
 "             are required.",
 "  -r offset  If the \"start\" argument is the address of a data structure that",
-"             contains the radix_tree_root or rb_root structure, then this is", 
+"             contains the radix_tree_root or rb_root structure, then this is",
 "             the offset to that structure member.  If the offset is non-zero,",
 "             then this option is required.  The offset may be entered in either",
 "             of two manners:",
@@ -5217,7 +5217,7 @@ char *help_ptob[] = {
 "\nEXAMPLES",
 "    %s> ptob 512a",
 "    512a: 512a000",
-NULL               
+NULL
 };
 
 char *help_gdb[] = {
@@ -5230,7 +5230,7 @@ char *help_gdb[] = {
 "",
 "  Alternatively, if \"set gdb on\" is entered, the session will be run in a",
 "  mode where all commands are passed directly to gdb.  When running in that",
-"  mode, native %s commands may be executed by preceding them with the", 
+"  mode, native %s commands may be executed by preceding them with the",
 "  \"crash\" directive.  To restore native %s mode, enter \"set gdb off\".",
 "\nEXAMPLES",
 "    %s> gdb help",
@@ -5252,7 +5252,7 @@ char *help_gdb[] = {
 "    Type \"help\" followed by a class name for a list of commands in that class.",
 "    Type \"help\" followed by command name for full documentation.",
 "    Command name abbreviations are allowed if unambiguous.",
-NULL               
+NULL
 };
 
 
@@ -5719,7 +5719,7 @@ char *help_kmem[] = {
 "      PG_slab            7  0000080",
 "      PG_head           14  0004000",
 "    %s>",
-NULL               
+NULL
 };
 
 char *help_dis[] = {
@@ -5731,14 +5731,14 @@ char *help_dis[] = {
 "            -r  (reverse) displays all instructions from the start of the ",
 "                routine up to and including the designated address.",
 "            -l  displays source code line number data in addition to the ",
-"                disassembly output.", 
+"                disassembly output.",
 "            -u  address is a user virtual address in the current context;",
 "                otherwise the address is assumed to be a kernel virtual address.",
 "                If this option is used, then -r and -l are ignored.",
 "            -x  override default output format with hexadecimal format.",
 "            -d  override default output format with decimal format.",
 "      -b [num]  modify the pre-calculated number of encoded bytes to skip after",
-"                a kernel BUG (\"ud2a\") instruction; with no argument, displays",  
+"                a kernel BUG (\"ud2a\") instruction; with no argument, displays",
 "                the current number of bytes being skipped. (x86 and x86_64 only)",
 "       address  starting hexadecimal text address.",
 "        symbol  symbol of starting text address.  On ppc64, the symbol",
@@ -5851,7 +5851,7 @@ char *help_dis[] = {
 "    0xffffffff800117a2 <sys_read+0x13>:     sub    $0x18,%rsp",
 "    0xffffffff800117a6 <sys_read+0x17>:     lea    0x14(%rsp),%rsi",
 "    0xffffffff800117ab <sys_read+0x1c>:     callq  0xffffffff8000b5b4 <fget_light>",
-NULL               
+NULL
 };
 
 
@@ -5864,7 +5864,7 @@ char *help_eval[] = {
 "  is an integral number of gigabytes, megabytes, or kilobytes, a short-hand",
 "  translation of the number will also be shown next to the hexadecimal",
 "  value.  If the most significant bit is set, the decimal display will show",
-"  both unsigned and signed (negative) values.  Expressions must of the format", 
+"  both unsigned and signed (negative) values.  Expressions must of the format",
 "  (x operator y), where \"x\" and \"y\" may be either numeric values or",
 "  symbols.  The list of operators are:\n",
 "                     +  -  &  |  ^  *  \%  /  <<  >>\n",
@@ -5922,7 +5922,7 @@ char *help_eval[] = {
 "         octal: 1000000000000",
 "        binary: 0000000000000000000000000001000000000000000000000000000000000000",
 "      bits set: 36",
-NULL               
+NULL
 };
 
 
@@ -5949,9 +5949,9 @@ char *help_sym[] = {
 "\nEXAMPLES",
 "  Translate data symbol jiffies to its value, and vice-versa:\n",
 "    %s> sym jiffies",
-"    c0213ae0 (D) jiffies\n", 
+"    c0213ae0 (D) jiffies\n",
 "    %s> sym c0213ae0",
-"    c0213ae0 (D) jiffies\n", 
+"    c0213ae0 (D) jiffies\n",
 "  Translate a text address to its symbolic value and source file:\n",
 "    %s> sym c0109944",
 "    c0109944 (T) system_call+0x34  ../linux-2.2.5/arch/i386/kernel/signal.c: 723\n",
@@ -6053,14 +6053,14 @@ char *help_sym[] = {
 
 "\n  Display the value of jiffies, along with the next and previous symbols:\n",
 "    %s> sym -np jiffies",
-"    c023027c (D) prof_shift",  
-"    c0230280 (D) jiffies ", 
+"    c023027c (D) prof_shift",
+"    c0230280 (D) jiffies ",
 "    c02302a0 (D) task",
 "\n  Translate a symbol value to its name and module:\n",
 "    crash> sym f88878d1",
-"    f88878d1 (t) ext3_readdir [ext3]",  
+"    f88878d1 (t) ext3_readdir [ext3]",
 "    crash>",
-NULL               
+NULL
 };
 
 char *help_files[] = {
@@ -6068,7 +6068,7 @@ char *help_files[] = {
 "open files",
 "[-d dentry] | [-R reference] [pid | taskp] ... ",
 "  This command displays information about open files of a context.",
-"  It prints the context's current root directory and current working", 
+"  It prints the context's current root directory and current working",
 "  directory, and then for each open file descriptor it prints a pointer",
 "  to its file struct, a pointer to its dentry struct, a pointer to the",
 "  inode, the file type, and the pathname.  If no arguments are entered,",
@@ -6107,7 +6107,7 @@ char *help_files[] = {
 "     15  c6df9360  c68e7780  c6938120  SOCK",
 "     16  c6b9c0e0  c68e7800  c6772000  SOCK",
 "     17  c6b9c200  c6b5f9c0  c6b5cea0  REG   /var/lib/news/active",
-"     21  c6b9c080  c6ede760  c6da3200  PIPE", 
+"     21  c6b9c080  c6ede760  c6da3200  PIPE",
 " ",
 "  Display the files opened by the \"crond\" daemon, which is PID 462:\n",
 "  %s> files 462",
@@ -6156,7 +6156,7 @@ char *help_files[] = {
 "    %s> files -d f745fd60",
 "     DENTRY    INODE    SUPERBLK  TYPE  PATH",
 "     f745fd60  f7284640  f73a3e00  REG   /var/spool/lpd/lpd.lock",
-NULL               
+NULL
 };
 
 char *help_fuser[] = {
@@ -6164,7 +6164,7 @@ char *help_fuser[] = {
 "file users",
 "[pathname | inode]",
 "  This command displays the tasks using specified files or sockets.",
-"  Tasks will be listed that reference the file as the current working", 
+"  Tasks will be listed that reference the file as the current working",
 "  directory, root directory, an open file descriptor, or that mmap the",
 "  file.  If the file is held open in the kernel by the lockd server on",
 "  behalf of a client discretionary file lock, the client hostname is",
@@ -6178,8 +6178,8 @@ char *help_fuser[] = {
 "     779  c5e82000  \"kwm\"           mmap",
 "     808  c5a8e000  \"krootwm\"       mmap",
 "     806  c5b42000  \"kfm\"           mmap",
-"     809  c5dde000  \"kpanel\"        mmap",     
-NULL               
+"     809  c5dde000  \"kpanel\"        mmap",
+NULL
 };
 
 char *help_net[] = {
@@ -6207,10 +6207,10 @@ char *help_net[] = {
 "  referenced fd/socket/sock data will be displayed.",
 "\nEXAMPLES",
 "  Display the network device list:",
-"\n    %s> net", 
+"\n    %s> net",
 "     DEVICE   NAME   IP ADDRESS(ES)",
 "    c0249f20  lo     127.0.0.1",
-"    c7fe6d80  eth0   10.1.8.20", 
+"    c7fe6d80  eth0   10.1.8.20",
 " ",
 "  Dump the ARP cache:\n",
 "    %s> net -a",
@@ -6317,7 +6317,7 @@ char *help_net[] = {
 "    FD   SOCKET     SOCK    FAMILY:TYPE         SOURCE-PORT     DESTINATION-PORT",
 "     5  c08ea3cc  c50d3c80  INET:STREAM        0.0.0.0-1026         0.0.0.0-0",
 "    ",
-NULL               
+NULL
 };
 
 
@@ -6433,7 +6433,7 @@ cmd_usage(char *cmd, int helpflag)
 	}
 
 	if (cp == NULL || (p = cp->help_data) == NULL) {
-		if (helpflag & SYNOPSIS) { 
+		if (helpflag & SYNOPSIS) {
 			fprintf(fp,
 				"No usage data for the \"%s\" command"
 				" is available.\n",
@@ -6447,9 +6447,9 @@ cmd_usage(char *cmd, int helpflag)
 				    "No help data for the \"%s\" command"
 				    " is available.\n",
 					cmd);
-			else if (!gdb_pass_through(concat_args(buf, 0, FALSE), 
+			else if (!gdb_pass_through(concat_args(buf, 0, FALSE),
 				NULL, GNU_RETURN_ON_ERROR))
-				fprintf(fp, 
+				fprintf(fp,
 					"No help data for \"%s\" is available.\n",
 					cmd);
 		}
@@ -6477,7 +6477,7 @@ cmd_usage(char *cmd, int helpflag)
         fprintf(fp,"\n\nDESCRIPTION\n");
         p++;
         do {
-		if (strstr(*p, "%") && !strstr(*p, "%s")) 
+		if (strstr(*p, "%") && !strstr(*p, "%s"))
 			print_verbatim(fp, *p);
 		else
                 	fprintf(fp, *p, pc->program_name, pc->program_name);
@@ -6503,12 +6503,12 @@ char *input_info[] = {
 
 "Interactive %s commands are gathered using the GNU readline library,",
 "which implements a command line history mechanism, and a command line editing",
-"mode.\n", 
+"mode.\n",
 
 "The command line history consists of a numbered list of previously run ",
-"commands, which can be viewed by entering \"h\" at any time.  A previously", 
+"commands, which can be viewed by entering \"h\" at any time.  A previously",
 "run command can be re-executed in a number of manners:",
-" ",       
+" ",
 "  1. To re-execute the last command, enter \"r\" alone, or \"!!\".",
 "  2. Enter \"r\" followed by the number identifying the desired command.",
 "  3. Enter \"r\" followed by a uniquely-identifying set of characters from",
@@ -6573,7 +6573,7 @@ display_input_info(void)
 	int i;
 
         for (i = 0; input_info[i]; i++) {
-                fprintf(fp, input_info[i],  
+                fprintf(fp, input_info[i],
                         pc->program_name, pc->program_name);
                 fprintf(fp, "\n");
 	}
@@ -6590,7 +6590,7 @@ char *output_info[] = {
 "To restore the scrolling behavior during runtime, enter \"set scroll on\"",
 "or the alias: \"sn\"\n",
 "Command output may be piped to an external command using standard command",
-"line pipe syntax.  For example:\n", 
+"line pipe syntax.  For example:\n",
 "  %s> log | grep eth0\n",
 "Command output may be redirected to a file using standard command line syntax.",
 "For example:\n",
@@ -6616,7 +6616,7 @@ display_output_info(void)
         int i;
 
         for (i = 0; output_info[i]; i++) {
-                fprintf(fp, output_info[i], 
+                fprintf(fp, output_info[i],
 			pc->program_name, pc->program_name);
                 fprintf(fp, "\n");
 	}
@@ -6637,15 +6637,15 @@ display_version(void)
 
         fprintf(fp, "\n%s %s\n", pc->program_name, pc->program_version);
 
-        for (i = 0; version_info[i]; i++) 
+        for (i = 0; version_info[i]; i++)
                 fprintf(fp, "%s\n", version_info[i]);
 }
 
-static 
+static
 char *version_info[] = {
 
 "Copyright (C) 2002-2013  Red Hat, Inc.",
-"Copyright (C) 2004, 2005, 2006, 2010  IBM Corporation", 
+"Copyright (C) 2004, 2005, 2006, 2010  IBM Corporation",
 "Copyright (C) 1999-2006  Hewlett-Packard Co",
 "Copyright (C) 2005, 2006, 2011, 2012  Fujitsu Limited",
 "Copyright (C) 2006, 2007  VA Linux Systems Japan K.K.",
@@ -6676,7 +6676,7 @@ display_copying_info(void)
 		break;
 
 	case GPLv3:
-		for (i = 0; !strstr(gnu_public_license_v3[i], 
+		for (i = 0; !strstr(gnu_public_license_v3[i],
 		    "15. Disclaimer of Warranty."); i++)
 			fprintf(fp, "%s\n", gnu_public_license_v3[i]);
 		break;
@@ -6703,7 +6703,7 @@ display_warranty_info(void)
 		break;
 
 	case GPLv3:
-		for (i = 0; !strstr(gnu_public_license_v3[i], 
+		for (i = 0; !strstr(gnu_public_license_v3[i],
 		    "15. Disclaimer of Warranty."); i++)
 			;
 
@@ -7634,7 +7634,7 @@ static void
 display_README(void)
 {
         int i, j;
-    	time_t time_now;           
+    	time_t time_now;
 
         for (i = 0; README[i]; i++) {
 		if (STREQ(README[i], README_CRASH_VERSION)) {
@@ -7642,8 +7642,8 @@ display_README(void)
 		} else if (STREQ(README[i], README_GNU_GDB_VERSION)) {
 			fprintf(fp, "    GNU gdb %s\n", pc->gdb_version);
 		} else if (STREQ(README[i], README_DATE)) {
-    			time(&time_now);               
-        		fprintf(fp, "            DATE: %s\n", 
+    			time(&time_now);
+        		fprintf(fp, "            DATE: %s\n",
                 		strip_linefeeds(ctime(&time_now)));
 		} else if (STREQ(README[i], README_HELP_MENU)) {
 			display_help_screen("    ");
@@ -7651,15 +7651,15 @@ display_README(void)
         		for (j = 0; version_info[j]; j++)
                 		fprintf(fp, "    %s\n", version_info[j]);
                 } else if (STREQ(README[i], README_ENTER_DIRECTORY)) {
-                        fprintf(fp, 
+                        fprintf(fp,
  "  To build this utility, simply uncompress the tar file, enter the crash-%s\n",
                                 pc->program_version);
-		} else 
+		} else
 			fprintf(fp, "%s\n", README[i]);
         }
 }
 
-static 
+static
 char *README[] = {
 "",
 "",
@@ -7790,7 +7790,7 @@ README_HELP_MENU,
 "  by the Red Hat netdump or diskdump facilities:",
 "",
 "    $ crash vmlinux vmcore",
-" ",   
+" ",
 README_CRASH_VERSION,
 README_GPL_INFO,
 README_GNU_GDB_VERSION,

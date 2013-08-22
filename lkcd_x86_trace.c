@@ -2,7 +2,7 @@
  * Copyright 1999 Silicon Graphics, Inc. All rights reserved.
  */
 
-/* 
+/*
  *  lkcd_x86_trace.c
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 David Anderson
@@ -101,12 +101,12 @@ kl_alloc_block(int size, int flags)
 static void
 kl_free_block(void *blk)
 {
-        if (blk) 
+        if (blk)
 		FREEBUF(blk);
 }
 
-static void 
-GET_BLOCK(kaddr_t addr, unsigned size, void *buffer) 
+static void
+GET_BLOCK(kaddr_t addr, unsigned size, void *buffer)
 {
 	KL_ERROR = 0;
 	if (!readmem(addr, KVADDR, (void *)buffer, (ulong)size,
@@ -150,7 +150,7 @@ kl_funcname(kaddr_t pc)
 	}
 
         if (IS_MODULE_VADDR(pc)) {
-		buf = GETBUF(BUFSIZE); 
+		buf = GETBUF(BUFSIZE);
 		name = &buf[BUFSIZE/2];
             	if (module_symbol(pc, NULL, NULL, buf, output_radix)) {
                         sprintf(name, "(%s)", buf);
@@ -161,9 +161,9 @@ kl_funcname(kaddr_t pc)
 		}
 	}
 
-	if ((lm = init_module_function(pc))) 
+	if ((lm = init_module_function(pc)))
 		return ("init_module");
- 
+
        	return NULL;
 }
 
@@ -285,7 +285,7 @@ get_call_pc(kaddr_t ra)
  * get_jmp_instr()
  */
 int
-get_jmp_instr(kaddr_t addr, kaddr_t isp, kaddr_t *caddr, char *fname, 
+get_jmp_instr(kaddr_t addr, kaddr_t isp, kaddr_t *caddr, char *fname,
 	      char **cfname)
 {
 	kaddr_t a;
@@ -325,7 +325,7 @@ get_jmp_instr(kaddr_t addr, kaddr_t isp, kaddr_t *caddr, char *fname,
 						GET_BLOCK(isp + 28, 4, &offset);
 						a += (offset * 4);
 						kl_get_kaddr(a, &a);
-						if ((*cfname = 
+						if ((*cfname =
 							kl_funcname(a))) {
 							*caddr = a;
 						}
@@ -341,13 +341,13 @@ get_jmp_instr(kaddr_t addr, kaddr_t isp, kaddr_t *caddr, char *fname,
 			case 0xf2: /* ESI */
 			case 0xfa: /* EDI */
 				break;
-		} 
+		}
 	}
 	free_instr_stream(irp);
 	return(0);
 }
 
-/* 
+/*
  * is_push()
  */
 int
@@ -379,7 +379,7 @@ is_push(unsigned int opcode)
 	return(0);
 }
 
-/* 
+/*
  * is_pop()
  */
 int
@@ -439,7 +439,7 @@ cache_framesize(int cmd, kaddr_t funcaddr, int *fsize, void **ptr)
 
 retry:
 	for (i = 0; i < FRAMESIZE_CACHE; i++) {
-		if (framesize_cache[i].pc == funcaddr) { 
+		if (framesize_cache[i].pc == funcaddr) {
 			switch (cmd)
 			{
 			case FSZ_VALIDATE:
@@ -455,11 +455,11 @@ retry:
 				return TRUE;
 			}
 		}
-		
+
 		/*
 		 *  The entry does not exist.
 		 *
-		 *  If FSZ_QUERY or FSZ_VALIDATE, return their 
+		 *  If FSZ_QUERY or FSZ_VALIDATE, return their
 		 *  no-such-entry indications.
 		 *
 		 *  Otherwise, load up the entry with the new data, and
@@ -482,7 +482,7 @@ retry:
 				framesize_modify(&framesize_cache[i]);
 				*fsize = framesize_cache[i].frmsize;
 				return TRUE;
-			} 
+			}
 		}
 	}
 
@@ -501,7 +501,7 @@ retry:
 		return FALSE;
 
 	case FSZ_ENTER:
-		BZERO(&framesize_cache[last_cleared % FRAMESIZE_CACHE], 
+		BZERO(&framesize_cache[last_cleared % FRAMESIZE_CACHE],
 			sizeof(struct framesize_cache));
 		last_cleared++;
 		goto retry;
@@ -527,23 +527,23 @@ struct framesize_mods {
 	int pre_adjust;
 	int post_adjust;
 } framesize_mods[] = {
-	{ "do_select", "schedule_timeout", 
+	{ "do_select", "schedule_timeout",
 		COMPILER_VERSION_START, GCC(3,3,2), 0, 0, 0 },
-	{ "svc_recv", "schedule_timeout", 
+	{ "svc_recv", "schedule_timeout",
 		COMPILER_VERSION_START, GCC(3,3,2), 0, 0, 0 },
-	{ "__down_interruptible", "schedule", 
+	{ "__down_interruptible", "schedule",
 		COMPILER_VERSION_START, GCC(3,3,2), 0, 0, 0 },
-	{ "netconsole_netdump", NULL, 
+	{ "netconsole_netdump", NULL,
 	       	COMPILER_VERSION_START, GCC(3,3,2), 0, 0, -28 },
-	{ "generic_file_write", NULL, 
-		COMPILER_VERSION_EQUAL, GCC(2,96,0), 0, 0, 20 },  
-	{ "block_prepare_write", NULL, 
-		COMPILER_VERSION_EQUAL, GCC(2,96,0), 0, 0, 72 }, 
-	{ "receive_chars", NULL, 
+	{ "generic_file_write", NULL,
+		COMPILER_VERSION_EQUAL, GCC(2,96,0), 0, 0, 20 },
+	{ "block_prepare_write", NULL,
+		COMPILER_VERSION_EQUAL, GCC(2,96,0), 0, 0, 72 },
+	{ "receive_chars", NULL,
 		COMPILER_VERSION_EQUAL, GCC(2,96,0), 0, 0, 48 },
-	{ "default_idle", NULL, 
+	{ "default_idle", NULL,
 		COMPILER_VERSION_START, GCC(2,96,0), 0, -4, 0 },
-	{ "hidinput_hid_event", NULL, 
+	{ "hidinput_hid_event", NULL,
 		COMPILER_VERSION_START, GCC(4,1,2), 0, 0, 28 },
  	{ NULL, NULL, 0, 0, 0, 0, 0 },
 };
@@ -559,7 +559,7 @@ framesize_modify(struct framesize_cache *fc)
 
 	if (fc->frmsize < 0) {
 		if (CRASHDEBUG(1))
-			error(INFO, 
+			error(INFO,
 			    "bogus framesize: %d for pc: %lx (%s)\n",
 				fc->frmsize, fc->pc, funcname);
 		fc->frmsize = 0;
@@ -574,10 +574,10 @@ framesize_modify(struct framesize_cache *fc)
 	if (!fmp->funcname)
 		return FALSE;
 
-	if (fmp->pre_adjust) 
+	if (fmp->pre_adjust)
 		fc->frmsize += fmp->pre_adjust;
 
-        if (fmp->post_adjust) 
+        if (fmp->post_adjust)
 		fc->bp_adjust = fmp->post_adjust;
 
 	if (fmp->called_function) {
@@ -637,7 +637,7 @@ dump_framesize_cache(FILE *ofp, struct framesize_cache *fcp)
 			continue;
 
 		if (!once) {
-			fprintf(ofp, 
+			fprintf(ofp,
 			    "RET ADDR   FSZ  BPA  V  FUNCTION\n");
 			once++;
 		}
@@ -647,10 +647,10 @@ dump_framesize_cache(FILE *ofp, struct framesize_cache *fcp)
 			framesize_cache[i].frmsize,
 			framesize_cache[i].bp_adjust,
 			framesize_cache[i].flags & FRAMESIZE_VALIDATE ?
-			"V" : "-");	
+			"V" : "-");
         	if ((sp = value_search(framesize_cache[i].pc, &offset)) ||
 		    (spm = kl_lkup_symaddr(framesize_cache[i].pc))) {
-			if (sp) 
+			if (sp)
 				fprintf(ofp, "(%s+", sp->name);
 			else {
 				fprintf(ofp, "(%s+", spm->name);
@@ -666,7 +666,7 @@ dump_framesize_cache(FILE *ofp, struct framesize_cache *fcp)
 				fprintf(ofp, "%lx)", offset);
 				break;
 			}
-		} 
+		}
 		fprintf(ofp, "\n");
 		if (fcp)
 			return 0;
@@ -746,10 +746,10 @@ modify_framesize_cache_entry(FILE *ofp, ulong eip, int framesize)
  *  If eip, look for it and replace its frmsize with the passed-in value.
  *  If no eip, frmsize of zero means clear the cache, non-zero displays it.
  */
-static int 
+static int
 framesize_debug(struct bt_info *bt, FILE *ofp)
 {
-	ulong eip; 
+	ulong eip;
 	int frmsize;
 
 	eip = bt->hp->eip;
@@ -798,7 +798,7 @@ get_framesize(kaddr_t pc)
 	int frmsize_restore = 0;
 	int last_add = 0;
 
-	if (FRAMESIZE_CACHE_QUERY(pc, &frmsize)) 
+	if (FRAMESIZE_CACHE_QUERY(pc, &frmsize))
 		return frmsize;
 
 	frmsize = 0;
@@ -808,13 +808,13 @@ get_framesize(kaddr_t pc)
 		return(0);
 	}
 #ifdef REDHAT
-	if (STREQ(sp->name, "do_IRQ") && (tt->flags & IRQSTACKS)) 
+	if (STREQ(sp->name, "do_IRQ") && (tt->flags & IRQSTACKS))
 		check_IRQ_stack_switch++;
 
         if (STREQ(sp->name, "stext_lock") || STRNEQ(sp->name, ".text.lock.")) {
 		jmpsp = x86_text_lock_jmp(pc, &offset);
 		if (jmpsp) {
-			console("get_framesize: stext_lock %lx => %s\n", 
+			console("get_framesize: stext_lock %lx => %s\n",
 				pc, jmpsp->name);
 			pc = jmpsp->value + offset;
 			sp = jmpsp;
@@ -828,7 +828,7 @@ get_framesize(kaddr_t pc)
 	}
 #endif
 #ifdef FRMSIZE_DBG
-	fprintf(stderr, "get_framesize(): pc=0x%x (0x%x:%s)\n", 
+	fprintf(stderr, "get_framesize(): pc=0x%x (0x%x:%s)\n",
 		pc, sp->s_addr, sp->s_name);
 #endif
 	addr = sp->s_addr;
@@ -847,7 +847,7 @@ get_framesize(kaddr_t pc)
 		/*
 	 	 * Account for do_IRQ() stack switch.
 		 */
-		if (check_IRQ_stack_switch && (irp.opcode == 0xff02) && 
+		if (check_IRQ_stack_switch && (irp.opcode == 0xff02) &&
 		    (irp.operand[0].op_reg == 0x7))
 			break;
 		/*
@@ -873,9 +873,9 @@ get_framesize(kaddr_t pc)
 				frmsize_restore += 4;
 			last_add = FALSE;
 		} else {
-			if (last_add) 
+			if (last_add)
 				last_add = FALSE;
-			else 
+			else
 				frmsize_restore = 0;
 		}
 #endif /* REDHAT */
@@ -884,11 +884,11 @@ get_framesize(kaddr_t pc)
 #else
 		if (irp.opcode == 0x8300) {
 #endif
-			/* e.g., addl   $0x8,%esp */ 
+			/* e.g., addl   $0x8,%esp */
 			if (irp.operand[0].op_reg == R_eSP) {
 				frmsize -= irp.operand[1].op_addr;
 #ifdef FRMSIZE_DBG
-				fprintf(stderr, "    addl  --> 0x%x: -%d\n", 
+				fprintf(stderr, "    addl  --> 0x%x: -%d\n",
 					addr, irp.operand[1].op_addr);
 #endif
 			}
@@ -897,7 +897,7 @@ get_framesize(kaddr_t pc)
 			if (irp.operand[0].op_reg == R_eSP) {
 				frmsize += irp.operand[1].op_addr;
 #ifdef FRMSIZE_DBG
-				fprintf(stderr, "    subl  --> 0x%x: +%d\n", 
+				fprintf(stderr, "    subl  --> 0x%x: +%d\n",
 					addr, irp.operand[1].op_addr);
 #endif
 			}
@@ -909,7 +909,7 @@ get_framesize(kaddr_t pc)
 					addr, (8 * 4));
 #endif
 			} else {
-				frmsize += 4; 
+				frmsize += 4;
 #ifdef FRMSIZE_DBG
 				fprintf(stderr, "   pushl  --> 0x%x: +%d\n" ,
 					addr, 4);
@@ -919,19 +919,19 @@ get_framesize(kaddr_t pc)
 			if (ret == 2) {
 				frmsize -= (8 * 4);
 #ifdef FRMSIZE_DBG
-				fprintf(stderr, "    popa  --> 0x%x: -%d\n", 
+				fprintf(stderr, "    popa  --> 0x%x: -%d\n",
 					addr, (8 * 4));
 #endif
 			} else {
 				frmsize -= 4;
 #ifdef FRMSIZE_DBG
-				fprintf(stderr, "    popl  --> 0x%x: -%d\n", 
+				fprintf(stderr, "    popl  --> 0x%x: -%d\n",
 					addr, 4);
 #endif
 			}
 #ifdef FRMSIZE2_DBG
 		} else {
-			fprintf(stderr, "              0x%x: opcode=0x%x\n", 
+			fprintf(stderr, "              0x%x: opcode=0x%x\n",
 				addr, irp.opcode);
 #endif
 		}
@@ -942,8 +942,8 @@ get_framesize(kaddr_t pc)
 	 *  Account for fact that schedule may not "call" anybody, plus
 	 *  the difference between gcc 3.2 and earlier compilers.
 	 */
-	if (STREQ(kl_funcname(pc), "schedule") && 
-	    !(bt->flags & BT_CONTEXT_SWITCH)) 
+	if (STREQ(kl_funcname(pc), "schedule") &&
+	    !(bt->flags & BT_CONTEXT_SWITCH))
 		frmsize -= THIS_GCC_VERSION == GCC(3,2,0) ? 4 : 8;
 
         FRAMESIZE_CACHE_ENTER(pc, &frmsize);
@@ -1085,7 +1085,7 @@ clean_trace_rec(trace_t *t)
 	free_sframes(t);
 }
 
-/* 
+/*
  * setup_trace_rec()
  */
 int
@@ -1141,17 +1141,17 @@ valid_ra(kaddr_t ra)
 {
 	kaddr_t pc;
 
-	if ((ra < KL_PAGE_OFFSET) || !kl_funcaddr(ra)) 
+	if ((ra < KL_PAGE_OFFSET) || !kl_funcaddr(ra))
 		return(0);
 
-	if ((pc = get_call_pc(ra))) 
+	if ((pc = get_call_pc(ra)))
 		return(1);
-	
+
 	return(0);
 }
 
 /*
- * valid_ra_function() 
+ * valid_ra_function()
  *
  *  Same as above, but ensure that it calls the funcname passed in.
  */
@@ -1160,13 +1160,13 @@ valid_ra_function(kaddr_t ra, char *funcname)
 {
         kaddr_t pc;
 
-        if ((ra < KL_PAGE_OFFSET) || !kl_funcaddr(ra)) 
+        if ((ra < KL_PAGE_OFFSET) || !kl_funcaddr(ra))
                 return(0);
 
-        if (!(pc = get_call_pc(ra))) 
+        if (!(pc = get_call_pc(ra)))
                 return(0);
 
-	if (STREQ(x86_function_called_by(ra-5), funcname)) 
+	if (STREQ(x86_function_called_by(ra-5), funcname))
 		return(1);
 
         return(0);
@@ -1193,8 +1193,8 @@ valid_ra_function(kaddr_t ra, char *funcname)
 #define __USER_DS       0x2B
 #endif
 
-/* 
- * Check if the exception frame is of kernel or user type 
+/*
+ * Check if the exception frame is of kernel or user type
  * Is checking only DS and CS values sufficient ?
  */
 
@@ -1236,7 +1236,7 @@ void print_eframe(FILE *ofp, uaddr_t *regs)
 	fprintf(ofp, "   edi: %08lx   ebp: %08lx   eax: %08lx   ds:  %04x\n",
 			regs->edi, regs->ebp, regs->eax, regs->xds & 0xffff);
 	fprintf(ofp, "   es:  %04x       eip: %08lx   cs:  %04x       eflags: %08lx\n",
-		       regs->xes & 0xffff, regs->eip, regs->xcs & 0xffff, regs->eflags);	
+		       regs->xes & 0xffff, regs->eip, regs->xcs & 0xffff, regs->eflags);
 	if (type == USER_EFRAME)
 		fprintf(ofp, "   esp: %08lx   ss:  %04x\n", regs->esp, regs->xss);
 #endif
@@ -1267,15 +1267,15 @@ void print_eframe(FILE *ofp, uaddr_t *regs)
 #endif
 
 /*
- *  Determine how much to increment the stack pointer to find the 
- *  exception frame associated with a generic "error_code" or "nmi" 
+ *  Determine how much to increment the stack pointer to find the
+ *  exception frame associated with a generic "error_code" or "nmi"
  *  exception.
  *
- *  The incoming addr is that of the call to the generic error_code 
+ *  The incoming addr is that of the call to the generic error_code
  *  or nmi exception handler function.  Until later 2.6 kernels, the next
- *  instruction had always been an "addl $8,%esp".  However, with later 
- *  2.6 kernels, that esp adjustment is no long valid, and there will be 
- *  an immediate "jmp" instruction.  Returns 4 or 12, whichever is appropriate. 
+ *  instruction had always been an "addl $8,%esp".  However, with later
+ *  2.6 kernels, that esp adjustment is no long valid, and there will be
+ *  an immediate "jmp" instruction.  Returns 4 or 12, whichever is appropriate.
  *  Cache the value the first time, and allow for future changes or additions.
  */
 
@@ -1298,20 +1298,20 @@ eframe_incr(kaddr_t addr, char *funcname)
 	} else if (strstr(funcname, "error_code")) {
 		adj = ERROR_CODE_ADJ;
 		val = eframe_adjust[ERROR_CODE_ADJ];
-	} else { 
+	} else {
 		adj = -1;
 		val = 0;
-		error(INFO, 
+		error(INFO,
 		    "unexpected exception frame marker: %lx (%s)\n",
 			addr, funcname);
 	}
 
 	if (val) {
-		console("eframe_incr(%lx, %s): eframe_adjust[%d]: %d\n", 
+		console("eframe_incr(%lx, %s): eframe_adjust[%d]: %d\n",
 			addr, funcname, adj, val);
 		return val;
 	}
-		
+
 	console("eframe_incr(%lx, %s): TBD:\n", addr, funcname);
 
 	bzero(&irp, sizeof(irp));
@@ -1319,12 +1319,12 @@ eframe_incr(kaddr_t addr, char *funcname)
 	irp.dflag = 1;
 	if (!(size = get_instr_info(addr, &irp))) {
 		if (CRASHDEBUG(1))
-			error(INFO, 
-			    "eframe_incr(%lx, %s): get_instr_info(%lx) failed\n", 
-				addr, funcname, addr);			
+			error(INFO,
+			    "eframe_incr(%lx, %s): get_instr_info(%lx) failed\n",
+				addr, funcname, addr);
 		return((THIS_KERNEL_VERSION > LINUX(2,6,9)) ? 4 : 12);
 	}
-	console("  addr: %lx size: %d  opcode: 0x%x insn: \"%s\"\n", 
+	console("  addr: %lx size: %d  opcode: 0x%x insn: \"%s\"\n",
 		addr, size, irp.opcode, irp.opcodep->name);
 
 	next = addr + size;
@@ -1352,7 +1352,7 @@ eframe_incr(kaddr_t addr, char *funcname)
 	return val;
 }
 
-static int 
+static int
 xen_top_of_stack(struct bt_info *bt, char *funcname)
 {
 	ulong stkptr, contents;
@@ -1369,7 +1369,7 @@ xen_top_of_stack(struct bt_info *bt, char *funcname)
 }
 
 static char *
-xen_funcname(struct bt_info *bt, ulong pc) 
+xen_funcname(struct bt_info *bt, ulong pc)
 {
 	char *funcname = kl_funcname(pc);
 
@@ -1384,15 +1384,15 @@ xen_funcname(struct bt_info *bt, ulong pc)
 static int
 userspace_return(kaddr_t frame, struct bt_info *bt)
 {
-	ulong esp0, eframe_addr; 
+	ulong esp0, eframe_addr;
 	uint32_t *stkptr, *eframeptr;
-	
+
 	if (INVALID_MEMBER(task_struct_thread) ||
 	    (((esp0 = MEMBER_OFFSET("thread_struct", "esp0")) < 0) &&
              ((esp0 = MEMBER_OFFSET("thread_struct", "sp0")) < 0)))
 		eframe_addr = bt->stacktop - SIZE(pt_regs);
 	else
-		eframe_addr = ULONG(tt->task_struct + 
+		eframe_addr = ULONG(tt->task_struct +
 			OFFSET(task_struct_thread) + esp0) - SIZE(pt_regs);
 
 	if (!INSTACK(eframe_addr, bt))
@@ -1413,7 +1413,7 @@ userspace_return(kaddr_t frame, struct bt_info *bt)
 /*
  * find_trace()
  *
- *   Given a starting pc (start_cp), starting stack pointer (start_sp), 
+ *   Given a starting pc (start_cp), starting stack pointer (start_sp),
  *   and stack address, check to see if a valid trace is possible. A
  *   trace is considered valid if no errors are encountered (bad PC,
  *   bad SP, etc.) Certain errors are tolorated however. For example,
@@ -1439,18 +1439,18 @@ userspace_return(kaddr_t frame, struct bt_info *bt)
  */
 int
 find_trace(
-	kaddr_t start_pc, 
-	kaddr_t start_sp, 
-	kaddr_t check_pc, 
+	kaddr_t start_pc,
+	kaddr_t start_sp,
+	kaddr_t check_pc,
 	kaddr_t check_sp,
-	trace_t *trace, 
+	trace_t *trace,
 	int flags)
 {
 	int curstkidx = 0, frame_size, frame_type;
 	kaddr_t sp, pc, ra, bp, sbase, saddr, func_addr;
 	sframe_t *curframe;
 	char *func_name;
-	uaddr_t *sbp, *asp;	
+	uaddr_t *sbp, *asp;
 #ifdef REDHAT
 	struct syment *sp1;
 	ulong offset;
@@ -1465,9 +1465,9 @@ find_trace(
 	sbase = trace->stack[curstkidx].addr;
 	saddr = sbase + trace->stack[curstkidx].size;
 #ifdef REDHAT
-	bp = start_sp + get_framesize(start_pc, bt); 
+	bp = start_sp + get_framesize(start_pc, bt);
 #else
-	bp = start_sp + get_framesize(start_pc); 
+	bp = start_sp + get_framesize(start_pc);
 #endif
 	if (KL_ERROR || (bp < sbase) || (bp >= saddr)) {
 		return(0);
@@ -1490,10 +1490,10 @@ find_trace(
 				(curframe->sp == curframe->prev->sp)) {
 			curframe->error = 1;
 #ifdef REDHAT
-			bt->flags |= BT_LOOP_TRAP; 
+			bt->flags |= BT_LOOP_TRAP;
 #endif
 			return(trace->nframes);
-		} 
+		}
 #ifdef REDHAT
 		/*
 		 *  If we wrap back to a lower stack location, we're cooked.
@@ -1506,7 +1506,7 @@ find_trace(
                 }
 #endif
 
-		/* Allocate space for a stack frame rec 
+		/* Allocate space for a stack frame rec
 		 */
 		curframe = alloc_sframe(trace, flags);
 		if (!(func_addr = kl_funcaddr(pc))) {
@@ -1516,8 +1516,8 @@ find_trace(
 		}
 
 		/* Check to see if check_pc/check_sp points to a sub-trace
-		 * of spc/ssp. If it does then don't return a trace (unless 
-		 * C_ALL). Make sure we free the curframe block since we 
+		 * of spc/ssp. If it does then don't return a trace (unless
+		 * C_ALL). Make sure we free the curframe block since we
 		 * wont be linking it in to the trace rec.
 		 */
 		if (check_pc && ((pc == check_pc) && (sp == check_sp))) {
@@ -1551,12 +1551,12 @@ find_trace(
 		ra = GET_STACK_ULONG(bp + 4);
 		/*
 	  	 *  HACK: The get_framesize() function can return the proper
-		 *  value -- as verified by disassembling the function -- but 
-		 *  in rare circumstances there's more to the stack frame than 
+		 *  value -- as verified by disassembling the function -- but
+		 *  in rare circumstances there's more to the stack frame than
 		 *  meets the eye.  Until I can figure out why, extra space
 		 *  can be added here for any "known" anomalies.  gcc version
 		 *  restrictions are also added rather than assuming anything.
-		 *  See framesize_modify() for kludgery. 
+		 *  See framesize_modify() for kludgery.
 		 */
 		if (!valid_ra(ra)) {
 			char *funcname;
@@ -1577,28 +1577,28 @@ find_trace(
 			if (STREQ(funcname, "schedule") &&
 			    (THIS_GCC_VERSION >= GCC(3,2,3))) {
 				SEEK_VALID_RA();
-			/* 
+			/*
 			 *  else FRAMESIZE_VALIDATE has been turned on
 			 */
 			} else if (fcp->flags & FRAMESIZE_VALIDATE) {
 				SEEK_VALID_RA_FUNCTION(funcname);
 			/*
 			 *  Generic speculation continues the search for
-			 *  a valid RA at a higher stack address.	
+			 *  a valid RA at a higher stack address.
 			 */
                         } else if ((bt->flags & BT_SPECULATE) &&
 			    !STREQ(funcname, "context_switch") &&
 			    !STREQ(funcname, "die") &&
-		            !(bt->frameptr && ((bp+4) < bt->frameptr))) 
+		            !(bt->frameptr && ((bp+4) < bt->frameptr)))
 				SEEK_VALID_RA();
 		}
 #else
 		kl_get_kaddr(bp + 4, &ra);
 #endif
-		
+
 
 		/* Make sure that the ra we have is a valid one. If not
-		 * then back up in the frame, word by word, until we find 
+		 * then back up in the frame, word by word, until we find
 		 * one that is good.
 		 */
 		if (!valid_ra(ra)) {
@@ -1649,12 +1649,12 @@ find_trace(
 #else
 				curframe->error = KLE_BAD_RA;
 #endif
-				UPDATE_FRAME(func_name, pc, ra, sp, 
+				UPDATE_FRAME(func_name, pc, ra, sp,
 					bp + 4, asp, 0, 0, 0, flag);
 
 				return(trace->nframes);
 			}
-		} 
+		}
 
 		UPDATE_FRAME(func_name, pc, ra, sp, bp + 4, asp, 0, 0, 0, 0);
 		curframe->frame_size = curframe->fp - curframe->sp + 4;
@@ -1668,13 +1668,13 @@ find_trace(
 			curframe->error = 2;
 			return(trace->nframes);
 		}
-#else 
+#else
 		/* It's possible for get_framesize() to return a size
 		 * that is larger than the actual frame size (because
 		 * all it does is count the push, pop, addl, and subl
 		 * instructions that effect the SP). If we are real near
 		 * the top of the stack, this might cause bp to overflow.
-		 * This will be fixed above, but we need to bring bp 
+		 * This will be fixed above, but we need to bring bp
 		 * back into the legal range so we don't crap out
 		 * before we can get to it...
 		 */
@@ -1698,7 +1698,7 @@ find_trace(
 				asp = (uaddr_t*)
 					((uaddr_t)sbp + (STACK_SIZE - 12));
 				curframe = alloc_sframe(trace, flags);
-				UPDATE_FRAME(func_name, pc, 
+				UPDATE_FRAME(func_name, pc,
 					ra, sp, bp, asp, 0, 0, 16, 0);
 				return(trace->nframes);
 			} else if (strstr(func_name, "is386")) {
@@ -1706,7 +1706,7 @@ find_trace(
 				bp = sp = saddr - 4;
 				asp = curframe->asp;
 				curframe = alloc_sframe(trace, flags);
-				UPDATE_FRAME(func_name, pc, 
+				UPDATE_FRAME(func_name, pc,
 					ra, sp, bp, asp, 0, 0, 0, 0);
 				return(trace->nframes);
 			} else if (STREQ(func_name, "ret_from_fork")) {
@@ -1714,7 +1714,7 @@ find_trace(
 				bp = sp = saddr - 4;
 				asp = curframe->asp;
 				curframe = alloc_sframe(trace, flags);
-				UPDATE_FRAME(func_name, pc, 
+				UPDATE_FRAME(func_name, pc,
 					ra, sp, bp, asp, 0, 0, 0, EX_FRAME|SET_EX_FRAME_ADDR);
 				return(trace->nframes);
 #ifdef REDHAT
@@ -1737,8 +1737,8 @@ find_trace(
 #else
 			} else if (strstr(func_name, "system_call")) {
 #endif
-				/* 
-				 * user exception frame, kernel stack ends 
+				/*
+				 * user exception frame, kernel stack ends
 				 * here.
 				 */
 				bp = saddr - 4;
@@ -1746,16 +1746,16 @@ find_trace(
 #ifdef REDHAT
 				ra = GET_STACK_ULONG(bp-16);
 #else
-				kl_get_kaddr(bp-16, &ra);	
+				kl_get_kaddr(bp-16, &ra);
 #endif
 				curframe = alloc_sframe(trace, flags);
-				asp = (uaddr_t*)((uaddr_t)sbp + 
+				asp = (uaddr_t*)((uaddr_t)sbp +
 					(STACK_SIZE - (saddr - sp)));
-				UPDATE_FRAME(func_name, pc, ra, sp, bp, 
+				UPDATE_FRAME(func_name, pc, ra, sp, bp,
 					asp, 0, 0, (bp - sp + 4), EX_FRAME);
 				return(trace->nframes);
 #ifdef REDHAT
-			} else if (strstr(func_name, "error_code") 
+			} else if (strstr(func_name, "error_code")
 				|| STREQ(func_name, "nmi_stack_correct")
 				|| STREQ(func_name, "nmi")) {
 #else
@@ -1765,12 +1765,12 @@ find_trace(
 				sp = curframe->fp + eframe_incr(pc, func_name);
 
 				bp = sp + (KERNEL_EFRAME_SZ-1)*4;
-				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE - 
+				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE -
 							(saddr - sp)));
 				curframe = alloc_sframe(trace, flags);
 				ra = asp[INT_EFRAME_EIP];
 				frame_type = eframe_type(asp);
-				UPDATE_FRAME(func_name, pc, ra, sp, bp, asp, 
+				UPDATE_FRAME(func_name, pc, ra, sp, bp, asp,
 						0, 0, (bp - sp + 4), EX_FRAME);
 
 				/* prepare for next kernel frame, if present */
@@ -1783,23 +1783,23 @@ find_trace(
 					bp = sp + get_framesize(pc);
 #endif
 					func_name = kl_funcname(pc);
-					continue;	
+					continue;
 				} else {
 					return(trace->nframes);
 				}
-			} else if (is_task_active(bt->task) && 
+			} else if (is_task_active(bt->task) &&
 				(strstr(func_name, "call_do_IRQ") ||
 				strstr(func_name, "common_interrupt") ||
 				strstr(func_name, "reboot_interrupt") ||
 				strstr(func_name, "call_function_interrupt"))) {
 				/* Interrupt frame */
 				sp = curframe->fp + 4;
-				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE - 
+				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE -
 						(saddr - sp)));
 				frame_type = eframe_type(asp);
 				if (frame_type == KERNEL_EFRAME)
 					bp = curframe->fp+(KERNEL_EFRAME_SZ-1)*4;
-				else 
+				else
 					bp = curframe->fp+(USER_EFRAME_SZ-1)*4;
 				curframe = alloc_sframe(trace, flags);
 				ra = asp[INT_EFRAME_EIP];
@@ -1818,7 +1818,7 @@ find_trace(
 					func_name = kl_funcname(pc);
 #ifdef REDHAT
 					/* interrupted system_call entry */
-					if (STREQ(func_name, "system_call")) 
+					if (STREQ(func_name, "system_call"))
 						interrupted_system_call = TRUE;
 #endif
 					continue;
@@ -1835,7 +1835,7 @@ find_trace(
 			    STREQ(func_name, "deferred_nmi")) {
 				/* Interrupt frame */
 				sp = curframe->fp + 4;
-				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE - 
+				asp = (uaddr_t*)((uaddr_t)sbp + (STACK_SIZE -
 						(saddr - sp)));
 				bp = curframe->fp + (12 * 4);
 				curframe = alloc_sframe(trace, flags);
@@ -1862,7 +1862,7 @@ find_trace(
                 	pt = curframe->asp+1;
                         if (eframe_type(pt) == USER_EFRAME) {
 				if (program_context.debug >= 1)  /* pc above */
-                        		error(INFO, 
+                        		error(INFO,
 					    "hypervisor_callback from user space\n");
                                 curframe->asp++;
                                 curframe->flag |= EX_FRAME;
@@ -1881,7 +1881,7 @@ find_trace(
 	return(trace->nframes);
 }
 
-static int 
+static int
 kernel_entry_from_user_space(sframe_t *curframe, struct bt_info *bt)
 {
 	if (is_kernel_thread(bt->tc->task))
@@ -1901,7 +1901,7 @@ kernel_entry_from_user_space(sframe_t *curframe, struct bt_info *bt)
  * pc_offset()
  */
 int
-pc_offset(kaddr_t pc) 
+pc_offset(kaddr_t pc)
 {
 	kaddr_t func_addr;
 
@@ -1931,7 +1931,7 @@ dump_stack_frame(trace_t *trace, sframe_t *curframe, FILE *ofp)
 			if (first_time) {
 				first_time = 0;
 #ifdef REDHAT
-				fprintf(ofp, "    %x: %s  ", sp, 
+				fprintf(ofp, "    %x: %s  ", sp,
 					format_stack_entry(trace->bt, buf, *asp++, 0));
 #else
 				fprintf(ofp, "   %x: %08x  ", sp, *asp++);
@@ -1942,12 +1942,12 @@ dump_stack_frame(trace_t *trace, sframe_t *curframe, FILE *ofp)
 #else
 				fprintf(ofp, "\n   %x: ", sp);
 #endif
-				fprintf(ofp, "%s  ", 
+				fprintf(ofp, "%s  ",
 					format_stack_entry(trace->bt, buf, *asp++, 0));
 			}
 			sp += 16;
 		} else  {
-			fprintf(ofp, "%s  ", 
+			fprintf(ofp, "%s  ",
 				format_stack_entry(trace->bt, buf, *asp++, 0));
 		}
 	}
@@ -1969,14 +1969,14 @@ eframe_address(sframe_t *frmp, struct bt_info *bt)
 	ulong esp0, pt;
 
 	if (!(frmp->flag & SET_EX_FRAME_ADDR) ||
-	    INVALID_MEMBER(task_struct_thread) || 
+	    INVALID_MEMBER(task_struct_thread) ||
 	    (((esp0 = MEMBER_OFFSET("thread_struct", "esp0")) < 0) &&
 	     ((esp0 = MEMBER_OFFSET("thread_struct", "sp0")) < 0)))
 		return frmp->asp;
-	/*  
+	/*
 	 * Work required in rarely-seen SET_EX_FRAME_ADDR circumstances.
 	 */
-	pt = ULONG(tt->task_struct + OFFSET(task_struct_thread) + esp0) 
+	pt = ULONG(tt->task_struct + OFFSET(task_struct_thread) + esp0)
 	    	- SIZE(pt_regs);
 
 	if (!INSTACK(pt, bt))
@@ -2015,7 +2015,7 @@ print_trace(trace_t *trace, int flags, FILE *ofp)
 					goto print_trace_error;
 			}
 
-			if ((trace->bt->flags & BT_WRAP_TRAP) && frmp->error) 
+			if ((trace->bt->flags & BT_WRAP_TRAP) && frmp->error)
 				goto print_trace_error;
 
 			/*
@@ -2024,17 +2024,17 @@ print_trace(trace_t *trace, int flags, FILE *ofp)
 			 */
 			if ((frmp->next != trace->frame) && frmp->next->error &&
 				(bt->flags & (BT_LOOP_TRAP|BT_WRAP_TRAP)) &&
-				(bt->flags & (BT_HARDIRQ|BT_SOFTIRQ))) 
+				(bt->flags & (BT_HARDIRQ|BT_SOFTIRQ)))
 				return;
 
 			if ((frmp->level == 0) && (bt->flags & BT_XEN_STOP_THIS_CPU)) {
 				print_stack_entry(trace->bt, 0, trace->bt->stkptr,
-				symbol_value("stop_this_cpu"), 
+				symbol_value("stop_this_cpu"),
 				value_symbol(symbol_value("stop_this_cpu")),
 				frmp, ofp);
 			}
 
-			print_stack_entry(trace->bt, (trace->bt->flags & 
+			print_stack_entry(trace->bt, (trace->bt->flags &
 				(BT_BUMP_FRAME_LEVEL|BT_XEN_STOP_THIS_CPU)) ?
                                 frmp->level + 1 : frmp->level,
 				fp ? (ulong)fp : trace->bt->stkptr,
@@ -2058,8 +2058,8 @@ print_trace(trace_t *trace, int flags, FILE *ofp)
 #endif
 			if (frmp->flag & EX_FRAME) {
 				if (CRASHDEBUG(1))
-					fprintf(ofp, 
-					    " EXCEPTION FRAME: %lx\n", 
+					fprintf(ofp,
+					    " EXCEPTION FRAME: %lx\n",
 						(unsigned long)frmp->sp);
 				print_eframe(ofp, eframe_address(frmp, bt));
 			}
@@ -2082,7 +2082,7 @@ print_trace(trace_t *trace, int flags, FILE *ofp)
 			if (flags & C_FULL) {
 				fprintf(ofp, "\n");
 				fprintf(ofp, "   RA=0x%x, SP=0x%x, FP=0x%x, "
-					"SIZE=%d\n\n", frmp->ra, frmp->sp, 
+					"SIZE=%d\n\n", frmp->ra, frmp->sp,
 					frmp->fp, frmp->frame_size);
 #ifdef FRMSIZE_DBG
 				fprintf(ofp, "\n  FRAMESIZE=%d\n\n",
@@ -2100,13 +2100,13 @@ print_trace(trace_t *trace, int flags, FILE *ofp)
 print_trace_error:
 				KL_ERROR = KLE_PRINT_TRACE_ERROR;
 				if (CRASHDEBUG(1) || trace->bt->debug)
-					fprintf(ofp, 
+					fprintf(ofp,
 					    "TRACE ERROR: 0x%llx %llx\n",
                                        	    	frmp->error, trace->bt->flags);
 				if (trace->bt->flags & BT_WRAP_TRAP)
 					return;
 #else
-				fprintf(ofp, "TRACE ERROR: 0x%llx\n", 
+				fprintf(ofp, "TRACE ERROR: 0x%llx\n",
 					frmp->error);
 #endif
 			}
@@ -2115,7 +2115,7 @@ print_trace_error:
 	}
 }
 
-/* 
+/*
  * trace_banner()
  */
 void
@@ -2145,13 +2145,13 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
 	KL_ERROR = 0;
 	tsp = NULL;
 
-	if (bt->flags & BT_FRAMESIZE_DEBUG) 
+	if (bt->flags & BT_FRAMESIZE_DEBUG)
 		return(framesize_debug(bt, ofp));
 
 	if (kt->flags & RA_SEEK)
 		bt->flags |= BT_SPECULATE;
 
-	if (XENDUMP_DUMPFILE() && XEN() && is_task_active(bt->task) && 
+	if (XENDUMP_DUMPFILE() && XEN() && is_task_active(bt->task) &&
     	    STREQ(kl_funcname(bt->instptr), "stop_this_cpu")) {
 		/*
 		 *  bt->instptr of "stop_this_cpu" is not a return
@@ -2168,13 +2168,13 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
 	}
 
 	if (XENDUMP_DUMPFILE() && XEN() && is_idle_thread(bt->task) &&
-	    is_task_active(bt->task) && 
+	    is_task_active(bt->task) &&
 	    !(kt->xen_flags & XEN_SUSPEND) &&
     	    STREQ(kl_funcname(bt->instptr), "schedule")) {
 		/*
 		 *  This is an invalid (stale) schedule reference
-		 *  left in the task->thread.  Move down the stack 
-		 *  until the smp_call_function_interrupt return 
+		 *  left in the task->thread.  Move down the stack
+		 *  until the smp_call_function_interrupt return
 		 *  address is found.
 		 */
 		saddr = bt->stkptr;
@@ -2210,7 +2210,7 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
                 while (readmem(saddr, KVADDR, &eip,
                     sizeof(ulong), "xendump esp", RETURN_ON_ERROR)) {
 
-                        if (STREQ(kl_funcname(eip), "xen_idle")) 
+                        if (STREQ(kl_funcname(eip), "xen_idle"))
 				framesize += sizeof(ulong);
 			else if (framesize)
 				framesize += sizeof(ulong);
@@ -2233,12 +2233,12 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
         }
 
 	if (XENDUMP_DUMPFILE() && XEN() && !is_idle_thread(bt->task) &&
-	    is_task_active(bt->task) && 
+	    is_task_active(bt->task) &&
     	    STREQ(kl_funcname(bt->instptr), "schedule")) {
 		/*
 		 *  This is an invalid (stale) schedule reference
-		 *  left in the task->thread.  Move down the stack 
-		 *  until the smp_call_function_interrupt return 
+		 *  left in the task->thread.  Move down the stack
+		 *  until the smp_call_function_interrupt return
 		 *  address is found.
 		 */
 		saddr = bt->stacktop;
@@ -2259,11 +2259,11 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
 		}
 	}
 
-	if (!verify_back_trace(bt) && !recoverable(bt, ofp) && 
+	if (!verify_back_trace(bt) && !recoverable(bt, ofp) &&
 	    !BT_REFERENCE_CHECK(bt))
 		error(INFO, "cannot resolve stack trace:\n");
 
-        if (BT_REFERENCE_CHECK(bt)) 
+        if (BT_REFERENCE_CHECK(bt))
 		return(0);
 #endif
 
@@ -2297,16 +2297,16 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
 			esp = kl_dumpesp(task);
 		} else {
 			if (LINUX_2_2_X(KL_LINUX_RELEASE)) {
-				eip = KL_UINT(K_PTR(tsp, "task_struct", "tss"), 
+				eip = KL_UINT(K_PTR(tsp, "task_struct", "tss"),
 					"thread_struct", "eip");
-				esp = KL_UINT(K_PTR(tsp, "task_struct", "tss"), 
+				esp = KL_UINT(K_PTR(tsp, "task_struct", "tss"),
 				"thread_struct", "esp");
 			} else {
 				eip = KL_UINT(
-					K_PTR(tsp, "task_struct", "thread"), 
+					K_PTR(tsp, "task_struct", "thread"),
 					"thread_struct", "eip");
 				esp = KL_UINT(
-				K_PTR(tsp, "task_struct", "thread"), 
+				K_PTR(tsp, "task_struct", "thread"),
 					"thread_struct", "esp");
 			}
 		}
@@ -2337,10 +2337,10 @@ task_trace(kaddr_t task, int flags, FILE *ofp)
 		fprintf(ofp, "STACK TRACE FOR TASK: 0x%x", task);
 
 		if (KL_TYPEINFO()) {
-			fprintf(ofp, "(%s)\n\n", 
-				(char *)K_PTR(tsp, "task_struct", "comm"));	
+			fprintf(ofp, "(%s)\n\n",
+				(char *)K_PTR(tsp, "task_struct", "comm"));
 		} else {
-			fprintf(ofp, "(%s)\n\n", 
+			fprintf(ofp, "(%s)\n\n",
 				(char *)K_PTR(tsp, "task_struct", "comm"));
 		}
 #endif
@@ -2377,9 +2377,9 @@ verify_back_trace(struct bt_info *bt)
 	tsp = NULL;
 
 	if (!XEN_HYPER_MODE()) {
-	        if (!(tsp = kl_alloc_block(TASK_STRUCT_SZ, K_TEMP))) 
+	        if (!(tsp = kl_alloc_block(TASK_STRUCT_SZ, K_TEMP)))
 	                return FALSE;
-	        
+
 	        if (kl_get_task_struct(bt->task, 2, tsp)) {
 	                kl_free_block(tsp);
 	                return FALSE;
@@ -2387,7 +2387,7 @@ verify_back_trace(struct bt_info *bt)
 	}
 
         trace = (trace_t *)alloc_trace_rec(C_TEMP);
-	if (!trace) 
+	if (!trace)
 		return FALSE;
 
 	saddr = kl_kernelstack(bt->stackbase);
@@ -2395,9 +2395,9 @@ verify_back_trace(struct bt_info *bt)
        	eip = bt->instptr;
         esp = bt->stkptr;
 	trace->bt = bt;
-	if (esp < KL_PAGE_OFFSET || eip < KL_PAGE_OFFSET) 
+	if (esp < KL_PAGE_OFFSET || eip < KL_PAGE_OFFSET)
 		return FALSE;
-	
+
 	setup_trace_rec(saddr, 0, 0, trace);
 	if (KL_ERROR) {
 		free_trace_rec(trace);
@@ -2415,11 +2415,11 @@ verify_back_trace(struct bt_info *bt)
 				 *  reporting the error.
 				 */
 				if ((bt->flags & (BT_HARDIRQ|BT_SOFTIRQ)) &&
-				    (bt->flags & (BT_LOOP_TRAP|BT_WRAP_TRAP))) 
+				    (bt->flags & (BT_LOOP_TRAP|BT_WRAP_TRAP)))
 					break;
-				
+
 				errcnt++;
-				if (!(bt->flags & BT_SPECULATE) && 
+				if (!(bt->flags & BT_SPECULATE) &&
 				    !bt->frameptr)
 					bt->frameptr = frmp->fp;
 			}
@@ -2451,18 +2451,18 @@ do_bt_reference_check(struct bt_info *bt, sframe_t *frmp)
         switch (bt->ref->cmdflags & (BT_REF_SYMBOL|BT_REF_HEXVAL))
         {
         case BT_REF_SYMBOL:
-                if (STREQ(kl_funcname(frmp->pc), bt->ref->str) || 
+                if (STREQ(kl_funcname(frmp->pc), bt->ref->str) ||
 		    (sp && STREQ(sp->name, bt->ref->str)))
                         bt->ref->cmdflags |= BT_REF_FOUND;
                 break;
 
         case BT_REF_HEXVAL:
                 if ((bt->ref->hexval == frmp->pc) ||
-		    (sp && (bt->ref->hexval == sp->value))) 
+		    (sp && (bt->ref->hexval == sp->value)))
                         bt->ref->cmdflags |= BT_REF_FOUND;
                 if (frmp->flag & EX_FRAME) {
 			type = eframe_type(frmp->asp);
-			x86_dump_eframe_common(bt, (ulong *)frmp->asp, 
+			x86_dump_eframe_common(bt, (ulong *)frmp->asp,
 				(type == KERNEL_EFRAME));
 		}
                 break;
@@ -2475,7 +2475,7 @@ do_bt_reference_check(struct bt_info *bt, sframe_t *frmp)
  *
  *  Currently the routine only deals with BT_LOOP_TRAP/BT_WRAP_TRAP errors
  *  where get_framesize() leaves the bp in an invalid location, where
- *  where schedule() coming from schedule_timeout() is interrupted by a 
+ *  where schedule() coming from schedule_timeout() is interrupted by a
  *  false return address in between, those where the cpu_idle() trail
  *  cannot be followed, and where the functions called by kernel_thread()
  *  can't find their way back to kernel_thread().  As new fixable trace
@@ -2493,7 +2493,7 @@ recoverable(struct bt_info *bt, FILE *ofp)
 	sframe_t sframe;
         struct stack_hook *hp;
         struct bt_info btloc;
-	ulong kernel_thread; 
+	ulong kernel_thread;
 	int calls_schedule;
 
 	if (!(kt->flags & NO_RA_SEEK)) {
@@ -2504,18 +2504,18 @@ recoverable(struct bt_info *bt, FILE *ofp)
 			bt->flags &= ~(ulonglong)BT_ERROR_MASK;
 			bt->flags |= BT_SPECULATE;
 			if (CRASHDEBUG(1) || bt->debug)
-				error(INFO, 
+				error(INFO,
 					"recovered back trace with RA seek\n");
 			return TRUE;
 		}
 	}
 
-	if (!gather_text_list(bt) || 
+	if (!gather_text_list(bt) ||
 	    !STREQ(kl_funcname(bt->instptr), "schedule"))
-		return FALSE; 
+		return FALSE;
 
 	if (!is_idle_thread(bt->task) && !(bt->flags & BT_ERROR_MASK))
-		return FALSE; 
+		return FALSE;
 
         esp = eip = 0;
 	calls_schedule = FALSE;
@@ -2526,9 +2526,9 @@ recoverable(struct bt_info *bt, FILE *ofp)
 			kernel_thread = hp->eip;
 			continue;
 		}
-		
-		if (!calls_schedule && 
-		    STREQ(x86_function_called_by(hp->eip-5), "schedule")) 
+
+		if (!calls_schedule &&
+		    STREQ(x86_function_called_by(hp->eip-5), "schedule"))
 			calls_schedule = TRUE;
 
 		if (STREQ(kl_funcname(hp->eip), "schedule_timeout")) {
@@ -2537,19 +2537,19 @@ recoverable(struct bt_info *bt, FILE *ofp)
 			break;
 		}
 
-		if (STREQ(kl_funcname(hp->eip), "cpu_idle") && 
+		if (STREQ(kl_funcname(hp->eip), "cpu_idle") &&
 		    (bt->tc->pid == 0)) {
 			esp = hp->esp;
 			eip = hp->eip;
 			bt->flags |= BT_CPU_IDLE;
 			for ( ; BT_REFERENCE_CHECK(bt) && hp->esp; hp++) {
 				if (STREQ(kl_funcname(hp->eip), "rest_init") ||
-				    STREQ(kl_funcname(hp->eip), 
+				    STREQ(kl_funcname(hp->eip),
 			            "start_kernel")) {
 					BZERO(&sframe, sizeof(sframe_t));
 					sframe.pc = hp->eip;
 					do_bt_reference_check(bt, &sframe);
-				} 
+				}
 			}
 			break;
 		}
@@ -2566,7 +2566,7 @@ recoverable(struct bt_info *bt, FILE *ofp)
 				error(INFO, "recovered stack trace:\n");
 			if (!BT_REFERENCE_CHECK(bt))
                        		fprintf(ofp, " #0 [%08lx] %s at %lx\n",
-                               		bt->stkptr, 
+                               		bt->stkptr,
 					kl_funcname(bt->instptr),
                                		bt->instptr);
 			bt->instptr = eip;
@@ -2602,7 +2602,7 @@ recoverable(struct bt_info *bt, FILE *ofp)
 /*
  *  If a trace is recoverable from this point finish it here.  Otherwise,
  *  if a back trace fails and is unrecoverable, dump the text symbols along
- *  with any possible exception frames that can be found on the stack. 
+ *  with any possible exception frames that can be found on the stack.
  */
 static void
 handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
@@ -2614,7 +2614,7 @@ handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
 		for (hp = bt->textlist; hp->esp; hp++) {
 			char *func;
 			if ((func = x86_function_called_by(hp->eip-5)))
-				fprintf(ofp, "%lx %s calls %s\n", hp->eip, 
+				fprintf(ofp, "%lx %s calls %s\n", hp->eip,
 					kl_funcname(hp->eip), func);
 		}
 	}
@@ -2622,9 +2622,9 @@ handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
 	if (bt->flags & BT_CPU_IDLE) {
 		for (hp = bt->textlist, level = 2; hp->esp; hp++) {
 			if (STREQ(kl_funcname(hp->eip), "rest_init") ||
-                            STREQ(kl_funcname(hp->eip), "start_kernel")) 
-				print_stack_entry(bt, level++, hp->esp, 
-					hp->eip, kl_funcname(hp->eip), 
+                            STREQ(kl_funcname(hp->eip), "start_kernel"))
+				print_stack_entry(bt, level++, hp->esp,
+					hp->eip, kl_funcname(hp->eip),
 					NULL, ofp);
 		}
 		FREEBUF(bt->textlist);
@@ -2633,8 +2633,8 @@ handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
 
 	if (bt->flags & BT_KERNEL_THREAD) {
 		for (hp = bt->textlist; hp->esp; hp++) {
-			if (STREQ(kl_funcname(hp->eip), "kernel_thread")) 
-				print_stack_entry(bt, nframes-1, hp->esp, 
+			if (STREQ(kl_funcname(hp->eip), "kernel_thread"))
+				print_stack_entry(bt, nframes-1, hp->esp,
 					hp->eip, "kernel_thread", NULL, ofp);
 		}
 		FREEBUF(bt->textlist);
@@ -2648,10 +2648,10 @@ handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
 	if (!XEN_HYPER_MODE()) {
 		bt->flags = BT_EFRAME_COUNT;
 		if ((cnt = machdep->eframe_search(bt))) {
-			error(INFO, "possible exception frame%s:\n", 
+			error(INFO, "possible exception frame%s:\n",
 				cnt > 1 ? "s" : "");
 			bt->flags &= ~(ulonglong)BT_EFRAME_COUNT;
-			machdep->eframe_search(bt); 
+			machdep->eframe_search(bt);
 		}
 	}
 }
@@ -2660,7 +2660,7 @@ handle_trace_error(struct bt_info *bt, int nframes, FILE *ofp)
  *  Print a stack entry, and its line number if requested.
  */
 static void
-print_stack_entry(struct bt_info *bt, int level, ulong esp, ulong eip, 
+print_stack_entry(struct bt_info *bt, int level, ulong esp, ulong eip,
 		  char *funcname, sframe_t *frmp, FILE *ofp)
 {
 	char buf1[BUFSIZE];
@@ -2678,12 +2678,12 @@ print_stack_entry(struct bt_info *bt, int level, ulong esp, ulong eip,
 	else
 		buf1[0] = NULLCHAR;
 
-	if ((sp = eframe_label(funcname, eip))) 
+	if ((sp = eframe_label(funcname, eip)))
 		funcname = sp->name;
 
 	fprintf(ofp, "%s#%d [%8lx] %s%s at %lx",
-                level < 10 ? " " : "", level, esp, 
-		funcname_display(funcname, eip, bt, buf2), 
+                level < 10 ? " " : "", level, esp,
+		funcname_display(funcname, eip, bt, buf2),
 		strlen(buf1) ? buf1 : "", eip);
 	if (module_symbol(eip, NULL, &lm, NULL, 0))
 		fprintf(ofp, " [%s]", lm->mod_name);
@@ -2697,12 +2697,12 @@ print_stack_entry(struct bt_info *bt, int level, ulong esp, ulong eip,
 }
 
 /*
- *  The new process accounting stuff installs a label between system_call and 
- *  ret_from_sys_call, confusing the code that recognizes exception frame 
- *  symbols.  This function has been put in place to catch that anomaly, as 
+ *  The new process accounting stuff installs a label between system_call and
+ *  ret_from_sys_call, confusing the code that recognizes exception frame
+ *  symbols.  This function has been put in place to catch that anomaly, as
  *  well as serving as a template for any future labels that get placed in the
  *  kernel entry point code.  It returns the syment of the "real" kernel entry
- *  point.  
+ *  point.
  */
 
 #define EFRAME_LABELS 10
@@ -2733,14 +2733,14 @@ eframe_label(char *funcname, ulong eip)
 
 	if (!efp->init) {
 		if (!(efp->syscall = symbol_search("system_call")))
-			error(WARNING, 
+			error(WARNING,
 			   "\"system_call\" symbol does not exist\n");
 		if ((sp = symbol_search("ret_from_sys_call")))
 			efp->syscall_end = sp;
 		else if ((sp = symbol_search("syscall_badsys")))
 			efp->syscall_end = sp;
 		else
-			error(WARNING, 
+			error(WARNING,
         "neither \"ret_from_sys_call\" nor \"syscall_badsys\" symbols exist\n");
 
 		if (efp->syscall) {
@@ -2755,15 +2755,15 @@ eframe_label(char *funcname, ulong eip)
 			else if (THIS_KERNEL_VERSION >= LINUX(2,6,32)) {
 				if ((sp = symbol_search("sysexit_audit")) ||
 				    (sp = symbol_search("sysenter_exit")))
-                        		efp->sysenter_end = 
+                        		efp->sysenter_end =
 						next_symbol(NULL, sp);
-				else error(WARNING, 
+				else error(WARNING,
 					"cannot determine end of %s function\n",
 						efp->sysenter->name);
                 	} else if ((sp = symbol_search("system_call")))
                         	efp->sysenter_end = sp;
 			else
-				error(WARNING, 
+				error(WARNING,
       "neither \"sysexit_ret_end_marker\" nor \"system_call\" symbols exist\n");
 		}
 
@@ -2775,8 +2775,8 @@ eframe_label(char *funcname, ulong eip)
 	 */
 
 	for (i = 0; (i < EFRAME_LABELS) && efp->syscall_labels[i]; i++) {
-		if (efp->syscall_labels[i] == eip) 
-			return efp->syscall; 
+		if (efp->syscall_labels[i] == eip)
+			return efp->syscall;
 	}
 
         for (i = 0; (i < EFRAME_LABELS) && efp->tracesys_labels[i]; i++) {
@@ -2785,22 +2785,22 @@ eframe_label(char *funcname, ulong eip)
         }
 
 	for (i = 0; (i < EFRAME_LABELS) && efp->sysenter_labels[i]; i++) {
-		if (efp->sysenter_labels[i] == eip) 
-			return efp->sysenter; 
+		if (efp->sysenter_labels[i] == eip)
+			return efp->sysenter;
 	}
 
 	/*
-	 *  If the eip fits in any of the label arrays, try to store it,  
+	 *  If the eip fits in any of the label arrays, try to store it,
 	 *  but always return the real function it's referencing.
 	 */
 	if (efp->syscall && efp->syscall_end) {
-		if (((eip >= efp->syscall->value) && 
+		if (((eip >= efp->syscall->value) &&
 		     (eip < efp->syscall_end->value))) {
 			for (i = 0; i < EFRAME_LABELS; i++)
 				if (!efp->syscall_labels[i])
 					efp->syscall_labels[i] = eip;
 			return efp->syscall;
-		} 
+		}
 	}
 
         if (efp->tracesys && efp->tracesys_exit) {
@@ -2845,7 +2845,7 @@ funcname_display(char *funcname, ulong eip, struct bt_info *bt, char *buf)
 	}
 
         if (STREQ(funcname, "nmi_stack_correct") &&
-            (sp = symbol_search("nmi"))) 
+            (sp = symbol_search("nmi")))
                 return sp->name;
 
 	return funcname;
@@ -2879,7 +2879,7 @@ fill_instr_cache(kaddr_t pc, char *buf)
 			GET_BLOCK(pc, 256, block);
 			last_block = 0;
 			offset = 0;
-		} 
+		}
 	}
 
 	BCOPY(&block[offset], buf, 256);
@@ -2907,7 +2907,7 @@ print_traces(kaddr_t saddr, int level, int flags, FILE *ofp)
 #ifdef REDHAT
 	kaddr_t saddr = bt->stkptr;
 #endif
-	
+
 	stackp = (uaddr_t*)kl_alloc_block(STACK_SIZE, K_TEMP);
 	sbase = saddr - STACK_SIZE;
 	GET_BLOCK(sbase, STACK_SIZE, stackp);
@@ -2939,25 +2939,25 @@ print_traces(kaddr_t saddr, int level, int flags, FILE *ofp)
 			if ((fname = kl_funcname(addr))) {
 				/* Now use the instruction to back up and
 				 * see if this RA was saved after a call.
-				 * If it was, then try to determine what 
+				 * If it was, then try to determine what
 				 * function was called. At the very least,
 				 * only print out info for true return
 				 * addresses (coming right after a call
 				 * instruction -- even if we can't tell
 				 * what function was called).
 				 */
-				isp = sbase + 
+				isp = sbase +
 					(((uaddr_t)wordp) - ((uaddr_t)stackp));
 
 				cfname = (char *)NULL;
 				caddr = 0;
-				if (get_jmp_instr(addr, isp, 
+				if (get_jmp_instr(addr, isp,
 						&caddr, fname, &cfname)) {
 					wordp++;
 					continue;
 				}
 
-				/* We have found a valid jump address. Now, 
+				/* We have found a valid jump address. Now,
 				 * try and get a backtrace.
 				 */
 				nfrms = find_trace(addr, isp, 0, 0, trace, 0);
@@ -3004,7 +3004,7 @@ do_list(kaddr_t saddr, int size, FILE *ofp)
 	char *fname, *cfname;
 	uaddr_t *wordp, *stackp;
 	kaddr_t addr, isp, caddr, sbase;
-	
+
 	stackp = (uaddr_t*)kl_alloc_block(size, K_TEMP);
 	sbase = saddr - size;
 	GET_BLOCK(sbase, size, stackp);
@@ -3022,19 +3022,19 @@ do_list(kaddr_t saddr, int size, FILE *ofp)
 			if ((fname = kl_funcname(addr))) {
 				/* Now use the instruction to back up and
 				 * see if this RA was saved after a call.
-				 * If it was, then try to determine what 
+				 * If it was, then try to determine what
 				 * function was called. At the very least,
 				 * only print out info for true return
 				 * addresses (coming right after a call
 				 * instruction -- even if we can't tell
 				 * what function was called).
 				 */
-				isp = sbase + 
+				isp = sbase +
 					(((uaddr_t)wordp) - ((uaddr_t)stackp));
 
 				cfname = (char *)NULL;
 				caddr = 0;
-				if (get_jmp_instr(addr, isp, 
+				if (get_jmp_instr(addr, isp,
 						&caddr, fname, &cfname)) {
 					wordp++;
 					continue;
@@ -3094,7 +3094,7 @@ add_frame(trace_t *trace, kaddr_t fp, kaddr_t ra)
 			cf = cf->next;
 		} while (cf != trace->frame);
 		cf = 0;
-	} 
+	}
 	if (!cf) {
 		kl_enqueue((element_t **)&trace->frame, (element_t *)sf);
 	}
@@ -3131,7 +3131,7 @@ finish_trace(trace_t *trace)
 			sf->level = level++;
 			sf->frame_size = sf->fp - sf->sp + 4;
 			sf->funcname = kl_funcname(sf->pc);
-			sf->asp = (uaddr_t*)((uaddr_t)sbp + 
+			sf->asp = (uaddr_t*)((uaddr_t)sbp +
 				(STACK_SIZE - (saddr - sf->sp)));
 			sf = sf->next;
 		} while (sf != trace->frame);
@@ -3142,20 +3142,20 @@ finish_trace(trace_t *trace)
 			sf->sp = trace->frame->prev->fp + 4;
 			sf->pc = get_call_pc(trace->frame->prev->ra);
 			sf->funcname = kl_funcname(sf->pc);
-			if (sf->funcname && 
+			if (sf->funcname &&
 					strstr(sf->funcname, "kernel_thread")) {
 				sf->ra = 0;
 				sf->fp = saddr - 4;
-				sf->asp = (uaddr_t*)((uaddr_t)sbp + 
+				sf->asp = (uaddr_t*)((uaddr_t)sbp +
 					(STACK_SIZE - 12));
 			} else {
 				sf->fp = saddr - 20;
 				kl_get_kaddr(sf->fp, &sf->ra);
-				sf->asp = (uaddr_t*)((uaddr_t)sbp + 
+				sf->asp = (uaddr_t*)((uaddr_t)sbp +
 					(STACK_SIZE - (saddr - sf->sp)));
 			}
 			sf->frame_size = sf->fp - sf->sp + 4;
-			kl_enqueue((element_t **)&trace->frame, 
+			kl_enqueue((element_t **)&trace->frame,
 				(element_t *)sf);
 		}
 	}
@@ -3166,9 +3166,9 @@ finish_trace(trace_t *trace)
  */
 int
 dumptask_trace(
-	kaddr_t curtask, 
-	dump_header_asm_t *dha, 
-	int flags, 
+	kaddr_t curtask,
+	dump_header_asm_t *dha,
+	int flags,
 	FILE *ofp)
 {
 	kaddr_t eip, esp, saddr;
@@ -3227,7 +3227,7 @@ static int instr_buf_init = 1;
 static instr_buf_t instrbuf;
 static unsigned char *codeptr;
 
-/* Forward declarations for local functions 
+/* Forward declarations for local functions
  */
 static int seg_prefix(int);
 static int op_e(int, int, instr_rec_t *);
@@ -3235,23 +3235,23 @@ static int op_e(int, int, instr_rec_t *);
 static opcode_rec_t op_386[] = {
 
 	/* 0x00 */
-	{ "addb", Eb, Gb },	
-	{ "addS", Ev, Gv },	
-	{ "addb", Gb, Eb },	
-	{ "addS", Gv, Ev },	
-	{ "addb", AL, Ib },	
-	{ "addS", eAX, Iv },	
-	{ "pushS", es },		
-	{ "popS", es },		
+	{ "addb", Eb, Gb },
+	{ "addS", Ev, Gv },
+	{ "addb", Gb, Eb },
+	{ "addS", Gv, Ev },
+	{ "addb", AL, Ib },
+	{ "addS", eAX, Iv },
+	{ "pushS", es },
+	{ "popS", es },
 
-	/* 0x08 */	
-	{ "orb", Eb, Gb },	
-	{ "orS", Ev, Gv },	
-	{ "orb", Gb, Eb },	
-	{ "orS", Gv, Ev },	
-	{ "orb", AL, Ib },	
-	{ "orS", eAX, Iv },	
-	{ "pushS", cs },		
+	/* 0x08 */
+	{ "orb", Eb, Gb },
+	{ "orS", Ev, Gv },
+	{ "orb", Gb, Eb },
+	{ "orS", Gv, Ev },
+	{ "orb", AL, Ib },
+	{ "orS", eAX, Iv },
+	{ "pushS", cs },
 	{ "(bad)", BAD },
 
 	/* 0x10 */
@@ -3280,7 +3280,7 @@ static opcode_rec_t op_386[] = {
 	{ "andb", Gb, Eb },
 	{ "andS", Gv, Ev },
 	{ "andb", AL, Ib },
-	{ "andS", eAX, Iv },      
+	{ "andS", eAX, Iv },
 	{ "(bad)", BAD },     /* SEG ES prefix */
 	{ "daa", NONE },
 
@@ -3365,7 +3365,7 @@ static opcode_rec_t op_386[] = {
 	{ "(bad)", BAD },	/* adr size prefix */
 
 	/* 0x68 */
-	{ "pushS", Iv },         
+	{ "pushS", Iv },
 	{ "imulS", Gv, Ev, Iv },
 	{ "pushS", sIb },   /* push of byte really pushes 2 or 4 bytes */
 	{ "imulS", Gv, Ev, Ib },
@@ -3561,7 +3561,7 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ GRP6 },
 	{ GRP7 },
 	{ "larS", Gv, Ew },
-	{ "lslS", Gv, Ew },  
+	{ "lslS", Gv, Ew },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
 	{ "clts", NONE },
@@ -3571,7 +3571,7 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "invd", NONE },
 	{ "wbinvd", NONE },
 	{ "(bad)", BAD },
-	{ "ud2a", NONE },  
+	{ "ud2a", NONE },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
@@ -3602,7 +3602,7 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "movl", Rd, Cd },
 	{ "movl", Rd, Dd },
 	{ "movl", Cd, Rd },
-	{ "movl", Dd, Rd },  
+	{ "movl", Dd, Rd },
 	{ "movl", Rd, Td },
 	{ "(bad)", BAD },
 	{ "movl", Td, Rd },
@@ -3619,10 +3619,10 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "(bad)", BAD },
 
 	/* 0x30 */
-	{ "wrmsr", NONE },  
-	{ "rdtsc", NONE },  
-	{ "rdmsr", NONE },  
-	{ "rdpmc", NONE },  
+	{ "wrmsr", NONE },
+	{ "rdtsc", NONE },
+	{ "rdmsr", NONE },
+	{ "rdpmc", NONE },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
@@ -3639,24 +3639,24 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "(bad)", BAD },
 
 	/* 0x40 */
-	{ "cmovo", Gv,Ev }, 
-	{ "cmovno", Gv,Ev }, 
-	{ "cmovb", Gv,Ev }, 
+	{ "cmovo", Gv,Ev },
+	{ "cmovno", Gv,Ev },
+	{ "cmovb", Gv,Ev },
 	{ "cmovae", Gv,Ev },
-	{ "cmove", Gv,Ev }, 
-	{ "cmovne", Gv,Ev }, 
-	{ "cmovbe", Gv,Ev }, 
+	{ "cmove", Gv,Ev },
+	{ "cmovne", Gv,Ev },
+	{ "cmovbe", Gv,Ev },
 	{ "cmova", Gv,Ev },
 
 	/* 0x48 */
-	{ "cmovs", Gv,Ev }, 
-	{ "cmovns", Gv,Ev }, 
-	{ "cmovp", Gv,Ev }, 
+	{ "cmovs", Gv,Ev },
+	{ "cmovns", Gv,Ev },
+	{ "cmovp", Gv,Ev },
 	{ "cmovnp", Gv,Ev },
-	{ "cmovl", Gv,Ev }, 
-	{ "cmovge", Gv,Ev }, 
-	{ "cmovle", Gv,Ev }, 
-	{ "cmovg", Gv,Ev },  
+	{ "cmovl", Gv,Ev },
+	{ "cmovge", Gv,Ev },
+	{ "cmovle", Gv,Ev },
+	{ "cmovg", Gv,Ev },
 
 	/* 0x50 */
 	{ "(bad)", BAD },
@@ -3722,21 +3722,21 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "jo", Jv },
 	{ "jno", Jv },
 	{ "jb", Jv },
-	{ "jae", Jv },  
+	{ "jae", Jv },
 	{ "je", Jv },
 	{ "jne", Jv },
 	{ "jbe", Jv },
-	{ "ja", Jv },  
+	{ "ja", Jv },
 
 	/* 0x88 */
 	{ "js", Jv },
 	{ "jns", Jv },
 	{ "jp", Jv },
-	{ "jnp", Jv },  
+	{ "jnp", Jv },
 	{ "jl", Jv },
 	{ "jge", Jv },
 	{ "jle", Jv },
-	{ "jg", Jv },  
+	{ "jg", Jv },
 
 	/* 0x90 */
 	{ "seto", Eb },
@@ -3756,13 +3756,13 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "setl", Eb },
 	{ "setge", Eb },
 	{ "setle", Eb },
-	{ "setg", Eb },  
+	{ "setg", Eb },
 
 	/* 0xa0 */
 	{ "pushS", fs },
 	{ "popS", fs },
 	{ "cpuid", NONE },
-	{ "btS", Ev, Gv },  
+	{ "btS", Ev, Gv },
 	{ "shldS", Ev, Gv, Ib },
 	{ "shldS", Ev, Gv, CL },
 	{ "(bad)", BAD },
@@ -3772,31 +3772,31 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "pushS", gs },
 	{ "popS", gs },
 	{ "rsm", NONE },
-	{ "btsS", Ev, Gv },  
+	{ "btsS", Ev, Gv },
 	{ "shrdS", Ev, Gv, Ib },
 	{ "shrdS", Ev, Gv, CL },
 	{ "(bad)", BAD },
-	{ "imulS", Gv, Ev },  
+	{ "imulS", Gv, Ev },
 
 	/* 0xb0 */
 	{ "cmpxchgb", Eb, Gb },
 	{ "cmpxchgS", Ev, Gv },
 	{ "lssS", Gv, Mp },	/* 386 lists only Mp */
-	{ "btrS", Ev, Gv },  
+	{ "btrS", Ev, Gv },
 	{ "lfsS", Gv, Mp },	/* 386 lists only Mp */
 	{ "lgsS", Gv, Mp },	/* 386 lists only Mp */
 	{ "movzbS", Gv, Eb },
-	{ "movzwS", Gv, Ew },  
+	{ "movzwS", Gv, Ew },
 
 	/* 0xb8 */
 	{ "ud2b", NONE },
 	{ "(bad)", BAD },
 	{ GRP8 },
-	{ "btcS", Ev, Gv },  
+	{ "btcS", Ev, Gv },
 	{ "bsfS", Gv, Ev },
 	{ "bsrS", Gv, Ev },
 	{ "movsbS", Gv, Eb },
-	{ "movswS", Gv, Ew },  
+	{ "movswS", Gv, Ew },
 
 	/* 0xc0 */
 	{ "xaddb", Eb, Gb },
@@ -3806,7 +3806,7 @@ static opcode_rec_t op_386_twobyte[] = {
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
 	{ "(bad)", BAD },
-	{ GRP9 },  
+	{ GRP9 },
 
 	/* 0xc8 */
 	{ "bswap", eAX },
@@ -4413,7 +4413,7 @@ static void
 get_modrm_info(unsigned char modr, int *mod_rm, int *reg_op)
 {
 	*mod_rm = ((modr >> 6) << 3) | (modr & 7);
-	*reg_op = (modr >> 3) & 7; 
+	*reg_op = (modr >> 3) & 7;
 }
 
 static int
@@ -4536,7 +4536,7 @@ print_instrname(char *name, instr_rec_t *irp, FILE *ofp)
 				*cp++ = 'n';
 			}
 		} else if (*np == 'S') {
-			/* operand size flag 
+			/* operand size flag
 			 */
 			if (irp->dflag) {
 				*cp++ = 'l';
@@ -4544,7 +4544,7 @@ print_instrname(char *name, instr_rec_t *irp, FILE *ofp)
 				*cp++ = 'w';
 			}
 		} else if (*np == 'W') {
-			/* operand size flag for cwtl, cbtw 
+			/* operand size flag for cwtl, cbtw
 			 */
 			if (irp->dflag) {
 				*cp++ = 'w';
@@ -4574,11 +4574,11 @@ op_a(int opnum, int opdata, instr_rec_t *irp)
 	switch(opdata) {
 		case T_p:
 			if (irp->aflag) {
-				irp->operand[opnum].op_addr = 
+				irp->operand[opnum].op_addr =
 					*(uint32_t*)codeptr;
-				codeptr += 4; 
+				codeptr += 4;
 			} else {
-				irp->operand[opnum].op_addr = 
+				irp->operand[opnum].op_addr =
 					*(uint16_t*)codeptr;
 				codeptr += 2;
 			}
@@ -4916,14 +4916,14 @@ get_modrm_data32(int opnum, int opdata, instr_rec_t *irp)
 						havebase = 0;
 						irp->operand[opnum].op_disp =
 							*(int*)codeptr;
-						irp->operand[opnum].op_type = 
+						irp->operand[opnum].op_type =
 							O_DISP;
 						codeptr += 4;
 					}
 					break;
 				case 1:
-					irp->operand[opnum].op_disp = 
-						*(signed char*) codeptr; 
+					irp->operand[opnum].op_disp =
+						*(signed char*) codeptr;
 					codeptr++;
 					irp->operand[opnum].op_type = O_DISP;
 					break;
@@ -4986,9 +4986,9 @@ op_e(int opnum, int opdata, instr_rec_t *irp)
 			return(1);
 		}
 		if (irp->aflag) {
-			reg = get_modrm_reg32(mod_rm, opdata, irp); 
+			reg = get_modrm_reg32(mod_rm, opdata, irp);
 		} else {
-			reg = get_modrm_reg16(mod_rm, opdata, irp); 
+			reg = get_modrm_reg16(mod_rm, opdata, irp);
 		}
 		irp->operand[opnum].op_type = O_REG;
 		irp->operand[opnum].op_reg = reg;
@@ -5038,7 +5038,7 @@ op_g(int opnum, int opdata, instr_rec_t *irp)
 				reg = reg_16[reg_op];
 			}
 			break;
-		default:	
+		default:
 			irp->operand[opnum].op_reg = R_BAD;
 			return(1);
 	}
@@ -5061,11 +5061,11 @@ op_i(int opnum, int opdata, instr_rec_t *irp)
 			break;
 		case T_v:
 			if (irp->dflag) {
-				irp->operand[opnum].op_addr = 
+				irp->operand[opnum].op_addr =
 					*(uint32_t*)codeptr;
 				codeptr += 4;
 			} else {
-				irp->operand[opnum].op_addr = 
+				irp->operand[opnum].op_addr =
 					*(uint16_t*)codeptr;
 				codeptr += 2;
 			}
@@ -5121,7 +5121,7 @@ op_j(int opnum, int opdata, instr_rec_t *irp)
 	pc += (codeptr - instrbuf.ptr);
 	switch (opdata) {
 		case T_b:
-			pc++; 
+			pc++;
 			pc += *(signed char *)codeptr++;
 			break;
 		case T_v:
@@ -5145,7 +5145,7 @@ op_j(int opnum, int opdata, instr_rec_t *irp)
 static void
 op_m(int opnum, int opdata, instr_rec_t *irp)
 {
-	op_e(opnum, 0, irp); 
+	op_e(opnum, 0, irp);
 }
 
 static void
@@ -5255,11 +5255,11 @@ get_operand_info(int opnum, instr_rec_t *irp)
 			op_si(opnum, opdata, irp);
 			break;
 
-		case M_J: 
+		case M_J:
 			op_j(opnum, opdata, irp);
 			break;
 
-		case M_M: 
+		case M_M:
 			op_m(opnum, opdata, irp);
 			break;
 
@@ -5290,10 +5290,10 @@ get_operand_info(int opnum, instr_rec_t *irp)
 				irp->operand[opnum].op_reg = opdata;
 			} else {
 				if (irp->dflag) {
-					irp->operand[opnum].op_reg = 
+					irp->operand[opnum].op_reg =
 						reg_32[opdata];
 				} else {
-					irp->operand[opnum].op_reg = 
+					irp->operand[opnum].op_reg =
 						reg_16[opdata];
 				}
 			}
@@ -5324,12 +5324,12 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 		instr_buf_init = 0;
 	}
 
-	/* Check to see instrbuf is valid and if there are enough 
-	 * bytes in our instruction cache to cover the worst case 
+	/* Check to see instrbuf is valid and if there are enough
+	 * bytes in our instruction cache to cover the worst case
 	 * scenario for this pc.
 	 */
-	if (!instrbuf.addr || (pc < instrbuf.addr) || 
-			(pc > (instrbuf.addr + instrbuf.size - 15))) { 
+	if (!instrbuf.addr || (pc < instrbuf.addr) ||
+			(pc > (instrbuf.addr + instrbuf.size - 15))) {
 		instrbuf.addr = pc;
 		instrbuf.size = 256;
 #ifdef REDHAT
@@ -5340,21 +5340,21 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 		if (KL_ERROR) {
 			return(0);
 		}
-	} 
+	}
 
-	/* Make sure that the instruction pointer points to the 
+	/* Make sure that the instruction pointer points to the
 	 * right byte in the buffer.
 	 */
 	instrbuf.ptr = instrbuf.buf + (pc - instrbuf.addr);
 	codeptr = instrbuf.ptr;
 	irp->addr = pc;
 
-	/* Check for prefixes 
+	/* Check for prefixes
 	 */
 	while((p = is_prefix(*codeptr))) {
 		prefixes |= p;
 		codeptr++;
-		if ((prefixes & PREFIX_FWAIT) && 
+		if ((prefixes & PREFIX_FWAIT) &&
 			((*codeptr < 0xd8) || (*codeptr > 0xdf))) {
 
 			/* If there is an fwait prefix that is not
@@ -5391,7 +5391,7 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 		} else {
 			codeptr++;
 		}
-		if (STREQ(op->name, "ud2a")) 
+		if (STREQ(op->name, "ud2a"))
 			codeptr += kt->BUG_bytes;
 	} else {
 		opcode = *codeptr;
@@ -5417,7 +5417,7 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 
 		mod = modrm >> 6;
 		rm = modrm & 7;
-		reg = (modrm >> 3) & 7; 
+		reg = (modrm >> 3) & 7;
 		bzero(&tempop, sizeof(tempop));
 		if (mod != 3) {
 			tempop.name = float_mem[(opcode - 0xd8) * 8 + reg];
@@ -5428,21 +5428,21 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 			op = &float_grps[opcode - 0xd8][reg];
 			if (op->Op1 == M_FGRP) {
 				tempop.name = fgrps[op->opdata1][rm];
-				/* instruction fnstsw is only one with 
-				 * strange arg 
+				/* instruction fnstsw is only one with
+				 * strange arg
 				 */
 				if ((opcode == 0xdf) && (*codeptr == 0xe0)) {
 					irp->operand[1].op_type = O_REG;
 					irp->operand[1].op_reg = R_eAX;
-				}				
+				}
 				op = &tempop;
-			} 
+			}
 		}
 	}
 	irp->opcodep = op;
 	irp->opcode = opcode;
-	irp->modrm = modrm; 
-	irp->prefixes = prefixes; 
+	irp->modrm = modrm;
+	irp->prefixes = prefixes;
 
 	/* Check to see if this is a bad instruction (per a table entry)
 	 */
@@ -5468,7 +5468,7 @@ get_instr_info(kaddr_t pc, instr_rec_t *irp)
 		irp->have_sib = 1;
 	}
 
-	/* Gather information on operands 
+	/* Gather information on operands
 	 */
 	if (op->Op1 && (op->Op1 != M_BAD)) {
 		get_operand_info(0, irp);
@@ -5502,7 +5502,7 @@ seg_prefix(int prefixes) {
 		return(R_FS);
 	} else if (prefixes & PREFIX_GS) {
 		return(R_GS);
-	} 
+	}
 	return(0);
 }
 
@@ -5565,10 +5565,10 @@ print_sib_value(int opnum, instr_rec_t *irp, FILE *ofp)
 {
 	if (irp->operand[opnum].op_type & O_REG) {
 		if (irp->operand[opnum].op_type & O_BASE) {
-			fprintf(ofp, "(%s)", 
+			fprintf(ofp, "(%s)",
 				reg_name[irp->operand[opnum].op_reg]);
 		} else {
-			fprintf(ofp, "%s", 
+			fprintf(ofp, "%s",
 				reg_name[irp->operand[opnum].op_reg]);
 		}
 		return;
@@ -5584,7 +5584,7 @@ print_sib_value(int opnum, instr_rec_t *irp, FILE *ofp)
 	}
 	if (irp->operand[opnum].op_type & O_INDEX) {
 		fprintf(ofp, "%s,", reg_name[irp->operand[opnum].op_index]);
-	} 
+	}
 	fprintf(ofp, "%d)", (1 << irp->operand[opnum].op_scale));
 }
 
@@ -5593,10 +5593,10 @@ print_opvalue(int opnum, instr_rec_t *irp, FILE *ofp)
 {
 	if (irp->operand[opnum].op_type & O_REG) {
 		if (irp->operand[opnum].op_type & (O_BASE|O_DISP)) {
-			fprintf(ofp, "(%s)", 
+			fprintf(ofp, "(%s)",
 				reg_name[irp->operand[opnum].op_reg]);
 		} else {
-			fprintf(ofp, "%s", 
+			fprintf(ofp, "%s",
 				reg_name[irp->operand[opnum].op_reg]);
 		}
 	} else if (irp->operand[opnum].op_type & O_IMMEDIATE) {
@@ -5618,7 +5618,7 @@ print_instr(kaddr_t pc, FILE *ofp, int flag)
 
 	bzero(&irp, sizeof(irp));
 	/* XXX -- For now, make aflag and dflag equal to one.  Should get
-	 * this from some sort of configuration struct (set via 
+	 * this from some sort of configuration struct (set via
 	 * initialization)
 	 */
 	irp.aflag = 1;
@@ -5678,7 +5678,7 @@ print_instr(kaddr_t pc, FILE *ofp, int flag)
 				continue;
 			}
 			if (irp.operand[i].op_type & O_SEG) {
-				fprintf(ofp, "%s:(%s)", 
+				fprintf(ofp, "%s:(%s)",
 					reg_name[irp.operand[i].op_seg],
 					reg_name[irp.operand[i].op_reg]);
 				print_comma++;
@@ -5699,8 +5699,8 @@ print_instr(kaddr_t pc, FILE *ofp, int flag)
 		}
 	}
 	if (flag) {
-		fprintf(ofp, "  (%d %s)\n", 
-			irp.size, (irp.size > 1) ? "bytes" : "byte"); 
+		fprintf(ofp, "  (%d %s)\n",
+			irp.size, (irp.size > 1) ? "bytes" : "byte");
 	} else {
 		fprintf(ofp, "\n");
 	}
@@ -5736,7 +5736,7 @@ list_instructions(FILE *ofp)
 			print_optype(op_386[i].Op3, op_386[i].opdata3, ofp);
 		}
 		fprintf(ofp, "\n");
-		
+
 	}
 
 	fprintf(ofp, "\nTWO BYTE INSTRUCTIONS:\n\n");
@@ -5746,7 +5746,7 @@ list_instructions(FILE *ofp)
 			fprintf(ofp, " ");
 		}
 		if (op_386_twobyte[i].Op1) {
-			print_optype(op_386_twobyte[i].Op1, 
+			print_optype(op_386_twobyte[i].Op1,
 				op_386_twobyte[i].opdata1, ofp);
 			print_comma++;
 		}
@@ -5754,7 +5754,7 @@ list_instructions(FILE *ofp)
 			if (print_comma) {
 				fprintf(ofp, ",");
 			}
-			print_optype(op_386_twobyte[i].Op2, 
+			print_optype(op_386_twobyte[i].Op2,
 				op_386_twobyte[i].opdata2, ofp);
 			print_comma++;
 		}
@@ -5762,7 +5762,7 @@ list_instructions(FILE *ofp)
 			if (print_comma) {
 				fprintf(ofp, ",");
 			}
-			print_optype(op_386_twobyte[i].Op3, 
+			print_optype(op_386_twobyte[i].Op3,
 				op_386_twobyte[i].opdata3, ofp);
 		}
 		fprintf(ofp, "\n");
@@ -5801,7 +5801,7 @@ get_instr_stream(kaddr_t pc, int bcount, int acount)
 
 #ifdef REDHAT
 	cur = NULL;
-	if ((sp = x86_is_entry_tramp_address(pc, &offset))) 
+	if ((sp = x86_is_entry_tramp_address(pc, &offset)))
         	pc = sp->value + offset;
 #endif
 	if (!(sp1 = kl_lkup_symaddr(pc))) {
@@ -5812,7 +5812,7 @@ get_instr_stream(kaddr_t pc, int bcount, int acount)
 		if ((sp2 = kl_lkup_symaddr(sp1->s_addr - 4))) {
 			start_addr = sp2->s_addr;
 		}
-	} 
+	}
 #ifdef REDHAT
 	sp_next = next_symbol(NULL, sp1);
 	if (!sp_next)
@@ -5863,7 +5863,7 @@ get_instr_stream(kaddr_t pc, int bcount, int acount)
 				ptr->next = cur;
 				cur->prev = ptr;
 			} else {
-				fst = cur; 
+				fst = cur;
 			}
 		} else {
 			/* Pull the last record to the front of the list
@@ -5892,7 +5892,7 @@ get_instr_stream(kaddr_t pc, int bcount, int acount)
 	if (acount) {
 		lst = cur;
 		for (count = 0; count < acount; count++) {
-			ptr = (instr_rec_t *) 
+			ptr = (instr_rec_t *)
 				kl_alloc_block(sizeof(instr_rec_t), K_TEMP);
 			ptr->aflag = ptr->dflag = 1;
 			size = get_instr_info(addr, ptr);
@@ -5965,7 +5965,7 @@ dump_instr(kaddr_t addr, uint64_t count, int flags, FILE *ofp)
 #include <kl_lib.h>
 #endif
 
-/* 
+/*
  * kl_enqueue() -- Add a new element to the tail of doubly linked list.
  */
 void
@@ -5973,8 +5973,8 @@ kl_enqueue(element_t **list, element_t *new)
 {
 	element_t *head;
 
-	/* 
-	 * If there aren't any elements on the list, then make new element the 
+	/*
+	 * If there aren't any elements on the list, then make new element the
 	 * head of the list and make it point to itself (next and prev).
 	 */
 	if (!(head = *list)) {
@@ -5989,7 +5989,7 @@ kl_enqueue(element_t **list, element_t *new)
 	}
 }
 
-/* 
+/*
  * kl_dequeue() -- Remove an element from the head of doubly linked list.
  */
 element_t *
@@ -5997,7 +5997,7 @@ kl_dequeue(element_t **list)
 {
 	element_t *head;
 
-	/* If there's nothing queued up, just return 
+	/* If there's nothing queued up, just return
 	 */
 	if (!*list) {
 		return((element_t *)NULL);
@@ -6005,7 +6005,7 @@ kl_dequeue(element_t **list)
 
 	head = *list;
 
-	/* If there is only one element on list, just remove it 
+	/* If there is only one element on list, just remove it
 	 */
 	if (head->next == head) {
 		*list = (element_t *)NULL;
@@ -6027,7 +6027,7 @@ kl_findqueue(element_t **list, element_t *item)
 {
 	element_t *e;
 
-	/* If there's nothing queued up, just return 
+	/* If there's nothing queued up, just return
 	 */
 	if (!*list) {
 		return(0);
@@ -6035,7 +6035,7 @@ kl_findqueue(element_t **list, element_t *item)
 
 	e = *list;
 
-	/* Check to see if there is only one element on the list. 
+	/* Check to see if there is only one element on the list.
 	 */
 	if (e->next == e) {
 		if (e != item) {
@@ -6060,12 +6060,12 @@ kl_findqueue(element_t **list, element_t *item)
  * kl_findlist_queue()
  */
 int
-kl_findlist_queue(list_of_ptrs_t **list,  list_of_ptrs_t *item, 
+kl_findlist_queue(list_of_ptrs_t **list,  list_of_ptrs_t *item,
 		  int (*compare)(void *,void *))
 {
 	list_of_ptrs_t *e;
 
-	/* If there's nothing queued up, just return 
+	/* If there's nothing queued up, just return
 	 */
 	if (!*list) {
 		return(0);
@@ -6073,7 +6073,7 @@ kl_findlist_queue(list_of_ptrs_t **list,  list_of_ptrs_t *item,
 
 	e = *list;
 
-	/* Check to see if there is only one element on the list. 
+	/* Check to see if there is only one element on the list.
 	 */
 	if (((element_t *)e)->next == (element_t *)e) {
 		if (compare(e,item)) {
@@ -6085,7 +6085,7 @@ kl_findlist_queue(list_of_ptrs_t **list,  list_of_ptrs_t *item,
 		while(1) {
 			if (!compare(e,item)) {
 				break;
-			} else if (((element_t *)e)->next == 
+			} else if (((element_t *)e)->next ==
 						(element_t *)*list) {
 				return(0);
 			}
@@ -6095,7 +6095,7 @@ kl_findlist_queue(list_of_ptrs_t **list,  list_of_ptrs_t *item,
 	return(1);
 }
 
-/* 
+/*
  * kl_remqueue() -- Remove specified element from doubly linked list.
  */
 void

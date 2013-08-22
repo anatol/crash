@@ -1,4 +1,4 @@
-/* 
+/*
  * kvmdump.h
  *
  * Copyright (C) 2009, 2010 David Anderson
@@ -58,7 +58,7 @@ struct kvmdump_data {
 		char *curbufptr;
 		unsigned char compressed;
 	} un;
-        int evict_index;    
+        int evict_index;
 	ulong accesses;
 	ulong hit_count;
 	ulong compresses;

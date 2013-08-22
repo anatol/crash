@@ -15,7 +15,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-#ifdef S390 
+#ifdef S390
 #include "defs.h"
 
 #define S390_WORD_SIZE    4
@@ -167,8 +167,8 @@ s390_init(int when)
 void
 s390_dump_machdep_table(ulong arg)
 {
-	int others; 
- 
+	int others;
+
 	others = 0;
 	fprintf(fp, "              flags: %lx (", machdep->flags);
 	if (machdep->flags & KSYMS_START)
@@ -184,7 +184,7 @@ s390_dump_machdep_table(ulong arg)
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
 	fprintf(fp, "                 hz: %d\n", machdep->hz);
 	fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-	fprintf(fp, "            memsize: %lld (0x%llx)\n", 
+	fprintf(fp, "            memsize: %lld (0x%llx)\n",
 		(ulonglong)machdep->memsize, (ulonglong)machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
@@ -227,7 +227,7 @@ s390_dump_machdep_table(ulong arg)
 /*
  * Check if address is in context's address space
  */
-static int 
+static int
 s390_is_uvaddr(ulong vaddr, struct task_context *tc)
 {
 	return IN_TASK_VMA(tc->task, vaddr);
@@ -240,7 +240,7 @@ static int
 s390_uvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose)
 {
 	unsigned long pgd_base;
-	readmem(tc->mm_struct + OFFSET(mm_struct_pgd), KVADDR, 
+	readmem(tc->mm_struct + OFFSET(mm_struct_pgd), KVADDR,
 		&pgd_base,sizeof(long), "pgd_base",FAULT_ON_ERROR);
 	return s390_vtop(pgd_base, vaddr, paddr, verbose);
 }
@@ -275,7 +275,7 @@ s390_kvtop(struct task_context *tc, ulong vaddr, physaddr_t *paddr, int verbose)
 /*
  * Check if page is mapped
  */
-static inline int 
+static inline int
 s390_pte_present(unsigned long x)
 {
 	if(THIS_KERNEL_VERSION >= LINUX(2,6,0)) {
@@ -399,7 +399,7 @@ s390_is_task_addr(ulong task)
 }
 
 /*
- * return MHz - unfortunately it is not possible to get this on linux 
+ * return MHz - unfortunately it is not possible to get this on linux
  *              for zSeries
  */
 static ulong
@@ -513,21 +513,21 @@ s390_translate_pte(ulong pte, void *physaddr, ulonglong unused)
 /*
  *  Look for likely exception frames in a stack.
  */
-static int 
+static int
 s390_eframe_search(struct bt_info *bt)
 {
 	if(bt->flags & BT_EFRAME_SEARCH2)
-		return (error(FATAL, 
+		return (error(FATAL,
 		     "Option '-E' is not implemented for this architecture\n"));
 	else
-		return (error(FATAL, 
+		return (error(FATAL,
 		     "Option '-e' is not implemented for this architecture\n"));
 }
 
 /*
  * returns cpu number of task
- */ 
-static int 
+ */
+static int
 s390_cpu_of_task(unsigned long task)
 {
 	int cpu;
@@ -552,8 +552,8 @@ s390_cpu_of_task(unsigned long task)
 
 /*
  * returns true, if task of bt currently is executed by a cpu
- */ 
-static int 
+ */
+static int
 s390_has_cpu(struct bt_info *bt)
 {
 	int cpu = bt->tc->processor;
@@ -575,7 +575,7 @@ s390_get_lowcore(int cpu, char* lowcore)
 	lowcore_array = symbol_value("lowcore_ptr");
 	readmem(lowcore_array + cpu * S390_WORD_SIZE,KVADDR,
 		&lowcore_ptr, sizeof(long), "lowcore_ptr", FAULT_ON_ERROR);
-	readmem(lowcore_ptr, KVADDR, lowcore, LOWCORE_SIZE, "lowcore", 
+	readmem(lowcore_ptr, KVADDR, lowcore, LOWCORE_SIZE, "lowcore",
 		FAULT_ON_ERROR);
 }
 
@@ -632,7 +632,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 		int cpu = s390_cpu_of_task(bt->task);
 
 		if (ACTIVE()) {
-			fprintf(fp,"(active)\n");		
+			fprintf(fp,"(active)\n");
 			return;
 		}
 		s390_get_lowcore(cpu,lowcore);
@@ -654,7 +654,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 	/* get task stack start and end */
 	if(THIS_KERNEL_VERSION >= LINUX(2,6,0)){
 		readmem(bt->task + OFFSET(task_struct_thread_info),KVADDR,
-			&stack_start, sizeof(long), "thread info", 
+			&stack_start, sizeof(long), "thread info",
 			FAULT_ON_ERROR);
 	} else {
 		stack_start = bt->task;
@@ -665,7 +665,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 		r14_offset = 56;
 		bc_offset=0;
 	} else {
-		r14_offset = MEMBER_OFFSET("stack_frame","gprs") + 
+		r14_offset = MEMBER_OFFSET("stack_frame","gprs") +
 			     8 * S390_WORD_SIZE;
 		bc_offset  = MEMBER_OFFSET("stack_frame","back_chain");
 	}
@@ -694,7 +694,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 			/* invalid stackframe */
 			break;
 		}
-		r14_stack_off=backchain - stack_base + r14_offset; 
+		r14_stack_off=backchain - stack_base + r14_offset;
 		r14 = ULONG(&stack[r14_stack_off]) & S390_ADDR_MASK;
 
 		/* print function name */
@@ -714,10 +714,10 @@ s390_back_trace_cmd(struct bt_info *bt)
 			if (bt->flags & BT_SYMBOL_OFFSET) {
 				sp = value_search(r14, &offset);
 				if (sp && offset)
-					name_plus_offset = 
+					name_plus_offset =
 						value_to_symstr(r14, buf, bt->radix);
 			}
-			fprintf(fp,"%s at %x", name_plus_offset ? 
+			fprintf(fp,"%s at %x", name_plus_offset ?
 				name_plus_offset : closest_symbol(r14), r14);
 			if (module_symbol(r14, NULL, &lm, NULL, 0))
 				fprintf(fp, " [%s]", lm->mod_name);
@@ -733,7 +733,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 		if((bt->flags & BT_FULL) && !BT_REFERENCE_CHECK(bt)){
 			int frame_size;
 			if(backchain == 0){
-				frame_size = stack_base - old_backchain 
+				frame_size = stack_base - old_backchain
 					     + KERNEL_STACK_SIZE;
 			} else {
 				frame_size = MIN((backchain - old_backchain),
@@ -744,7 +744,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 				if(j % 16 == 0){
 					fprintf(fp,"\n%08lx: ",old_backchain+j);
 				}
-				fprintf(fp," %s", format_stack_entry(bt, buf, 
+				fprintf(fp," %s", format_stack_entry(bt, buf,
 					ULONG(&stack[old_backchain - stack_base + j]), 0));
 			}
 			fprintf(fp,"\n\n");
@@ -754,7 +754,7 @@ s390_back_trace_cmd(struct bt_info *bt)
 		if((backchain == 0) && (stack == async_stack)){
 			unsigned long psw_flags,r15;
 
-			psw_flags = ULONG(&stack[old_backchain - stack_base 
+			psw_flags = ULONG(&stack[old_backchain - stack_base
 					  +96 +MEMBER_OFFSET("pt_regs","psw")]);
 			if(psw_flags & 0x10000UL){
 				/* User psw: should not happen */
@@ -796,12 +796,12 @@ s390_print_lowcore(char* lc, struct bt_info *bt, int show_symbols)
 	fprintf(fp,"  -psw      : %#010lx %#010lx\n", tmp[0],
 		tmp[1]);
 	if(show_symbols){
-		fprintf(fp,"  -function : %s at %lx\n", 
-	       		closest_symbol(tmp[1] & S390_ADDR_MASK), 
+		fprintf(fp,"  -function : %s at %lx\n",
+	       		closest_symbol(tmp[1] & S390_ADDR_MASK),
 			tmp[1] & S390_ADDR_MASK);
 		if (bt->flags & BT_LINE_NUMBERS)
 	       		s390_dump_line_number(tmp[1] & S390_ADDR_MASK);
-	}	
+	}
 	ptr = lc + MEMBER_OFFSET(lc_struct, "cpu_timer_save_area");
 	tmp[0]=UINT(ptr);
 	tmp[1]=UINT(ptr + S390_WORD_SIZE);
@@ -818,25 +818,25 @@ s390_print_lowcore(char* lc, struct bt_info *bt, int show_symbols)
 	tmp[1]=ULONG(ptr + S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 2 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 3 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0],tmp[1],tmp[2],tmp[3]);
 	tmp[0]=ULONG(ptr + 4 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 5 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 6 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 7 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0],tmp[1],tmp[2],tmp[3]);
 	tmp[0]=ULONG(ptr + 8 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 9 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 10* S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 11* S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0],tmp[1],tmp[2],tmp[3]);
 	tmp[0]=ULONG(ptr + 12* S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 13* S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 14* S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 15* S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 
 	fprintf(fp,"  -access registers:\n");
@@ -845,25 +845,25 @@ s390_print_lowcore(char* lc, struct bt_info *bt, int show_symbols)
 	tmp[1]=ULONG(ptr + S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 2 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 3 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 	tmp[0]=ULONG(ptr + 4 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 5 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 6 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 7 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 	tmp[0]=ULONG(ptr + 8 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 9 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 10* S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 11* S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 	tmp[0]=ULONG(ptr + 12* S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 13* S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 14* S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 15* S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 
 	fprintf(fp,"  -control registers:\n");
@@ -872,26 +872,26 @@ s390_print_lowcore(char* lc, struct bt_info *bt, int show_symbols)
 	tmp[1]=ULONG(ptr + S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 2 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 3 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 	tmp[0]=ULONG(ptr + 4 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 5 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 6 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 7 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 
 	tmp[0]=ULONG(ptr + 8 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 9 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 10 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 11 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 	tmp[0]=ULONG(ptr + 12 * S390_WORD_SIZE);
 	tmp[1]=ULONG(ptr + 13 * S390_WORD_SIZE);
 	tmp[2]=ULONG(ptr + 14 * S390_WORD_SIZE);
 	tmp[3]=ULONG(ptr + 15 * S390_WORD_SIZE);
-	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n", 
+	fprintf(fp,"     %#010lx %#010lx %#010lx %#010lx\n",
 		tmp[0], tmp[1], tmp[2], tmp[3]);
 
 	ptr = lc + MEMBER_OFFSET(lc_struct, "floating_pt_save_area");
@@ -956,7 +956,7 @@ s390_get_stack_frame(struct bt_info *bt, ulong *eip, ulong *esp)
 /*
  *  cmd_irq() is not implemented for s390.
  */
-static void 
+static void
 s390_dump_irq(int irq)
 {
 	error(FATAL, "s390_dump_irq: TBD\n");
@@ -965,7 +965,7 @@ s390_dump_irq(int irq)
 /*
  *  Filter disassembly output if the output radix is not gdb's default 10
  */
-static int 
+static int
 s390_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
 	char buf1[BUFSIZE];
@@ -975,11 +975,11 @@ s390_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	char *argv[MAXARGS];
 	ulong value;
 
-	if (!inbuf) 
+	if (!inbuf)
 		return TRUE;
 /*
  *  For some reason gdb can go off into the weeds translating text addresses,
- *  so this routine both fixes the references as well as imposing the current 
+ *  so this routine both fixes the references as well as imposing the current
  *  output radix on the translations.
  */
 	console("IN: %s", inbuf);
@@ -996,10 +996,10 @@ s390_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	strcpy(buf1, inbuf);
 	argc = parse_line(buf1, argv);
 
-	if ((FIRSTCHAR(argv[argc-1]) == '<') && 
+	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
 	    (LASTCHAR(argv[argc-1]) == '>')) {
 		p1 = rindex(inbuf, '<');
-		while ((p1 > inbuf) && !STRNEQ(p1, " 0x")) 
+		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
 
 		if (!STRNEQ(p1, " 0x"))
@@ -1147,4 +1147,4 @@ try_closest:
 	}
 }
 
-#endif 
+#endif

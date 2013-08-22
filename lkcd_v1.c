@@ -30,7 +30,7 @@ static dump_page_t dump_page = { 0 };
 int
 lkcd_dump_init_v1(FILE *fp, int fd)
 {
-	int i; 
+	int i;
 	int eof;
 	uint32_t pgcnt;
 	dump_header_t *dh;
@@ -50,7 +50,7 @@ lkcd_dump_init_v1(FILE *fp, int fd)
 
         lkcd->dump_header = dh;
         lkcd->dump_page = dp;
-	if (lkcd->debug) 
+	if (lkcd->debug)
 		dump_lkcd_environment(LKCD_DUMP_HEADER_ONLY);
 
         /*
@@ -122,7 +122,7 @@ lkcd_dump_init_v1(FILE *fp, int fd)
          */
         lkcd_free_memory();
 	for (i = 0; i < LKCD_CACHED_PAGES; i++) {
-		lkcd->page_cache_hdr[i].pg_bufptr = 
+		lkcd->page_cache_hdr[i].pg_bufptr =
 			&lkcd->page_cache_buf[i * dh->dh_page_size];
 	}
 
@@ -133,11 +133,11 @@ lkcd_dump_init_v1(FILE *fp, int fd)
 	    	(LKCD_PAGE_HASH, sizeof(struct page_hash_entry))) == NULL)
 		return FALSE;
 
-	lkcd->total_pages = eof || (pgcnt > dh->dh_num_pages) ? 
+	lkcd->total_pages = eof || (pgcnt > dh->dh_num_pages) ?
 		pgcnt : dh->dh_num_pages;
 	lkcd->panic_task = (ulong)dh->dh_current_task;
 	lkcd->panic_string = (char *)&dh->dh_panic_string[0];
-	if (!fp) 
+	if (!fp)
 		lkcd->flags |= LKCD_REMOTE;
 	lkcd->flags |= LKCD_VALID;
 
@@ -145,9 +145,9 @@ lkcd_dump_init_v1(FILE *fp, int fd)
 }
 
 /*
- *  Return the current page's dp_size.   
+ *  Return the current page's dp_size.
  */
-uint32_t 
+uint32_t
 get_dp_size_v1(void)
 {
         dump_page_t *dp;
@@ -158,7 +158,7 @@ get_dp_size_v1(void)
 }
 
 /*
- *  Return the current page's dp_flags. 
+ *  Return the current page's dp_flags.
  */
 uint32_t
 get_dp_flags_v1(void)

@@ -350,7 +350,7 @@ dflt_header_fn(debug_info_t * id, debug_view_t *view,
 	}
 
 	if(KL_ARCH == KL_ARCH_S390X){
-		rc += sprintf(out_buf, 
+		rc += sprintf(out_buf,
 			      "%02i %011lu:%06lu %1u %1s %02i <%20s+%04i>  ",
 			      area, time_val.tv_sec, time_val.tv_usec, level,
 			      except_str, entry->id.fields.cpuid, caller_name,
@@ -720,7 +720,7 @@ debug_find_oldest_entry(debug_entry_t *entries, int num, int entry_size)
  * - calls prolog, header and format functions of view to format output
  */
 static int
-debug_format_output_v1(debug_info_t * debug_area, debug_view_t *view, 
+debug_format_output_v1(debug_info_t * debug_area, debug_view_t *view,
 			FILE * ofp)
 {
 	int i, j, len;
@@ -765,7 +765,7 @@ debug_format_output_v1(debug_info_t * debug_area, debug_view_t *view,
 				len = view->format_proc(debug_area, view,
 						  buf, act_entry_data);
 				items = fwrite(buf,len, 1, ofp);
-				memset(buf, 0, 2048); 
+				memset(buf, 0, 2048);
 			}
 			act_entry =
 			    (debug_entry_t *) (((char *) act_entry) +
@@ -814,18 +814,18 @@ debug_format_output_v2(debug_info_t * debug_area,
 				if (act_entry->id.stck == 0)
 					break;	/* empty entry */
 				if (view->header_proc) {
-					len = view->header_proc(debug_area, 
+					len = view->header_proc(debug_area,
 						view, i, act_entry, buf);
 					items = fwrite(buf,len, 1, ofp);
 					memset(buf, 0, 2048);
 				}
 				if (view->format_proc) {
-					len = view->format_proc(debug_area, 
+					len = view->format_proc(debug_area,
 						view, buf, act_entry_data);
 					items = fwrite(buf,len, 1, ofp);
-					memset(buf, 0, 2048); 
+					memset(buf, 0, 2048);
 				}
-				act_entry = (debug_entry_t *) (((char *) 
+				act_entry = (debug_entry_t *) (((char *)
 					act_entry) + debug_area->entry_size);
 			}
 		}
@@ -876,7 +876,7 @@ get_debug_view(kaddr_t addr)
 
 	k_debug_view_size = kl_struct_len("debug_view");
 	k_debug_view      = malloc(k_debug_view_size);
-	GET_BLOCK(addr, k_debug_view_size, k_debug_view);		
+	GET_BLOCK(addr, k_debug_view_size, k_debug_view);
 	strncpy(rc->name,K_PTR(k_debug_view,"debug_view","name"),
 		DEBUG_MAX_PROCF_LEN);
 
@@ -887,7 +887,7 @@ get_debug_view(kaddr_t addr)
 static void
 free_debug_view(debug_view_t* view)
 {
-	if(view) 
+	if(view)
 		free(view);
 }
 
@@ -1310,7 +1310,7 @@ save_dbf(const char *dbf_dir_name, command_t *cmd)
 	}
 }
 
-/* 
+/*
  * s390dbf_cmd() -- Run the 's390dbf' command.
  */
 static int
@@ -1320,7 +1320,7 @@ s390dbf_cmd(command_t * cmd)
 	int rc = 0;
 
 	/* check version */
- 
+
 	if(!(dbf_version_sym = kl_lkup_symname("debug_feature_version"))){
 		fprintf(KL_ERRORFP,
 			"Could not determine debug_feature_version\n");
@@ -1357,7 +1357,7 @@ s390dbf_cmd(command_t * cmd)
 		return (1);
 	}
 
-	if(get_debug_areas() == -1) 
+	if(get_debug_areas() == -1)
 		return -1;
 
 	if (cmd->flags & SAVE_DBF_FLAG) {
@@ -1377,7 +1377,7 @@ s390dbf_cmd(command_t * cmd)
 		break;
 	case 2:
 		rc = list_one_view(cmd->args[0], cmd->args[1], cmd);
-		break;	
+		break;
 	}
 
 	free_debug_areas();
@@ -1433,7 +1433,7 @@ void cmd_s390dbf()
 	cmd.nargs=argcnt - 1;
 	for (i=1; i < argcnt; i++)
 		cmd.args[i-1] = args[i];
-	
+
 	while ((c = getopt(argcnt, args, "vs")) != EOF) {
 		switch(c) {
 		case 'v':
