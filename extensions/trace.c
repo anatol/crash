@@ -798,7 +798,7 @@ work:
 	if (get_fields == syscall_get_exit_fields_value)
 		return syscall_get_exit_fields(call, fields);
 
-	fprintf(fp, "Unkown get_fields function\n");
+	fprintf(fp, "Unknown get_fields function\n");
 	return -1;
 }
 

@@ -6594,7 +6594,7 @@ dump_hrtimer_data(void)
 	max_hrtimer_bases = 0;
 
 	/* 
-	 * deside whether hrtimer is available and
+	 * decide whether hrtimer is available and
 	 * set hrtimer_max_clock_bases or max_hrtimer_bases.
 	 * if both are not available, hrtimer is not available.
 	 */

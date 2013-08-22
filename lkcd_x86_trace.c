@@ -1554,7 +1554,7 @@ find_trace(
 		 *  value -- as verified by disassembling the function -- but 
 		 *  in rare circumstances there's more to the stack frame than 
 		 *  meets the eye.  Until I can figure out why, extra space
-		 *  can be added here for any "known" anomolies.  gcc version
+		 *  can be added here for any "known" anomalies.  gcc version
 		 *  restrictions are also added rather than assuming anything.
 		 *  See framesize_modify() for kludgery. 
 		 */
@@ -1570,7 +1570,7 @@ find_trace(
        			ra = GET_STACK_ULONG(bp + 4);
 
 			/*
-			 *  This anomoly would be caught by the recovery
+			 *  This anomaly would be caught by the recovery
 			 *  speculation, but since we know it's an issue
 			 *  just catch it here first.
 			 */
@@ -2483,7 +2483,7 @@ do_bt_reference_check(struct bt_info *bt, sframe_t *frmp)
  *
  *  NOTE: the schedule() BT_LOOP_TRAP may have been subsequently fixed
  *  by the get_framesize() adjustment for schedule(), but it's worth
- *  keeping it around if a new schedule framesize anomoly pops up in
+ *  keeping it around if a new schedule framesize anomaly pops up in
  *  the future.
  */
 static int
@@ -2699,7 +2699,7 @@ print_stack_entry(struct bt_info *bt, int level, ulong esp, ulong eip,
 /*
  *  The new process accounting stuff installs a label between system_call and 
  *  ret_from_sys_call, confusing the code that recognizes exception frame 
- *  symbols.  This function has been put in place to catch that anomoly, as 
+ *  symbols.  This function has been put in place to catch that anomaly, as 
  *  well as serving as a template for any future labels that get placed in the
  *  kernel entry point code.  It returns the syment of the "real" kernel entry
  *  point.  

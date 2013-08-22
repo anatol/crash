@@ -4981,7 +4981,7 @@ struct x86_64_pt_regs_offsets {
         long r12;
         long rbp;
         long rbx;
-/* arguments: non interrupts/non tracing syscalls only save upto here*/
+/* arguments: non interrupts/non tracing syscalls only save up to here*/
         long r11;
         long r10;
         long r9;

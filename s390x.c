@@ -1359,7 +1359,7 @@ s390x_print_lowcore(char* lc, struct bt_info *bt,int show_symbols)
 }
 
 /*
- *  Get a stack frame combination of pc and ra from the most relevent spot.
+ *  Get a stack frame combination of pc and ra from the most relevant spot.
  */
 static void
 s390x_get_stack_frame(struct bt_info *bt, ulong *eip, ulong *esp)

@@ -1223,7 +1223,7 @@ get_diskdump_regs(struct bt_info *bt, ulong *eip, ulong *esp)
 
 	case EM_IA_64:
 	       /* For normal backtraces, this information will be obtained
-		* frome the switch_stack structure, which is pointed to by
+		* from the switch_stack structure, which is pointed to by
 		* the thread.ksp field of the task_struct. But it's still
 		* needed by the "bt -t" option.
 		*/

@@ -4186,7 +4186,7 @@ x86_64_eframe_verify(struct bt_info *bt, long kvaddr, long cs, long ss,
 }
 
 /*
- *  Get a stack frame combination of pc and ra from the most relevent spot.
+ *  Get a stack frame combination of pc and ra from the most relevant spot.
  */
 static void
 x86_64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)

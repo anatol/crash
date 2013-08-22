@@ -1261,7 +1261,7 @@ daemon_htol(char *s)
 
 
 /*
- *  Adapted from filesys.c, seach the default directories for a kernel
+ *  Adapted from filesys.c, search the default directories for a kernel
  *  that matches /proc/version.  daemon_build_searchdirs() builds an
  *  array of directory names.
  */

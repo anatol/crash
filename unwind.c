@@ -1957,7 +1957,7 @@ unw_init_from_blocked_task(struct unw_frame_info *info, struct bt_info *bt)
  *     - do not use readmem to access stack
  *       (because stack may be modified by unw_init_from_saved_regs)
  *     - use ar.ifs and ar.iip instead of ar.pfs and b0, respectively
- *     - use sof(size-of-frame) of ar.ifs to caluculate bsp,
+ *     - use sof(size-of-frame) of ar.ifs to calculate bsp,
  *       instead of sol(size-of-local) of ar.pfs
  *       (because of cover instruction in kernel minstate save macro)
  */

@@ -1451,7 +1451,7 @@ ppc_dumpfile_stack_frame(struct bt_info *bt, ulong *getpc, ulong *getsp)
 }
 
 /*
- *  Get a stack frame combination of pc and ra from the most relevent spot.
+ *  Get a stack frame combination of pc and ra from the most relevant spot.
  */
 static void
 ppc_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)

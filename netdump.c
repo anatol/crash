@@ -1611,7 +1611,7 @@ dump_Elf64_Phdr(Elf64_Phdr *prog, int store_pt_load_data)
 /*
  * VMCOREINFO
  *
- * This is a ELF note intented for makedumpfile that is exported by the
+ * This is a ELF note intended for makedumpfile that is exported by the
  * kernel that crashes and presented as ELF note to the /proc/vmcore
  * of the panic kernel.
  */
@@ -2271,7 +2271,7 @@ get_netdump_regs(struct bt_info *bt, ulong *eip, ulong *esp)
 
 	case EM_IA_64:
 	       /* For normal backtraces, this information will be obtained
-		* frome the switch_stack structure, which is pointed to by
+		* from the switch_stack structure, which is pointed to by
 		* the thread.ksp field of the task_struct. But it's still
 		* needed by the "bt -t" option.
 		*/

@@ -1240,7 +1240,7 @@ static ulong
 ppc64_check_sp_in_HWintrstack(ulong sp, struct bt_info *bt)
 {
 	/*
-	 * Since the seperate HW Interrupt stack is involved to store 
+	 * Since the separate HW Interrupt stack is involved to store 
 	 * IPI frames, printing all stack symbols or searching for exception 
 	 * frames for running tasks on other CPUS is tricky. The simple 
 	 * solution is - ignore HW intr stack and search in the process stack.
@@ -2077,7 +2077,7 @@ retry:
 
 
 /*
- *  Get a stack frame combination of pc and ra from the most relevent spot.
+ *  Get a stack frame combination of pc and ra from the most relevant spot.
  */
 static void
 ppc64_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)

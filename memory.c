@@ -11597,7 +11597,7 @@ phys_to_page(physaddr_t phys, ulong *pp)
  *  Fill the caller's buffer with up to maxlen non-NULL bytes 
  *  starting from kvaddr, returning the number of consecutive 
  *  non-NULL bytes found.  If the buffer gets filled with
- *  maxlen bytes without a NULL, then the caller is reponsible 
+ *  maxlen bytes without a NULL, then the caller is responsible 
  *  for handling it. 
  */
 int
@@ -14736,7 +14736,7 @@ last_vmalloc_address(void)
 }
 /*
  *  Determine whether an identity-mapped virtual address
- *  refers to an existant physical page, and if not bump
+ *  refers to an existent physical page, and if not bump
  *  it up to the next node.
  */
 static int
@@ -16261,7 +16261,7 @@ do_slab_slub(struct meminfo *si, int verbose)
 
 	if (!page_to_phys(si->slab, &paddr)) {
 		error(WARNING, 
-		    "%lx: cannot tranlate slab page to physical address\n",
+		    "%lx: cannot translate slab page to physical address\n",
 			si->slab);
 		return;
 	} 

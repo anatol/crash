@@ -6560,7 +6560,7 @@ is_percpu_symbol(struct syment *sp)
  *  args[0] is checked to see whether it's the name of a variable, structure, 
  *  union, or typedef.  If so, args[0] is changed to the appropriate command, 
  *  i.e., "p", "struct", "union", or "whatis", and the original args are all 
- *  shifted into the next higer args[] location.
+ *  shifted into the next higher args[] location.
  */
 int
 is_datatype_command(void)
