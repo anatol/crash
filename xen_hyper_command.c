@@ -57,8 +57,8 @@ static void xen_hyper_do_domain(struct xen_hyper_cmd_args *da);
 static void xen_hyper_do_doms(struct xen_hyper_cmd_args *da);
 static void xen_hyper_show_doms(struct xen_hyper_domain_context *dc);
 static void xen_hyper_do_dumpinfo(ulong flag, struct xen_hyper_cmd_args *dia);
-static void xen_hyper_show_dumpinfo(ulong flag,
-	struct xen_hyper_dumpinfo_context *dic);
+static void xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context
+				    *dic);
 static void xen_hyper_do_pcpus(ulong flag, struct xen_hyper_cmd_args *pca);
 static void xen_hyper_show_pcpus(ulong flag, struct xen_hyper_pcpu_context *pcc);
 static void xen_hyper_do_sched(ulong flag, struct xen_hyper_cmd_args *scha);
@@ -67,45 +67,44 @@ static void xen_hyper_do_vcpu(struct xen_hyper_cmd_args *vca);
 static void xen_hyper_do_vcpus(struct xen_hyper_cmd_args *vca);
 static void xen_hyper_show_vcpus(struct xen_hyper_vcpu_context *vcc);
 static char *xen_hyper_domain_to_type(ulong domain, int *type, char *buf, int verbose);
-static char *xen_hyper_domain_context_to_type(
-	struct xen_hyper_domain_context *dc, int *type, char *buf, int verbose);
-static int xen_hyper_str_to_domain_context(char *string, ulong *value,
-	struct xen_hyper_domain_context **dcp);
-static int xen_hyper_str_to_dumpinfo_context(char *string, ulong *value, struct xen_hyper_dumpinfo_context **dicp);
-static int xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
-	struct xen_hyper_vcpu_context **vccp);
-static int
-xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
-	ulong *valvc, struct xen_hyper_vcpu_context **vccp);
-static int xen_hyper_str_to_pcpu_context(char *string, ulong *value,
-	struct xen_hyper_pcpu_context **pccp);
+static char *xen_hyper_domain_context_to_type(struct xen_hyper_domain_context
+					      *dc, int *type, char *buf, int verbose);
+static int xen_hyper_str_to_domain_context(char *string, ulong * value, struct xen_hyper_domain_context
+					   **dcp);
+static int xen_hyper_str_to_dumpinfo_context(char *string, ulong * value, struct
+					     xen_hyper_dumpinfo_context
+					     **dicp);
+static int xen_hyper_strvcpu_to_vcpu_context(char *string, ulong * value, struct xen_hyper_vcpu_context
+					     **vccp);
+static int xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong * valdom, ulong * valvc, struct xen_hyper_vcpu_context
+					   **vccp);
+static int xen_hyper_str_to_pcpu_context(char *string, ulong * value, struct xen_hyper_pcpu_context
+					 **pccp);
 
 /*
  *  Display domain struct.
  */
-void
-xen_hyper_cmd_domain(void)
+void xen_hyper_cmd_domain(void)
 {
 	struct xen_hyper_cmd_args da;
 	struct xen_hyper_domain_context *dc;
 	ulong val;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&da, sizeof(struct xen_hyper_cmd_args));
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-								{
-								default:
-												argerrs++;
-												break;
-								}
-				}
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			type = xen_hyper_str_to_domain_context(args[optind], &val, &dc);
 			switch (type) {
@@ -118,13 +117,11 @@ xen_hyper_cmd_domain(void)
 				cnt++;
 				break;
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid domain or id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid domain or id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
 	}
@@ -139,8 +136,7 @@ xen_hyper_cmd_domain(void)
 /*
  *  Do the work requested by xen_hyper_cmd_dom().
  */
-static void
-xen_hyper_do_domain(struct xen_hyper_cmd_args *da)
+static void xen_hyper_do_domain(struct xen_hyper_cmd_args *da)
 {
 	int i;
 
@@ -159,29 +155,27 @@ xen_hyper_do_domain(struct xen_hyper_cmd_args *da)
 /*
  *  Display domain status.
  */
-void
-xen_hyper_cmd_doms(void)
+void xen_hyper_cmd_doms(void)
 {
 	struct xen_hyper_cmd_args da;
 	struct xen_hyper_domain_context *dc;
 	ulong val;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&da, sizeof(struct xen_hyper_cmd_args));
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-								{
-								default:
-												argerrs++;
-												break;
-								}
-				}
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			type = xen_hyper_str_to_domain_context(args[optind], &val, &dc);
 			switch (type) {
@@ -194,13 +188,11 @@ xen_hyper_cmd_doms(void)
 				cnt++;
 				break;
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid domain or id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid domain or id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
 	}
@@ -215,38 +207,34 @@ xen_hyper_cmd_doms(void)
 /*
  *  Do the work requested by xen_hyper_cmd_doms().
  */
-static void
-xen_hyper_do_doms(struct xen_hyper_cmd_args *da)
+static void xen_hyper_do_doms(struct xen_hyper_cmd_args *da)
 {
 	struct xen_hyper_domain_context *dca;
 	char buf1[XEN_HYPER_CMD_BUFSIZE];
 	char buf2[XEN_HYPER_CMD_BUFSIZE];
 	int i;
 
-	sprintf(buf1, "   DID  %s ST T ",
-		mkstring(buf2, VADDR_PRLEN, CENTER|RJUST, "DOMAIN"));
-	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER|RJUST, "MAXPAGE");
-	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
-	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER|RJUST, "TOTPAGE");
-	strncat(buf1, " VCPU ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
-	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER|RJUST, "SHARED_I");
-	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
-	mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER|RJUST, "P2M_MFN");
+	sprintf(buf1, "   DID  %s ST T ", mkstring(buf2, VADDR_PRLEN, CENTER | RJUST, "DOMAIN"));
+	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER | RJUST, "MAXPAGE");
+	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
+	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER | RJUST, "TOTPAGE");
+	strncat(buf1, " VCPU ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
+	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER | RJUST, "SHARED_I");
+	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
+	mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER | RJUST, "P2M_MFN");
 	fprintf(fp, "%s\n", buf1);
 	if (da->cnt) {
 		for (i = 0; i < da->cnt; i++) {
 			xen_hyper_show_doms(da->context[i]);
 		}
 	} else {
-		for (i = 0, dca=xhdt->context_array; i < XEN_HYPER_NR_DOMAINS();
-			i++, dca++) {
+		for (i = 0, dca = xhdt->context_array; i < XEN_HYPER_NR_DOMAINS(); i++, dca++) {
 			xen_hyper_show_doms(dca);
 		}
 	}
 }
 
-static void
-xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
+static void xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
 {
 	char *act, *crash;
 	uint cpuid;
@@ -264,13 +252,12 @@ xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
 	if (!(dc->domain)) {
 		return;
 	}
-
 #if defined(X86) || defined(X86_64)
 	shared_info = GETBUF(XEN_HYPER_SIZE(shared_info));
 	if (dc->shared_info) {
 		if (!readmem(dc->shared_info, KVADDR, shared_info,
-			XEN_HYPER_SIZE(shared_info), "fill_shared_info_struct",
-			ACTIVE() ? (RETURN_ON_ERROR|QUIET) : RETURN_ON_ERROR)) {
+			     XEN_HYPER_SIZE(shared_info),
+			     "fill_shared_info_struct", ACTIVE()? (RETURN_ON_ERROR | QUIET) : RETURN_ON_ERROR)) {
 			error(WARNING, "cannot fill shared_info struct.\n");
 			BZERO(shared_info, XEN_HYPER_SIZE(shared_info));
 		}
@@ -281,8 +268,7 @@ xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
 	}
 #endif
 	act = NULL;
-	for_cpu_indexes(i, cpuid)
-	{
+	for_cpu_indexes(i, cpuid) {
 		pcc = xen_hyper_id_to_pcpu_context(cpuid);
 		for (j = 0; j < dc->vcpu_cnt; j++) {
 			if (pcc->current_vcpu == dc->vcpu[j]) {
@@ -290,51 +276,48 @@ xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
 				break;
 			}
 		}
-		if (act)	break;
+		if (act)
+			break;
 	}
-	if (act == NULL)	act = " ";
+	if (act == NULL)
+		act = " ";
 	if (xht->crashing_vcc && dc->domain == xht->crashing_vcc->domain) {
 		crash = "*";
 	} else {
 		crash = " ";
 	}
 	sprintf(buf1, "%s%s%5d ", act, crash, dc->domain_id);
-	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST, (char *)(dc->domain));
-	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
-	sprintf(&buf1[strlen(buf1)], "%s ",
-		xen_hyper_domain_state_string(dc, buf2, !VERBOSE));
-	sprintf(&buf1[strlen(buf1)], "%s ",
-		xen_hyper_domain_context_to_type(dc, &type, buf2, !VERBOSE));
-	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER|INT_HEX|RJUST,
-		MKSTR((long)(dc->max_pages)));
-	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
-	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER|INT_HEX|RJUST,
-		MKSTR((long)(dc->tot_pages)));
+	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, (char *)(dc->domain));
+	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
+	sprintf(&buf1[strlen(buf1)], "%s ", xen_hyper_domain_state_string(dc, buf2, !VERBOSE));
+	sprintf(&buf1[strlen(buf1)], "%s ", xen_hyper_domain_context_to_type(dc, &type, buf2, !VERBOSE));
+	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER | INT_HEX | RJUST, MKSTR((long)(dc->max_pages)));
+	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
+	mkstring(&buf1[strlen(buf1)], INT_PRLEN, CENTER | INT_HEX | RJUST, MKSTR((long)(dc->tot_pages)));
 	sprintf(&buf1[strlen(buf1)], " %3d  ", dc->vcpu_cnt);
-	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(dc->shared_info));
-	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf1)-1);
+	mkstring(&buf1[strlen(buf1)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(dc->shared_info));
+	strncat(buf1, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf1) - 1);
 #if defined(X86) || defined(X86_64)
 	if (dc->shared_info) {
-		mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER|LONG_HEX|RJUST,
-			MKSTR(ULONG(shared_info +
+		mkstring(&buf1[strlen(buf1)], LONG_PRLEN,
+			 CENTER | LONG_HEX | RJUST,
+			 MKSTR(ULONG
+			       (shared_info +
 				XEN_HYPER_OFFSET(shared_info_arch) +
 				XEN_HYPER_OFFSET(arch_shared_info_pfn_to_mfn_frame_list_list)))
-		);
+		    );
 	} else {
-		mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER|RJUST, "----");
+		mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER | RJUST, "----");
 	}
 	FREEBUF(shared_info);
 #elif defined(IA64)
 	pgd = ULONG(domain_struct + XEN_HYPER_OFFSET(domain_arch) +
-		XEN_HYPER_OFFSET(arch_domain_mm) +
-		XEN_HYPER_OFFSET(mm_struct_pgd));
+		    XEN_HYPER_OFFSET(arch_domain_mm) + XEN_HYPER_OFFSET(mm_struct_pgd));
 	if (pgd) {
 		mkstring(&buf1[strlen(buf1)], LONG_PRLEN,
-			CENTER|LONG_HEX|RJUST,
-			MKSTR((pgd - DIRECTMAP_VIRT_START) >> machdep->pageshift));
+			 CENTER | LONG_HEX | RJUST, MKSTR((pgd - DIRECTMAP_VIRT_START) >> machdep->pageshift));
 	} else {
-		mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER|RJUST, "----");
+		mkstring(&buf1[strlen(buf1)], LONG_PRLEN, CENTER | RJUST, "----");
 	}
 #endif
 
@@ -344,8 +327,7 @@ xen_hyper_show_doms(struct xen_hyper_domain_context *dc)
 /*
  * Display ELF Notes information.
  */
-void
-xen_hyper_cmd_dumpinfo(void)
+void xen_hyper_cmd_dumpinfo(void)
 {
 	struct xen_hyper_cmd_args dia;
 	ulong flag;
@@ -354,32 +336,30 @@ xen_hyper_cmd_dumpinfo(void)
 	int c, cnt, type, bogus;
 
 	BZERO(&dia, sizeof(struct xen_hyper_cmd_args));
-	flag = val =0;
+	flag = val = 0;
 	dic = NULL;
-				while ((c = getopt(argcnt, args, "rt")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "rt")) != EOF) {
+		switch (c) {
 		case 't':
 			flag |= XEN_HYPER_DUMPINFO_TIME;
-												break;
+			break;
 		case 'r':
 			flag |= XEN_HYPER_DUMPINFO_REGS;
-												break;
-								default:
-												argerrs++;
-												break;
-								}
-				}
+			break;
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			type = xen_hyper_str_to_dumpinfo_context(args[optind], &val, &dic);
-			switch (type)
-			{
+			switch (type) {
 			case XEN_HYPER_STR_PCID:
 			case XEN_HYPER_STR_ADDR:
 				dia.value[cnt] = val;
@@ -389,14 +369,12 @@ xen_hyper_cmd_dumpinfo(void)
 				break;
 
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid note address or id "
-					"value: %s\n\n", args[optind]);
+				error(INFO, "invalid note address or id " "value: %s\n\n", args[optind]);
 				bogus++;
 				break;
 			}
 		} else {
-			error(INFO, "invalid note address or id "
-				"value: %s\n\n", args[optind]);
+			error(INFO, "invalid note address or id " "value: %s\n\n", args[optind]);
 		}
 		optind++;
 	}
@@ -411,8 +389,7 @@ xen_hyper_cmd_dumpinfo(void)
 /*
  * Do the work requested by xen_hyper_cmd_dumpinfo().
  */
-static void
-xen_hyper_do_dumpinfo(ulong flag, struct xen_hyper_cmd_args *dia)
+static void xen_hyper_do_dumpinfo(ulong flag, struct xen_hyper_cmd_args *dia)
 {
 	struct xen_hyper_dumpinfo_context *dic;
 	char buf[XEN_HYPER_CMD_BUFSIZE];
@@ -424,23 +401,22 @@ xen_hyper_do_dumpinfo(ulong flag, struct xen_hyper_cmd_args *dia)
 		cnt = XEN_HYPER_NR_PCPUS();
 	}
 	for (i = 0; i < cnt; i++) {
-		if (i == 0 || flag & XEN_HYPER_DUMPINFO_REGS ||
-			flag & XEN_HYPER_DUMPINFO_TIME) {
+		if (i == 0 || flag & XEN_HYPER_DUMPINFO_REGS || flag & XEN_HYPER_DUMPINFO_TIME) {
 			if (i) {
 				fprintf(fp, "\n");
 			}
 			sprintf(buf, " PCID ");
-			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "ENOTE");
-//			sprintf(&buf[strlen(buf)], "  PID   PPID  PGRP  SID");
-			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "CORE");
+			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "ENOTE");
+//                      sprintf(&buf[strlen(buf)], "  PID   PPID  PGRP  SID");
+			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "CORE");
 			if (xhdit->note_ver >= XEN_HYPER_ELF_NOTE_V2) {
-				strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-				mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "XEN_CORE");
+				strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+				mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "XEN_CORE");
 			}
 			if (xhdit->note_ver >= XEN_HYPER_ELF_NOTE_V3) {
-				strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-				mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "XEN_INFO");
+				strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+				mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "XEN_INFO");
 			}
 			fprintf(fp, "%s\n", buf);
 		}
@@ -453,8 +429,7 @@ xen_hyper_do_dumpinfo(ulong flag, struct xen_hyper_cmd_args *dia)
 	}
 }
 
-static void
-xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
+static void xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 {
 	char buf[XEN_HYPER_CMD_BUFSIZE];
 	char *note_buf;
@@ -469,8 +444,7 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 
 	note_buf = dic->ELF_Prstatus_ptr;
 	sprintf(buf, "%5d ", dic->pcpu_id);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(dic->note));
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(dic->note));
 
 #if 0
 	pid = INT(note_buf + XEN_HYPER_OFFSET(ELF_Prstatus_pr_pid));
@@ -482,21 +456,20 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 	pid = INT(note_buf + XEN_HYPER_OFFSET(ELF_Prstatus_pr_sid));
 	sprintf(&buf[strlen(buf)], "%5d", pid);
 #endif
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(dic->note));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(dic->note));
 	if (xhdit->note_ver >= XEN_HYPER_ELF_NOTE_V2) {
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(dic->note + xhdit->core_size));
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN,
+			 CENTER | LONG_HEX | RJUST, MKSTR(dic->note + xhdit->core_size));
 	}
 	if (xhdit->note_ver >= XEN_HYPER_ELF_NOTE_V3) {
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
 		if (xhdit->xen_info_cpu == dic->pcpu_id)
-			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-			MKSTR(dic->note + xhdit->core_size + xhdit->xen_core_size));
+			mkstring(&buf[strlen(buf)], VADDR_PRLEN,
+				 CENTER | LONG_HEX | RJUST, MKSTR(dic->note + xhdit->core_size + xhdit->xen_core_size));
 		else
-			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "--");
+			mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "--");
 
 	}
 
@@ -504,16 +477,14 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 
 	if (flag & XEN_HYPER_DUMPINFO_TIME) {
 		sprintf(buf, "             ");
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "tv_sec");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "tv_usec");
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "tv_sec");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "tv_usec");
 		fprintf(fp, "%s\n", buf);
 
-		addr = (ulong)note_buf +
-			XEN_HYPER_OFFSET(ELF_Prstatus_pr_utime);
+		addr = (ulong) note_buf + XEN_HYPER_OFFSET(ELF_Prstatus_pr_utime);
 		for (i = 0; i < 4; i++, addr += XEN_HYPER_SIZE(ELF_Timeval)) {
-			switch (i)
-			{
+			switch (i) {
 			case 0:
 				sprintf(buf, "  pr_utime   ");
 				break;
@@ -527,25 +498,20 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 				sprintf(buf, "  pr_cstime  ");
 				break;
 			}
-			tv_sec = LONG(addr +
-				XEN_HYPER_OFFSET(ELF_Timeval_tv_sec));
-			tv_usec = LONG(addr +
-				XEN_HYPER_OFFSET(ELF_Timeval_tv_sec) +
-				XEN_HYPER_OFFSET(ELF_Timeval_tv_usec));
-			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER|LONG_HEX|RJUST,
-				MKSTR(tv_sec));
-			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER|LONG_HEX|RJUST,
-				MKSTR(tv_usec));
+			tv_sec = LONG(addr + XEN_HYPER_OFFSET(ELF_Timeval_tv_sec));
+			tv_usec =
+			    LONG(addr + XEN_HYPER_OFFSET(ELF_Timeval_tv_sec) + XEN_HYPER_OFFSET(ELF_Timeval_tv_usec));
+			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(tv_sec));
+			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(tv_usec));
 			fprintf(fp, "%s\n", buf);
 		}
 	}
 
 	if (flag & XEN_HYPER_DUMPINFO_REGS) {
 		regcnt = XEN_HYPER_SIZE(ELF_Gregset) / sizeof(long);
-		addr = (ulong)note_buf +
-			XEN_HYPER_OFFSET(ELF_Prstatus_pr_reg);
-		regs = (ulong *)addr;
+		addr = (ulong) note_buf + XEN_HYPER_OFFSET(ELF_Prstatus_pr_reg);
+		regs = (ulong *) addr;
 		fprintf(fp, "Register information(%lx):\n",
 			dic->note + xhdit->core_offset + XEN_HYPER_OFFSET(ELF_Prstatus_pr_reg));
 		for (i = 0; i < regcnt; i++, regs++) {
@@ -553,8 +519,7 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 				break;
 			}
 			fprintf(fp, "  %s = ", xhregt[i]);
-			fprintf(fp, "0x%s\n",
-				mkstring(buf, LONG_PRLEN, LONG_HEX|LJUST, MKSTR(*regs)));
+			fprintf(fp, "0x%s\n", mkstring(buf, LONG_PRLEN, LONG_HEX | LJUST, MKSTR(*regs)));
 		}
 	}
 }
@@ -562,28 +527,25 @@ xen_hyper_show_dumpinfo(ulong flag, struct xen_hyper_dumpinfo_context *dic)
 /*
  * Dump the Xen conring in chronological order.
  */
-void
-xen_hyper_cmd_log(void)
+void xen_hyper_cmd_log(void)
 {
 	int c;
 
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-								{
-								default:
-												argerrs++;
-												break;
-								}
-				}
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	xen_hyper_dump_log();
 }
 
-void
-xen_hyper_dump_log(void)
+void xen_hyper_dump_log(void)
 {
 	uint conringp, warp, len, idx, i;
 	ulong conring;
@@ -614,10 +576,9 @@ xen_hyper_dump_log(void)
 	}
 
 	buf = GETBUF(conring_size);
-	readmem(conring, KVADDR, buf, conring_size,
-		"conring contents", FAULT_ON_ERROR);
+	readmem(conring, KVADDR, buf, conring_size, "conring contents", FAULT_ON_ERROR);
 
-wrap_around:
+ wrap_around:
 	for (i = idx; i < len; i++) {
 		if (buf[i]) {
 			fputc(ascii(buf[i]) ? buf[i] : '.', fp);
@@ -639,37 +600,35 @@ wrap_around:
 /*
  *  Display physical cpu information.
  */
-void
-xen_hyper_cmd_pcpus(void)
+void xen_hyper_cmd_pcpus(void)
 {
 	struct xen_hyper_cmd_args pca;
 	struct xen_hyper_pcpu_context *pcc;
 	ulong flag;
 	ulong val;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&pca, sizeof(struct xen_hyper_cmd_args));
-	flag= 0;
-				while ((c = getopt(argcnt, args, "rt")) != EOF) {
-								switch(c)
-								{
+	flag = 0;
+	while ((c = getopt(argcnt, args, "rt")) != EOF) {
+		switch (c) {
 		case 'r':
 			flag |= XEN_HYPER_PCPUS_REGS;
 			break;
 		case 't':
 			flag |= XEN_HYPER_PCPUS_TSS;
 			break;
-								default:
-												argerrs++;
-												break;
-								}
-				}
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			type = xen_hyper_str_to_pcpu_context(args[optind], &val, &pcc);
 			switch (type) {
@@ -682,13 +641,11 @@ xen_hyper_cmd_pcpus(void)
 				cnt++;
 				break;
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid pcpu or id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid pcpu or id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
 	}
@@ -703,8 +660,7 @@ xen_hyper_cmd_pcpus(void)
 /*
  *  Do the work requested by xen_hyper_cmd_pcpu().
  */
-static void
-xen_hyper_do_pcpus(ulong flag, struct xen_hyper_cmd_args *pca)
+static void xen_hyper_do_pcpus(ulong flag, struct xen_hyper_cmd_args *pca)
 {
 	struct xen_hyper_pcpu_context *pcc;
 	uint cpuid;
@@ -716,8 +672,7 @@ xen_hyper_do_pcpus(ulong flag, struct xen_hyper_cmd_args *pca)
 			flag |= XEN_HYPER_PCPUS_1STCALL;
 		}
 	} else {
-		for_cpu_indexes(i, cpuid)
-		{
+		for_cpu_indexes(i, cpuid) {
 			pcc = xen_hyper_id_to_pcpu_context(cpuid);
 			xen_hyper_show_pcpus(flag, pcc);
 			flag |= XEN_HYPER_PCPUS_1STCALL;
@@ -725,8 +680,7 @@ xen_hyper_do_pcpus(ulong flag, struct xen_hyper_cmd_args *pca)
 	}
 }
 
-static void
-xen_hyper_show_pcpus(ulong flag, struct xen_hyper_pcpu_context *pcc)
+static void xen_hyper_show_pcpus(ulong flag, struct xen_hyper_pcpu_context *pcc)
 {
 	char *act = "  ";
 	char buf[XEN_HYPER_CMD_BUFSIZE];
@@ -737,29 +691,27 @@ xen_hyper_show_pcpus(ulong flag, struct xen_hyper_pcpu_context *pcc)
 	if (XEN_HYPER_CRASHING_CPU() == pcc->processor_id) {
 		act = " *";
 	}
-	if ((flag & XEN_HYPER_PCPUS_REGS) || (flag & XEN_HYPER_PCPUS_TSS) ||
-	!(flag & XEN_HYPER_PCPUS_1STCALL)) {
-		if (((flag & XEN_HYPER_PCPUS_REGS) || (flag & XEN_HYPER_PCPUS_TSS)) &&
-		(flag & XEN_HYPER_PCPUS_1STCALL)) {
+	if ((flag & XEN_HYPER_PCPUS_REGS) || (flag & XEN_HYPER_PCPUS_TSS) || !(flag & XEN_HYPER_PCPUS_1STCALL)) {
+		if (((flag & XEN_HYPER_PCPUS_REGS)
+		     || (flag & XEN_HYPER_PCPUS_TSS))
+		    && (flag & XEN_HYPER_PCPUS_1STCALL)) {
 			fprintf(fp, "\n");
 		}
 		sprintf(buf, "   PCID ");
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "PCPU");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "CUR-VCPU");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "TSS");
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "PCPU");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "CUR-VCPU");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "TSS");
 		fprintf(fp, "%s\n", buf);
 	}
 
 	sprintf(buf, "%s%5d ", act, pcc->processor_id);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST, MKSTR(pcc->pcpu));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(pcc->current_vcpu));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(pcc->init_tss));
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(pcc->pcpu));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(pcc->current_vcpu));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(pcc->init_tss));
 	fprintf(fp, "%s\n", buf);
 	if (flag & XEN_HYPER_PCPUS_REGS) {
 		fprintf(fp, "Register information:\n");
@@ -774,35 +726,33 @@ xen_hyper_show_pcpus(ulong flag, struct xen_hyper_pcpu_context *pcc)
 /*
  *  Display schedule info.
  */
-void
-xen_hyper_cmd_sched(void)
+void xen_hyper_cmd_sched(void)
 {
 	struct xen_hyper_cmd_args scha;
 	struct xen_hyper_pcpu_context *pcc;
 	ulong flag;
 	ulong val;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&scha, sizeof(struct xen_hyper_cmd_args));
 	flag = 0;
-				while ((c = getopt(argcnt, args, "v")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "v")) != EOF) {
+		switch (c) {
 		case 'v':
 			flag |= XEN_HYPER_SCHED_VERBOSE;
 			break;
 
-								default:
-												argerrs++;
-												break;
-								}
-				}
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			type = xen_hyper_str_to_pcpu_context(args[optind], &val, &pcc);
 			switch (type) {
@@ -814,13 +764,11 @@ xen_hyper_cmd_sched(void)
 				break;
 			case XEN_HYPER_STR_PCPU:
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid pcpu id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid pcpu id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
 	}
@@ -835,8 +783,7 @@ xen_hyper_cmd_sched(void)
 /*
  *  Do the work requested by xen_hyper_cmd_pcpu().
  */
-static void
-xen_hyper_do_sched(ulong flag, struct xen_hyper_cmd_args *scha)
+static void xen_hyper_do_sched(ulong flag, struct xen_hyper_cmd_args *scha)
 {
 	struct xen_hyper_sched_context *schc;
 	uint cpuid;
@@ -850,8 +797,7 @@ xen_hyper_do_sched(ulong flag, struct xen_hyper_cmd_args *scha)
 			flag |= XEN_HYPER_SCHED_1STCALL;
 		}
 	} else {
-		for_cpu_indexes(i, cpuid)
-		{
+		for_cpu_indexes(i, cpuid) {
 			schc = &xhscht->sched_context_array[cpuid];
 			xen_hyper_show_sched(flag, schc);
 			flag |= XEN_HYPER_SCHED_1STCALL;
@@ -859,51 +805,45 @@ xen_hyper_do_sched(ulong flag, struct xen_hyper_cmd_args *scha)
 	}
 }
 
-static void
-xen_hyper_show_sched(ulong flag, struct xen_hyper_sched_context *schc)
+static void xen_hyper_show_sched(ulong flag, struct xen_hyper_sched_context *schc)
 {
 	char buf[XEN_HYPER_CMD_BUFSIZE];
 
 	if (!(schc->schedule_data)) {
 		return;
 	}
-	if ((flag & XEN_HYPER_SCHED_VERBOSE) ||
-	!(flag & XEN_HYPER_SCHED_1STCALL)) {
-		if ((flag & XEN_HYPER_SCHED_1STCALL) &&
-		(flag & XEN_HYPER_SCHED_VERBOSE)) {
+	if ((flag & XEN_HYPER_SCHED_VERBOSE)
+	    || !(flag & XEN_HYPER_SCHED_1STCALL)) {
+		if ((flag & XEN_HYPER_SCHED_1STCALL)
+		    && (flag & XEN_HYPER_SCHED_VERBOSE)) {
 			fprintf(fp, "\n");
 		}
 		sprintf(buf, "  CPU  ");
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "SCH-DATA");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "SCH-PRIV");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "CUR-VCPU");
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|RJUST, "IDL-VCPU");
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "SCH-DATA");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "SCH-PRIV");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "CUR-VCPU");
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | RJUST, "IDL-VCPU");
 		if (XEN_HYPER_VALID_MEMBER(schedule_data_tick)) {
-			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER|RJUST, "TICK");
+			strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+			mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER | RJUST, "TICK");
 		}
 		fprintf(fp, "%s\n", buf);
 	}
 
 	sprintf(buf, "%5d  ", schc->cpu_id);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(schc->schedule_data));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(schc->sched_priv));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(schc->curr));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(schc->idle));
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(schc->schedule_data));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(schc->sched_priv));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(schc->curr));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(schc->idle));
 	if (XEN_HYPER_VALID_MEMBER(schedule_data_tick)) {
-		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
-		mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER|LONG_HEX|RJUST,
-			MKSTR(schc->tick));
+		strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
+		mkstring(&buf[strlen(buf)], LONG_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(schc->tick));
 	}
 	fprintf(fp, "%s\n", buf);
 	if (flag & XEN_HYPER_SCHED_VERBOSE) {
@@ -914,34 +854,32 @@ xen_hyper_show_sched(ulong flag, struct xen_hyper_sched_context *schc)
 /*
  *  Display general system info.
  */
-void
-xen_hyper_cmd_sys(void)
+void xen_hyper_cmd_sys(void)
 {
-				int c;
+	int c;
 	ulong sflag;
 
 	sflag = FALSE;
 
-				while ((c = getopt(argcnt, args, "c")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "c")) != EOF) {
+		switch (c) {
 		case 'c':
 			sflag = TRUE;
 			break;
 
-								default:
-												argerrs++;
-												break;
-								}
-				}
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
-				if (!args[optind]) {
+	if (!args[optind]) {
 		if (sflag)
 			fprintf(fp, "No support argument\n");
-			/* display config info here. */
+		/* display config info here. */
 		else
 			xen_hyper_display_sys_stats();
 		return;
@@ -951,12 +889,11 @@ xen_hyper_cmd_sys(void)
 /*
  *  Display system stats at init-time or for the sys command.
  */
-void
-xen_hyper_display_sys_stats(void)
+void xen_hyper_display_sys_stats(void)
 {
-				struct new_utsname *uts;
-				char buf1[XEN_HYPER_CMD_BUFSIZE];
-				char buf2[XEN_HYPER_CMD_BUFSIZE];
+	struct new_utsname *uts;
+	char buf1[XEN_HYPER_CMD_BUFSIZE];
+	char buf2[XEN_HYPER_CMD_BUFSIZE];
 	ulong mhz;
 	int len, flag;
 
@@ -964,76 +901,63 @@ xen_hyper_display_sys_stats(void)
 	len = 11;
 	flag = XEN_HYPER_PRI_R;
 
-				/*
-				 *  It's now safe to unlink the remote namelist.
-				 */
-				if (pc->flags & UNLINK_NAMELIST) {
-								unlink(pc->namelist);
-								pc->flags &= ~UNLINK_NAMELIST;
-								pc->flags |= NAMELIST_UNLINKED;
-				}
+	/*
+	 *  It's now safe to unlink the remote namelist.
+	 */
+	if (pc->flags & UNLINK_NAMELIST) {
+		unlink(pc->namelist);
+		pc->flags &= ~UNLINK_NAMELIST;
+		pc->flags |= NAMELIST_UNLINKED;
+	}
 
 	if (REMOTE()) {
-		switch (pc->flags &
-			(NAMELIST_LOCAL|NAMELIST_UNLINKED|NAMELIST_SAVED))
-		{
+		switch (pc->flags & (NAMELIST_LOCAL | NAMELIST_UNLINKED | NAMELIST_SAVED)) {
 		case NAMELIST_UNLINKED:
-			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag,
-				(buf1, "%s  (temporary)\n", pc->namelist));
+			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag, (buf1, "%s  (temporary)\n", pc->namelist));
 			break;
 
-		case (NAMELIST_UNLINKED|NAMELIST_SAVED):
+		case (NAMELIST_UNLINKED | NAMELIST_SAVED):
 		case NAMELIST_LOCAL:
-			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag,
-				(buf1, "%s\n", pc->namelist));
+			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag, (buf1, "%s\n", pc->namelist));
 			break;
 
 		}
 	} else {
-					if (pc->system_map) {
-			XEN_HYPER_PRI(fp, len, "SYSTEM MAP: ", buf1, flag,
-				(buf1, "%s\n", pc->system_map));
-			XEN_HYPER_PRI(fp, len, "DEBUG KERNEL: ", buf1, flag,
-				(buf1, "%s\n", pc->namelist));
+		if (pc->system_map) {
+			XEN_HYPER_PRI(fp, len, "SYSTEM MAP: ", buf1, flag, (buf1, "%s\n", pc->system_map));
+			XEN_HYPER_PRI(fp, len, "DEBUG KERNEL: ", buf1, flag, (buf1, "%s\n", pc->namelist));
 		} else {
-			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag,
-				(buf1, "%s\n", pc->namelist));
+			XEN_HYPER_PRI(fp, len, "KERNEL: ", buf1, flag, (buf1, "%s\n", pc->namelist));
 		}
 	}
 
 	if (pc->debuginfo_file) {
-		XEN_HYPER_PRI(fp, len, "DEBUGINFO: ", buf1, flag,
-			(buf1, "%s\n", pc->debuginfo_file));
+		XEN_HYPER_PRI(fp, len, "DEBUGINFO: ", buf1, flag, (buf1, "%s\n", pc->debuginfo_file));
 	} else if (pc->namelist_debug) {
-		XEN_HYPER_PRI(fp, len, "DEBUG KERNEL: ", buf1, flag,
-			(buf1, "%s\n", pc->namelist_debug));
+		XEN_HYPER_PRI(fp, len, "DEBUG KERNEL: ", buf1, flag, (buf1, "%s\n", pc->namelist_debug));
 	}
 
 	XEN_HYPER_PRI_CONST(fp, len, "DUMPFILE: ", flag);
-				if (ACTIVE()) {
+	if (ACTIVE()) {
 		if (REMOTE_ACTIVE())
-			fprintf(fp, "%s@%s  (remote live system)\n",
-						pc->server_memsrc, pc->server);
+			fprintf(fp, "%s@%s  (remote live system)\n", pc->server_memsrc, pc->server);
 		else
-									fprintf(fp, "%s\n", pc->live_memsrc);
+			fprintf(fp, "%s\n", pc->live_memsrc);
 	} else {
 		if (REMOTE_DUMPFILE())
-									fprintf(fp, "%s@%s  (remote dumpfile)",
-				pc->server_memsrc, pc->server);
+			fprintf(fp, "%s@%s  (remote dumpfile)", pc->server_memsrc, pc->server);
 		else
-									fprintf(fp, "%s", pc->dumpfile);
+			fprintf(fp, "%s", pc->dumpfile);
 
 		fprintf(fp, "\n");
 	}
 
-	XEN_HYPER_PRI(fp, len, "CPUS: ", buf1, flag,
-		(buf1, "%d\n", XEN_HYPER_NR_PCPUS()));
-	XEN_HYPER_PRI(fp, len, "DOMAINS: ", buf1, flag,
-		(buf1, "%d\n", XEN_HYPER_NR_DOMAINS()));
+	XEN_HYPER_PRI(fp, len, "CPUS: ", buf1, flag, (buf1, "%d\n", XEN_HYPER_NR_PCPUS()));
+	XEN_HYPER_PRI(fp, len, "DOMAINS: ", buf1, flag, (buf1, "%d\n", XEN_HYPER_NR_DOMAINS()));
 	/* !!!Display a date here if it can be found. */
 	XEN_HYPER_PRI(fp, len, "UPTIME: ", buf1, flag,
-		(buf1, "%s\n", (xen_hyper_get_uptime_hyper() ?
-		 convert_time(xen_hyper_get_uptime_hyper(), buf2) : "--:--:--")));
+		      (buf1, "%s\n", (xen_hyper_get_uptime_hyper()?
+				      convert_time(xen_hyper_get_uptime_hyper(), buf2) : "--:--:--")));
 	/* !!!Display a version here if it can be found. */
 	XEN_HYPER_PRI_CONST(fp, len, "MACHINE: ", flag);
 	if (strlen(uts->machine)) {
@@ -1045,8 +969,7 @@ xen_hyper_display_sys_stats(void)
 		fprintf(fp, "(%ld Mhz)\n", mhz);
 	else
 		fprintf(fp, "(unknown Mhz)\n");
-	XEN_HYPER_PRI(fp, len, "MEMORY: ", buf1, flag,
-		(buf1, "%s\n", get_memory_size(buf2)));
+	XEN_HYPER_PRI(fp, len, "MEMORY: ", buf1, flag, (buf1, "%s\n", get_memory_size(buf2)));
 	if (XENDUMP_DUMPFILE() && (kt->xen_flags & XEN_SUSPEND))
 		return;
 }
@@ -1054,42 +977,39 @@ xen_hyper_display_sys_stats(void)
 /*
  *  Display vcpu struct.
  */
-void
-xen_hyper_cmd_vcpu(void)
+void xen_hyper_cmd_vcpu(void)
 {
 	struct xen_hyper_cmd_args vca;
 	struct xen_hyper_vcpu_context *vcc;
 	ulong flag;
 	ulong valvc, valdom;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&vca, sizeof(struct xen_hyper_cmd_args));
 	flag = 0;
-				while ((c = getopt(argcnt, args, "i")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "i")) != EOF) {
+		switch (c) {
 		case 'i':
 			flag |= XEN_HYPER_VCPUS_ID;
-												break;
-								default:
-												argerrs++;
-												break;
-								}
-				}
+			break;
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			if (flag & XEN_HYPER_VCPUS_ID) {
-				type = xen_hyper_strid_to_vcpu_context(
-					args[optind], args[optind+1],
-					&valdom, &valvc, &vcc);
+				type =
+				    xen_hyper_strid_to_vcpu_context(args
+								    [optind], args[optind + 1], &valdom, &valvc, &vcc);
 			} else {
-				type = xen_hyper_strvcpu_to_vcpu_context(
-					args[optind], &valvc, &vcc);
+				type = xen_hyper_strvcpu_to_vcpu_context(args[optind], &valvc, &vcc);
 			}
 			switch (type) {
 			case XEN_HYPER_STR_VCID:
@@ -1101,16 +1021,15 @@ xen_hyper_cmd_vcpu(void)
 				cnt++;
 				break;
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid vcpu or id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid vcpu or id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
-		if (flag & XEN_HYPER_VCPUS_ID) optind++;
+		if (flag & XEN_HYPER_VCPUS_ID)
+			optind++;
 	}
 	vca.cnt = cnt;
 	if (bogus && !cnt) {
@@ -1123,8 +1042,7 @@ xen_hyper_cmd_vcpu(void)
 /*
  *  Do the work requested by xen_hyper_cmd_vcpu().
  */
-static void
-xen_hyper_do_vcpu(struct xen_hyper_cmd_args *vca)
+static void xen_hyper_do_vcpu(struct xen_hyper_cmd_args *vca)
 {
 	int i;
 
@@ -1143,42 +1061,39 @@ xen_hyper_do_vcpu(struct xen_hyper_cmd_args *vca)
 /*
  *  Display vcpu status.
  */
-void
-xen_hyper_cmd_vcpus(void)
+void xen_hyper_cmd_vcpus(void)
 {
 	struct xen_hyper_cmd_args vca;
 	struct xen_hyper_vcpu_context *vcc;
 	ulong flag;
 	ulong valvc, valdom;
-				int c, cnt, type, bogus;
+	int c, cnt, type, bogus;
 
 	BZERO(&vca, sizeof(struct xen_hyper_cmd_args));
 	flag = 0;
-				while ((c = getopt(argcnt, args, "i")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "i")) != EOF) {
+		switch (c) {
 		case 'i':
 			flag |= XEN_HYPER_VCPUS_ID;
-												break;
-								default:
-												argerrs++;
-												break;
-								}
-				}
+			break;
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	cnt = bogus = 0;
-				while (args[optind]) {
+	while (args[optind]) {
 		if (IS_A_NUMBER(args[optind])) {
 			if (flag & XEN_HYPER_VCPUS_ID) {
-				type = xen_hyper_strid_to_vcpu_context(
-					args[optind], args[optind+1],
-					&valdom, &valvc, &vcc);
+				type =
+				    xen_hyper_strid_to_vcpu_context(args
+								    [optind], args[optind + 1], &valdom, &valvc, &vcc);
 			} else {
-				type = xen_hyper_strvcpu_to_vcpu_context(
-					args[optind], &valvc, &vcc);
+				type = xen_hyper_strvcpu_to_vcpu_context(args[optind], &valvc, &vcc);
 			}
 			switch (type) {
 			case XEN_HYPER_STR_VCID:
@@ -1190,13 +1105,11 @@ xen_hyper_cmd_vcpus(void)
 				cnt++;
 				break;
 			case XEN_HYPER_STR_INVALID:
-				error(INFO, "invalid vcpu or id value: %s\n\n",
-					args[optind]);
+				error(INFO, "invalid vcpu or id value: %s\n\n", args[optind]);
 				bogus++;
 			}
 		} else {
-			error(FATAL, "invalid address: %s\n",
-				args[optind]);
+			error(FATAL, "invalid address: %s\n", args[optind]);
 		}
 		optind++;
 	}
@@ -1211,8 +1124,7 @@ xen_hyper_cmd_vcpus(void)
 /*
  *  Do the work requested by xen_hyper_cmd_vcpus().
  */
-static void
-xen_hyper_do_vcpus(struct xen_hyper_cmd_args *vca)
+static void xen_hyper_do_vcpus(struct xen_hyper_cmd_args *vca)
 {
 	struct xen_hyper_vcpu_context_array *vcca;
 	struct xen_hyper_vcpu_context *vcc;
@@ -1221,25 +1133,22 @@ xen_hyper_do_vcpus(struct xen_hyper_cmd_args *vca)
 	int i, j;
 
 	fprintf(fp, "   VCID  PCID %s ST T DOMID %s\n",
-		mkstring(buf1, VADDR_PRLEN, CENTER|RJUST, "VCPU"),
-		mkstring(buf2, VADDR_PRLEN, CENTER|RJUST, "DOMAIN"));
+		mkstring(buf1, VADDR_PRLEN, CENTER | RJUST, "VCPU"),
+		mkstring(buf2, VADDR_PRLEN, CENTER | RJUST, "DOMAIN"));
 	if (vca->cnt) {
 		for (i = 0; i < vca->cnt; i++) {
 			xen_hyper_show_vcpus(vca->context[i]);
 		}
 	} else {
-		for (i = 0, vcca = xhvct->vcpu_context_arrays;
-			i < XEN_HYPER_NR_DOMAINS(); i++, vcca++) {
-			for (j = 0, vcc = vcca->context_array;
-				j < vcca->context_array_valid; j++, vcc++) {
+		for (i = 0, vcca = xhvct->vcpu_context_arrays; i < XEN_HYPER_NR_DOMAINS(); i++, vcca++) {
+			for (j = 0, vcc = vcca->context_array; j < vcca->context_array_valid; j++, vcc++) {
 				xen_hyper_show_vcpus(vcc);
 			}
 		}
 	}
 }
 
-static void
-xen_hyper_show_vcpus(struct xen_hyper_vcpu_context *vcc)
+static void xen_hyper_show_vcpus(struct xen_hyper_vcpu_context *vcc)
 {
 	int type;
 	char *act, *crash;
@@ -1250,7 +1159,7 @@ xen_hyper_show_vcpus(struct xen_hyper_vcpu_context *vcc)
 	if (!(vcc->vcpu)) {
 		return;
 	}
-	if((pcc = xen_hyper_id_to_pcpu_context(vcc->processor))) {
+	if ((pcc = xen_hyper_id_to_pcpu_context(vcc->processor))) {
 		if (pcc->current_vcpu == vcc->vcpu) {
 			act = ">";
 		} else {
@@ -1265,31 +1174,25 @@ xen_hyper_show_vcpus(struct xen_hyper_vcpu_context *vcc)
 		crash = " ";
 	}
 	sprintf(buf, "%s%s%5d %5d ", act, crash, vcc->vcpu_id, vcc->processor);
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(vcc->vcpu));
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(vcc->vcpu));
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
 	xen_hyper_vcpu_state_string(vcc, &buf[strlen(buf)], !VERBOSE);
-	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE-strlen(buf)-1);
+	strncat(buf, " ", XEN_HYPER_CMD_BUFSIZE - strlen(buf) - 1);
 	xen_hyper_domain_to_type(vcc->domain, &type, &buf[strlen(buf)], !VERBOSE);
 	if ((domid = xen_hyper_domain_to_id(vcc->domain)) == XEN_HYPER_DOMAIN_ID_INVALID) {
 		sprintf(&buf[strlen(buf)], " ????? ");
 	} else {
 		sprintf(&buf[strlen(buf)], " %5d ", domid);
 	}
-	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER|LONG_HEX|RJUST,
-		MKSTR(vcc->domain));
+	mkstring(&buf[strlen(buf)], VADDR_PRLEN, CENTER | LONG_HEX | RJUST, MKSTR(vcc->domain));
 	fprintf(fp, "%s\n", buf);
 }
-
-
 
 /*
  *  Get string for domain status.
  *  - This may need some data in domain struct.
  */
-char *
-xen_hyper_domain_state_string(struct xen_hyper_domain_context *dc,
-	char *buf, int verbose)
+char *xen_hyper_domain_state_string(struct xen_hyper_domain_context *dc, char *buf, int verbose)
 {
 	ulong stat;
 
@@ -1334,9 +1237,7 @@ xen_hyper_domain_state_string(struct xen_hyper_domain_context *dc,
  *  Get string for vcpu status.
  *  - This may need some data in vcpu struct.
  */
-char *
-xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc,
-	char *buf, int verbose)
+char *xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc, char *buf, int verbose)
 {
 	int stat;
 
@@ -1344,8 +1245,7 @@ xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc,
 
 	if (stat == XEN_HYPER_RUNSTATE_ERROR) {
 		sprintf(buf, verbose ? "(unknown)" : "??");
-	} else if (stat == XEN_HYPER_RUNSTATE_running ||
-		stat == XEN_HYPER_RUNSTATE_runnable) {
+	} else if (stat == XEN_HYPER_RUNSTATE_running || stat == XEN_HYPER_RUNSTATE_runnable) {
 		sprintf(buf, verbose ? "VCPU_RUNNING" : "RU");
 	} else if (stat == XEN_HYPER_RUNSTATE_blocked) {
 		sprintf(buf, verbose ? "VCPU_BLOCKED" : "BL");
@@ -1361,8 +1261,7 @@ xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc,
 /*
  *  Get domain type from domain address.
  */
-static char *
-xen_hyper_domain_to_type(ulong domain, int *type, char *buf, int verbose)
+static char *xen_hyper_domain_to_type(ulong domain, int *type, char *buf, int verbose)
 {
 	struct xen_hyper_domain_context *dc;
 
@@ -1376,9 +1275,8 @@ xen_hyper_domain_to_type(ulong domain, int *type, char *buf, int verbose)
 /*
  *  Get domain type from domain context.
  */
-static char *
-xen_hyper_domain_context_to_type(struct xen_hyper_domain_context *dc, int *type,
-	char *buf, int verbose)
+static char *xen_hyper_domain_context_to_type(struct
+					      xen_hyper_domain_context *dc, int *type, char *buf, int verbose)
 {
 	if (!dc) {
 		*type = XEN_HYPER_DOMAIN_TYPE_INVALID;
@@ -1405,9 +1303,7 @@ xen_hyper_domain_context_to_type(struct xen_hyper_domain_context *dc, int *type,
 /*
  * Check a type for value. And return domain context.
  */
-static int
-xen_hyper_str_to_domain_context(char *string, ulong *value,
-	struct xen_hyper_domain_context **dcp)
+static int xen_hyper_str_to_domain_context(char *string, ulong * value, struct xen_hyper_domain_context **dcp)
 {
 	ulong dvalue, hvalue;
 	int found, type;
@@ -1420,43 +1316,42 @@ xen_hyper_str_to_domain_context(char *string, ulong *value,
 	}
 
 	s = string;
-				dvalue = hvalue = BADADDR;
+	dvalue = hvalue = BADADDR;
 
-				if (decimal(s, 0))
-								dvalue = dtol(s, RETURN_ON_ERROR, NULL);
+	if (decimal(s, 0))
+		dvalue = dtol(s, RETURN_ON_ERROR, NULL);
 
-				if (hexadecimal(s, 0)) {
-					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-									s += 2;
+	if (hexadecimal(s, 0)) {
+		if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			s += 2;
 		if (strlen(s) <= MAX_HEXADDR_STRLEN)
-									hvalue = htol(s, RETURN_ON_ERROR, NULL);
+			hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
-				found = 0;
-				dc_did = dc_ddc = dc_hid = dc_hdc = NULL;
+	found = 0;
+	dc_did = dc_ddc = dc_hid = dc_hdc = NULL;
 	type = XEN_HYPER_STR_INVALID;
 
 	if (dvalue != BADADDR) {
 		if ((dc_did = xen_hyper_id_to_domain_context(dvalue)))
 			found++;
-					if ((dc_ddc = xen_hyper_domain_to_domain_context(dvalue)))
+		if ((dc_ddc = xen_hyper_domain_to_domain_context(dvalue)))
 			found++;
 	}
 
 	if ((hvalue != BADADDR) && (dvalue != hvalue)) {
-					if ((dc_hid = xen_hyper_id_to_domain_context(hvalue)))
+		if ((dc_hid = xen_hyper_id_to_domain_context(hvalue)))
 			found++;
-					if ((dc_hdc = xen_hyper_domain_to_domain_context(hvalue)))
+		if ((dc_hdc = xen_hyper_domain_to_domain_context(hvalue)))
 			found++;
 	}
 
-	switch (found)
-	{
+	switch (found) {
 	case 2:
 		if (dc_did && dc_hid) {
-									*dcp = dc_did;
-									*value = dvalue;
-									type = STR_PID;
+			*dcp = dc_did;
+			*value = dvalue;
+			type = STR_PID;
 		}
 		break;
 
@@ -1490,13 +1385,10 @@ xen_hyper_str_to_domain_context(char *string, ulong *value,
 	return type;
 }
 
-
-
 /*
  *  Display a vcpu context.
  */
-void
-xen_hyper_show_vcpu_context(struct xen_hyper_vcpu_context *vcc)
+void xen_hyper_show_vcpu_context(struct xen_hyper_vcpu_context *vcc)
 {
 	char buf[XEN_HYPER_CMD_BUFSIZE];
 	struct xen_hyper_pcpu_context *pcc;
@@ -1515,19 +1407,13 @@ xen_hyper_show_vcpu_context(struct xen_hyper_vcpu_context *vcc)
 		error(WARNING, "cannot get domain context vcpu belongs.\n");
 		return;
 	}
-	XEN_HYPER_PRI(fp, len, "PCPU-ID: ", buf, flag,
-		(buf, "%d\n", vcc->processor));
-	XEN_HYPER_PRI(fp, len, "PCPU: ", buf, flag,
-		(buf, "%lx\n", pcc->pcpu));
-	XEN_HYPER_PRI(fp, len, "VCPU-ID: ", buf, flag,
-		(buf, "%d\n", vcc->vcpu_id));
-	XEN_HYPER_PRI(fp, len, "VCPU: ", buf, flag,
-		(buf, "%lx  ", vcc->vcpu));
+	XEN_HYPER_PRI(fp, len, "PCPU-ID: ", buf, flag, (buf, "%d\n", vcc->processor));
+	XEN_HYPER_PRI(fp, len, "PCPU: ", buf, flag, (buf, "%lx\n", pcc->pcpu));
+	XEN_HYPER_PRI(fp, len, "VCPU-ID: ", buf, flag, (buf, "%d\n", vcc->vcpu_id));
+	XEN_HYPER_PRI(fp, len, "VCPU: ", buf, flag, (buf, "%lx  ", vcc->vcpu));
 	fprintf(fp, "(%s)\n", xen_hyper_vcpu_state_string(vcc, buf, VERBOSE));
-	XEN_HYPER_PRI(fp, len, "DOMAIN-ID: ", buf, flag,
-		(buf, "%d\n", dc->domain_id));
-	XEN_HYPER_PRI(fp, len, "DOMAIN: ", buf, flag,
-		(buf, "%lx  ", vcc->domain));
+	XEN_HYPER_PRI(fp, len, "DOMAIN-ID: ", buf, flag, (buf, "%d\n", dc->domain_id));
+	XEN_HYPER_PRI(fp, len, "DOMAIN: ", buf, flag, (buf, "%lx  ", vcc->domain));
 	fprintf(fp, "(%s)\n", xen_hyper_domain_state_string(dc, buf, VERBOSE));
 	XEN_HYPER_PRI_CONST(fp, len, "STATE: ", flag);
 	if (machdep->flags & HWRESET) {
@@ -1546,9 +1432,7 @@ xen_hyper_show_vcpu_context(struct xen_hyper_vcpu_context *vcc)
 /*
  * Check a type for value. And return dump information context address.
  */
-static int
-xen_hyper_str_to_dumpinfo_context(char *string, ulong *value,
-	struct xen_hyper_dumpinfo_context **dicp)
+static int xen_hyper_str_to_dumpinfo_context(char *string, ulong * value, struct xen_hyper_dumpinfo_context **dicp)
 {
 	ulong dvalue, hvalue;
 	struct xen_hyper_dumpinfo_context *note_did, *note_hid;
@@ -1594,8 +1478,7 @@ xen_hyper_str_to_dumpinfo_context(char *string, ulong *value,
 		found++;
 	}
 
-	switch (found)
-	{
+	switch (found) {
 	case 2:
 		if (note_did && note_hid) {
 			*value = dvalue;
@@ -1636,9 +1519,7 @@ xen_hyper_str_to_dumpinfo_context(char *string, ulong *value,
 /*
  * Check a type for value. And return vcpu context.
  */
-static int
-xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
-	struct xen_hyper_vcpu_context **vccp)
+static int xen_hyper_strvcpu_to_vcpu_context(char *string, ulong * value, struct xen_hyper_vcpu_context **vccp)
 {
 	ulong dvalue, hvalue;
 	int found, type;
@@ -1651,34 +1532,33 @@ xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
 	}
 
 	s = string;
-				dvalue = hvalue = BADADDR;
+	dvalue = hvalue = BADADDR;
 
-				if (decimal(s, 0))
-								dvalue = dtol(s, RETURN_ON_ERROR, NULL);
+	if (decimal(s, 0))
+		dvalue = dtol(s, RETURN_ON_ERROR, NULL);
 
-				if (hexadecimal(s, 0)) {
-					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-									s += 2;
+	if (hexadecimal(s, 0)) {
+		if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			s += 2;
 		if (strlen(s) <= MAX_HEXADDR_STRLEN)
-									hvalue = htol(s, RETURN_ON_ERROR, NULL);
+			hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
-				found = 0;
-				vcc_dvc = vcc_hvc = NULL;
+	found = 0;
+	vcc_dvc = vcc_hvc = NULL;
 	type = XEN_HYPER_STR_INVALID;
 
 	if (dvalue != BADADDR) {
-					if ((vcc_dvc = xen_hyper_vcpu_to_vcpu_context(dvalue)))
+		if ((vcc_dvc = xen_hyper_vcpu_to_vcpu_context(dvalue)))
 			found++;
 	}
 
 	if ((hvalue != BADADDR) && (dvalue != hvalue)) {
-					if ((vcc_hvc = xen_hyper_vcpu_to_vcpu_context(hvalue)))
+		if ((vcc_hvc = xen_hyper_vcpu_to_vcpu_context(hvalue)))
 			found++;
 	}
 
-	switch (found)
-	{
+	switch (found) {
 	case 1:
 		if (vcc_dvc) {
 			*vccp = vcc_dvc;
@@ -1701,8 +1581,8 @@ xen_hyper_strvcpu_to_vcpu_context(char *string, ulong *value,
  * Check a type for id value. And return vcpu context.
  */
 static int
-xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
-	ulong *valvc, struct xen_hyper_vcpu_context **vccp)
+xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong * valdom,
+				ulong * valvc, struct xen_hyper_vcpu_context **vccp)
 {
 	ulong dvalue, hvalue;
 	int found, type;
@@ -1715,42 +1595,38 @@ xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
 		return STR_INVALID;
 	}
 
-	if (xen_hyper_str_to_domain_context(strdom, valdom, &dc) ==
-	XEN_HYPER_STR_INVALID) {
+	if (xen_hyper_str_to_domain_context(strdom, valdom, &dc) == XEN_HYPER_STR_INVALID) {
 		error(INFO, "invalid domain id string.\n");
 		return STR_INVALID;
 	}
 
 	s = strvc;
-				dvalue = hvalue = BADADDR;
-				if (decimal(s, 0))
-								dvalue = dtol(s, RETURN_ON_ERROR, NULL);
+	dvalue = hvalue = BADADDR;
+	if (decimal(s, 0))
+		dvalue = dtol(s, RETURN_ON_ERROR, NULL);
 
-				if (hexadecimal(s, 0)) {
-					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-									s += 2;
+	if (hexadecimal(s, 0)) {
+		if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			s += 2;
 		if (strlen(s) <= MAX_HEXADDR_STRLEN)
-									hvalue = htol(s, RETURN_ON_ERROR, NULL);
+			hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
-				found = 0;
-				vcc_did = vcc_hid = NULL;
+	found = 0;
+	vcc_did = vcc_hid = NULL;
 	type = XEN_HYPER_STR_INVALID;
 
 	if (dvalue != BADADDR) {
-					if ((vcc_did = xen_hyper_id_to_vcpu_context(dc->domain,
-		XEN_HYPER_DOMAIN_ID_INVALID, dvalue)))
+		if ((vcc_did = xen_hyper_id_to_vcpu_context(dc->domain, XEN_HYPER_DOMAIN_ID_INVALID, dvalue)))
 			found++;
 	}
 
 	if ((hvalue != BADADDR) && (dvalue != hvalue)) {
-					if ((vcc_hid = xen_hyper_id_to_vcpu_context(dc->domain,
-		XEN_HYPER_DOMAIN_ID_INVALID, hvalue)))
+		if ((vcc_hid = xen_hyper_id_to_vcpu_context(dc->domain, XEN_HYPER_DOMAIN_ID_INVALID, hvalue)))
 			found++;
 	}
 
-	switch (found)
-	{
+	switch (found) {
 	case 2:
 		if (vcc_did && vcc_hid) {
 			*vccp = vcc_did;
@@ -1779,9 +1655,7 @@ xen_hyper_strid_to_vcpu_context(char *strdom, char *strvc, ulong *valdom,
 /*
  * Check a type for value. And return pcpu context.
  */
-static int
-xen_hyper_str_to_pcpu_context(char *string, ulong *value,
-	struct xen_hyper_pcpu_context **pccp)
+static int xen_hyper_str_to_pcpu_context(char *string, ulong * value, struct xen_hyper_pcpu_context **pccp)
 {
 	ulong dvalue, hvalue;
 	int found, type;
@@ -1794,43 +1668,42 @@ xen_hyper_str_to_pcpu_context(char *string, ulong *value,
 	}
 
 	s = string;
-				dvalue = hvalue = BADADDR;
+	dvalue = hvalue = BADADDR;
 
-				if (decimal(s, 0))
-								dvalue = dtol(s, RETURN_ON_ERROR, NULL);
+	if (decimal(s, 0))
+		dvalue = dtol(s, RETURN_ON_ERROR, NULL);
 
-				if (hexadecimal(s, 0)) {
-					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-									s += 2;
+	if (hexadecimal(s, 0)) {
+		if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			s += 2;
 		if (strlen(s) <= MAX_HEXADDR_STRLEN)
-									hvalue = htol(s, RETURN_ON_ERROR, NULL);
+			hvalue = htol(s, RETURN_ON_ERROR, NULL);
 	}
 
-				found = 0;
-				pcc_did = pcc_dpc = pcc_hid = pcc_hpc = NULL;
+	found = 0;
+	pcc_did = pcc_dpc = pcc_hid = pcc_hpc = NULL;
 	type = XEN_HYPER_STR_INVALID;
 
 	if (dvalue != BADADDR) {
 		if ((pcc_did = xen_hyper_id_to_pcpu_context(dvalue)))
 			found++;
-					if ((pcc_dpc = xen_hyper_pcpu_to_pcpu_context(dvalue)))
+		if ((pcc_dpc = xen_hyper_pcpu_to_pcpu_context(dvalue)))
 			found++;
 	}
 
 	if ((hvalue != BADADDR) && (dvalue != hvalue)) {
-					if ((pcc_hid = xen_hyper_id_to_pcpu_context(hvalue)))
+		if ((pcc_hid = xen_hyper_id_to_pcpu_context(hvalue)))
 			found++;
-					if ((pcc_hpc = xen_hyper_pcpu_to_pcpu_context(hvalue)))
+		if ((pcc_hpc = xen_hyper_pcpu_to_pcpu_context(hvalue)))
 			found++;
 	}
 
-	switch (found)
-	{
+	switch (found) {
 	case 2:
 		if (pcc_did && pcc_hid) {
-									*pccp = pcc_did;
-									*value = dvalue;
-									type = STR_PID;
+			*pccp = pcc_did;
+			*value = dvalue;
+			type = STR_PID;
 		}
 		break;
 

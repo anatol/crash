@@ -60,7 +60,7 @@ struct sadump_part_header {
 	uint32_t reserve;	/* Padding for Alignment */
 	uint64_t used_device;	/* used device */
 #define DUMP_PART_HEADER_MAGICNUM_SIZE 982
-	uint32_t magicnum[DUMP_PART_HEADER_MAGICNUM_SIZE]; /* magic number */
+	uint32_t magicnum[DUMP_PART_HEADER_MAGICNUM_SIZE];	/* magic number */
 };
 
 struct sadump_volume_info {
@@ -178,8 +178,8 @@ struct sadump_diskset_data {
 struct sadump_data {
 	char *filename;
 	ulong flags;
-	int dfd;           /* dumpfile file descriptor */
-	int machine_type;  /* machine type identifier */
+	int dfd;		/* dumpfile file descriptor */
+	int machine_type;	/* machine type identifier */
 
 	struct sadump_part_header *header;
 	struct sadump_header *dump_header;
@@ -212,5 +212,4 @@ struct sadump_data {
 struct sadump_data *sadump_get_sadump_data(void);
 int sadump_cleanup_sadump_data(void);
 ulong sadump_identify_format(int *block_size);
-int sadump_get_smram_cpu_state(int apicid,
-						 struct sadump_smram_cpu_state *smram);
+int sadump_get_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *smram);

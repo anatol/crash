@@ -15,33 +15,33 @@
  * GNU General Public License for more details.
  */
 
-#include "defs.h"      /* From the crash source top-level directory */
+#include "defs.h"		/* From the crash source top-level directory */
 
-void echo_init(void);    /* constructor function */
-void echo_fini(void);    /* destructor function (optional) */
+void echo_init(void);		/* constructor function */
+void echo_fini(void);		/* destructor function (optional) */
 
-void cmd_echo(void);     /* Declare the commands and their help data. */
+void cmd_echo(void);		/* Declare the commands and their help data. */
 char *help_echo[];
 
 static struct command_table_entry command_table[] = {
-				{ "echo", cmd_echo, help_echo, 0},          /* One or more commands, */
-				{ NULL },                                     /* terminated by NULL, */
+	{"echo", cmd_echo, help_echo, 0},	/* One or more commands, */
+	{NULL},			/* terminated by NULL, */
 };
 
-
-void __attribute__((constructor))
-echo_init(void) /* Register the command set. */
-{
-				register_extension(command_table);
+void __attribute__ ((constructor))
+    echo_init(void)
+{				/* Register the command set. */
+	register_extension(command_table);
 }
 
 /*
  *  This function is called if the shared object is unloaded.
  *  If desired, perform any cleanups here.
  */
-void __attribute__((destructor))
-echo_fini(void) { }
-
+void __attribute__ ((destructor))
+    echo_fini(void)
+{
+}
 
 /*
  *  Arguments are passed to the command functions in the global args[argcnt]
@@ -49,27 +49,25 @@ echo_fini(void) { }
  *  other crash commands for usage of the myriad of utility routines available
  *  to accomplish what your task.
  */
-void
-cmd_echo(void)
+void cmd_echo(void)
 {
-				int c;
+	int c;
 
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-								{
-								default:
-												argerrs++;
-												break;
-								}
-				}
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
-				while (args[optind])
-								fprintf(fp, "%s ", args[optind++]);
+	while (args[optind])
+		fprintf(fp, "%s ", args[optind++]);
 
-				fprintf(fp, "\n");
+	fprintf(fp, "\n");
 }
 
 /*
@@ -95,16 +93,14 @@ cmd_echo(void)
  */
 
 char *help_echo[] = {
-				"echo",                        /* command name */
-				"echoes back its arguments",   /* short description */
-				"arg ...",                     /* argument synopsis, or " " if none */
+	"echo",			/* command name */
+	"echoes back its arguments",	/* short description */
+	"arg ...",		/* argument synopsis, or " " if none */
 
-				"  This command simply echoes back its arguments.",
-				"\nEXAMPLE",
-				"  Echo back all command arguments:\n",
-				"    crash> echo hello, world",
-				"    hello, world",
-				NULL
+	"  This command simply echoes back its arguments.",
+	"\nEXAMPLE",
+	"  Echo back all command arguments:\n",
+	"    crash> echo hello, world",
+	"    hello, world",
+	NULL
 };
-
-

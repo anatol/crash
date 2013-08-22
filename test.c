@@ -20,7 +20,7 @@
 
 static struct option test_long_options[] = {
 	{"no", no_argument, 0, 0},
-				{"req", required_argument, 0, 0},
+	{"req", required_argument, 0, 0},
 	{0, 0, 0, 0}
 };
 
@@ -28,68 +28,28 @@ static struct option test_long_options[] = {
  *  Test your stuff here first if you'd like.  If anything's being done
  *  below in this routine, consider it leftover trash...
  */
-void
-cmd_test(void)
+void cmd_test(void)
 {
 	int c;
 	int option_index;
 
-				while ((c = getopt_long(argcnt, args, "",
-		test_long_options, &option_index)) != EOF) {
-								switch(c)
-								{
-								case 0:
-												if (STREQ(test_long_options[option_index].name, "no"))
-																fprintf(fp, "no argument\n");
-												if (STREQ(test_long_options[option_index].name, "req"))
-																fprintf(fp, "required argument: %s\n", optarg);
+	while ((c = getopt_long(argcnt, args, "", test_long_options, &option_index)) != EOF) {
+		switch (c) {
+		case 0:
+			if (STREQ(test_long_options[option_index].name, "no"))
+				fprintf(fp, "no argument\n");
+			if (STREQ(test_long_options[option_index].name, "req"))
+				fprintf(fp, "required argument: %s\n", optarg);
 			break;
 
-								default:
-												argerrs++;
-												break;
+		default:
+			argerrs++;
+			break;
 		}
 	}
 
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
-
-				while (args[optind]) {
-								;
-								optind++;
-				}
-}
-
-/*
- *  Scratch routine for testing a feature on a per-task basis by entering
- *  the "foreach test" command.  Like cmd_test(), anything that's being done
- *  below in this routine can be considered trash.
- */
-void
-foreach_test(ulong task, ulong flags)
-{
-
-}
-
-/*
- *  Template for building a new command.
- */
-void
-cmd_template(void)
-{
-				int c;
-
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-								{
-								default:
-												argerrs++;
-												break;
-								}
-				}
-
-				if (argerrs)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	while (args[optind]) {
 		;
@@ -97,3 +57,36 @@ cmd_template(void)
 	}
 }
 
+/*
+ *  Scratch routine for testing a feature on a per-task basis by entering
+ *  the "foreach test" command.  Like cmd_test(), anything that's being done
+ *  below in this routine can be considered trash.
+ */
+void foreach_test(ulong task, ulong flags)
+{
+
+}
+
+/*
+ *  Template for building a new command.
+ */
+void cmd_template(void)
+{
+	int c;
+
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
+		default:
+			argerrs++;
+			break;
+		}
+	}
+
+	if (argerrs)
+		cmd_usage(pc->curcmd, SYNOPSIS);
+
+	while (args[optind]) {
+		;
+		optind++;
+	}
+}

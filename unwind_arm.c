@@ -40,8 +40,8 @@
  *     3. if 0x1, cannot unwind.
  */
 struct unwind_idx {
-	ulong	addr;
-	ulong	insn;
+	ulong addr;
+	ulong insn;
 };
 
 /**
@@ -57,33 +57,33 @@ struct unwind_idx {
  * one table per module as we have different ELF sections in the module.
  */
 struct unwind_table {
-	struct unwind_idx	*idx;
-	struct unwind_idx	*start;
-	struct unwind_idx	*end;
-	ulong			begin_addr;
-	ulong			end_addr;
-	ulong			kv_base;
+	struct unwind_idx *idx;
+	struct unwind_idx *start;
+	struct unwind_idx *end;
+	ulong begin_addr;
+	ulong end_addr;
+	ulong kv_base;
 };
 
 /*
  * Unwind table pointers to master kernel table and for modules.
  */
-static struct unwind_table	*kernel_unwind_table;
-static struct unwind_table	*module_unwind_tables;
+static struct unwind_table *kernel_unwind_table;
+static struct unwind_table *module_unwind_tables;
 
 struct unwind_ctrl_block {
-	ulong	vrs[16];
-	ulong	insn;
-	ulong	insn_kvaddr;
-	int	entries;
-	int	byte;
+	ulong vrs[16];
+	ulong insn;
+	ulong insn_kvaddr;
+	int entries;
+	int byte;
 };
 
 struct stackframe {
-	ulong	fp;
-	ulong	sp;
-	ulong	lr;
-	ulong	pc;
+	ulong fp;
+	ulong sp;
+	ulong lr;
+	ulong pc;
 };
 
 enum regs {
@@ -112,20 +112,17 @@ static int unwind_frame(struct stackframe *, ulong);
  * local copy of them for unwinding. If unwinding tables cannot be found, this
  * function returns FALSE, otherwise TRUE.
  */
-int
-init_unwind_tables(void)
+int init_unwind_tables(void)
 {
 	if (!symbol_exists("__start_unwind_idx") ||
-			!symbol_exists("__stop_unwind_idx") ||
-			!symbol_exists("__start_unwind_tab") ||
-			!symbol_exists("__stop_unwind_tab") ||
-			!symbol_exists("unwind_tables")) {
+	    !symbol_exists("__stop_unwind_idx") ||
+	    !symbol_exists("__start_unwind_tab") ||
+	    !symbol_exists("__stop_unwind_tab") || !symbol_exists("unwind_tables")) {
 		return FALSE;
 	}
 
 	if (!init_kernel_unwind_table()) {
-		error(WARNING,
-					"UNWIND: failed to initialize kernel unwind table\n");
+		error(WARNING, "UNWIND: failed to initialize kernel unwind table\n");
 		return FALSE;
 	}
 
@@ -137,8 +134,7 @@ init_unwind_tables(void)
 	MEMBER_OFFSET_INIT(unwind_table_list, "unwind_table", "list");
 	MEMBER_OFFSET_INIT(unwind_table_start, "unwind_table", "start");
 	MEMBER_OFFSET_INIT(unwind_table_stop, "unwind_table", "stop");
-	MEMBER_OFFSET_INIT(unwind_table_begin_addr, "unwind_table",
-				 "begin_addr");
+	MEMBER_OFFSET_INIT(unwind_table_begin_addr, "unwind_table", "begin_addr");
 	MEMBER_OFFSET_INIT(unwind_table_end_addr, "unwind_table", "end_addr");
 
 	STRUCT_SIZE_INIT(unwind_idx, "unwind_idx");
@@ -146,8 +142,7 @@ init_unwind_tables(void)
 	MEMBER_OFFSET_INIT(unwind_idx_insn, "unwind_idx", "insn");
 
 	if (!init_module_unwind_tables()) {
-		error(WARNING,
-					"UNWIND: failed to initialize module unwind tables\n");
+		error(WARNING, "UNWIND: failed to initialize module unwind tables\n");
 	}
 
 	/*
@@ -164,8 +159,7 @@ init_unwind_tables(void)
 /*
  * Allocate and fill master kernel unwind table.
  */
-static int
-init_kernel_unwind_table(void)
+static int init_kernel_unwind_table(void)
 {
 	ulong idx_start, idx_end, idx_size;
 
@@ -183,7 +177,7 @@ init_kernel_unwind_table(void)
 
 	/* now read in the index table */
 	if (!readmem(idx_start, KVADDR, kernel_unwind_table->idx, idx_size,
-				 "master kernel unwind table", RETURN_ON_ERROR)) {
+		     "master kernel unwind table", RETURN_ON_ERROR)) {
 		free(kernel_unwind_table->idx);
 		goto fail;
 	}
@@ -203,7 +197,7 @@ init_kernel_unwind_table(void)
 
 	kernel_unwind_table->start = kernel_unwind_table->idx;
 	kernel_unwind_table->end = (struct unwind_idx *)
-		((char *)kernel_unwind_table->idx + idx_size);
+	    ((char *)kernel_unwind_table->idx + idx_size);
 	kernel_unwind_table->begin_addr = kernel_unwind_table->start->addr;
 	kernel_unwind_table->end_addr = (kernel_unwind_table->end - 1)->addr;
 	kernel_unwind_table->kv_base = idx_start;
@@ -216,26 +210,22 @@ init_kernel_unwind_table(void)
 		fprintf(fp, "UNWIND: size      : %ld\n", idx_size);
 		fprintf(fp, "UNWIND: start     : %p\n", kernel_unwind_table->start);
 		fprintf(fp, "UNWIND: end       : %p\n", kernel_unwind_table->end);
-		fprintf(fp, "UNWIND: begin_addr: 0x%lx\n",
-			kernel_unwind_table->begin_addr);
-		fprintf(fp, "UNWIND: begin_addr: 0x%lx\n",
-			kernel_unwind_table->end_addr);
+		fprintf(fp, "UNWIND: begin_addr: 0x%lx\n", kernel_unwind_table->begin_addr);
+		fprintf(fp, "UNWIND: begin_addr: 0x%lx\n", kernel_unwind_table->end_addr);
 		fprintf(fp, "UNWIND: master kernel table end\n");
 	}
 
 	return TRUE;
 
-fail:
+ fail:
 	free(kernel_unwind_table);
 	return FALSE;
 }
 
-
 /*
  * Read single module unwind table from addr.
  */
-static int
-read_module_unwind_table(struct unwind_table *tbl, ulong addr)
+static int read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 {
 	ulong idx_start, idx_stop, idx_size;
 	char *buf;
@@ -246,12 +236,10 @@ read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 	 * First read in the unwind table for this module. It then contains
 	 * pointers to the index table which we will read later.
 	 */
-	if (!readmem(addr, KVADDR, buf, SIZE(unwind_table),
-				 "module unwind table", RETURN_ON_ERROR)) {
+	if (!readmem(addr, KVADDR, buf, SIZE(unwind_table), "module unwind table", RETURN_ON_ERROR)) {
 		error(WARNING, "UNWIND: cannot read unwind table\n");
 		goto fail;
 	}
-
 #define TABLE_VALUE(b, offs) (*((ulong *)((b) + OFFSET(offs))))
 
 	idx_start = TABLE_VALUE(buf, unwind_table_start);
@@ -266,8 +254,7 @@ read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 	if (!tbl->idx)
 		goto fail;
 
-	if (!readmem(idx_start, KVADDR, tbl->idx, idx_size,
-				 "module unwind index table", RETURN_ON_ERROR)) {
+	if (!readmem(idx_start, KVADDR, tbl->idx, idx_size, "module unwind index table", RETURN_ON_ERROR)) {
 		free(tbl->idx);
 		goto fail;
 	}
@@ -293,7 +280,7 @@ read_module_unwind_table(struct unwind_table *tbl, ulong addr)
 	FREEBUF(buf);
 	return TRUE;
 
-fail:
+ fail:
 	FREEBUF(buf);
 	return FALSE;
 }
@@ -301,8 +288,7 @@ fail:
 /*
  * Allocate and fill per-module unwind tables.
  */
-static int
-init_module_unwind_tables(void)
+static int init_module_unwind_tables(void)
 {
 	ulong head = symbol_value("unwind_tables");
 	struct unwind_table *tbl;
@@ -328,15 +314,13 @@ init_module_unwind_tables(void)
 		error(WARNING, "UNWIND: failed to gather unwind_table list");
 		return FALSE;
 	}
-	table_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+	table_list = (ulong *) GETBUF(cnt * sizeof(ulong));
 	cnt = retrieve_list(table_list, cnt);
 	hq_close();
 
 	module_unwind_tables = calloc(sizeof(struct unwind_table), cnt);
 	if (!module_unwind_tables) {
-		error(WARNING,
-					"UNWIND: failed to allocate memory for (%d tables)\n",
-					cnt);
+		error(WARNING, "UNWIND: failed to allocate memory for (%d tables)\n", cnt);
 		FREEBUF(table_list);
 		return FALSE;
 	}
@@ -354,7 +338,7 @@ init_module_unwind_tables(void)
 	FREEBUF(table_list);
 	return TRUE;
 
-fail:
+ fail:
 	FREEBUF(table_list);
 
 	while (--n >= 0) {
@@ -372,11 +356,9 @@ fail:
  * ctrl->insn. As a side-effect, increase the ctrl->insn_kvaddr to
  * point to the next instruction.
  */
-static int
-unwind_get_insn(struct unwind_ctrl_block *ctrl)
+static int unwind_get_insn(struct unwind_ctrl_block *ctrl)
 {
-	if (readmem(ctrl->insn_kvaddr, KVADDR, &ctrl->insn, sizeof(ctrl->insn),
-				"unwind insn", RETURN_ON_ERROR)) {
+	if (readmem(ctrl->insn_kvaddr, KVADDR, &ctrl->insn, sizeof(ctrl->insn), "unwind insn", RETURN_ON_ERROR)) {
 		ctrl->insn_kvaddr += sizeof(ctrl->insn);
 		return TRUE;
 	}
@@ -387,8 +369,7 @@ unwind_get_insn(struct unwind_ctrl_block *ctrl)
  * Return next insn byte from ctl or 0 in case of failure. As a side-effect,
  * changes ctrl according the next byte.
  */
-static ulong
-unwind_get_byte(struct unwind_ctrl_block *ctrl)
+static ulong unwind_get_byte(struct unwind_ctrl_block *ctrl)
 {
 	ulong ret;
 
@@ -413,8 +394,7 @@ unwind_get_byte(struct unwind_ctrl_block *ctrl)
 /*
  * Gets one value from stack pointed by vsp.
  */
-static ulong
-get_value_from_stack(ulong *vsp)
+static ulong get_value_from_stack(ulong * vsp)
 {
 	ulong val;
 
@@ -422,8 +402,7 @@ get_value_from_stack(ulong *vsp)
 	 * We just read the value from kernel memory instead of peeking it from
 	 * the bt->stack.
 	 */
-	if (!readmem((ulong)vsp, KVADDR, &val, sizeof(val),
-		"unwind stack value", RETURN_ON_ERROR)) {
+	if (!readmem((ulong) vsp, KVADDR, &val, sizeof(val), "unwind stack value", RETURN_ON_ERROR)) {
 		error(FATAL, "unwind: failed to read value from stack\n");
 	}
 
@@ -433,8 +412,7 @@ get_value_from_stack(ulong *vsp)
 /*
  * Execute the next unwind instruction.
  */
-static int
-unwind_exec_insn(struct unwind_ctrl_block *ctrl)
+static int unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 {
 	ulong insn = unwind_get_byte(ctrl);
 
@@ -455,7 +433,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		 * {r15-r12}, {r11-r4}.
 		 */
 		ulong mask;
-		ulong *vsp = (ulong *)ctrl->vrs[SP];
+		ulong *vsp = (ulong *) ctrl->vrs[SP];
 		int load_sp, reg = 4;
 
 		insn = (insn << 8) | unwind_get_byte(ctrl);
@@ -474,9 +452,8 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 			reg++;
 		}
 		if (!load_sp)
-			ctrl->vrs[SP] = (ulong)vsp;
-	} else if ((insn & 0xf0) == 0x90 &&
-			 (insn & 0x0d) != 0x0d) {
+			ctrl->vrs[SP] = (ulong) vsp;
+	} else if ((insn & 0xf0) == 0x90 && (insn & 0x0d) != 0x0d) {
 		/* 1001 nnnn: set vsp = r[nnnn] */
 		ctrl->vrs[SP] = ctrl->vrs[insn & 0x0f];
 	} else if ((insn & 0xf0) == 0xa0) {
@@ -484,7 +461,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		 * 1010 0nnn: pop r4-r[4+nnn]
 		 * 1010 1nnn: pop r4-r[4+nnn], r14
 		 */
-		ulong *vsp = (ulong *)ctrl->vrs[SP];
+		ulong *vsp = (ulong *) ctrl->vrs[SP];
 		int reg;
 
 		for (reg = 4; reg <= 4 + (insn & 7); reg++)
@@ -493,7 +470,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 		if (insn & 0x80)
 			ctrl->vrs[14] = get_value_from_stack(vsp++);
 
-		ctrl->vrs[SP] = (ulong)vsp;
+		ctrl->vrs[SP] = (ulong) vsp;
 	} else if (insn == 0xb0) {
 		/* 1011 0000: finish */
 		if (ctrl->vrs[PC] == 0)
@@ -503,7 +480,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 	} else if (insn == 0xb1) {
 		/* 1011 0001 xxxx yyyy: spare */
 		ulong mask = unwind_get_byte(ctrl);
-		ulong *vsp = (ulong *)ctrl->vrs[SP];
+		ulong *vsp = (ulong *) ctrl->vrs[SP];
 		int reg = 0;
 
 		if (mask == 0 || mask & 0xf0) {
@@ -518,7 +495,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 			mask >>= 1;
 			reg++;
 		}
-		ctrl->vrs[SP] = (ulong)vsp;
+		ctrl->vrs[SP] = (ulong) vsp;
 	} else if (insn == 0xb2) {
 		/* 1011 0010 uleb128: vsp = vsp + 0x204 (uleb128 << 2) */
 		ulong uleb128 = unwind_get_byte(ctrl);
@@ -532,8 +509,7 @@ unwind_exec_insn(struct unwind_ctrl_block *ctrl)
 	return TRUE;
 }
 
-static int
-is_core_kernel_text(ulong pc)
+static int is_core_kernel_text(ulong pc)
 {
 	ulong text_start = machdep->machspec->kernel_text_start;
 	ulong text_end = machdep->machspec->kernel_text_end;
@@ -544,8 +520,7 @@ is_core_kernel_text(ulong pc)
 	return FALSE;
 }
 
-static struct unwind_table *
-search_table(ulong ip)
+static struct unwind_table *search_table(ulong ip)
 {
 	/*
 	 * First check if this address is in the master kernel unwind table or
@@ -565,8 +540,7 @@ search_table(ulong ip)
 	return NULL;
 }
 
-static struct unwind_idx *
-search_index(const struct unwind_table *tbl, ulong ip)
+static struct unwind_idx *search_index(const struct unwind_table *tbl, ulong ip)
 {
 	struct unwind_idx *start = tbl->start;
 	struct unwind_idx *end = tbl->end;
@@ -586,19 +560,18 @@ search_index(const struct unwind_table *tbl, ulong ip)
 
 	return start;
 }
+
 /*
  * Convert a prel31 symbol to an absolute kernel virtual address.
  */
-static ulong
-prel31_to_addr(ulong addr, ulong insn)
+static ulong prel31_to_addr(ulong addr, ulong insn)
 {
 	/* sign extend to 32 bits */
 	long offset = ((long)insn << 1) >> 1;
 	return addr + offset;
 }
 
-static void
-index_prel31_to_addr(struct unwind_table *tbl)
+static void index_prel31_to_addr(struct unwind_table *tbl)
 {
 	struct unwind_idx *idx = tbl->start;
 	ulong kvaddr = tbl->kv_base;
@@ -607,8 +580,7 @@ index_prel31_to_addr(struct unwind_table *tbl)
 		idx->addr = prel31_to_addr(kvaddr, idx->addr);
 }
 
-static int
-unwind_frame(struct stackframe *frame, ulong stacktop)
+static int unwind_frame(struct stackframe *frame, ulong stacktop)
 {
 	const struct unwind_table *tbl;
 	struct unwind_ctrl_block ctrl;
@@ -623,8 +595,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 
 	tbl = search_table(frame->pc);
 	if (!tbl) {
-		error(WARNING, "UNWIND: cannot find unwind table for %lx\n",
-					frame->pc);
+		error(WARNING, "UNWIND: cannot find unwind table for %lx\n", frame->pc);
 		return FALSE;
 	}
 	idx = search_index(tbl, frame->pc);
@@ -653,7 +624,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 		 * is used to get a kernel virtual address of the
 		 * unwind index entry (idx_kvaddr).
 		 */
-		ulong idx_offset = (ulong)&idx->insn - (ulong)tbl->start;
+		ulong idx_offset = (ulong) & idx->insn - (ulong) tbl->start;
 		ulong idx_kvaddr = tbl->kv_base + idx_offset;
 
 		/*
@@ -669,8 +640,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 		/* EHT entry is encoded in the insn itself */
 		ctrl.insn = idx->insn;
 	} else {
-		error(WARNING, "UNWIND: unsupported instruction %lx\n",
-					idx->insn);
+		error(WARNING, "UNWIND: unsupported instruction %lx\n", idx->insn);
 		return FALSE;
 	}
 
@@ -720,8 +690,7 @@ unwind_frame(struct stackframe *frame, ulong stacktop)
 	return TRUE;
 }
 
-void
-unwind_backtrace(struct bt_info *bt)
+void unwind_backtrace(struct bt_info *bt)
 {
 	struct stackframe frame;
 	int n = 0;
@@ -751,4 +720,4 @@ unwind_backtrace(struct bt_info *bt)
 		bt->stkptr = frame.sp;
 	}
 }
-#endif /* ARM */
+#endif				/* ARM */

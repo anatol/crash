@@ -39,24 +39,22 @@ static void dump_struct_members_for_tree(struct tree_data *, int, ulong);
  *  Besides stderr, check whether the output is going to a file or pipe, and
  *  if so, intermingle the error message there as well.
  */
-int
-__error(int type, char *fmt, ...)
+int __error(int type, char *fmt, ...)
 {
 	int end_of_line, new_line;
-				char buf[BUFSIZE];
+	char buf[BUFSIZE];
 	char *spacebuf;
-				void *retaddr[NUMBER_STACKFRAMES] = { 0 };
+	void *retaddr[NUMBER_STACKFRAMES] = { 0 };
 	va_list ap;
 
 	if (CRASHDEBUG(1) || (pc->flags & DROP_CORE)) {
 		SAVE_RETURN_ADDRESS(retaddr);
-		console("error() trace: %lx => %lx => %lx => %lx\n",
-			retaddr[3], retaddr[2], retaddr[1], retaddr[0]);
+		console("error() trace: %lx => %lx => %lx => %lx\n", retaddr[3], retaddr[2], retaddr[1], retaddr[0]);
 	}
 
 	va_start(ap, fmt);
 	(void)vsnprintf(buf, BUFSIZE, fmt, ap);
-				va_end(ap);
+	va_end(ap);
 
 	if (!fmt && FATAL_ERROR(type)) {
 		fprintf(stdout, "\n");
@@ -79,29 +77,21 @@ __error(int type, char *fmt, ...)
 		fprintf(pc->stdpipe, "%s%s%s %s%s",
 			new_line ? "\n" : "",
 			type == CONT ? spacebuf : pc->curcmd,
-			type == CONT ? " " : ":",
-			type == WARNING ? "WARNING: " :
-			type == NOTE ? "NOTE: " : "",
-			buf);
+			type == CONT ? " " : ":", type == WARNING ? "WARNING: " : type == NOTE ? "NOTE: " : "", buf);
 		fflush(pc->stdpipe);
 	} else {
 		fprintf(stdout, "%s%s%s %s%s",
 			new_line || end_of_line ? "\n" : "",
 			type == WARNING ? "WARNING" :
 			type == NOTE ? "NOTE" :
-			type == CONT ? spacebuf : pc->curcmd,
-			type == CONT ? " " : ":",
-			buf, end_of_line ? "\n" : "");
+			type == CONT ? spacebuf : pc->curcmd, type == CONT ? " " : ":", buf, end_of_line ? "\n" : "");
 		fflush(stdout);
 	}
 
-				if ((fp != stdout) && (fp != pc->stdpipe) && (fp != pc->tmpfile)) {
-								fprintf(fp, "%s%s%s %s", new_line ? "\n" : "",
+	if ((fp != stdout) && (fp != pc->stdpipe) && (fp != pc->tmpfile)) {
+		fprintf(fp, "%s%s%s %s", new_line ? "\n" : "",
 			type == WARNING ? "WARNING" :
-			type == NOTE ? "NOTE" :
-			type == CONT ? spacebuf : pc->curcmd,
-			type == CONT ? " " : ":",
-			buf);
+			type == NOTE ? "NOTE" : type == CONT ? spacebuf : pc->curcmd, type == CONT ? " " : ":", buf);
 		fflush(fp);
 	}
 
@@ -111,28 +101,27 @@ __error(int type, char *fmt, ...)
 		drop_core("DROP_CORE flag set: forcing a segmentation fault\n");
 	}
 
-				switch (type)
-				{
-				case FATAL:
-								if (pc->flags & IN_FOREACH)
-												RESUME_FOREACH();
+	switch (type) {
+	case FATAL:
+		if (pc->flags & IN_FOREACH)
+			RESUME_FOREACH();
 		/* FALLTHROUGH */
 
 	case FATAL_RESTART:
-								if (pc->flags & RUNTIME)
-												RESTART();
-								else {
+		if (pc->flags & RUNTIME)
+			RESTART();
+		else {
 			if (REMOTE())
 				remote_exit();
-												clean_exit(1);
+			clean_exit(1);
 		}
 
 	default:
-				case INFO:
-				case NOTE:
+	case INFO:
+	case NOTE:
 	case WARNING:
-								return FALSE;
-				}
+		return FALSE;
+	}
 }
 
 /*
@@ -142,11 +131,10 @@ __error(int type, char *fmt, ...)
  *  encompassed by parentheses, and strings encompassed by apostrophes, are
  *  collected into single tokens.
  */
-int
-parse_line(char *str, char *argv[])
+int parse_line(char *str, char *argv[])
 {
 	int i, j, k;
-			int string;
+	int string;
 	int expression;
 
 	for (i = 0; i < MAXARGS; i++)
@@ -154,28 +142,27 @@ parse_line(char *str, char *argv[])
 
 	clean_line(str);
 
-				if (str == NULL || strlen(str) == 0)
-								return(0);
+	if (str == NULL || strlen(str) == 0)
+		return (0);
 
-				i = j = k = 0;
-				string = expression = FALSE;
+	i = j = k = 0;
+	string = expression = FALSE;
 
 	/*
 	 * Special handling for when the first character is a '"'.
 	 */
 	if (str[0] == '"') {
-next:
+ next:
 		do {
 			i++;
 		} while ((str[i] != NULLCHAR) && (str[i] != '"'));
 
-		switch (str[i])
-		{
+		switch (str[i]) {
 		case NULLCHAR:
 			argv[j] = &str[k];
-			return j+1;
+			return j + 1;
 		case '"':
-			argv[j++] = &str[k+1];
+			argv[j++] = &str[k + 1];
 			str[i++] = NULLCHAR;
 			if (str[i] == '"') {
 				k = i;
@@ -186,110 +173,103 @@ next:
 	} else
 		argv[j++] = str;
 
-			while (TRUE) {
+	while (TRUE) {
 		if (j == MAXARGS)
 			error(FATAL, "too many arguments in string!\n");
 
-					while (str[i] != ' ' && str[i] != '\t' && str[i] != NULLCHAR) {
-								i++;
-					}
+		while (str[i] != ' ' && str[i] != '\t' && str[i] != NULLCHAR) {
+			i++;
+		}
 
-					switch (str[i])
-					{
-					case ' ':
-					case '\t':
-							str[i++] = NULLCHAR;
+		switch (str[i]) {
+		case ' ':
+		case '\t':
+			str[i++] = NULLCHAR;
 
-							while (str[i] == ' ' || str[i] == '\t') {
-									i++;
-							}
-
-							if (str[i] == '"') {
-									str[i] = ' ';
-									string = TRUE;
-									i++;
-							}
-
-										if (!string && str[i] == '(') {
-												expression = TRUE;
-										}
-
-
-							if (str[i] != NULLCHAR && str[i] != '\n') {
-									argv[j++] = &str[i];
-									if (string) {
-													string = FALSE;
-													while (str[i] != '"' && str[i] != NULLCHAR)
-																	i++;
-													if (str[i] == '"')
-																	str[i] = ' ';
-									}
-												if (expression) {
-																expression = FALSE;
-																while (str[i] != ')' && str[i] != NULLCHAR)
-																				i++;
-												}
-									break;
-							}
-													/* else fall through */
-					case '\n':
-							str[i] = NULLCHAR;
-													/* keep falling... */
-					case NULLCHAR:
-							argv[j] = NULLCHAR;
-							return(j);
-					}
+			while (str[i] == ' ' || str[i] == '\t') {
+				i++;
 			}
+
+			if (str[i] == '"') {
+				str[i] = ' ';
+				string = TRUE;
+				i++;
+			}
+
+			if (!string && str[i] == '(') {
+				expression = TRUE;
+			}
+
+			if (str[i] != NULLCHAR && str[i] != '\n') {
+				argv[j++] = &str[i];
+				if (string) {
+					string = FALSE;
+					while (str[i] != '"' && str[i] != NULLCHAR)
+						i++;
+					if (str[i] == '"')
+						str[i] = ' ';
+				}
+				if (expression) {
+					expression = FALSE;
+					while (str[i] != ')' && str[i] != NULLCHAR)
+						i++;
+				}
+				break;
+			}
+			/* else fall through */
+		case '\n':
+			str[i] = NULLCHAR;
+			/* keep falling... */
+		case NULLCHAR:
+			argv[j] = NULLCHAR;
+			return (j);
+		}
+	}
 }
 
 /*
  *  Defuse controversy re: extensions to ctype.h
  */
-int
-whitespace(int c)
+int whitespace(int c)
 {
-	return ((c == ' ') ||(c == '\t'));
+	return ((c == ' ') || (c == '\t'));
 }
 
-int
-ascii(int c)
+int ascii(int c)
 {
-	return ((c >= 0) && ( c <= 0x7f));
+	return ((c >= 0) && (c <= 0x7f));
 }
 
 /*
  *  Strip line-ending whitespace and linefeeds.
  */
-char *
-strip_line_end(char *line)
+char *strip_line_end(char *line)
 {
 	strip_linefeeds(line);
 	strip_ending_whitespace(line);
-	return(line);
+	return (line);
 }
 
 /*
  *  Strip line-beginning and line-ending whitespace and linefeeds.
  */
-char *
-clean_line(char *line)
+char *clean_line(char *line)
 {
 	strip_beginning_whitespace(line);
-				strip_linefeeds(line);
-				strip_ending_whitespace(line);
-				return(line);
+	strip_linefeeds(line);
+	strip_ending_whitespace(line);
+	return (line);
 }
 
 /*
  *  Strip line-ending linefeeds in a string.
  */
-char *
-strip_linefeeds(char *line)
+char *strip_linefeeds(char *line)
 {
 	char *p;
 
 	if (line == NULL || strlen(line) == 0)
-		return(line);
+		return (line);
 
 	p = &LASTCHAR(line);
 
@@ -299,80 +279,73 @@ strip_linefeeds(char *line)
 			break;
 	}
 
-	return(line);
+	return (line);
 }
 
 /*
  *  Strip a specified line-ending character in a string.
  */
-char *
-strip_ending_char(char *line, char c)
+char *strip_ending_char(char *line, char c)
 {
-				char *p;
+	char *p;
 
-				if (line == NULL || strlen(line) == 0)
-								return(line);
+	if (line == NULL || strlen(line) == 0)
+		return (line);
 
-				p = &LASTCHAR(line);
+	p = &LASTCHAR(line);
 
-				if (*p == c)
-								*p = NULLCHAR;
+	if (*p == c)
+		*p = NULLCHAR;
 
-				return(line);
+	return (line);
 }
 
 /*
  *  Strip a specified line-beginning character in a string.
  */
-char *
-strip_beginning_char(char *line, char c)
+char *strip_beginning_char(char *line, char c)
 {
-				if (line == NULL || strlen(line) == 0)
-								return(line);
+	if (line == NULL || strlen(line) == 0)
+		return (line);
 
-				if (FIRSTCHAR(line) == c)
-								shift_string_left(line, 1);
+	if (FIRSTCHAR(line) == c)
+		shift_string_left(line, 1);
 
-				return(line);
+	return (line);
 }
-
-
-
 
 /*
  *  Strip line-ending whitespace.
  */
-char *
-strip_ending_whitespace(char *line)
+char *strip_ending_whitespace(char *line)
 {
-				char *p;
+	char *p;
 
 	if (line == NULL || strlen(line) == 0)
-								return(line);
+		return (line);
 
-				p = &LASTCHAR(line);
+	p = &LASTCHAR(line);
 
-				while (*p == ' ' || *p == '\t') {
-								*p = NULLCHAR;
-								if (p == line)
-												break;
-								p--;
-				}
+	while (*p == ' ' || *p == '\t') {
+		*p = NULLCHAR;
+		if (p == line)
+			break;
+		p--;
+	}
 
-				return(line);
+	return (line);
 }
 
 /*
  *  Strip line-beginning whitespace.
  */
-char *
-strip_beginning_whitespace(char *line)
+char *strip_beginning_whitespace(char *line)
 {
 	char buf[BUFSIZE];
-				char *p;
+	char *p;
 
 	if (line == NULL || strlen(line) == 0)
-								return(line);
+		return (line);
 
 	strcpy(buf, line);
 	p = &buf[0];
@@ -380,40 +353,37 @@ strip_beginning_whitespace(char *line)
 		p++;
 	strcpy(line, p);
 
-				return(line);
+	return (line);
 }
 
 /*
  *  End line at first comma found.
  */
-char *
-strip_comma(char *line)
+char *strip_comma(char *line)
 {
 	char *p;
 
 	if ((p = strstr(line, ",")))
 		*p = NULLCHAR;
 
-	return(line);
+	return (line);
 }
 
 /*
  *  Strip the 0x from the beginning of a hexadecimal value string.
  */
-char *
-strip_hex(char *line)
+char *strip_hex(char *line)
 {
 	if (STRNEQ(line, "0x"))
 		shift_string_left(line, 2);
 
-	return(line);
+	return (line);
 }
 
 /*
  *  Turn a string into upper-case.
  */
-char *
-upper_case(char *s, char *buf)
+char *upper_case(char *s, char *buf)
 {
 	char *p1, *p2;
 
@@ -427,33 +397,30 @@ upper_case(char *s, char *buf)
 
 	*p2 = NULLCHAR;
 
-	return(buf);
+	return (buf);
 }
 
 /*
  *  Return pointer to first non-space/tab in a string.
  */
-char *
-first_nonspace(char *s)
+char *first_nonspace(char *s)
 {
-				return(s + strspn(s, " \t"));
+	return (s + strspn(s, " \t"));
 }
 
 /*
  *  Return pointer to first space/tab in a string.  If none are found,
  *  return a pointer to the string terminating NULL.
  */
-char *
-first_space(char *s)
+char *first_space(char *s)
 {
-				return(s + strcspn(s, " \t"));
+	return (s + strcspn(s, " \t"));
 }
 
 /*
  *  Replace the first space/tab found in a string with a NULL character.
  */
-char *
-null_first_space(char *s)
+char *null_first_space(char *s)
 {
 	char *p1;
 
@@ -468,8 +435,7 @@ null_first_space(char *s)
  *  Replace any instances of the characters in string c that are found in
  *  string s with the character passed in r.
  */
-char *
-replace_string(char *s, char *c, char r)
+char *replace_string(char *s, char *c, char r)
 {
 	int i, j;
 
@@ -483,8 +449,7 @@ replace_string(char *s, char *c, char r)
 	return s;
 }
 
-void
-string_insert(char *insert, char *where)
+void string_insert(char *insert, char *where)
 {
 	char *p;
 
@@ -497,8 +462,7 @@ string_insert(char *insert, char *where)
 /*
  *  Find the rightmost instance of a substring in a string.
  */
-char *
-strstr_rightmost(char *s, char *lookfor)
+char *strstr_rightmost(char *s, char *lookfor)
 {
 	char *next, *last, *p;
 
@@ -515,27 +479,25 @@ strstr_rightmost(char *s, char *lookfor)
  *  Prints a string verbatim, allowing strings with % signs to be displayed
  *  without printf conversions.
  */
-void
-print_verbatim(FILE *filep, char *line)
+void print_verbatim(FILE * filep, char *line)
 {
 	int i;
 
-				for (i = 0; i < strlen(line); i++) {
-								fputc(line[i], filep);
+	for (i = 0; i < strlen(line); i++) {
+		fputc(line[i], filep);
 		fflush(filep);
 	}
 }
 
-char *
-fixup_percent(char *s)
+char *fixup_percent(char *s)
 {
 	char *p1;
 
 	if ((p1 = strstr(s, "%")) == NULL)
 		return s;
 
-	s[strlen(s)+1] = NULLCHAR;
-			 	memmove(p1+1, p1, strlen(p1));
+	s[strlen(s) + 1] = NULLCHAR;
+	memmove(p1 + 1, p1, strlen(p1));
 	*p1 = '%';
 
 	return s;
@@ -545,78 +507,72 @@ fixup_percent(char *s)
  *  Convert an indeterminate number string to either a hexadecimal or decimal
  *  long value.  Translate with a bias towards decimal unless HEX_BIAS is set.
  */
-ulong
-stol(char *s, int flags, int *errptr)
+ulong stol(char *s, int flags, int *errptr)
 {
 	if ((flags & HEX_BIAS) && hexadecimal(s, 0))
-					return(htol(s, flags, errptr));
+		return (htol(s, flags, errptr));
 	else {
-					if (decimal(s, 0))
-									return(dtol(s, flags, errptr));
-					else if (hexadecimal(s, 0))
-									return(htol(s, flags, errptr));
+		if (decimal(s, 0))
+			return (dtol(s, flags, errptr));
+		else if (hexadecimal(s, 0))
+			return (htol(s, flags, errptr));
 	}
 
 	if (!(flags & QUIET))
-					error(INFO, "not a valid number: %s\n", s);
+		error(INFO, "not a valid number: %s\n", s);
 
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-							 	RESTART();
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
+	case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
 		break;
-				}
+	}
 
 	return UNUSED;
 }
 
-ulonglong
-stoll(char *s, int flags, int *errptr)
+ulonglong stoll(char *s, int flags, int *errptr)
 {
-				if ((flags & HEX_BIAS) && hexadecimal(s, 0))
-								return(htoll(s, flags, errptr));
-				else {
-								if (decimal(s, 0))
-												return(dtoll(s, flags, errptr));
-								else if (hexadecimal(s, 0))
-												return(htoll(s, flags, errptr));
-				}
+	if ((flags & HEX_BIAS) && hexadecimal(s, 0))
+		return (htoll(s, flags, errptr));
+	else {
+		if (decimal(s, 0))
+			return (dtoll(s, flags, errptr));
+		else if (hexadecimal(s, 0))
+			return (htoll(s, flags, errptr));
+	}
 
 	if (!(flags & QUIET))
-					error(INFO, "not a valid number: %s\n", s);
+		error(INFO, "not a valid number: %s\n", s);
 
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-								RESTART();
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
-								if (errptr)
-												*errptr = TRUE;
-								break;
-				}
+	case RETURN_ON_ERROR:
+		if (errptr)
+			*errptr = TRUE;
+		break;
+	}
 
-				return UNUSED;
+	return UNUSED;
 }
 
 /*
  *  Append a two-character string to a number to make 1, 2, 3 and 4 into
  *  1st, 2nd, 3rd, 4th, and so on...
  */
-char *
-ordinal(ulong val, char *buf)
+char *ordinal(ulong val, char *buf)
 {
 	char *p1;
 
 	sprintf(buf, "%ld", val);
-	p1 = &buf[strlen(buf)-1];
+	p1 = &buf[strlen(buf) - 1];
 
-	switch (*p1)
-	{
+	switch (*p1) {
 	case '1':
 		strcat(buf, "st");
 		break;
@@ -644,116 +600,109 @@ ordinal(ulong val, char *buf)
  *
  *  If HEX_BIAS is set, pass the value on to htol().
  */
-ulong
-convert(char *s, int flags, int *errptr, ulong numflag)
+ulong convert(char *s, int flags, int *errptr, ulong numflag)
 {
 	struct syment *sp;
 
 	if ((numflag & NUM_EXPR) && can_eval(s))
-						 	return(eval(s, flags, errptr));
+		return (eval(s, flags, errptr));
 
 	if ((flags & HEX_BIAS) && (numflag & NUM_HEX) && hexadecimal(s, 0))
-								return(htol(s, flags, errptr));
+		return (htol(s, flags, errptr));
 	else {
 		if ((numflag & NUM_DEC) && decimal(s, 0))
-						return(dtol(s, flags, errptr));
+			return (dtol(s, flags, errptr));
 		if ((numflag & NUM_HEX) && hexadecimal(s, 0))
-						return(htol(s, flags, errptr));
+			return (htol(s, flags, errptr));
 	}
 
 	if ((sp = symbol_search(s)))
-		return(sp->value);
+		return (sp->value);
 
-				error(INFO, "cannot convert \"%s\"\n", s);
+	error(INFO, "cannot convert \"%s\"\n", s);
 
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-								RESTART();
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
-								if (errptr)
-									*errptr = TRUE;
+	case RETURN_ON_ERROR:
+		if (errptr)
+			*errptr = TRUE;
 		break;
-				}
+	}
 
-				return UNUSED;
+	return UNUSED;
 }
 
 /*
  *  Convert a string to a hexadecimal long value.
  */
-ulong
-htol(char *s, int flags, int *errptr)
+ulong htol(char *s, int flags, int *errptr)
 {
-			long i, j;
+	long i, j;
 	ulong n;
 
-			if (s == NULL) {
+	if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htol_error;
 	}
 
-			if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-			if (strlen(s) > MAX_HEXADDR_STRLEN) {
+	if (strlen(s) > MAX_HEXADDR_STRLEN) {
 		if (!(flags & QUIET))
-			error(INFO,
-					"input string too large: \"%s\" (%d vs %d)\n",
-				s, strlen(s), MAX_HEXADDR_STRLEN);
+			error(INFO, "input string too large: \"%s\" (%d vs %d)\n", s, strlen(s), MAX_HEXADDR_STRLEN);
 		goto htol_error;
 	}
 
-			for (n = i = 0; s[i] != 0; i++) {
-					switch (s[i])
-					{
-							case 'a':
-							case 'b':
-							case 'c':
-							case 'd':
-							case 'e':
-							case 'f':
-									j = (s[i] - 'a') + 10;
-									break;
-							case 'A':
-							case 'B':
-							case 'C':
-							case 'D':
-							case 'E':
-							case 'F':
-									j = (s[i] - 'A') + 10;
-									break;
-							case '1':
-							case '2':
-							case '3':
-							case '4':
-							case '5':
-							case '6':
-							case '7':
-							case '8':
-							case '9':
-							case '0':
-									j = s[i] - '0';
-									break;
-				case 'x':
-				case 'X':
-				case 'h':
+	for (n = i = 0; s[i] != 0; i++) {
+		switch (s[i]) {
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+			j = (s[i] - 'a') + 10;
+			break;
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+			j = (s[i] - 'A') + 10;
+			break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+			j = s[i] - '0';
+			break;
+		case 'x':
+		case 'X':
+		case 'h':
 			continue;
-							default:
+		default:
 			if (!(flags & QUIET))
 				error(INFO, "invalid input: \"%s\"\n", s);
 			goto htol_error;
-					}
-					n = (16 * n) + j;
-			}
+		}
+		n = (16 * n) + j;
+	}
 
-			return(n);
+	return (n);
 
-htol_error:
-	switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-	{
+ htol_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
 	case FAULT_ON_ERROR:
 		RESTART();
 
@@ -769,77 +718,72 @@ htol_error:
 /*
  *  Convert a string to a hexadecimal unsigned long long value.
  */
-ulonglong
-htoll(char *s, int flags, int *errptr)
+ulonglong htoll(char *s, int flags, int *errptr)
 {
-			long i, j;
+	long i, j;
 	ulonglong n;
 
-			if (s == NULL) {
+	if (s == NULL) {
 		if (!(flags & QUIET))
 			error(INFO, "received NULL string\n");
 		goto htoll_error;
 	}
 
-			if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+	if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
 		s += 2;
 
-			if (strlen(s) > LONG_LONG_PRLEN) {
+	if (strlen(s) > LONG_LONG_PRLEN) {
 		if (!(flags & QUIET))
-			error(INFO,
-					"input string too large: \"%s\" (%d vs %d)\n",
-				s, strlen(s), LONG_LONG_PRLEN);
+			error(INFO, "input string too large: \"%s\" (%d vs %d)\n", s, strlen(s), LONG_LONG_PRLEN);
 		goto htoll_error;
 	}
 
-			for (n = i = 0; s[i] != 0; i++) {
-					switch (s[i])
-					{
-							case 'a':
-							case 'b':
-							case 'c':
-							case 'd':
-							case 'e':
-							case 'f':
-									j = (s[i] - 'a') + 10;
-									break;
-							case 'A':
-							case 'B':
-							case 'C':
-							case 'D':
-							case 'E':
-							case 'F':
-									j = (s[i] - 'A') + 10;
-									break;
-							case '1':
-							case '2':
-							case '3':
-							case '4':
-							case '5':
-							case '6':
-							case '7':
-							case '8':
-							case '9':
-							case '0':
-									j = s[i] - '0';
-									break;
-				case 'x':
-				case 'X':
-				case 'h':
+	for (n = i = 0; s[i] != 0; i++) {
+		switch (s[i]) {
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+			j = (s[i] - 'a') + 10;
+			break;
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+			j = (s[i] - 'A') + 10;
+			break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+			j = s[i] - '0';
+			break;
+		case 'x':
+		case 'X':
+		case 'h':
 			continue;
-							default:
+		default:
 			if (!(flags & QUIET))
 				error(INFO, "invalid input: \"%s\"\n", s);
 			goto htoll_error;
-					}
-					n = (16 * n) + j;
-			}
+		}
+		n = (16 * n) + j;
+	}
 
-			return(n);
+	return (n);
 
-htoll_error:
-	switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-	{
+ htoll_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
 	case FAULT_ON_ERROR:
 		RESTART();
 
@@ -852,175 +796,162 @@ htoll_error:
 	return UNUSED;
 }
 
-
 /*
  *  Convert a string to a decimal long value.
  */
-ulong
-dtol(char *s, int flags, int *errptr)
+ulong dtol(char *s, int flags, int *errptr)
 {
-				ulong retval;
-				char *p, *orig;
-				int j;
+	ulong retval;
+	char *p, *orig;
+	int j;
 
-				if (s == NULL) {
+	if (s == NULL) {
 		if (!(flags & QUIET))
-									error(INFO, "received NULL string\n");
-								goto dtol_error;
-				}
+			error(INFO, "received NULL string\n");
+		goto dtol_error;
+	}
 
 	if (strlen(s) == 0)
-								goto dtol_error;
+		goto dtol_error;
 
-				p = orig = &s[0];
-				while (*p++ == ' ')
-								s++;
+	p = orig = &s[0];
+	while (*p++ == ' ')
+		s++;
 
-				for (j = 0; s[j] != '\0'; j++)
-								if ((s[j] < '0' || s[j] > '9'))
-												break ;
+	for (j = 0; s[j] != '\0'; j++)
+		if ((s[j] < '0' || s[j] > '9'))
+			break;
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
-				orig, s[j]);
-								goto dtol_error;
+			error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", orig, s[j]);
+		goto dtol_error;
 	} else if (sscanf(s, "%lu", &retval) != 1) {
 		if (!(flags & QUIET))
-									error(INFO, "invalid expression\n");
-								goto dtol_error;
-				}
+			error(INFO, "invalid expression\n");
+		goto dtol_error;
+	}
 
-				return(retval);
+	return (retval);
 
-dtol_error:
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-								RESTART();
+ dtol_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
+	case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-								break;
-				}
+		break;
+	}
 
 	return UNUSED;
 }
 
-
 /*
  *  Convert a string to a decimal long value.
  */
-ulonglong
-dtoll(char *s, int flags, int *errptr)
+ulonglong dtoll(char *s, int flags, int *errptr)
 {
-				ulonglong retval;
-				char *p, *orig;
-				int j;
+	ulonglong retval;
+	char *p, *orig;
+	int j;
 
-				if (s == NULL) {
+	if (s == NULL) {
 		if (!(flags & QUIET))
-									error(INFO, "received NULL string\n");
-								goto dtoll_error;
-				}
+			error(INFO, "received NULL string\n");
+		goto dtoll_error;
+	}
 
 	if (strlen(s) == 0)
-								goto dtoll_error;
+		goto dtoll_error;
 
-				p = orig = &s[0];
-				while (*p++ == ' ')
-								s++;
+	p = orig = &s[0];
+	while (*p++ == ' ')
+		s++;
 
-				for (j = 0; s[j] != '\0'; j++)
-								if ((s[j] < '0' || s[j] > '9'))
-												break ;
+	for (j = 0; s[j] != '\0'; j++)
+		if ((s[j] < '0' || s[j] > '9'))
+			break;
 
 	if (s[j] != '\0') {
 		if (!(flags & QUIET))
-									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
-				orig, s[j]);
-								goto dtoll_error;
+			error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", orig, s[j]);
+		goto dtoll_error;
 	} else if (sscanf(s, "%llu", &retval) != 1) {
 		if (!(flags & QUIET))
-									error(INFO, "invalid expression\n");
-								goto dtoll_error;
-				}
+			error(INFO, "invalid expression\n");
+		goto dtoll_error;
+	}
 
-				return (retval);
+	return (retval);
 
-dtoll_error:
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-								RESTART();
+ dtoll_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
+	case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-								break;
-				}
+		break;
+	}
 
-	return ((ulonglong)(-1));
+	return ((ulonglong) (-1));
 }
-
 
 /*
  *  Convert a string to a decimal integer value.
  */
-unsigned int
-dtoi(char *s, int flags, int *errptr)
+unsigned int dtoi(char *s, int flags, int *errptr)
 {
-				unsigned int retval;
-				char *p;
-				int j;
+	unsigned int retval;
+	char *p;
+	int j;
 
-				if (s == NULL) {
+	if (s == NULL) {
 		if (!(flags & QUIET))
-									error(INFO, "received NULL string\n");
-								goto dtoi_error;
-				}
+			error(INFO, "received NULL string\n");
+		goto dtoi_error;
+	}
 
-				p = &s[0];
-				while (*p++ == ' ')
-								s++;
+	p = &s[0];
+	while (*p++ == ' ')
+		s++;
 
-				for (j = 0; s[j] != '\0'; j++)
-								if ((s[j] < '0' || s[j] > '9'))
-												break ;
+	for (j = 0; s[j] != '\0'; j++)
+		if ((s[j] < '0' || s[j] > '9'))
+			break;
 
-				if (s[j] != '\0' || (sscanf(s, "%d", &retval) != 1)) {
+	if (s[j] != '\0' || (sscanf(s, "%d", &retval) != 1)) {
 		if (!(flags & QUIET))
-									error(INFO, "%s: \"%c\" is not a digit 0 - 9\n",
-				s, s[j]);
-								goto dtoi_error;
-				}
+			error(INFO, "%s: \"%c\" is not a digit 0 - 9\n", s, s[j]);
+		goto dtoi_error;
+	}
 
-				return(retval);
+	return (retval);
 
-dtoi_error:
-				switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-				{
-				case FAULT_ON_ERROR:
-								RESTART();
+ dtoi_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+	case FAULT_ON_ERROR:
+		RESTART();
 
-				case RETURN_ON_ERROR:
+	case RETURN_ON_ERROR:
 		if (errptr)
 			*errptr = TRUE;
-								break;
-				}
+		break;
+	}
 
-				return((unsigned int)(-1));
+	return ((unsigned int)(-1));
 }
 
 /*
  *  Determine whether a string contains only decimal characters.
  *  If count is non-zero, limit the search to count characters.
  */
-int
-decimal(char *s, int count)
+int decimal(char *s, int count)
 {
-			char *p;
+	char *p;
 	int cnt;
 
 	if (!count) {
@@ -1029,42 +960,40 @@ decimal(char *s, int count)
 	} else
 		cnt = count;
 
-			for (p = &s[0]; *p; p++) {
-					switch(*p)
-					{
-							case '0':
-							case '1':
-							case '2':
-							case '3':
-							case '4':
-							case '5':
-							case '6':
-							case '7':
-							case '8':
-							case '9':
-							case ' ':
-									break;
-							default:
-									return FALSE;
-					}
+	for (p = &s[0]; *p; p++) {
+		switch (*p) {
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case ' ':
+			break;
+		default:
+			return FALSE;
+		}
 
 		if (count && (--cnt == 0))
 			break;
-			}
+	}
 
-			return TRUE;
+	return TRUE;
 }
 
 /*
  *  Extract a hexadecimal number from a string.  If first_instance is FALSE,
  *  and two possibilities are found, a fatal error results.
  */
-int
-extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
+int extract_hex(char *s, ulong * result, char stripchar, ulong first_instance)
 {
 	int i, found;
-				char *arglist[MAXARGS];
-				int argc;
+	char *arglist[MAXARGS];
+	int argc;
 	ulong value;
 	char *buf;
 
@@ -1079,9 +1008,7 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 		if (hexadecimal(arglist[i], 0)) {
 			if (found) {
 				FREEBUF(buf);
-				error(FATAL,
-						"two hexadecimal args in: \"%s\"\n",
-					strip_linefeeds(s));
+				error(FATAL, "two hexadecimal args in: \"%s\"\n", strip_linefeeds(s));
 			}
 			value = htol(arglist[i], FAULT_ON_ERROR, NULL);
 			found = TRUE;
@@ -1100,32 +1027,28 @@ extract_hex(char *s, ulong *result, char stripchar, ulong first_instance)
 	return FALSE;
 }
 
-
 /*
  *  Determine whether a string contains only printable ASCII characters.
  */
-int
-ascii_string(char *s)
+int ascii_string(char *s)
 {
-				char *p;
+	char *p;
 
-				for (p = &s[0]; *p; p++) {
+	for (p = &s[0]; *p; p++) {
 		if (!ascii(*p))
 			return FALSE;
-				}
+	}
 
-				return TRUE;
+	return TRUE;
 }
-
 
 /*
  *  Determine whether a string contains only hexadecimal characters.
  *  If count is non-zero, limit the search to count characters.
  */
-int
-hexadecimal(char *s, int count)
+int hexadecimal(char *s, int count)
 {
-			char *p;
+	char *p;
 	int cnt;
 
 	if (!count) {
@@ -1135,48 +1058,47 @@ hexadecimal(char *s, int count)
 		cnt = count;
 
 	for (p = &s[0]; *p; p++) {
-					switch(*p)
-		{
-					case 'a':
-					case 'b':
-					case 'c':
-					case 'd':
-					case 'e':
-					case 'f':
-					case 'A':
-					case 'B':
-					case 'C':
-					case 'D':
-					case 'E':
-					case 'F':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					case '0':
-					case 'x':
-					case 'X':
-									break;
+		switch (*p) {
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+		case 'x':
+		case 'X':
+			break;
 
-					case ' ':
-									if (*(p+1) == NULLCHAR)
-											break;
-									else
-											return FALSE;
+		case ' ':
+			if (*(p + 1) == NULLCHAR)
+				break;
+			else
+				return FALSE;
 		default:
 			return FALSE;
-					}
+		}
 
 		if (count && (--cnt == 0))
 			break;
-			}
+	}
 
-			return TRUE;
+	return TRUE;
 }
 
 /*
@@ -1184,10 +1106,9 @@ hexadecimal(char *s, int count)
  *  and cannot be construed as a decimal number.
  *  If count is non-zero, limit the search to count characters.
  */
-int
-hexadecimal_only(char *s, int count)
+int hexadecimal_only(char *s, int count)
 {
-			char *p;
+	char *p;
 	int cnt, only;
 
 	if (!count) {
@@ -1199,50 +1120,49 @@ hexadecimal_only(char *s, int count)
 	only = 0;
 
 	for (p = &s[0]; *p; p++) {
-					switch(*p)
-		{
-					case 'a':
-					case 'b':
-					case 'c':
-					case 'd':
-					case 'e':
-					case 'f':
-					case 'A':
-					case 'B':
-					case 'C':
-					case 'D':
-					case 'E':
-					case 'F':
-								case 'x':
-								case 'X':
+		switch (*p) {
+		case 'a':
+		case 'b':
+		case 'c':
+		case 'd':
+		case 'e':
+		case 'f':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'x':
+		case 'X':
 			only++;
 			break;
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					case '0':
-									break;
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '0':
+			break;
 
-					case ' ':
-									if (*(p+1) == NULLCHAR)
-											break;
-									else
-											return FALSE;
+		case ' ':
+			if (*(p + 1) == NULLCHAR)
+				break;
+			else
+				return FALSE;
 		default:
 			return FALSE;
-					}
+		}
 
 		if (count && (--cnt == 0))
 			break;
-			}
+	}
 
-			return only;
+	return only;
 }
 
 /*
@@ -1256,13 +1176,11 @@ hexadecimal_only(char *s, int count)
  *  It presumes args[optind] is the argument being tinkered with, and
  *  always returns TRUE for convenience of use.
  */
-int
-clean_arg(void)
+int clean_arg(void)
 {
 	char buf[BUFSIZE];
 
-	if (LASTCHAR(args[optind]) == ',' ||
-			LASTCHAR(args[optind]) == ':') {
+	if (LASTCHAR(args[optind]) == ',' || LASTCHAR(args[optind]) == ':') {
 		strcpy(buf, args[optind]);
 		LASTCHAR(buf) = NULLCHAR;
 		if (IS_A_NUMBER(buf))
@@ -1272,18 +1190,15 @@ clean_arg(void)
 	return TRUE;
 }
 
-
-
 /*
  *  Translate a hexadecimal string into its ASCII components.
  */
-void
-cmd_ascii(void)
+void cmd_ascii(void)
 {
-				int i;
-				ulonglong value;
+	int i;
+	ulonglong value;
 	char *s;
-				int c, prlen, bytes;
+	int c, prlen, bytes;
 
 	optind = 1;
 	if (!args[optind]) {
@@ -1310,13 +1225,13 @@ cmd_ascii(void)
 		return;
 	}
 
-				while (args[optind]) {
+	while (args[optind]) {
 
 		s = args[optind];
-					if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
-									s += 2;
+		if (STRNEQ(s, "0x") || STRNEQ(s, "0X"))
+			s += 2;
 
-								if (strlen(s) > LONG_PRLEN) {
+		if (strlen(s) > LONG_PRLEN) {
 			prlen = LONG_LONG_PRLEN;
 			bytes = sizeof(long long);
 		} else {
@@ -1324,10 +1239,10 @@ cmd_ascii(void)
 			bytes = sizeof(long);
 		}
 
-								value = htoll(s, FAULT_ON_ERROR, NULL);
-								fprintf(fp, "%.*llx: ", prlen, value);
+		value = htoll(s, FAULT_ON_ERROR, NULL);
+		fprintf(fp, "%.*llx: ", prlen, value);
 		for (i = 0; i < bytes; i++) {
-			c = (value >> (8*i)) & 0xff;
+			c = (value >> (8 * i)) & 0xff;
 			if ((c >= 0x20) && (c < 0x7f)) {
 				fprintf(fp, "%c", (char)c);
 				continue;
@@ -1336,64 +1251,127 @@ cmd_ascii(void)
 				fprintf(fp, "<%02x>", c);
 				continue;
 			}
-			switch (c)
-			{
-			case 0x0: fprintf(fp, "<NUL>"); break;
-			case 0x1: fprintf(fp, "<SOH>"); break;
-			case 0x2: fprintf(fp, "<STX>"); break;
-			case 0x3: fprintf(fp, "<ETX>"); break;
-			case 0x4: fprintf(fp, "<EOT>"); break;
-			case 0x5: fprintf(fp, "<ENQ>"); break;
-			case 0x6: fprintf(fp, "<ACK>"); break;
-			case 0x7: fprintf(fp, "<BEL>"); break;
-			case 0x8: fprintf(fp, "<BS>"); break;
-			case 0x9: fprintf(fp, "<HT>"); break;
-			case 0xa: fprintf(fp, "<LF>"); break;
-			case 0xb: fprintf(fp, "<VT>"); break;
-			case 0xc: fprintf(fp, "<FF>"); break;
-			case 0xd: fprintf(fp, "<CR>"); break;
-			case 0xe: fprintf(fp, "<SO>"); break;
-			case 0xf: fprintf(fp, "<SI>"); break;
-			case 0x10: fprintf(fp, "<DLE>"); break;
-			case 0x11: fprintf(fp, "<DC1>"); break;
-			case 0x12: fprintf(fp, "<DC2>"); break;
-			case 0x13: fprintf(fp, "<DC3>"); break;
-			case 0x14: fprintf(fp, "<DC4>"); break;
-			case 0x15: fprintf(fp, "<NAK>"); break;
-			case 0x16: fprintf(fp, "<SYN>"); break;
-			case 0x17: fprintf(fp, "<ETB>"); break;
-			case 0x18: fprintf(fp, "<CAN>"); break;
-			case 0x19: fprintf(fp, "<EM>"); break;
-			case 0x1a: fprintf(fp, "<SUB>"); break;
-			case 0x1b: fprintf(fp, "<ESC>"); break;
-			case 0x1c: fprintf(fp, "<FS>"); break;
-			case 0x1d: fprintf(fp, "<GS>"); break;
-			case 0x1e: fprintf(fp, "<RS>"); break;
-			case 0x1f: fprintf(fp, "<US>"); break;
-			case 0x7f: fprintf(fp, "<DEL>"); break;
+			switch (c) {
+			case 0x0:
+				fprintf(fp, "<NUL>");
+				break;
+			case 0x1:
+				fprintf(fp, "<SOH>");
+				break;
+			case 0x2:
+				fprintf(fp, "<STX>");
+				break;
+			case 0x3:
+				fprintf(fp, "<ETX>");
+				break;
+			case 0x4:
+				fprintf(fp, "<EOT>");
+				break;
+			case 0x5:
+				fprintf(fp, "<ENQ>");
+				break;
+			case 0x6:
+				fprintf(fp, "<ACK>");
+				break;
+			case 0x7:
+				fprintf(fp, "<BEL>");
+				break;
+			case 0x8:
+				fprintf(fp, "<BS>");
+				break;
+			case 0x9:
+				fprintf(fp, "<HT>");
+				break;
+			case 0xa:
+				fprintf(fp, "<LF>");
+				break;
+			case 0xb:
+				fprintf(fp, "<VT>");
+				break;
+			case 0xc:
+				fprintf(fp, "<FF>");
+				break;
+			case 0xd:
+				fprintf(fp, "<CR>");
+				break;
+			case 0xe:
+				fprintf(fp, "<SO>");
+				break;
+			case 0xf:
+				fprintf(fp, "<SI>");
+				break;
+			case 0x10:
+				fprintf(fp, "<DLE>");
+				break;
+			case 0x11:
+				fprintf(fp, "<DC1>");
+				break;
+			case 0x12:
+				fprintf(fp, "<DC2>");
+				break;
+			case 0x13:
+				fprintf(fp, "<DC3>");
+				break;
+			case 0x14:
+				fprintf(fp, "<DC4>");
+				break;
+			case 0x15:
+				fprintf(fp, "<NAK>");
+				break;
+			case 0x16:
+				fprintf(fp, "<SYN>");
+				break;
+			case 0x17:
+				fprintf(fp, "<ETB>");
+				break;
+			case 0x18:
+				fprintf(fp, "<CAN>");
+				break;
+			case 0x19:
+				fprintf(fp, "<EM>");
+				break;
+			case 0x1a:
+				fprintf(fp, "<SUB>");
+				break;
+			case 0x1b:
+				fprintf(fp, "<ESC>");
+				break;
+			case 0x1c:
+				fprintf(fp, "<FS>");
+				break;
+			case 0x1d:
+				fprintf(fp, "<GS>");
+				break;
+			case 0x1e:
+				fprintf(fp, "<RS>");
+				break;
+			case 0x1f:
+				fprintf(fp, "<US>");
+				break;
+			case 0x7f:
+				fprintf(fp, "<DEL>");
+				break;
 			}
 		}
 		fprintf(fp, "\n");
 
-								optind++;
-				}
+		optind++;
+	}
 
 }
 
 /*
  *  Counts number of leading whitespace characters in a string.
  */
-int
-count_leading_spaces(char *s)
+int count_leading_spaces(char *s)
 {
-				return (strspn(s, " \t"));
+	return (strspn(s, " \t"));
 }
 
 /*
  *  Prints the requested number of spaces.
  */
-void
-pad_line(FILE *filep, int cnt, char c)
+void pad_line(FILE * filep, int cnt, char c)
 {
 	int i;
 
@@ -1413,11 +1391,10 @@ pad_line(FILE *filep, int cnt, char c)
  *  allocated, and normal buffer garbage collection will return it
  *  back to the pool.
  */
-char *
-space(int cnt)
+char *space(int cnt)
 {
 #define SPACES 40
-	static char spacebuf[SPACES+1] = { 0 };
+	static char spacebuf[SPACES + 1] = { 0 };
 	int i;
 	char *bigspace;
 
@@ -1435,33 +1412,32 @@ space(int cnt)
 		spacebuf[i] = NULLCHAR;
 	}
 
-	if (cnt < (MINSPACE-1))
+	if (cnt < (MINSPACE - 1))
 		error(FATAL, "illegal spacing request: %d\n", cnt);
-	if ((cnt > MINSPACE+1) && (cnt < 0))
+	if ((cnt > MINSPACE + 1) && (cnt < 0))
 		error(FATAL, "illegal spacing request\n");
 
-	switch (cnt)
-	{
-	case (MINSPACE-1):
+	switch (cnt) {
+	case (MINSPACE - 1):
 		if (VADDR_PRLEN > 8)
-			return (&spacebuf[SPACES]);    /* NULL */
+			return (&spacebuf[SPACES]);	/* NULL */
 		else
-			return (&spacebuf[SPACES-1]);  /* 1 space */
+			return (&spacebuf[SPACES - 1]);	/* 1 space */
 
 	case MINSPACE:
 		if (VADDR_PRLEN > 8)
-			return (&spacebuf[SPACES-1]);  /* 1 space */
+			return (&spacebuf[SPACES - 1]);	/* 1 space */
 		else
-			return (&spacebuf[SPACES-2]);  /* 2 spaces */
+			return (&spacebuf[SPACES - 2]);	/* 2 spaces */
 
-	case (MINSPACE+1):
-								if (VADDR_PRLEN > 8)
-												return (&spacebuf[SPACES-2]);  /* 2 spaces */
-								else
-												return (&spacebuf[SPACES-3]);  /* 3 spaces */
+	case (MINSPACE + 1):
+		if (VADDR_PRLEN > 8)
+			return (&spacebuf[SPACES - 2]);	/* 2 spaces */
+		else
+			return (&spacebuf[SPACES - 3]);	/* 3 spaces */
 
 	default:
-		return (&spacebuf[SPACES-cnt]);        /* as requested */
+		return (&spacebuf[SPACES - cnt]);	/* as requested */
 	}
 }
 
@@ -1470,19 +1446,17 @@ space(int cnt)
  *  string s, is surrounded by <bracket> characters.  If len is 0, calculate
  *  it.
  */
-int
-bracketed(char *s, char *s1, int len)
+int bracketed(char *s, char *s1, int len)
 {
 	char *s2;
 
 	if (!len) {
 		if (!(s2 = strstr(s1, ">")))
 			return FALSE;
-		len = s2-s1;
+		len = s2 - s1;
 	}
 
-	if (((s1-s) < 1) || (*(s1-1) != '<') ||
-			((s1+len) >= &s[strlen(s)]) || (*(s1+len) != '>'))
+	if (((s1 - s) < 1) || (*(s1 - 1) != '<') || ((s1 + len) >= &s[strlen(s)]) || (*(s1 + len) != '>'))
 		return FALSE;
 
 	return TRUE;
@@ -1491,8 +1465,7 @@ bracketed(char *s, char *s1, int len)
 /*
  *  Counts the number of a specified character in a string.
  */
-int
-count_chars(char *s, char c)
+int count_chars(char *s, char c)
 {
 	char *p;
 	int count;
@@ -1530,57 +1503,54 @@ long count_buffer_chars(char *bufptr, char c, long len)
  *  separating each token with one space.  If the no_options flag is set,
  *  don't include any args beginning with a dash character.
  */
-char *
-concat_args(char *buf, int arg, int no_options)
+char *concat_args(char *buf, int arg, int no_options)
 {
 	int i;
 
 	BZERO(buf, BUFSIZE);
 
-				for (i = arg; i < argcnt; i++) {
+	for (i = arg; i < argcnt; i++) {
 		if (no_options && STRNEQ(args[i], "-"))
 			continue;
-								strcat(buf, args[i]);
-								strcat(buf, " ");
-				}
+		strcat(buf, args[i]);
+		strcat(buf, " ");
+	}
 
-	return(strip_ending_whitespace(buf));
+	return (strip_ending_whitespace(buf));
 }
 
 /*
  *  Shifts the contents of a string to the left by cnt characters,
  *  disposing the leftmost characters.
  */
-char *
-shift_string_left(char *s, int cnt)
+char *shift_string_left(char *s, int cnt)
 {
 	int origlen;
 
 	if (!cnt)
-		return(s);
+		return (s);
 
 	origlen = strlen(s);
-	memmove(s, s+cnt, (origlen-cnt));
-	*(s+(origlen-cnt)) = NULLCHAR;
-	return(s);
+	memmove(s, s + cnt, (origlen - cnt));
+	*(s + (origlen - cnt)) = NULLCHAR;
+	return (s);
 }
 
 /*
  *  Shifts the contents of a string to the right by cnt characters,
  *  inserting space characters.  (caller confirms space is available)
  */
-char *
-shift_string_right(char *s, int cnt)
+char *shift_string_right(char *s, int cnt)
 {
-				int origlen;
+	int origlen;
 
 	if (!cnt)
-		return(s);
+		return (s);
 
-				origlen = strlen(s);
-				memmove(s+cnt, s, origlen);
-				s[origlen+cnt] = NULLCHAR;
-	return(memset(s, ' ', cnt));
+	origlen = strlen(s);
+	memmove(s + cnt, s, origlen);
+	s[origlen + cnt] = NULLCHAR;
+	return (memset(s, ' ', cnt));
 }
 
 /*
@@ -1591,36 +1561,34 @@ shift_string_right(char *s, int cnt)
  *  flag LONGLONG_HEX implies that opt is a ulonglong pointer to the
  *  actual value.
  */
-char *
-mkstring(char *s, int size, ulong flags, const char *opt)
+char *mkstring(char *s, int size, ulong flags, const char *opt)
 {
 	int len;
 	int extra;
 	int left;
 	int right;
 
-	switch (flags & (LONG_DEC|LONG_HEX|INT_HEX|INT_DEC|LONGLONG_HEX|ZERO_FILL))
-	{
+	switch (flags & (LONG_DEC | LONG_HEX | INT_HEX | INT_DEC | LONGLONG_HEX | ZERO_FILL)) {
 	case LONG_DEC:
-		sprintf(s, "%lu", (ulong)opt);
+		sprintf(s, "%lu", (ulong) opt);
 		break;
 	case LONG_HEX:
-		sprintf(s, "%lx", (ulong)opt);
+		sprintf(s, "%lx", (ulong) opt);
 		break;
-	case (LONG_HEX|ZERO_FILL):
+	case (LONG_HEX | ZERO_FILL):
 		if (VADDR_PRLEN == 8)
-			sprintf(s, "%08lx", (ulong)opt);
+			sprintf(s, "%08lx", (ulong) opt);
 		else if (VADDR_PRLEN == 16)
-			sprintf(s, "%016lx", (ulong)opt);
+			sprintf(s, "%016lx", (ulong) opt);
 		break;
 	case INT_DEC:
-		sprintf(s, "%u", (uint)((ulong)opt));
+		sprintf(s, "%u", (uint) ((ulong) opt));
 		break;
 	case INT_HEX:
-		sprintf(s, "%x", (uint)((ulong)opt));
+		sprintf(s, "%x", (uint) ((ulong) opt));
 		break;
 	case LONGLONG_HEX:
-		sprintf(s, "%llx", *((ulonglong *)opt));
+		sprintf(s, "%llx", *((ulonglong *) opt));
 		break;
 	default:
 		if (opt)
@@ -1637,7 +1605,7 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 	 */
 	len = strlen(s);
 	if (size <= len)
-		return(s);
+		return (s);
 	extra = size - len;
 
 	if (flags & CENTER) {
@@ -1647,28 +1615,26 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 		 *  argument was passed in.
 		 */
 		if (extra % 2) {
-			switch (flags & (LJUST|RJUST))
-			{
+			switch (flags & (LJUST | RJUST)) {
 			default:
 			case LJUST:
-				right = (extra/2) + 1;
-				left = extra/2;
+				right = (extra / 2) + 1;
+				left = extra / 2;
 				break;
 			case RJUST:
-				right = extra/2;
-				left = (extra/2) + 1;
+				right = extra / 2;
+				left = (extra / 2) + 1;
 				break;
 			}
-		}
-		else
-			left = right = extra/2;
+		} else
+			left = right = extra / 2;
 
 		shift_string_right(s, left);
 		len = strlen(s);
 		memset(s + len, ' ', right);
 		s[len + right] = NULLCHAR;
 
-		return(s);
+		return (s);
 	}
 
 	if (flags & LJUST) {
@@ -1678,14 +1644,13 @@ mkstring(char *s, int size, ulong flags, const char *opt)
 	} else if (flags & RJUST)
 		shift_string_right(s, extra);
 
-	return(s);
+	return (s);
 }
 
 /*
  *  Prints the requested number of BACKSPACE characters.
  */
-void
-backspace(int cnt)
+void backspace(int cnt)
 {
 	int i;
 
@@ -1723,8 +1688,7 @@ backspace(int cnt)
  *
  *    print_max  value (default is 200).
  */
-void
-cmd_set(void)
+void cmd_set(void)
 {
 	int i, c;
 	ulong value;
@@ -1742,9 +1706,8 @@ cmd_set(void)
 	runtime = pc->flags & RUNTIME ? TRUE : FALSE;
 	from_rc_file = pc->curcmd_flags & FROM_RCFILE ? TRUE : FALSE;
 
-				while ((c = getopt(argcnt, args, "pvc:a:")) != EOF) {
-								switch(c)
-		{
+	while ((c = getopt(argcnt, args, "pvc:a:")) != EOF) {
+		switch (c) {
 		case 'c':
 			if (XEN_HYPER_MODE() || (pc->flags & MINIMAL_MODE))
 				option_not_supported(c);
@@ -1752,8 +1715,8 @@ cmd_set(void)
 			if (!runtime)
 				return;
 
-						if (ACTIVE()) {
-										error(INFO, "not allowed on a live system\n");
+			if (ACTIVE()) {
+				error(INFO, "not allowed on a live system\n");
 				argerrs++;
 				break;
 			}
@@ -1775,10 +1738,10 @@ cmd_set(void)
 			}
 
 			if (!tt->panic_task) {
-										error(INFO, "no panic task found!\n");
+				error(INFO, "no panic task found!\n");
 				return;
 			}
-						set_context(tt->panic_task, NO_PID);
+			set_context(tt->panic_task, NO_PID);
 			show_context(CURRENT_CONTEXT());
 			return;
 
@@ -1797,33 +1760,27 @@ cmd_set(void)
 				return;
 
 			if (ACTIVE())
-				error(FATAL,
-						"-a option not allowed on live systems\n");
+				error(FATAL, "-a option not allowed on live systems\n");
 
-									switch (str_to_context(optarg, &value, &tc))
-									{
-									case STR_PID:
+			switch (str_to_context(optarg, &value, &tc)) {
+			case STR_PID:
 				if ((i = TASKS_PER_PID(value)) > 1)
-					error(FATAL,
-							"pid %d has %d tasks: "
-							"use a task address\n",
-						value, i);
-													break;
+					error(FATAL, "pid %d has %d tasks: " "use a task address\n", value, i);
+				break;
 
-									case STR_TASK:
-													break;
+			case STR_TASK:
+				break;
 
-									case STR_INVALID:
-													error(FATAL, "invalid task or pid value: %s\n",
-																	optarg);
-									}
+			case STR_INVALID:
+				error(FATAL, "invalid task or pid value: %s\n", optarg);
+			}
 
 			cpu = tc->processor;
 			tt->active_set[cpu] = tc->task;
 			if (tt->panic_threads[cpu])
 				tt->panic_threads[cpu] = tc->task;
 			fprintf(fp,
-					"\"%s\" task %lx has been marked as the active task on cpu %d\n",
+				"\"%s\" task %lx has been marked as the active task on cpu %d\n",
 				tc->comm, tc->task, cpu);
 			return;
 
@@ -1841,8 +1798,7 @@ cmd_set(void)
 
 	if (!args[optind]) {
 		if (XEN_HYPER_MODE())
-			error(INFO,
-					"requires an option with the Xen hypervisor\n");
+			error(INFO, "requires an option with the Xen hypervisor\n");
 		else if (pc->flags & MINIMAL_MODE)
 			show_options();
 		else if (runtime)
@@ -1852,73 +1808,69 @@ cmd_set(void)
 
 	while (args[optind]) {
 		if (STREQ(args[optind], "debug")) {
-												if (args[optind+1]) {
-																optind++;
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-																else if (STREQ(args[optind], "on"))
-																				pc->debug = 1;
-																else if (STREQ(args[optind], "off"))
-																				pc->debug = 0;
+				else if (STREQ(args[optind], "on"))
+					pc->debug = 1;
+				else if (STREQ(args[optind], "off"))
+					pc->debug = 0;
 				else if (IS_A_NUMBER(args[optind]))
-					pc->debug = stol(args[optind],
-						FAULT_ON_ERROR, NULL);
+					pc->debug = stol(args[optind], FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
-												}
+			}
 			if (runtime)
-													fprintf(fp, "debug: %ld\n", pc->debug);
+				fprintf(fp, "debug: %ld\n", pc->debug);
 
 			set_lkcd_debug(pc->debug);
 			set_vas_debug(pc->debug);
 			return;
 
-								} else if (STREQ(args[optind], "hash")) {
-												if (args[optind+1]) {
-																optind++;
+		} else if (STREQ(args[optind], "hash")) {
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-																else if (STREQ(args[optind], "on"))
-																				pc->flags |= HASH;
-																else if (STREQ(args[optind], "off"))
-																				pc->flags &= ~HASH;
+				else if (STREQ(args[optind], "on"))
+					pc->flags |= HASH;
+				else if (STREQ(args[optind], "off"))
+					pc->flags &= ~HASH;
 				else if (IS_A_NUMBER(args[optind])) {
-					value = stol(args[optind],
-																				FAULT_ON_ERROR, NULL);
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
 					if (value)
 						pc->flags |= HASH;
 					else
 						pc->flags &= ~HASH;
 				} else
 					goto invalid_set_command;
-												}
+			}
 
 			if (runtime)
-													fprintf(fp, "hash: %s\n",
-																	pc->flags & HASH ? "on" : "off");
+				fprintf(fp, "hash: %s\n", pc->flags & HASH ? "on" : "off");
 			return;
 
-								} else if (STREQ(args[optind], "unwind")) {
-												if (args[optind+1]) {
-																optind++;
+		} else if (STREQ(args[optind], "unwind")) {
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-																else if (STREQ(args[optind], "on")) {
-							if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
-							!runtime) {
-																					kt->flags |= DWARF_UNWIND;
+				else if (STREQ(args[optind], "on")) {
+					if ((kt->flags & DWARF_UNWIND_CAPABLE)
+					    || !runtime) {
+						kt->flags |= DWARF_UNWIND;
 						kt->flags &= ~NO_DWARF_UNWIND;
 					}
-																} else if (STREQ(args[optind], "off")) {
-																				kt->flags &= ~DWARF_UNWIND;
+				} else if (STREQ(args[optind], "off")) {
+					kt->flags &= ~DWARF_UNWIND;
 					if (!runtime)
 						kt->flags |= NO_DWARF_UNWIND;
 				} else if (IS_A_NUMBER(args[optind])) {
-					value = stol(args[optind],
-																				FAULT_ON_ERROR, NULL);
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
 					if (value) {
-								if ((kt->flags & DWARF_UNWIND_CAPABLE) ||
-								!runtime) {
+						if ((kt->flags & DWARF_UNWIND_CAPABLE)
+						    || !runtime) {
 							kt->flags |= DWARF_UNWIND;
 							kt->flags &= ~NO_DWARF_UNWIND;
 						}
@@ -1929,87 +1881,80 @@ cmd_set(void)
 					}
 				} else
 					goto invalid_set_command;
-												}
+			}
 
 			if (runtime)
-													fprintf(fp, "unwind: %s\n",
-																	kt->flags & DWARF_UNWIND ? "on" : "off");
+				fprintf(fp, "unwind: %s\n", kt->flags & DWARF_UNWIND ? "on" : "off");
 			return;
 
-							 } else if (STREQ(args[optind], "refresh")) {
-												if (args[optind+1]) {
-																optind++;
+		} else if (STREQ(args[optind], "refresh")) {
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-																else if (STREQ(args[optind], "on"))
-																				tt->flags |= TASK_REFRESH;
-																else if (STREQ(args[optind], "off")) {
-																				tt->flags &= ~TASK_REFRESH;
+				else if (STREQ(args[optind], "on"))
+					tt->flags |= TASK_REFRESH;
+				else if (STREQ(args[optind], "off")) {
+					tt->flags &= ~TASK_REFRESH;
 					if (!runtime)
 						tt->flags |= TASK_REFRESH_OFF;
-																} else if (IS_A_NUMBER(args[optind])) {
-																				value = stol(args[optind],
-																								FAULT_ON_ERROR, NULL);
-																				if (value)
-																								tt->flags |= TASK_REFRESH;
-																				else {
-																								tt->flags &= ~TASK_REFRESH;
+				} else if (IS_A_NUMBER(args[optind])) {
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
+					if (value)
+						tt->flags |= TASK_REFRESH;
+					else {
+						tt->flags &= ~TASK_REFRESH;
 						if (!runtime)
-							tt->flags |=
-									TASK_REFRESH_OFF;
+							tt->flags |= TASK_REFRESH_OFF;
 					}
-																} else
+				} else
 					goto invalid_set_command;
-												}
+			}
 
-												if (runtime)
-																fprintf(fp, "refresh: %s\n",
-															 	    tt->flags & TASK_REFRESH ?  "on" : "off");
+			if (runtime)
+				fprintf(fp, "refresh: %s\n", tt->flags & TASK_REFRESH ? "on" : "off");
 			return;
 
-							 } else if (STREQ(args[optind], "gdb")) {
-												if (args[optind+1]) {
-																optind++;
+		} else if (STREQ(args[optind], "gdb")) {
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-																else if (STREQ(args[optind], "on")) {
+				else if (STREQ(args[optind], "on")) {
 					if (pc->flags & MINIMAL_MODE)
 						goto invalid_set_command;
 					else
-																					pc->flags2 |= GDB_CMD_MODE;
-																} else if (STREQ(args[optind], "off"))
-																				pc->flags2 &= ~GDB_CMD_MODE;
-																else if (IS_A_NUMBER(args[optind])) {
-																				value = stol(args[optind],
-																								FAULT_ON_ERROR, NULL);
-																				if (value) {
+						pc->flags2 |= GDB_CMD_MODE;
+				} else if (STREQ(args[optind], "off"))
+					pc->flags2 &= ~GDB_CMD_MODE;
+				else if (IS_A_NUMBER(args[optind])) {
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
+					if (value) {
 						if (pc->flags & MINIMAL_MODE)
 							goto invalid_set_command;
 						else
-																									pc->flags2 |= GDB_CMD_MODE;
-																				} else
-																								pc->flags2 &= ~GDB_CMD_MODE;
-																} else
+							pc->flags2 |= GDB_CMD_MODE;
+					} else
+						pc->flags2 &= ~GDB_CMD_MODE;
+				} else
 					goto invalid_set_command;
 
-				set_command_prompt(pc->flags2 & GDB_CMD_MODE ?
-					"gdb> " : NULL);
-												}
+				set_command_prompt(pc->flags2 & GDB_CMD_MODE ? "gdb> " : NULL);
+			}
 
-												if (runtime)
-																fprintf(fp, "gdb: %s\n",
-															 	    pc->flags2 & GDB_CMD_MODE ?  "on" : "off");
+			if (runtime)
+				fprintf(fp, "gdb: %s\n", pc->flags2 & GDB_CMD_MODE ? "on" : "off");
 			return;
 
-							 } else if (STREQ(args[optind], "scroll")) {
-												if (args[optind+1] && pc->scroll_command) {
-																optind++;
+		} else if (STREQ(args[optind], "scroll")) {
+			if (args[optind + 1] && pc->scroll_command) {
+				optind++;
 				if (from_rc_file)
 					already_done();
-																else if (STREQ(args[optind], "on"))
-																				pc->flags |= SCROLL;
-																else if (STREQ(args[optind], "off"))
-																				pc->flags &= ~SCROLL;
+				else if (STREQ(args[optind], "on"))
+					pc->flags |= SCROLL;
+				else if (STREQ(args[optind], "off"))
+					pc->flags &= ~SCROLL;
 				else if (STREQ(args[optind], "more"))
 					pc->scroll_command = SCROLL_MORE;
 				else if (STREQ(args[optind], "less"))
@@ -2018,21 +1963,18 @@ cmd_set(void)
 					if (CRASHPAGER_valid())
 						pc->scroll_command = SCROLL_CRASHPAGER;
 				} else if (IS_A_NUMBER(args[optind])) {
-																				value = stol(args[optind],
-																								FAULT_ON_ERROR, NULL);
-																				if (value)
-																								pc->flags |= SCROLL;
-																				else
-																								pc->flags &= ~SCROLL;
-																} else
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
+					if (value)
+						pc->flags |= SCROLL;
+					else
+						pc->flags &= ~SCROLL;
+				} else
 					goto invalid_set_command;
-												}
+			}
 
 			if (runtime) {
-				fprintf(fp, "scroll: %s ",
-					pc->flags & SCROLL ? "on" : "off");
-				switch (pc->scroll_command)
-				{
+				fprintf(fp, "scroll: %s ", pc->flags & SCROLL ? "on" : "off");
+				switch (pc->scroll_command) {
 				case SCROLL_LESS:
 					fprintf(fp, "(/usr/bin/less)\n");
 					break;
@@ -2050,39 +1992,36 @@ cmd_set(void)
 
 			return;
 
-							 } else if (STREQ(args[optind], "silent")) {
-												if (args[optind+1]) {
-																optind++;
-																if (STREQ(args[optind], "on")) {
-																				pc->flags |= SILENT;
+		} else if (STREQ(args[optind], "silent")) {
+			if (args[optind + 1]) {
+				optind++;
+				if (STREQ(args[optind], "on")) {
+					pc->flags |= SILENT;
 					pc->flags &= ~SCROLL;
-				}
-																else if (STREQ(args[optind], "off"))
-																				pc->flags &= ~SILENT;
-																else if (IS_A_NUMBER(args[optind])) {
-																				value = stol(args[optind],
-																								FAULT_ON_ERROR, NULL);
-																				if (value) {
-																								pc->flags |= SILENT;
+				} else if (STREQ(args[optind], "off"))
+					pc->flags &= ~SILENT;
+				else if (IS_A_NUMBER(args[optind])) {
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
+					if (value) {
+						pc->flags |= SILENT;
 						pc->flags &= ~SCROLL;
-					}
-																				else
-																								pc->flags &= ~SILENT;
-																} else
+					} else
+						pc->flags &= ~SILENT;
+				} else
 					goto invalid_set_command;
 
 				if (!(pc->flags & SILENT))
-																	fprintf(fp, "silent: off\n");
+					fprintf(fp, "silent: off\n");
 
-												} else if (runtime && !(pc->flags & SILENT))
-															 	fprintf(fp, "silent: off\n");
+			} else if (runtime && !(pc->flags & SILENT))
+				fprintf(fp, "silent: off\n");
 			return;
 
-								} else if (STREQ(args[optind], "console")) {
+		} else if (STREQ(args[optind], "console")) {
 			int assignment;
 
-												if (args[optind+1]) {
-																create_console_device(args[optind+1]);
+			if (args[optind + 1]) {
+				create_console_device(args[optind + 1]);
 				optind++;
 				assignment = optind;
 			} else
@@ -2094,9 +2033,7 @@ cmd_set(void)
 					fprintf(fp, "%s\n", pc->console);
 				else {
 					if (assignment)
-						fprintf(fp,
-											"assignment to %s failed\n",
-									args[assignment]);
+						fprintf(fp, "assignment to %s failed\n", args[assignment]);
 					else
 						fprintf(fp, "not set\n");
 				}
@@ -2104,126 +2041,114 @@ cmd_set(void)
 			return;
 
 		} else if (STREQ(args[optind], "core")) {
-												if (args[optind+1]) {
-																optind++;
-																if (STREQ(args[optind], "on"))
-																				pc->flags |= DROP_CORE;
-																else if (STREQ(args[optind], "off"))
-																				pc->flags &= ~DROP_CORE;
-																else if (IS_A_NUMBER(args[optind])) {
-																				value = stol(args[optind],
-																								FAULT_ON_ERROR, NULL);
-																				if (value)
-																								pc->flags |= DROP_CORE;
-																				else
-																								pc->flags &= ~DROP_CORE;
-																} else
-																				goto invalid_set_command;
-												}
+			if (args[optind + 1]) {
+				optind++;
+				if (STREQ(args[optind], "on"))
+					pc->flags |= DROP_CORE;
+				else if (STREQ(args[optind], "off"))
+					pc->flags &= ~DROP_CORE;
+				else if (IS_A_NUMBER(args[optind])) {
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
+					if (value)
+						pc->flags |= DROP_CORE;
+					else
+						pc->flags &= ~DROP_CORE;
+				} else
+					goto invalid_set_command;
+			}
 
 			if (runtime) {
 				fprintf(fp, "core: %s on error message)\n",
-					pc->flags & DROP_CORE ?
-					"on (drop core" :
-					"off (do NOT drop core");
+					pc->flags & DROP_CORE ? "on (drop core" : "off (do NOT drop core");
 			}
 			return;
 
-								} else if (STREQ(args[optind], "radix")) {
-											 if (args[optind+1]) {
-																optind++;
+		} else if (STREQ(args[optind], "radix")) {
+			if (args[optind + 1]) {
+				optind++;
 				if (!runtime)
 					defer();
-				else if (from_rc_file &&
-						(pc->flags2 & RADIX_OVERRIDE))
+				else if (from_rc_file && (pc->flags2 & RADIX_OVERRIDE))
 					ignore();
-																else if (STREQ(args[optind], "10") ||
-						STRNEQ(args[optind], "dec") ||
-						STRNEQ(args[optind], "ten"))
+				else if (STREQ(args[optind], "10")
+					 || STRNEQ(args[optind], "dec")
+					 || STRNEQ(args[optind], "ten"))
 					pc->output_radix = 10;
-																else if (STREQ(args[optind], "16") ||
-									STRNEQ(args[optind], "hex") ||
-						STRNEQ(args[optind], "six"))
+				else if (STREQ(args[optind], "16")
+					 || STRNEQ(args[optind], "hex")
+					 || STRNEQ(args[optind], "six"))
 					pc->output_radix = 16;
 				else
 					goto invalid_set_command;
 			}
 
-												if (runtime) {
-				sprintf(buf, "set output-radix %d",
-					pc->output_radix);
-																gdb_pass_through(buf, NULL, GNU_FROM_TTY_OFF);
-													fprintf(fp, "output radix: %d (%s)\n",
-					pc->output_radix,
-					pc->output_radix == 10 ?
-					"decimal" : "hex");
+			if (runtime) {
+				sprintf(buf, "set output-radix %d", pc->output_radix);
+				gdb_pass_through(buf, NULL, GNU_FROM_TTY_OFF);
+				fprintf(fp, "output radix: %d (%s)\n",
+					pc->output_radix, pc->output_radix == 10 ? "decimal" : "hex");
 			}
 			return;
 
-								} else if (STREQ(args[optind], "hex")) {
+		} else if (STREQ(args[optind], "hex")) {
 			if (from_rc_file && (pc->flags2 & RADIX_OVERRIDE))
 				ignore();
 			else if (runtime) {
 				pc->output_radix = 16;
-				gdb_pass_through("set output-radix 16",
-					NULL, GNU_FROM_TTY_OFF);
+				gdb_pass_through("set output-radix 16", NULL, GNU_FROM_TTY_OFF);
 				fprintf(fp, "output radix: 16 (hex)\n");
 			}
 			return;
 
-								} else if (STREQ(args[optind], "dec")) {
+		} else if (STREQ(args[optind], "dec")) {
 			if (from_rc_file && (pc->flags2 & RADIX_OVERRIDE))
 				ignore();
 			else if (runtime) {
 				pc->output_radix = 10;
-																gdb_pass_through("set output-radix 10",
-																				NULL, GNU_FROM_TTY_OFF);
+				gdb_pass_through("set output-radix 10", NULL, GNU_FROM_TTY_OFF);
 				fprintf(fp, "output radix: 10 (decimal)\n");
 			}
 			return;
 
-							 } else if (STREQ(args[optind], "edit")) {
-												if (args[optind+1]) {
+		} else if (STREQ(args[optind], "edit")) {
+			if (args[optind + 1]) {
 				if (runtime && !from_rc_file)
-					error(FATAL,
-										"cannot change editing mode during runtime\n");
-																optind++;
+					error(FATAL, "cannot change editing mode during runtime\n");
+				optind++;
 				if (from_rc_file)
 					already_done();
-																else if (STREQ(args[optind], "vi"))
-																				pc->editing_mode = "vi";
-																else if (STREQ(args[optind], "emacs"))
-																				pc->editing_mode = "emacs";
+				else if (STREQ(args[optind], "vi"))
+					pc->editing_mode = "vi";
+				else if (STREQ(args[optind], "emacs"))
+					pc->editing_mode = "emacs";
 				else
-																				goto invalid_set_command;
-												}
+					goto invalid_set_command;
+			}
 
-												if (runtime)
-																fprintf(fp, "edit: %s\n", pc->editing_mode);
-												return;
+			if (runtime)
+				fprintf(fp, "edit: %s\n", pc->editing_mode);
+			return;
 
-								} else if (STREQ(args[optind], "vi")) {
+		} else if (STREQ(args[optind], "vi")) {
 			if (runtime) {
 				if (!from_rc_file)
-					error(FATAL,
-									 "cannot change editing mode during runtime\n");
+					error(FATAL, "cannot change editing mode during runtime\n");
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
 			} else
 				pc->editing_mode = "vi";
 			return;
 
-								} else if (STREQ(args[optind], "emacs")) {
+		} else if (STREQ(args[optind], "emacs")) {
 			if (runtime) {
 				if (!from_rc_file)
 					error(FATAL,
-									 "cannot change %s editing mode during runtime\n",
-						pc->editing_mode);
+					      "cannot change %s editing mode during runtime\n", pc->editing_mode);
 				fprintf(fp, "edit: %s\n", pc->editing_mode);
 			} else
 				pc->editing_mode = "emacs";
 			return;
 
-								} else if (STREQ(args[optind], "print_max")) {
+		} else if (STREQ(args[optind], "print_max")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2232,8 +2157,7 @@ cmd_set(void)
 					*gdb_print_max = atoi(args[optind]);
 				else if (hexadecimal(args[optind], 0))
 					*gdb_print_max = (unsigned int)
-							htol(args[optind],
-						FAULT_ON_ERROR, NULL);
+					    htol(args[optind], FAULT_ON_ERROR, NULL);
 				else
 					goto invalid_set_command;
 
@@ -2242,7 +2166,7 @@ cmd_set(void)
 				fprintf(fp, "print_max: %d\n", *gdb_print_max);
 			return;
 
-								} else if (STREQ(args[optind], "scope")) {
+		} else if (STREQ(args[optind], "scope")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2266,14 +2190,13 @@ cmd_set(void)
 			if (runtime) {
 				fprintf(fp, "scope: %lx ", pc->scope);
 				if (pc->scope)
-					fprintf(fp, "(%s)\n",
-						value_to_symstr(pc->scope, buf, 0));
+					fprintf(fp, "(%s)\n", value_to_symstr(pc->scope, buf, 0));
 				else
 					fprintf(fp, "(not set)\n");
 			}
 			return;
 
-								} else if (STREQ(args[optind], "null-stop")) {
+		} else if (STREQ(args[optind], "null-stop")) {
 			optind++;
 			if (args[optind]) {
 				if (!runtime)
@@ -2283,84 +2206,77 @@ cmd_set(void)
 				else if (STREQ(args[optind], "off"))
 					*gdb_stop_print_at_null = 0;
 				else if (IS_A_NUMBER(args[optind])) {
-					value = stol(args[optind],
-						FAULT_ON_ERROR, NULL);
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
 					if (value)
 						*gdb_stop_print_at_null = 1;
 					else
 						*gdb_stop_print_at_null = 0;
-					} else
-						goto invalid_set_command;
+				} else
+					goto invalid_set_command;
 			}
 			if (runtime)
-				fprintf(fp, "null-stop: %s\n",
-					*gdb_stop_print_at_null ? "on" : "off");
+				fprintf(fp, "null-stop: %s\n", *gdb_stop_print_at_null ? "on" : "off");
 			return;
 
-								} else if (STREQ(args[optind], "namelist")) {
+		} else if (STREQ(args[optind], "namelist")) {
 			optind++;
-												if (!runtime && args[optind]) {
-										if (!is_elf_file(args[optind]))
-																	error(FATAL,
-						 "%s: not a kernel namelist (from .%src file)\n",
-																					args[optind],
-						pc->program_name);
-																if ((pc->namelist = (char *)
-																		malloc(strlen(args[optind])+1)) == NULL) {
-																				error(INFO,
-																	"cannot malloc memory for namelist: %s: %s\n",
-																								args[optind], strerror(errno));
-																} else
-																				strcpy(pc->namelist, args[optind]);
+			if (!runtime && args[optind]) {
+				if (!is_elf_file(args[optind]))
+					error(FATAL,
+					      "%s: not a kernel namelist (from .%src file)\n",
+					      args[optind], pc->program_name);
+				if ((pc->namelist = (char *)
+				     malloc(strlen(args[optind]) + 1)) == NULL) {
+					error(INFO,
+					      "cannot malloc memory for namelist: %s: %s\n",
+					      args[optind], strerror(errno));
+				} else
+					strcpy(pc->namelist, args[optind]);
 			}
 			if (runtime)
 				fprintf(fp, "namelist: %s\n", pc->namelist);
 			return;
 
-								} else if (STREQ(args[optind], "free")) {
+		} else if (STREQ(args[optind], "free")) {
 			if (!runtime)
 				defer();
 			else
-				fprintf(fp, "%d pages freed\n",
-					dumpfile_memory(DUMPFILE_FREE_MEM));
+				fprintf(fp, "%d pages freed\n", dumpfile_memory(DUMPFILE_FREE_MEM));
 			return;
 
-								} else if (STREQ(args[optind], "data_debug")) {
+		} else if (STREQ(args[optind], "data_debug")) {
 
 			pc->flags |= DATADEBUG;
 			return;
 
-								} else if (STREQ(args[optind], "zero_excluded")) {
+		} else if (STREQ(args[optind], "zero_excluded")) {
 
-												if (args[optind+1]) {
-																optind++;
+			if (args[optind + 1]) {
+				optind++;
 				if (from_rc_file)
 					already_done();
-																else if (STREQ(args[optind], "on")) {
-																				*diskdump_flags |= ZERO_EXCLUDED;
+				else if (STREQ(args[optind], "on")) {
+					*diskdump_flags |= ZERO_EXCLUDED;
 					sadump_set_zero_excluded();
-																} else if (STREQ(args[optind], "off")) {
-																				*diskdump_flags &= ~ZERO_EXCLUDED;
+				} else if (STREQ(args[optind], "off")) {
+					*diskdump_flags &= ~ZERO_EXCLUDED;
 					sadump_unset_zero_excluded();
 				} else if (IS_A_NUMBER(args[optind])) {
-					value = stol(args[optind],
-																				FAULT_ON_ERROR, NULL);
+					value = stol(args[optind], FAULT_ON_ERROR, NULL);
 					if (value) {
-																					*diskdump_flags |= ZERO_EXCLUDED;
+						*diskdump_flags |= ZERO_EXCLUDED;
 						sadump_set_zero_excluded();
 					} else {
-																					*diskdump_flags &= ~ZERO_EXCLUDED;
+						*diskdump_flags &= ~ZERO_EXCLUDED;
 						sadump_unset_zero_excluded();
 					}
 				} else
 					goto invalid_set_command;
-												}
+			}
 
 			if (runtime)
-													fprintf(fp, "zero_excluded: %s\n",
-					(*diskdump_flags & ZERO_EXCLUDED) ||
-					sadump_is_zero_excluded() ?
-					"on" : "off");
+				fprintf(fp, "zero_excluded: %s\n",
+					(*diskdump_flags & ZERO_EXCLUDED) || sadump_is_zero_excluded()? "on" : "off");
 			return;
 
 		} else if (XEN_HYPER_MODE()) {
@@ -2370,27 +2286,25 @@ cmd_set(void)
 		} else if (runtime) {
 			ulong pid, task;
 
-									switch (str_to_context(args[optind], &value, &tc))
-									{
-									case STR_PID:
-																pid = value;
-																task = NO_TASK;
-													if (set_context(task, pid))
-																	show_context(CURRENT_CONTEXT());
-													break;
+			switch (str_to_context(args[optind], &value, &tc)) {
+			case STR_PID:
+				pid = value;
+				task = NO_TASK;
+				if (set_context(task, pid))
+					show_context(CURRENT_CONTEXT());
+				break;
 
-									case STR_TASK:
-																task = value;
-																pid = NO_PID;
-																if (set_context(task, pid))
-																				show_context(CURRENT_CONTEXT());
-													break;
+			case STR_TASK:
+				task = value;
+				pid = NO_PID;
+				if (set_context(task, pid))
+					show_context(CURRENT_CONTEXT());
+				break;
 
-									case STR_INVALID:
-													error(INFO, "invalid task or pid value: %s\n",
-																	args[optind]);
-													break;
-									}
+			case STR_INVALID:
+				error(INFO, "invalid task or pid value: %s\n", args[optind]);
+				break;
+			}
 		} else
 			console("set: ignoring \"%s\"\n", args[optind]);
 
@@ -2399,7 +2313,7 @@ cmd_set(void)
 
 	return;
 
-invalid_set_command:
+ invalid_set_command:
 
 	sprintf(buf, "invalid command");
 	if (!runtime)
@@ -2420,15 +2334,12 @@ invalid_set_command:
 /*
  *  Display the set of settable internal variables.
  */
-static void
-show_options(void)
+static void show_options(void)
 {
 	char buf[BUFSIZE];
 
-	fprintf(fp, "        scroll: %s ",
-		pc->flags & SCROLL ? "on" : "off");
-	switch (pc->scroll_command)
-	{
+	fprintf(fp, "        scroll: %s ", pc->flags & SCROLL ? "on" : "off");
+	switch (pc->scroll_command) {
 	case SCROLL_LESS:
 		fprintf(fp, "(/usr/bin/less)\n");
 		break;
@@ -2442,13 +2353,11 @@ show_options(void)
 		fprintf(fp, "(CRASHPAGER: %s)\n", getenv("CRASHPAGER"));
 		break;
 	}
-				fprintf(fp, "         radix: %d (%s)\n", pc->output_radix,
-								pc->output_radix == 10 ? "decimal" :
-								pc->output_radix == 16 ? "hexadecimal" : "unknown");
+	fprintf(fp, "         radix: %d (%s)\n", pc->output_radix,
+		pc->output_radix == 10 ? "decimal" : pc->output_radix == 16 ? "hexadecimal" : "unknown");
 	fprintf(fp, "       refresh: %s\n", tt->flags & TASK_REFRESH ? "on" : "off");
 	fprintf(fp, "     print_max: %d\n", *gdb_print_max);
-	fprintf(fp, "       console: %s\n", pc->console ?
-		pc->console : "(not assigned)");
+	fprintf(fp, "       console: %s\n", pc->console ? pc->console : "(not assigned)");
 	fprintf(fp, "         debug: %ld\n", pc->debug);
 	fprintf(fp, "          core: %s\n", pc->flags & DROP_CORE ? "on" : "off");
 	fprintf(fp, "          hash: %s\n", pc->flags & HASH ? "on" : "off");
@@ -2467,9 +2376,6 @@ show_options(void)
 		fprintf(fp, "(not set)\n");
 }
 
-
-
-
 /*
  *  Evaluate an expression, which can consist of a single symbol, single value,
  *  or an expression consisting of two values and an operator.  If the
@@ -2478,8 +2384,7 @@ show_options(void)
  *  octal and binary.  Input number values can only be hex or decimal, with
  *  a bias towards decimal (use 0x when necessary).
  */
-void
-cmd_eval(void)
+void cmd_eval(void)
 {
 	int flags;
 	int bitflag, longlongflag, longlongflagforce;
@@ -2501,56 +2406,54 @@ cmd_eval(void)
 	} else if (STREQ(args[optind], "-l")) {
 		longlongflagforce++;
 		optind++;
-		if (STREQ(args[optind], "-b") && args[optind+1]) {
+		if (STREQ(args[optind], "-b") && args[optind + 1]) {
 			optind++;
 			bitflag++;
 		}
 	} else if (STREQ(args[optind], "-b")) {
-		if (STREQ(args[optind+1], "-l")) {
-			if (args[optind+2]) {
+		if (STREQ(args[optind + 1], "-l")) {
+			if (args[optind + 2]) {
 				bitflag++;
 				longlongflagforce++;
 				optind += 2;
 			} else
-										cmd_usage(pc->curcmd, SYNOPSIS);
-		} else if (args[optind+1]) {
+				cmd_usage(pc->curcmd, SYNOPSIS);
+		} else if (args[optind + 1]) {
 			bitflag++;
 			optind++;
 		}
 	}
 
-				if (!args[optind])
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (!args[optind])
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
-	longlongflag = BITS32() ? TRUE : FALSE;
-	flags = longlongflag ? (LONG_LONG|RETURN_ON_ERROR) : FAULT_ON_ERROR;
+	longlongflag = BITS32()? TRUE : FALSE;
+	flags = longlongflag ? (LONG_LONG | RETURN_ON_ERROR) : FAULT_ON_ERROR;
 
-	if(!BITS32())
+	if (!BITS32())
 		longlongflagforce = 0;
 
 	BZERO(buf1, BUFSIZE);
 	buf1[0] = '(';
 
-				while (args[optind]) {
-								if (*args[optind] == '(') {
+	while (args[optind]) {
+		if (*args[optind] == '(') {
 			if (eval_common(args[optind], flags, NULL, &nopt))
 				print_number(&nopt, bitflag, longlongflagforce);
 			else
-				error(FATAL, "invalid expression: %s\n",
-					args[optind]);
+				error(FATAL, "invalid expression: %s\n", args[optind]);
 			return;
-								}
-		else {
+		} else {
 			strcat(buf1, args[optind]);
 			strcat(buf1, " ");
 		}
 		optind++;
-				}
+	}
 	clean_line(buf1);
 	strcat(buf1, ")");
 
 	if (eval_common(buf1, flags, NULL, &nopt))
-					print_number(&nopt, bitflag, longlongflagforce);
+		print_number(&nopt, bitflag, longlongflagforce);
 	else
 		error(FATAL, "invalid expression: %s\n", buf1);
 }
@@ -2561,8 +2464,7 @@ cmd_eval(void)
  *  Note that the data being evaluated is not error-checked here, but
  *  rather that it exists in the proper format.
  */
-int
-can_eval(char *s)
+int can_eval(char *s)
 {
 	char *op;
 	char *element1, *element2;
@@ -2574,24 +2476,21 @@ can_eval(char *s)
 	 *  should be sent to eval() regardless.
 	 */
 	if ((FIRSTCHAR(s) == '(') &&
-			(count_chars(s, '(') == 1) &&
-			(count_chars(s, ')') == 1) &&
-			(strlen(s) > 2) &&
-			(LASTCHAR(s) == ')'))
+	    (count_chars(s, '(') == 1) && (count_chars(s, ')') == 1) && (strlen(s) > 2) && (LASTCHAR(s) == ')'))
 		return TRUE;
 
 	/*
 	 *  If the string contains any of the operators except the shifters,
-				 *  and has any kind of data on either side, it's also eval-able.
+	 *  and has any kind of data on either side, it's also eval-able.
 	 */
 	strcpy(work, s);
 
-				if (!(op = strpbrk(work, "><+-&|*/%^")))
+	if (!(op = strpbrk(work, "><+-&|*/%^")))
 		return FALSE;
 
-				element1 = &work[0];
-				*op = NULLCHAR;
-	element2 = op+1;
+	element1 = &work[0];
+	*op = NULLCHAR;
+	element2 = op + 1;
 
 	if (!strlen(element1) || !strlen(element2))
 		return FALSE;
@@ -2614,61 +2513,55 @@ can_eval(char *s)
 #define OP_EXOR  (10)
 #define OP_POWER (11)
 
-ulong
-eval(char *s, int flags, int *errptr)
+ulong eval(char *s, int flags, int *errptr)
 {
 	struct number_option nopt;
 
 	if (eval_common(s, flags, errptr, &nopt)) {
-		return(nopt.num);
+		return (nopt.num);
 	} else {
-					switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-					{
-					case FAULT_ON_ERROR:
-									error(FATAL, "invalid expression: %s\n", s);
+		switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+		case FAULT_ON_ERROR:
+			error(FATAL, "invalid expression: %s\n", s);
 
-					case RETURN_ON_ERROR:
-									error(INFO, "invalid expression: %s\n", s);
-									if (errptr)
-													*errptr = TRUE;
-									break;
-					}
-					return UNUSED;
+		case RETURN_ON_ERROR:
+			error(INFO, "invalid expression: %s\n", s);
+			if (errptr)
+				*errptr = TRUE;
+			break;
+		}
+		return UNUSED;
 	}
 }
 
-ulonglong
-evall(char *s, int flags, int *errptr)
+ulonglong evall(char *s, int flags, int *errptr)
 {
-				struct number_option nopt;
+	struct number_option nopt;
 
 	if (BITS32())
 		flags |= LONG_LONG;
 
-				if (eval_common(s, flags, errptr, &nopt)) {
-								return(nopt.ll_num);
-				} else {
-								switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-								{
-								case FAULT_ON_ERROR:
-												error(FATAL, "invalid expression: %s\n", s);
+	if (eval_common(s, flags, errptr, &nopt)) {
+		return (nopt.ll_num);
+	} else {
+		switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
+		case FAULT_ON_ERROR:
+			error(FATAL, "invalid expression: %s\n", s);
 
-								case RETURN_ON_ERROR:
-												error(INFO, "invalid expression: %s\n", s);
-												if (errptr)
-																*errptr = TRUE;
-												break;
-								}
-								return UNUSED;
-				}
+		case RETURN_ON_ERROR:
+			error(INFO, "invalid expression: %s\n", s);
+			if (errptr)
+				*errptr = TRUE;
+			break;
+		}
+		return UNUSED;
+	}
 }
 
-
-int
-eval_common(char *s, int flags, int *errptr, struct number_option *np)
+int eval_common(char *s, int flags, int *errptr, struct number_option *np)
 {
 	char *p1, *p2;
-				char *op, opcode;
+	char *op, opcode;
 	ulong value1;
 	ulong value2;
 	ulonglong ll_value1;
@@ -2692,7 +2585,7 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 		if (strstr(s, ")") != p2)
 			goto malformed;
 
-		strcpy(work, p1+1);
+		strcpy(work, p1 + 1);
 		LASTCHAR(work) = NULLCHAR;
 
 		if (strstr(work, "(") || strstr(work, ")"))
@@ -2700,14 +2593,13 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 	} else
 		strcpy(work, s);
 
-				if (work[0] == '-') {
-								shift_string_right(work, 1);
-								work[0] = '0';
-				}
+	if (work[0] == '-') {
+		shift_string_right(work, 1);
+		work[0] = '0';
+	}
 
-				if (!(op = strpbrk(work, "#><+-&|*/%^"))) {
-		if (calculate(work, &value1, &ll_value1,
-				flags & (HEX_BIAS|LONG_LONG))) {
+	if (!(op = strpbrk(work, "#><+-&|*/%^"))) {
+		if (calculate(work, &value1, &ll_value1, flags & (HEX_BIAS | LONG_LONG))) {
 			if (flags & LONG_LONG) {
 				np->ll_num = ll_value1;
 				if (BITS32() && (ll_value1 > 0xffffffff))
@@ -2718,50 +2610,49 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 				return TRUE;
 			}
 		}
-							 	goto malformed;
-				}
+		goto malformed;
+	}
 
-	switch (*op)
-				{
-				case '+':
+	switch (*op) {
+	case '+':
 		opcode = OP_ADD;
 		break;
 
-				case '-':
+	case '-':
 		opcode = OP_SUB;
 		break;
 
-				case '&':
+	case '&':
 		opcode = OP_AND;
 		break;
 
-				case '|':
+	case '|':
 		opcode = OP_OR;
 		break;
 
-				case '*':
+	case '*':
 		opcode = OP_MUL;
 		break;
 
-				case '%':
+	case '%':
 		opcode = OP_MOD;
 		break;
 
-				case '/':
+	case '/':
 		opcode = OP_DIV;
 		break;
 
 	case '<':
-		if (*(op+1) != '<')
+		if (*(op + 1) != '<')
 			goto malformed;
 		opcode = OP_SL;
-					break;
+		break;
 
 	case '>':
-								if (*(op+1) != '>')
-												goto malformed;
-								opcode = OP_SR;
-					break;
+		if (*(op + 1) != '>')
+			goto malformed;
+		opcode = OP_SR;
+		break;
 
 	case '^':
 		opcode = OP_EXOR;
@@ -2772,79 +2663,75 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 		break;
 	}
 
-				element1 = &work[0];
+	element1 = &work[0];
 	*op = NULLCHAR;
 	if ((opcode == OP_SL) || (opcode == OP_SR)) {
-		*(op+1) = NULLCHAR;
-		element2 = op+2;
+		*(op + 1) = NULLCHAR;
+		element2 = op + 2;
 	} else
-		element2 = op+1;
+		element2 = op + 1;
 
-				if (strlen(clean_line(element1)) == 0)
-								goto malformed;
+	if (strlen(clean_line(element1)) == 0)
+		goto malformed;
 
-				if (strlen(clean_line(element2)) == 0)
-								goto malformed;
+	if (strlen(clean_line(element2)) == 0)
+		goto malformed;
 
 	if ((sp = symbol_search(element1)))
-								value1 = ll_value1 = sp->value;
+		value1 = ll_value1 = sp->value;
 	else {
-		if (!calculate(element1, &value1, &ll_value1,
-				flags & (HEX_BIAS|LONG_LONG)))
+		if (!calculate(element1, &value1, &ll_value1, flags & (HEX_BIAS | LONG_LONG)))
 			goto malformed;
-								if (BITS32() && (ll_value1 > 0xffffffff))
-									np->retflags |= LONG_LONG;
+		if (BITS32() && (ll_value1 > 0xffffffff))
+			np->retflags |= LONG_LONG;
 	}
 
-				if ((sp = symbol_search(element2)))
-								value2 = ll_value2 = sp->value;
-				else if (!calculate(element2, &value2, &ll_value2,
-				flags & (HEX_BIAS|LONG_LONG)))
+	if ((sp = symbol_search(element2)))
+		value2 = ll_value2 = sp->value;
+	else if (!calculate(element2, &value2, &ll_value2, flags & (HEX_BIAS | LONG_LONG)))
 		goto malformed;
 
 	if (flags & LONG_LONG) {
 		if (BITS32() && (ll_value2 > 0xffffffff))
 			np->retflags |= LONG_LONG;
 
-								switch (opcode)
-								{
-								case OP_ADD:
-												np->ll_num = (ll_value1 + ll_value2);
+		switch (opcode) {
+		case OP_ADD:
+			np->ll_num = (ll_value1 + ll_value2);
 			break;
-								case OP_SUB:
-												np->ll_num = (ll_value1 - ll_value2);
+		case OP_SUB:
+			np->ll_num = (ll_value1 - ll_value2);
 			break;
-								case OP_AND:
-												np->ll_num = (ll_value1 & ll_value2);
+		case OP_AND:
+			np->ll_num = (ll_value1 & ll_value2);
 			break;
-								case OP_OR:
-												np->ll_num = (ll_value1 | ll_value2);
+		case OP_OR:
+			np->ll_num = (ll_value1 | ll_value2);
 			break;
-								case OP_MUL:
-												np->ll_num = (ll_value1 * ll_value2);
+		case OP_MUL:
+			np->ll_num = (ll_value1 * ll_value2);
 			break;
-								case OP_DIV:
-												np->ll_num = (ll_value1 / ll_value2);
+		case OP_DIV:
+			np->ll_num = (ll_value1 / ll_value2);
 			break;
-								case OP_MOD:
-												np->ll_num = (ll_value1 % ll_value2);
+		case OP_MOD:
+			np->ll_num = (ll_value1 % ll_value2);
 			break;
-								case OP_SL:
-												np->ll_num = (ll_value1 << ll_value2);
+		case OP_SL:
+			np->ll_num = (ll_value1 << ll_value2);
 			break;
-								case OP_SR:
-												np->ll_num = (ll_value1 >> ll_value2);
+		case OP_SR:
+			np->ll_num = (ll_value1 >> ll_value2);
 			break;
-								case OP_EXOR:
-												np->ll_num = (ll_value1 ^ ll_value2);
+		case OP_EXOR:
+			np->ll_num = (ll_value1 ^ ll_value2);
 			break;
 		case OP_POWER:
 			np->ll_num = ll_power(ll_value1, ll_value2);
 			break;
-								}
+		}
 	} else {
-		switch (opcode)
-		{
+		switch (opcode) {
 		case OP_ADD:
 			np->num = (value1 + value2);
 			break;
@@ -2883,18 +2770,16 @@ eval_common(char *s, int flags, int *errptr, struct number_option *np)
 
 	return TRUE;
 
-malformed:
+ malformed:
 	return FALSE;
 }
-
 
 /*
  *  Take string containing a number, and possibly a multiplier, and calculate
  *  its real value.  The allowable multipliers are k, K, m, M, g and G, for
  *  kilobytes, megabytes and gigabytes.
  */
-int
-calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
+int calculate(char *s, ulong * value, ulonglong * llvalue, ulong flags)
 {
 	ulong factor, bias;
 	int errflag;
@@ -2911,65 +2796,64 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
 	} else
 		ones_complement = FALSE;
 
-				if ((sp = symbol_search(s))) {
+	if ((sp = symbol_search(s))) {
 		if (flags & LONG_LONG) {
-			*llvalue = (ulonglong)sp->value;
+			*llvalue = (ulonglong) sp->value;
 			if (ones_complement)
-										*llvalue = ~(*llvalue);
+				*llvalue = ~(*llvalue);
 		} else
-									*value = ones_complement ? ~(sp->value) : sp->value;
+			*value = ones_complement ? ~(sp->value) : sp->value;
 		return TRUE;
 	}
 
 	factor = 1;
 	errflag = 0;
 
-				switch (LASTCHAR(s))
-				{
-				case 'k':
-				case 'K':
-								LASTCHAR(s) = NULLCHAR;
-								if (IS_A_NUMBER(s))
-												factor = 1024;
+	switch (LASTCHAR(s)) {
+	case 'k':
+	case 'K':
+		LASTCHAR(s) = NULLCHAR;
+		if (IS_A_NUMBER(s))
+			factor = 1024;
 		else
 			return FALSE;
-								break;
+		break;
 
-				case 'm':
-				case 'M':
-								LASTCHAR(s) = NULLCHAR;
-								if (IS_A_NUMBER(s))
-												factor = (1024*1024);
+	case 'm':
+	case 'M':
+		LASTCHAR(s) = NULLCHAR;
+		if (IS_A_NUMBER(s))
+			factor = (1024 * 1024);
 		else
 			return FALSE;
-								break;
+		break;
 
-				case 'g':
-				case 'G':
-								LASTCHAR(s) = NULLCHAR;
-								if (IS_A_NUMBER(s))
-												factor = (1024*1024*1024);
+	case 'g':
+	case 'G':
+		LASTCHAR(s) = NULLCHAR;
+		if (IS_A_NUMBER(s))
+			factor = (1024 * 1024 * 1024);
 		else
 			return FALSE;
-								break;
+		break;
 
-				default:
+	default:
 		if (!IS_A_NUMBER(s))
 			return FALSE;
 		break;
-				}
+	}
 
 	if (flags & LONG_LONG) {
-								ll_localval = stoll(s, RETURN_ON_ERROR|bias, &errflag);
-								if (errflag)
-												return FALSE;
+		ll_localval = stoll(s, RETURN_ON_ERROR | bias, &errflag);
+		if (errflag)
+			return FALSE;
 
-								if (ones_complement)
-												*llvalue = ~(ll_localval * factor);
-								else
-												*llvalue = ll_localval * factor;
+		if (ones_complement)
+			*llvalue = ~(ll_localval * factor);
+		else
+			*llvalue = ll_localval * factor;
 	} else {
-		localval = stol(s, RETURN_ON_ERROR|bias, &errflag);
+		localval = stol(s, RETURN_ON_ERROR | bias, &errflag);
 		if (errflag)
 			return FALSE;
 
@@ -2982,24 +2866,22 @@ calculate(char *s, ulong *value, ulonglong *llvalue, ulong flags)
 	return TRUE;
 }
 
-
 /*
  *  Print a 32-bit or 64-bit number in hexadecimal, decimal, octal and binary,
  *  also showing the bits set if appropriate.
  *
  */
-static void
-print_number(struct number_option *np, int bitflag, int longlongflagforce)
+static void print_number(struct number_option *np, int bitflag, int longlongflagforce)
 {
 	int i;
 	ulong hibit;
 	ulonglong ll_hibit;
-				int ccnt;
-				ulong mask;
+	int ccnt;
+	ulong mask;
 	ulonglong ll_mask;
-				char *hdr = "   bits set: ";
-				char buf[BUFSIZE];
-				int hdrlen;
+	char *hdr = "   bits set: ";
+	char buf[BUFSIZE];
+	int hdrlen;
 	int longlongformat;
 
 	longlongformat = longlongflagforce;
@@ -3011,69 +2893,64 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 			if (np->ll_num > 0xffffffff)
 				longlongformat = TRUE;
 			else
-				np->num = (ulong)np->ll_num;
+				np->num = (ulong) np->ll_num;
 		}
 	}
 
 	if (longlongformat) {
-								ll_hibit = (ulonglong)(1) << ((sizeof(long long)*8)-1);
+		ll_hibit = (ulonglong) (1) << ((sizeof(long long) * 8) - 1);
 
-								fprintf(fp, "hexadecimal: %llx  ", np->ll_num);
-								if (np->ll_num >= KILOBYTES(1)) {
-												if ((np->ll_num % GIGABYTES(1)) == 0)
-																fprintf(fp, "(%lldGB)",
-					np->ll_num / GIGABYTES(1));
-												else if ((np->ll_num % MEGABYTES(1)) == 0)
-																fprintf(fp, "(%lldMB)",
-					np->ll_num / MEGABYTES(1));
-												else if ((np->ll_num % KILOBYTES(1)) == 0)
-																fprintf(fp, "(%lldKB)",
-					 np->ll_num / KILOBYTES(1));
-								}
-								fprintf(fp, "\n");
+		fprintf(fp, "hexadecimal: %llx  ", np->ll_num);
+		if (np->ll_num >= KILOBYTES(1)) {
+			if ((np->ll_num % GIGABYTES(1)) == 0)
+				fprintf(fp, "(%lldGB)", np->ll_num / GIGABYTES(1));
+			else if ((np->ll_num % MEGABYTES(1)) == 0)
+				fprintf(fp, "(%lldMB)", np->ll_num / MEGABYTES(1));
+			else if ((np->ll_num % KILOBYTES(1)) == 0)
+				fprintf(fp, "(%lldKB)", np->ll_num / KILOBYTES(1));
+		}
+		fprintf(fp, "\n");
 
-								fprintf(fp, "    decimal: %llu  ", np->ll_num);
-								if ((long long)np->ll_num < 0)
-												fprintf(fp, "(%lld)\n", (long long)np->ll_num);
-								else
-												fprintf(fp, "\n");
-								fprintf(fp, "      octal: %llo\n", np->ll_num);
-								fprintf(fp, "     binary: ");
-								for(i = 0, ll_mask = np->ll_num; i < (sizeof(long long)*8);
-				i++, ll_mask <<= 1)
-												if (ll_mask & ll_hibit)
-																fprintf(fp, "1");
-												else
-																fprintf(fp, "0");
-								fprintf(fp,"\n");
+		fprintf(fp, "    decimal: %llu  ", np->ll_num);
+		if ((long long)np->ll_num < 0)
+			fprintf(fp, "(%lld)\n", (long long)np->ll_num);
+		else
+			fprintf(fp, "\n");
+		fprintf(fp, "      octal: %llo\n", np->ll_num);
+		fprintf(fp, "     binary: ");
+		for (i = 0, ll_mask = np->ll_num; i < (sizeof(long long) * 8); i++, ll_mask <<= 1)
+			if (ll_mask & ll_hibit)
+				fprintf(fp, "1");
+			else
+				fprintf(fp, "0");
+		fprintf(fp, "\n");
 	} else {
-		hibit = (ulong)(1) << ((sizeof(long)*8)-1);
+		hibit = (ulong) (1) << ((sizeof(long) * 8) - 1);
 
-					fprintf(fp, "hexadecimal: %lx  ", np->num);
-					if (np->num >= KILOBYTES(1)) {
-									if ((np->num % GIGABYTES(1)) == 0)
-													fprintf(fp, "(%ldGB)", np->num / GIGABYTES(1));
-									else if ((np->num % MEGABYTES(1)) == 0)
-													fprintf(fp, "(%ldMB)", np->num / MEGABYTES(1));
-									else if ((np->num % KILOBYTES(1)) == 0)
-													fprintf(fp, "(%ldKB)", np->num / KILOBYTES(1));
-					}
-					fprintf(fp, "\n");
+		fprintf(fp, "hexadecimal: %lx  ", np->num);
+		if (np->num >= KILOBYTES(1)) {
+			if ((np->num % GIGABYTES(1)) == 0)
+				fprintf(fp, "(%ldGB)", np->num / GIGABYTES(1));
+			else if ((np->num % MEGABYTES(1)) == 0)
+				fprintf(fp, "(%ldMB)", np->num / MEGABYTES(1));
+			else if ((np->num % KILOBYTES(1)) == 0)
+				fprintf(fp, "(%ldKB)", np->num / KILOBYTES(1));
+		}
+		fprintf(fp, "\n");
 
-					fprintf(fp, "    decimal: %lu  ", np->num);
+		fprintf(fp, "    decimal: %lu  ", np->num);
 		if ((long)np->num < 0)
-									fprintf(fp, "(%ld)\n", (long)np->num);
-					else
-									fprintf(fp, "\n");
-					fprintf(fp, "      octal: %lo\n", np->num);
-					fprintf(fp, "     binary: ");
-					for(i = 0, mask = np->num; i < (sizeof(long)*8);
-				i++, mask <<= 1)
-									if (mask & hibit)
-													fprintf(fp, "1");
-									else
-													fprintf(fp, "0");
-					fprintf(fp,"\n");
+			fprintf(fp, "(%ld)\n", (long)np->num);
+		else
+			fprintf(fp, "\n");
+		fprintf(fp, "      octal: %lo\n", np->num);
+		fprintf(fp, "     binary: ");
+		for (i = 0, mask = np->num; i < (sizeof(long) * 8); i++, mask <<= 1)
+			if (mask & hibit)
+				fprintf(fp, "1");
+			else
+				fprintf(fp, "0");
+		fprintf(fp, "\n");
 	}
 
 	if (!bitflag)
@@ -3084,37 +2961,36 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
 	fprintf(fp, "%s", hdr);
 
 	if (longlongformat) {
-					for (i = 63; i >= 0; i--) {
-									ll_mask = (ulonglong)(1) << i;
-									if (np->ll_num & ll_mask) {
-													sprintf(buf, "%d ", i);
-													fprintf(fp, "%s", buf);
-													ccnt += strlen(buf);
-													if (ccnt >= 77) {
-																	fprintf(fp, "\n");
-																	INDENT(strlen(hdr));
-																	ccnt = hdrlen;
-													}
-									}
-					}
+		for (i = 63; i >= 0; i--) {
+			ll_mask = (ulonglong) (1) << i;
+			if (np->ll_num & ll_mask) {
+				sprintf(buf, "%d ", i);
+				fprintf(fp, "%s", buf);
+				ccnt += strlen(buf);
+				if (ccnt >= 77) {
+					fprintf(fp, "\n");
+					INDENT(strlen(hdr));
+					ccnt = hdrlen;
+				}
+			}
+		}
 	} else {
-					for (i = BITS()-1; i >= 0; i--) {
-									mask = (ulong)(1) << i;
-									if (np->num & mask) {
-													sprintf(buf, "%d ", i);
-													fprintf(fp, "%s", buf);
-													ccnt += strlen(buf);
-													if (ccnt >= 77) {
-																	fprintf(fp, "\n");
-																	INDENT(strlen(hdr));
-																	ccnt = hdrlen;
-													}
-									}
-					}
+		for (i = BITS() - 1; i >= 0; i--) {
+			mask = (ulong) (1) << i;
+			if (np->num & mask) {
+				sprintf(buf, "%d ", i);
+				fprintf(fp, "%s", buf);
+				ccnt += strlen(buf);
+				if (ccnt >= 77) {
+					fprintf(fp, "\n");
+					INDENT(strlen(hdr));
+					ccnt = hdrlen;
+				}
+			}
+		}
 	}
-				fprintf(fp, "\n");
+	fprintf(fp, "\n");
 }
-
 
 /*
  *  Display the contents of a linked list.  Minimum requirements are a starting
@@ -3149,8 +3025,7 @@ print_number(struct number_option *np, int bitflag, int longlongflagforce)
  *  which gets sticky with zero-based kernel virtual address space.
  */
 
-void
-cmd_list(void)
+void cmd_list(void)
 {
 	int c;
 	struct list_data list_data, *ld;
@@ -3162,9 +3037,8 @@ cmd_list(void)
 	ld = &list_data;
 	BZERO(ld, sizeof(struct list_data));
 
-				while ((c = getopt(argcnt, args, "Hhrs:e:o:xd")) != EOF) {
-								switch(c)
-		{
+	while ((c = getopt(argcnt, args, "Hhrs:e:o:xd")) != EOF) {
+		switch (c) {
 		case 'H':
 			ld->flags |= LIST_HEAD_FORMAT;
 			ld->flags |= LIST_HEAD_POINTER;
@@ -3181,23 +3055,20 @@ cmd_list(void)
 		case 's':
 			if (ld->structname_args++ == 0)
 				hq_open();
-			hq_enter((ulong)optarg);
+			hq_enter((ulong) optarg);
 			break;
 
 		case 'o':
 			if (ld->flags & LIST_OFFSET_ENTERED)
-															 error(FATAL,
-																"offset value %d (0x%lx) already entered\n",
-																				ld->member_offset, ld->member_offset);
+				error(FATAL,
+				      "offset value %d (0x%lx) already entered\n",
+				      ld->member_offset, ld->member_offset);
 			else if (IS_A_NUMBER(optarg))
-				ld->member_offset = stol(optarg,
-					FAULT_ON_ERROR, NULL);
-			else if (arg_to_datatype(optarg,
-				sm, RETURN_ON_ERROR) > 1)
+				ld->member_offset = stol(optarg, FAULT_ON_ERROR, NULL);
+			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1)
 				ld->member_offset = sm->member_offset;
 			else
-				error(FATAL, "invalid -o argument: %s\n",
-					optarg);
+				error(FATAL, "invalid -o argument: %s\n", optarg);
 
 			ld->flags |= LIST_OFFSET_ENTERED;
 			break;
@@ -3208,15 +3079,13 @@ cmd_list(void)
 
 		case 'x':
 			if (ld->flags & LIST_STRUCT_RADIX_10)
-				error(FATAL,
-					"-d and -x are mutually exclusive\n");
+				error(FATAL, "-d and -x are mutually exclusive\n");
 			ld->flags |= LIST_STRUCT_RADIX_16;
 			break;
 
 		case 'd':
 			if (ld->flags & LIST_STRUCT_RADIX_16)
-				error(FATAL,
-					"-d and -x are mutually exclusive\n");
+				error(FATAL, "-d and -x are mutually exclusive\n");
 			ld->flags |= LIST_STRUCT_RADIX_10;
 			break;
 
@@ -3229,24 +3098,23 @@ cmd_list(void)
 	if (argerrs)
 		cmd_usage(pc->curcmd, SYNOPSIS);
 
-	if (args[optind] && args[optind+1] && args[optind+2]) {
+	if (args[optind] && args[optind + 1] && args[optind + 2]) {
 		error(INFO, "too many arguments\n");
 		cmd_usage(pc->curcmd, SYNOPSIS);
 	}
 
 	if (ld->structname_args) {
 		ld->structname = (char **)GETBUF(sizeof(char *) * ld->structname_args);
-		retrieve_list((ulong *)ld->structname, ld->structname_args);
+		retrieve_list((ulong *) ld->structname, ld->structname_args);
 		hq_close();
 	}
 
 	while (args[optind]) {
-		if (strstr(args[optind], ".") &&
-				arg_to_datatype(args[optind], sm, RETURN_ON_ERROR) > 1) {
+		if (strstr(args[optind], ".") && arg_to_datatype(args[optind], sm, RETURN_ON_ERROR) > 1) {
 			if (ld->flags & LIST_OFFSET_ENTERED)
 				error(FATAL,
-								 "offset value %ld (0x%lx) already entered\n",
-					ld->member_offset, ld->member_offset);
+				      "offset value %ld (0x%lx) already entered\n",
+				      ld->member_offset, ld->member_offset);
 			ld->member_offset = sm->member_offset;
 			ld->flags |= LIST_OFFSET_ENTERED;
 		} else {
@@ -3257,10 +3125,9 @@ cmd_list(void)
 			 */
 			if ((sp = symbol_search(args[optind]))) {
 				if (ld->flags & LIST_START_ENTERED)
-																				error(FATAL,
-																						"list start already entered\n");
-																ld->start = sp->value;
-																ld->flags |= LIST_START_ENTERED;
+					error(FATAL, "list start already entered\n");
+				ld->start = sp->value;
+				ld->flags |= LIST_START_ENTERED;
 				goto next_arg;
 			}
 
@@ -3270,46 +3137,40 @@ cmd_list(void)
 			 */
 			if (!IS_A_NUMBER(args[optind])) {
 				if (can_eval(args[optind])) {
-														value = eval(args[optind], FAULT_ON_ERROR, NULL);
+					value = eval(args[optind], FAULT_ON_ERROR, NULL);
 					if (IS_KVADDR(value)) {
-															 			if (ld->flags & LIST_START_ENTERED)
-																						error(FATAL,
-																										"list start already entered\n");
-																		ld->start = value;
-																		ld->flags |= LIST_START_ENTERED;
+						if (ld->flags & LIST_START_ENTERED)
+							error(FATAL, "list start already entered\n");
+						ld->start = value;
+						ld->flags |= LIST_START_ENTERED;
 						goto next_arg;
 					}
 				}
 
-				error(FATAL, "invalid argument: %s\n",
-																	args[optind]);
+				error(FATAL, "invalid argument: %s\n", args[optind]);
 			}
 
 			/*
 			 *  If the start is known, it's got to be an offset.
 			 */
-												if (ld->flags & LIST_START_ENTERED) {
-																value = stol(args[optind], FAULT_ON_ERROR,
-																				NULL);
-																ld->member_offset = value;
-																ld->flags |= LIST_OFFSET_ENTERED;
-																break;
-												}
+			if (ld->flags & LIST_START_ENTERED) {
+				value = stol(args[optind], FAULT_ON_ERROR, NULL);
+				ld->member_offset = value;
+				ld->flags |= LIST_OFFSET_ENTERED;
+				break;
+			}
 
 			/*
 			 *  If the offset is known, or there's no subsequent
-												 *  argument, then it's got to be a start.
+			 *  argument, then it's got to be a start.
 			 */
-			if ((ld->flags & LIST_OFFSET_ENTERED) ||
-					!args[optind+1]) {
-				value = htol(args[optind], FAULT_ON_ERROR,
-					NULL);
+			if ((ld->flags & LIST_OFFSET_ENTERED)
+			    || !args[optind + 1]) {
+				value = htol(args[optind], FAULT_ON_ERROR, NULL);
 				if (!IS_KVADDR(value))
-					error(FATAL,
-								"invalid kernel virtual address: %s\n",
-						args[optind]);
-																ld->start = value;
-																ld->flags |= LIST_START_ENTERED;
+					error(FATAL, "invalid kernel virtual address: %s\n", args[optind]);
+				ld->start = value;
+				ld->flags |= LIST_START_ENTERED;
 				break;
 			}
 
@@ -3318,45 +3179,40 @@ cmd_list(void)
 			 *  it's a number.  Look ahead to the next argument.
 			 *  If it's a symbol, then this must be an offset.
 			 */
-			if ((sp = symbol_search(args[optind+1]))) {
-																value = stol(args[optind], FAULT_ON_ERROR,
-																				NULL);
-																ld->member_offset = value;
-																ld->flags |= LIST_OFFSET_ENTERED;
-																goto next_arg;
-			} else if ((!IS_A_NUMBER(args[optind+1]) &&
-				!can_eval(args[optind+1])) &&
-				!strstr(args[optind+1], "."))
-				error(FATAL, "symbol not found: %s\n",
-																				args[optind+1]);
+			if ((sp = symbol_search(args[optind + 1]))) {
+				value = stol(args[optind], FAULT_ON_ERROR, NULL);
+				ld->member_offset = value;
+				ld->flags |= LIST_OFFSET_ENTERED;
+				goto next_arg;
+			} else if ((!IS_A_NUMBER(args[optind + 1]) &&
+				    !can_eval(args[optind + 1])) && !strstr(args[optind + 1], "."))
+				error(FATAL, "symbol not found: %s\n", args[optind + 1]);
 			/*
 			 *  Crunch time.  We've got two numbers.  If they're
 			 *  both ambigous we must have zero-based kernel
 			 *  virtual address space.
 			 */
 			if (COMMON_VADDR_SPACE() &&
-					AMBIGUOUS_NUMBER(args[optind]) &&
-					AMBIGUOUS_NUMBER(args[optind+1])) {
+			    AMBIGUOUS_NUMBER(args[optind]) && AMBIGUOUS_NUMBER(args[optind + 1])) {
 				error(INFO,
-										 "ambiguous arguments: \"%s\" and \"%s\": -o is required\n",
-					args[optind], args[optind+1]);
+				      "ambiguous arguments: \"%s\" and \"%s\": -o is required\n",
+				      args[optind], args[optind + 1]);
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			}
 
 			if (hexadecimal_only(args[optind], 0)) {
-				value = htol(args[optind], FAULT_ON_ERROR,
-					NULL);
-																if (IS_KVADDR(value)) {
-																	ld->start = value;
-																	ld->flags |= LIST_START_ENTERED;
+				value = htol(args[optind], FAULT_ON_ERROR, NULL);
+				if (IS_KVADDR(value)) {
+					ld->start = value;
+					ld->flags |= LIST_START_ENTERED;
 					goto next_arg;
 				}
 			}
 			value = stol(args[optind], FAULT_ON_ERROR, NULL);
-												ld->member_offset = value;
-												ld->flags |= LIST_OFFSET_ENTERED;
+			ld->member_offset = value;
+			ld->flags |= LIST_OFFSET_ENTERED;
 		}
-next_arg:
+ next_arg:
 		optind++;
 	}
 
@@ -3374,8 +3230,8 @@ next_arg:
 		if (ld->flags & LIST_HEAD_POINTER) {
 			if (!ld->end)
 				ld->end = ld->start;
-			readmem(ld->start + ld->member_offset, KVADDR, &ld->start,
-				sizeof(void *), "LIST_HEAD contents", FAULT_ON_ERROR);
+			readmem(ld->start + ld->member_offset, KVADDR,
+				&ld->start, sizeof(void *), "LIST_HEAD contents", FAULT_ON_ERROR);
 			if (ld->start == ld->end) {
 				fprintf(fp, "(empty)\n");
 				return;
@@ -3384,24 +3240,22 @@ next_arg:
 			ld->start += ld->list_head_offset;
 	}
 
-	ld->flags &= ~(LIST_OFFSET_ENTERED|LIST_START_ENTERED);
+	ld->flags &= ~(LIST_OFFSET_ENTERED | LIST_START_ENTERED);
 	ld->flags |= VERBOSE;
 
 	hq_open();
 	c = do_list(ld);
 	hq_close();
 
-				if (ld->structname_args)
+	if (ld->structname_args)
 		FREEBUF(ld->structname);
 }
-
 
 /*
  *  Does the work for cmd_list() and any other function that requires the
  *  contents of a linked list.  See cmd_list description above for details.
  */
-int
-do_list(struct list_data *ld)
+int do_list(struct list_data *ld)
 {
 	ulong next, last, first;
 	ulong searchfor, readflag;
@@ -3456,12 +3310,10 @@ do_list(struct list_data *ld)
 		radix = 0;
 	next = ld->start;
 
-	readflag = ld->flags & RETURN_ON_LIST_ERROR ?
-		(RETURN_ON_ERROR|QUIET) : FAULT_ON_ERROR;
+	readflag = ld->flags & RETURN_ON_LIST_ERROR ? (RETURN_ON_ERROR | QUIET) : FAULT_ON_ERROR;
 
-	if (!readmem(next + ld->member_offset, KVADDR, &first, sizeof(void *),
-						"first list entry", readflag)) {
-								error(INFO, "\ninvalid list entry: %lx\n", next);
+	if (!readmem(next + ld->member_offset, KVADDR, &first, sizeof(void *), "first list entry", readflag)) {
+		error(INFO, "\ninvalid list entry: %lx\n", next);
 		return -1;
 	}
 
@@ -3474,43 +3326,36 @@ do_list(struct list_data *ld)
 
 			if (ld->structname) {
 				for (i = 0; i < ld->structname_args; i++) {
-					switch (count_chars(ld->structname[i], '.'))
-					{
+					switch (count_chars(ld->structname[i], '.')) {
 					case 0:
-						dump_struct(ld->structname[i],
-							next - ld->list_head_offset, radix);
+						dump_struct(ld->structname[i], next - ld->list_head_offset, radix);
 						break;
 					case 1:
 						dump_struct_members(ld, i, next);
 						break;
 					default:
-						error(FATAL,
-								"invalid structure reference: %s\n",
-							ld->structname[i]);
+						error(FATAL, "invalid structure reference: %s\n", ld->structname[i]);
 					}
 				}
 			}
 		}
 
-								if (next && !hq_enter(next - ld->list_head_offset)) {
-			if (ld->flags &
-					(RETURN_ON_DUPLICATE|RETURN_ON_LIST_ERROR)) {
-													error(INFO, "\nduplicate list entry: %lx\n",
-					next);
+		if (next && !hq_enter(next - ld->list_head_offset)) {
+			if (ld->flags & (RETURN_ON_DUPLICATE | RETURN_ON_LIST_ERROR)) {
+				error(INFO, "\nduplicate list entry: %lx\n", next);
 				return -1;
 			}
-												error(FATAL, "\nduplicate list entry: %lx\n", next);
+			error(FATAL, "\nduplicate list entry: %lx\n", next);
 		}
 
-		if ((searchfor == next) ||
-				(searchfor == (next - ld->list_head_offset)))
+		if ((searchfor == next)
+		    || (searchfor == (next - ld->list_head_offset)))
 			ld->searchfor = searchfor;
 
 		count++;
-								last = next;
+		last = next;
 
-								if (!readmem(next + ld->member_offset, KVADDR, &next,
-				sizeof(void *), "list entry", readflag)) {
+		if (!readmem(next + ld->member_offset, KVADDR, &next, sizeof(void *), "list entry", readflag)) {
 			error(INFO, "\ninvalid list entry: %lx\n", next);
 			return -1;
 		}
@@ -3523,29 +3368,25 @@ do_list(struct list_data *ld)
 
 		if (next == ld->end) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == end:%lx\n",
-					next, ld->end);
+				console("do_list end: next:%lx == end:%lx\n", next, ld->end);
 			break;
 		}
 
 		if (next == ld->start) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == start:%lx\n",
-					next, ld->start);
+				console("do_list end: next:%lx == start:%lx\n", next, ld->start);
 			break;
 		}
 
 		if (next == last) {
 			if (CRASHDEBUG(1))
-				console("do_list end: next:%lx == last:%lx\n",
-					next, last);
+				console("do_list end: next:%lx == last:%lx\n", next, last);
 			break;
 		}
 
 		if ((next == first) && (count != 1)) {
 			if (CRASHDEBUG(1))
-					console("do_list end: next:%lx == first:%lx (count %d)\n",
-				next, last, count);
+				console("do_list end: next:%lx == first:%lx (count %d)\n", next, last, count);
 			break;
 		}
 	}
@@ -3563,8 +3404,7 @@ do_list(struct list_data *ld)
  *
  *            struct.member1,member2,member3
  */
-void
-dump_struct_members(struct list_data *ld, int idx, ulong next)
+void dump_struct_members(struct list_data *ld, int idx, ulong next)
 {
 	int i, argc;
 	char *p1, *p2;
@@ -3579,8 +3419,8 @@ dump_struct_members(struct list_data *ld, int idx, ulong next)
 	else
 		radix = 0;
 
-	structname = GETBUF(strlen(ld->structname[idx])+1);
-	members = GETBUF(strlen(ld->structname[idx])+1);
+	structname = GETBUF(strlen(ld->structname[idx]) + 1);
+	members = GETBUF(strlen(ld->structname[idx]) + 1);
 
 	strcpy(structname, ld->structname[idx]);
 	p1 = strstr(structname, ".") + 1;
@@ -3593,7 +3433,7 @@ dump_struct_members(struct list_data *ld, int idx, ulong next)
 	for (i = 0; i < argc; i++) {
 		*p1 = NULLCHAR;
 		strcat(structname, arglist[i]);
- 		dump_struct_member(structname, next - ld->list_head_offset, radix);
+		dump_struct_member(structname, next - ld->list_head_offset, radix);
 	}
 
 	FREEBUF(structname);
@@ -3603,8 +3443,7 @@ dump_struct_members(struct list_data *ld, int idx, ulong next)
 #define RADIXTREE_REQUEST (0x1)
 #define RBTREE_REQUEST    (0x2)
 
-void
-cmd_tree()
+void cmd_tree()
 {
 	int c, type_flag, others;
 	long root_offset;
@@ -3620,10 +3459,9 @@ cmd_tree()
 	BZERO(td, sizeof(struct tree_data));
 
 	while ((c = getopt(argcnt, args, "xdt:r:o:s:pN")) != EOF) {
-		switch (c)
-		{
+		switch (c) {
 		case 't':
-			if (type_flag & (RADIXTREE_REQUEST|RBTREE_REQUEST)) {
+			if (type_flag & (RADIXTREE_REQUEST | RBTREE_REQUEST)) {
 				error(INFO, "multiple tree types may not be entered\n");
 				cmd_usage(pc->curcmd, SYNOPSIS);
 			}
@@ -3642,15 +3480,13 @@ cmd_tree()
 		case 'r':
 			if (td->flags & TREE_ROOT_OFFSET_ENTERED)
 				error(FATAL,
-					"root offset value %d (0x%lx) already entered\n",
-						root_offset, root_offset);
+				      "root offset value %d (0x%lx) already entered\n", root_offset, root_offset);
 			else if (IS_A_NUMBER(optarg))
 				root_offset = stol(optarg, FAULT_ON_ERROR, NULL);
 			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1)
 				root_offset = sm->member_offset;
 			else
-				error(FATAL, "invalid -r argument: %s\n",
-					optarg);
+				error(FATAL, "invalid -r argument: %s\n", optarg);
 
 			td->flags |= TREE_ROOT_OFFSET_ENTERED;
 			break;
@@ -3658,16 +3494,14 @@ cmd_tree()
 		case 'o':
 			if (td->flags & TREE_NODE_OFFSET_ENTERED)
 				error(FATAL,
-					"node offset value %d (0x%lx) already entered\n",
-						td->node_member_offset, td->node_member_offset);
+				      "node offset value %d (0x%lx) already entered\n",
+				      td->node_member_offset, td->node_member_offset);
 			else if (IS_A_NUMBER(optarg))
-				td->node_member_offset = stol(optarg,
-					FAULT_ON_ERROR, NULL);
+				td->node_member_offset = stol(optarg, FAULT_ON_ERROR, NULL);
 			else if (arg_to_datatype(optarg, sm, RETURN_ON_ERROR) > 1)
 				td->node_member_offset = sm->member_offset;
 			else
-				error(FATAL, "invalid -o argument: %s\n",
-					optarg);
+				error(FATAL, "invalid -o argument: %s\n", optarg);
 
 			td->flags |= TREE_NODE_OFFSET_ENTERED;
 			break;
@@ -3675,7 +3509,7 @@ cmd_tree()
 		case 's':
 			if (td->structname_args++ == 0)
 				hq_open();
-			hq_enter((ulong)optarg);
+			hq_enter((ulong) optarg);
 			break;
 
 		case 'p':
@@ -3688,15 +3522,13 @@ cmd_tree()
 
 		case 'x':
 			if (td->flags & TREE_STRUCT_RADIX_10)
-				error(FATAL,
-					"-d and -x are mutually exclusive\n");
+				error(FATAL, "-d and -x are mutually exclusive\n");
 			td->flags |= TREE_STRUCT_RADIX_16;
 			break;
 
 		case 'd':
 			if (td->flags & TREE_STRUCT_RADIX_16)
-				error(FATAL,
-					"-d and -x are mutually exclusive\n");
+				error(FATAL, "-d and -x are mutually exclusive\n");
 			td->flags |= TREE_STRUCT_RADIX_10;
 			break;
 		default:
@@ -3708,11 +3540,11 @@ cmd_tree()
 	if (argerrs)
 		cmd_usage(pc->curcmd, SYNOPSIS);
 
-	if ((type_flag & RADIXTREE_REQUEST) && (td->flags & TREE_NODE_OFFSET_ENTERED))
+	if ((type_flag & RADIXTREE_REQUEST)
+	    && (td->flags & TREE_NODE_OFFSET_ENTERED))
 		error(FATAL, "-o option is not applicable to radix trees\n");
 
-	if ((td->flags & TREE_ROOT_OFFSET_ENTERED) &&
-			(td->flags & TREE_NODE_POINTER))
+	if ((td->flags & TREE_ROOT_OFFSET_ENTERED) && (td->flags & TREE_NODE_POINTER))
 		error(INFO, "-r and -N options are mutually exclusive\n");
 
 	if (!args[optind]) {
@@ -3746,16 +3578,15 @@ cmd_tree()
 
 	error(FATAL, "invalid start argument: %s\n", args[optind]);
 
-next_arg:
-	if (args[optind+1]) {
+ next_arg:
+	if (args[optind + 1]) {
 		error(INFO, "too many arguments entered\n");
 		cmd_usage(pc->curcmd, SYNOPSIS);
 	}
 
 	if (td->structname_args) {
-		td->structname = (char **)GETBUF(sizeof(char *) *
-				td->structname_args);
-		retrieve_list((ulong *)td->structname, td->structname_args);
+		td->structname = (char **)GETBUF(sizeof(char *) * td->structname_args);
+		retrieve_list((ulong *) td->structname, td->structname_args);
 		hq_close();
 	}
 
@@ -3766,28 +3597,20 @@ next_arg:
 		others = 0;
 		fprintf(fp, "             flags: %lx (", td->flags);
 		if (td->flags & TREE_ROOT_OFFSET_ENTERED)
-			fprintf(fp, "%sTREE_ROOT_OFFSET_ENTERED",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_ROOT_OFFSET_ENTERED", others++ ? "|" : "");
 		if (td->flags & TREE_NODE_OFFSET_ENTERED)
-			fprintf(fp, "%sTREE_NODE_OFFSET_ENTERED",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_NODE_OFFSET_ENTERED", others++ ? "|" : "");
 		if (td->flags & TREE_NODE_POINTER)
-			fprintf(fp, "%sTREE_NODE_POINTER",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_NODE_POINTER", others++ ? "|" : "");
 		if (td->flags & TREE_POSITION_DISPLAY)
-			fprintf(fp, "%sTREE_POSITION_DISPLAY",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_POSITION_DISPLAY", others++ ? "|" : "");
 		if (td->flags & TREE_STRUCT_RADIX_10)
-			fprintf(fp, "%sTREE_STRUCT_RADIX_10",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_STRUCT_RADIX_10", others++ ? "|" : "");
 		if (td->flags & TREE_STRUCT_RADIX_16)
-			fprintf(fp, "%sTREE_STRUCT_RADIX_16",
-				others++ ? "|" : "");
+			fprintf(fp, "%sTREE_STRUCT_RADIX_16", others++ ? "|" : "");
 		fprintf(fp, ")\n");
-		fprintf(fp, "              type: %s\n",
-			type_flag & RADIXTREE_REQUEST ? "radix" : "red-black");
-		fprintf(fp, "      node pointer: %s\n",
-			td->flags & TREE_NODE_POINTER ? "yes" : "no");
+		fprintf(fp, "              type: %s\n", type_flag & RADIXTREE_REQUEST ? "radix" : "red-black");
+		fprintf(fp, "      node pointer: %s\n", td->flags & TREE_NODE_POINTER ? "yes" : "no");
 		fprintf(fp, "             start: %lx\n", td->start);
 		fprintf(fp, "node_member_offset: %ld\n", td->node_member_offset);
 		fprintf(fp, "   structname_args: %d\n", td->structname_args);
@@ -3804,7 +3627,7 @@ next_arg:
 		do_rbtree(td);
 	hq_close();
 
-				if (td->structname_args)
+	if (td->structname_args)
 		FREEBUF(td->structname);
 }
 
@@ -3812,8 +3635,7 @@ static ulong RADIX_TREE_MAP_SHIFT = UNINITIALIZED;
 static ulong RADIX_TREE_MAP_SIZE = UNINITIALIZED;
 static ulong RADIX_TREE_MAP_MASK = UNINITIALIZED;
 
-int
-do_rdtree(struct tree_data *td)
+int do_rdtree(struct tree_data *td)
 {
 	long nlen;
 	ulong node_p;
@@ -3821,21 +3643,18 @@ do_rdtree(struct tree_data *td)
 	char pos[BUFSIZE];
 
 	if (!VALID_STRUCT(radix_tree_root) || !VALID_STRUCT(radix_tree_node) ||
-			!VALID_MEMBER(radix_tree_root_height) ||
-			!VALID_MEMBER(radix_tree_root_rnode) ||
-			!VALID_MEMBER(radix_tree_node_slots) ||
-			!ARRAY_LENGTH(height_to_maxindex))
-		error(FATAL, "radix trees do not exist or have changed "
-			"their format\n");
+	    !VALID_MEMBER(radix_tree_root_height) ||
+	    !VALID_MEMBER(radix_tree_root_rnode) ||
+	    !VALID_MEMBER(radix_tree_node_slots) || !ARRAY_LENGTH(height_to_maxindex))
+		error(FATAL, "radix trees do not exist or have changed " "their format\n");
 
 	if (RADIX_TREE_MAP_SHIFT == UNINITIALIZED) {
 		if (!(nlen = MEMBER_SIZE("radix_tree_node", "slots")))
-			error(FATAL, "cannot determine length of "
-						 "radix_tree_node.slots[] array\n");
+			error(FATAL, "cannot determine length of " "radix_tree_node.slots[] array\n");
 		nlen /= sizeof(void *);
 		RADIX_TREE_MAP_SHIFT = ffsl(nlen) - 1;
 		RADIX_TREE_MAP_SIZE = (1UL << RADIX_TREE_MAP_SHIFT);
-		RADIX_TREE_MAP_MASK = (RADIX_TREE_MAP_SIZE-1);
+		RADIX_TREE_MAP_MASK = (RADIX_TREE_MAP_SIZE - 1);
 	}
 
 	if (td->flags & TREE_STRUCT_RADIX_10)
@@ -3853,33 +3672,32 @@ do_rdtree(struct tree_data *td)
 
 		if (VALID_MEMBER(radix_tree_node_height)) {
 			readmem(node_p + OFFSET(radix_tree_node_height), KVADDR,
-				&height, sizeof(uint), "radix_tree_node height",
-				FAULT_ON_ERROR);
+				&height, sizeof(uint), "radix_tree_node height", FAULT_ON_ERROR);
 
 			if (height > ARRAY_LENGTH(height_to_maxindex)) {
 				fprintf(fp, "radix_tree_node at %lx\n", node_p);
 				dump_struct("radix_tree_node", node_p, print_radix);
-				error(FATAL, "height %d is greater than "
-					"height_to_maxindex[] index %ld\n",
-					height, ARRAY_LENGTH(height_to_maxindex));
+				error(FATAL,
+				      "height %d is greater than "
+				      "height_to_maxindex[] index %ld\n", height, ARRAY_LENGTH(height_to_maxindex));
 			}
 		} else
 			error(FATAL, "-N option is not supported or applicable"
-				" for radix trees on this architecture or kernel\n");
+			      " for radix trees on this architecture or kernel\n");
 	} else {
-		readmem(td->start + OFFSET(radix_tree_root_height), KVADDR, &height,
-			sizeof(uint), "radix_tree_root height", FAULT_ON_ERROR);
+		readmem(td->start + OFFSET(radix_tree_root_height), KVADDR,
+			&height, sizeof(uint), "radix_tree_root height", FAULT_ON_ERROR);
 
 		if (height > ARRAY_LENGTH(height_to_maxindex)) {
 			fprintf(fp, "radix_tree_root at %lx\n", td->start);
-			dump_struct("radix_tree_root", (ulong)td->start, print_radix);
-			error(FATAL, "height %d is greater than "
-				"height_to_maxindex[] index %ld\n",
-				height, ARRAY_LENGTH(height_to_maxindex));
+			dump_struct("radix_tree_root", (ulong) td->start, print_radix);
+			error(FATAL,
+			      "height %d is greater than "
+			      "height_to_maxindex[] index %ld\n", height, ARRAY_LENGTH(height_to_maxindex));
 		}
 
-		readmem(td->start + OFFSET(radix_tree_root_rnode), KVADDR, &node_p,
-			sizeof(void *), "radix_tree_root rnode", FAULT_ON_ERROR);
+		readmem(td->start + OFFSET(radix_tree_root_rnode), KVADDR,
+			&node_p, sizeof(void *), "radix_tree_root rnode", FAULT_ON_ERROR);
 	}
 
 	if (node_p & 1)
@@ -3892,8 +3710,7 @@ do_rdtree(struct tree_data *td)
 	return td->count;
 }
 
-void
-rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum, uint height)
+void rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum, uint height)
 {
 	ulong slot;
 	int i, index;
@@ -3906,7 +3723,7 @@ rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum,
 		sprintf(pos, "%s", ppos);
 
 	for (index = 0; index < RADIX_TREE_MAP_SIZE; index++) {
-		readmem((ulong)node_p + OFFSET(radix_tree_node_slots) +
+		readmem((ulong) node_p + OFFSET(radix_tree_node_slots) +
 			sizeof(void *) * index, KVADDR, &slot, sizeof(void *),
 			"radix_tree_node.slot[index]", FAULT_ON_ERROR);
 		if (!slot)
@@ -3918,7 +3735,7 @@ rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum,
 				error(FATAL, "\nduplicate tree entry: %lx\n", node_p);
 
 			if (td->flags & VERBOSE)
-				fprintf(fp, "%lx\n",slot);
+				fprintf(fp, "%lx\n", slot);
 
 			if (td->flags & TREE_POSITION_DISPLAY)
 				fprintf(fp, "  position: %s/%d\n", pos, index);
@@ -3932,38 +3749,30 @@ rdtree_iteration(ulong node_p, struct tree_data *td, char *ppos, ulong indexnum,
 					print_radix = 0;
 
 				for (i = 0; i < td->structname_args; i++) {
-					switch(count_chars(td->structname[i], '.'))
-					{
+					switch (count_chars(td->structname[i], '.')) {
 					case 0:
-						dump_struct(td->structname[i],
-							slot, print_radix);
+						dump_struct(td->structname[i], slot, print_radix);
 						break;
 					case 1:
-						dump_struct_members_for_tree(td, i,
-							slot);
+						dump_struct_members_for_tree(td, i, slot);
 						break;
 					default:
-						error(FATAL,
-							"invalid struct reference: %s\n",
-							td->structname[i]);
+						error(FATAL, "invalid struct reference: %s\n", td->structname[i]);
 					}
 				}
 			}
 		} else
-			rdtree_iteration(slot, td, pos, index, height-1);
+			rdtree_iteration(slot, td, pos, index, height - 1);
 	}
 }
 
-int
-do_rbtree(struct tree_data *td)
+int do_rbtree(struct tree_data *td)
 {
 	ulong start;
 	char pos[BUFSIZE];
 
-	if (!VALID_MEMBER(rb_root_rb_node) || !VALID_MEMBER(rb_node_rb_left) ||
-			!VALID_MEMBER(rb_node_rb_right))
-		error(FATAL, "red-black trees do not exist or have changed "
-			"their format\n");
+	if (!VALID_MEMBER(rb_root_rb_node) || !VALID_MEMBER(rb_node_rb_left) || !VALID_MEMBER(rb_node_rb_right))
+		error(FATAL, "red-black trees do not exist or have changed " "their format\n");
 
 	sprintf(pos, "root");
 
@@ -3978,8 +3787,7 @@ do_rbtree(struct tree_data *td)
 	return td->count;
 }
 
-void
-rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
+void rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 {
 	int i;
 	uint print_radix;
@@ -4011,8 +3819,7 @@ rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 			print_radix = 0;
 
 		for (i = 0; i < td->structname_args; i++) {
-			switch(count_chars(td->structname[i], '.'))
-			{
+			switch (count_chars(td->structname[i], '.')) {
 			case 0:
 				dump_struct(td->structname[i], struct_p, print_radix);
 				break;
@@ -4020,15 +3827,13 @@ rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 				dump_struct_members_for_tree(td, i, struct_p);
 				break;
 			default:
-				error(FATAL, "invalid struct reference: %s\n",
-					td->structname[i]);
+				error(FATAL, "invalid struct reference: %s\n", td->structname[i]);
 			}
 		}
 	}
 
-	readmem(node_p+OFFSET(rb_node_rb_left), KVADDR, &left_p,
-		sizeof(void *), "rb_node rb_left", FAULT_ON_ERROR);
-	readmem(node_p+OFFSET(rb_node_rb_right), KVADDR, &right_p,
+	readmem(node_p + OFFSET(rb_node_rb_left), KVADDR, &left_p, sizeof(void *), "rb_node rb_left", FAULT_ON_ERROR);
+	readmem(node_p + OFFSET(rb_node_rb_right), KVADDR, &right_p,
 		sizeof(void *), "rb_node rb_right", FAULT_ON_ERROR);
 
 	sprintf(left_pos, "%s/l", pos);
@@ -4038,8 +3843,7 @@ rbtree_iteration(ulong node_p, struct tree_data *td, char *pos)
 	rbtree_iteration(right_p, td, right_pos);
 }
 
-void
-dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
+void dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 {
 	int i, argc;
 	uint print_radix;
@@ -4054,8 +3858,8 @@ dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 	else
 		print_radix = 0;
 
-	structname = GETBUF(strlen(td->structname[idx])+1);
-	members = GETBUF(strlen(td->structname[idx])+1);
+	structname = GETBUF(strlen(td->structname[idx]) + 1);
+	members = GETBUF(strlen(td->structname[idx]) + 1);
 
 	strcpy(structname, td->structname[idx]);
 	p1 = strstr(structname, ".") + 1;
@@ -4064,7 +3868,7 @@ dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 	replace_string(members, ",", ' ');
 	argc = parse_line(members, arglist);
 
-	for (i = 0; i <argc; i++) {
+	for (i = 0; i < argc; i++) {
 		*p1 = NULLCHAR;
 		strcat(structname, arglist[i]);
 		dump_struct_member(structname, struct_p, print_radix);
@@ -4103,9 +3907,9 @@ dump_struct_members_for_tree(struct tree_data *td, int idx, ulong struct_p)
 #define HQ_INDEX(X)      (((X) >> HQ_SHIFT) % NR_HASH_QUEUES)
 
 struct hq_entry {
-				int next;
+	int next;
 	int order;
-				ulong value;
+	ulong value;
 };
 
 struct hq_head {
@@ -4120,23 +3924,22 @@ struct hash_table {
 	long count;
 	long index;
 	int reallocs;
-} hash_table = { 0 };
+} hash_table = {
+0};
 
 /*
  *  For starters, allocate a hash table containing HQ_ENTRY_CHUNK entries.
  *  If necessary during runtime, it will be increased in size.
  */
-void
-hq_init(void)
+void hq_init(void)
 {
 	struct hash_table *ht;
 
 	ht = &hash_table;
 
-				if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK *
-			sizeof(struct hq_entry))) == NULL) {
-		error(INFO, "cannot malloc memory for hash queues: %s\n",
-			strerror(errno));
+	if ((ht->memptr = (struct hq_entry *)malloc(HQ_ENTRY_CHUNK * sizeof(struct hq_entry)))
+	    == NULL) {
+		error(INFO, "cannot malloc memory for hash queues: %s\n", strerror(errno));
 		ht->flags = HASH_QUEUE_NONE;
 		pc->flags &= ~HASH;
 		return;
@@ -4151,8 +3954,7 @@ hq_init(void)
  *  Get a free hash queue entry.  If there's no more available, realloc()
  *  a new chunk of memory with another HQ_ENTRY_CHUNK entries stuck on the end.
  */
-static long
-alloc_hq_entry(void)
+static long alloc_hq_entry(void)
 {
 	struct hash_table *ht;
 	struct hq_entry *new, *end_of_old;
@@ -4160,13 +3962,11 @@ alloc_hq_entry(void)
 	ht = &hash_table;
 
 	if (++ht->index == ht->count) {
-								if (!(new = (void *)realloc((void *)ht->memptr,
-				(ht->count+HQ_ENTRY_CHUNK) * sizeof(struct hq_entry)))) {
-			error(INFO,
-					"cannot realloc memory for hash queues: %s\n",
-				strerror(errno));
+		if (!(new = (void *)realloc((void *)ht->memptr,
+					    (ht->count + HQ_ENTRY_CHUNK) * sizeof(struct hq_entry)))) {
+			error(INFO, "cannot realloc memory for hash queues: %s\n", strerror(errno));
 			ht->flags |= HASH_QUEUE_FULL;
-			return(-1);
+			return (-1);
 		}
 		ht->reallocs++;
 		ht->memptr = new;
@@ -4175,20 +3975,19 @@ alloc_hq_entry(void)
 		ht->count += HQ_ENTRY_CHUNK;
 	}
 
-	return(ht->index);
+	return (ht->index);
 }
 
 /*
  *  Restore the hash queue to its state before the duplicate entry
  *  was attempted.
  */
-static void
-dealloc_hq_entry(struct hq_entry *entry)
+static void dealloc_hq_entry(struct hq_entry *entry)
 {
-				struct hash_table *ht;
-				long hqi;
+	struct hash_table *ht;
+	long hqi;
 
-				ht = &hash_table;
+	ht = &hash_table;
 	hqi = HQ_INDEX(entry->value);
 
 	ht->index--;
@@ -4200,8 +3999,7 @@ dealloc_hq_entry(struct hq_entry *entry)
 /*
  *  Initialize the hash table for a hashing session.
  */
-int
-hq_open(void)
+int hq_open(void)
 {
 	struct hash_table *ht;
 
@@ -4209,10 +4007,10 @@ hq_open(void)
 		return FALSE;
 
 	ht = &hash_table;
-	if (ht->flags & (HASH_QUEUE_NONE|HASH_QUEUE_OPEN))
+	if (ht->flags & (HASH_QUEUE_NONE | HASH_QUEUE_OPEN))
 		return FALSE;
 
-	ht->flags &= ~(HASH_QUEUE_FULL|HASH_QUEUE_CLOSED);
+	ht->flags &= ~(HASH_QUEUE_FULL | HASH_QUEUE_CLOSED);
 	BZERO(ht->queue_heads, sizeof(struct hq_head) * NR_HASH_QUEUES);
 	BZERO(ht->memptr, ht->count * sizeof(struct hq_entry));
 	ht->index = 0;
@@ -4225,8 +4023,7 @@ hq_open(void)
 /*
  *  Close the hash table, returning the number of items hashed in this session.
  */
-int
-hq_close(void)
+int hq_close(void)
 {
 	struct hash_table *ht;
 
@@ -4236,14 +4033,14 @@ hq_close(void)
 	ht->flags |= HASH_QUEUE_CLOSED;
 
 	if (!(pc->flags & HASH))
-		return(0);
+		return (0);
 
 	if (ht->flags & HASH_QUEUE_NONE)
-		return(0);
+		return (0);
 
 	ht->flags &= ~HASH_QUEUE_FULL;
 
-	return(ht->index);
+	return (ht->index);
 }
 
 char *corrupt_hq = "corrupt hash queue entry: value: %lx next: %d order: %d\n";
@@ -4254,8 +4051,7 @@ char *corrupt_hq = "corrupt hash queue entry: value: %lx next: %d order: %d\n";
  *  other possibilities return TRUE.  Note that it's up to the user to deal
  *  with failure.
  */
-int
-hq_enter(ulong value)
+int hq_enter(ulong value)
 {
 	struct hash_table *ht;
 	struct hq_entry *entry;
@@ -4268,7 +4064,7 @@ hq_enter(ulong value)
 
 	ht = &hash_table;
 
-	if (ht->flags & (HASH_QUEUE_NONE|HASH_QUEUE_FULL))
+	if (ht->flags & (HASH_QUEUE_NONE | HASH_QUEUE_FULL))
 		return TRUE;
 
 	if (!(ht->flags & HASH_QUEUE_OPEN))
@@ -4279,8 +4075,7 @@ hq_enter(ulong value)
 
 	entry = ht->memptr + index;
 	if (entry->next || entry->value || entry->order) {
-		error(INFO, corrupt_hq,
-			entry->value, entry->next, entry->order);
+		error(INFO, corrupt_hq, entry->value, entry->next, entry->order);
 		ht->flags |= HASH_QUEUE_NONE;
 		return TRUE;
 	}
@@ -4301,16 +4096,13 @@ hq_enter(ulong value)
 	list_entry = ht->memptr + ht->queue_heads[hqi].next;
 
 	while (TRUE) {
-					if (list_entry->value == entry->value) {
+		if (list_entry->value == entry->value) {
 			dealloc_hq_entry(entry);
-									return FALSE;
+			return FALSE;
 		}
 
 		if (list_entry->next >= ht->count) {
-			error(INFO, corrupt_hq,
-						list_entry->value,
-				list_entry->next,
-				list_entry->order);
+			error(INFO, corrupt_hq, list_entry->value, list_entry->next, list_entry->order);
 			ht->flags |= HASH_QUEUE_NONE;
 			return TRUE;
 		}
@@ -4318,7 +4110,7 @@ hq_enter(ulong value)
 		if (list_entry->next == 0)
 			break;
 
-					list_entry = ht->memptr + list_entry->next;
+		list_entry = ht->memptr + list_entry->next;
 	}
 
 	list_entry->next = index;
@@ -4329,8 +4121,7 @@ hq_enter(ulong value)
 /*
  *  "hash -d" output
  */
-void
-dump_hash_table(int verbose)
+void dump_hash_table(int verbose)
 {
 	int i;
 	struct hash_table *ht;
@@ -4344,18 +4135,17 @@ dump_hash_table(int verbose)
 	others = 0;
 
 	fprintf(fp, "              flags: %lx (", ht->flags);
-				if (ht->flags & HASH_QUEUE_NONE)
-								fprintf(fp, "%sHASH_QUEUE_NONE", others++ ? "|" : "");
-				if (ht->flags & HASH_QUEUE_OPEN)
-								fprintf(fp, "%sHASH_QUEUE_OPEN", others++ ? "|" : "");
-				if (ht->flags & HASH_QUEUE_CLOSED)
-								fprintf(fp, "%sHASH_QUEUE_CLOSED", others++ ? "|" : "");
-				if (ht->flags & HASH_QUEUE_FULL)
-								fprintf(fp, "%sHASH_QUEUE_FULL", others++ ? "|" : "");
+	if (ht->flags & HASH_QUEUE_NONE)
+		fprintf(fp, "%sHASH_QUEUE_NONE", others++ ? "|" : "");
+	if (ht->flags & HASH_QUEUE_OPEN)
+		fprintf(fp, "%sHASH_QUEUE_OPEN", others++ ? "|" : "");
+	if (ht->flags & HASH_QUEUE_CLOSED)
+		fprintf(fp, "%sHASH_QUEUE_CLOSED", others++ ? "|" : "");
+	if (ht->flags & HASH_QUEUE_FULL)
+		fprintf(fp, "%sHASH_QUEUE_FULL", others++ ? "|" : "");
 	fprintf(fp, ")\n");
-	fprintf(fp, "   queue_heads[%d]: %lx\n", NR_HASH_QUEUES,
-		(ulong)ht->queue_heads);
-	fprintf(fp, "             memptr: %lx\n", (ulong)ht->memptr);
+	fprintf(fp, "   queue_heads[%d]: %lx\n", NR_HASH_QUEUES, (ulong) ht->queue_heads);
+	fprintf(fp, "             memptr: %lx\n", (ulong) ht->memptr);
 	fprintf(fp, "              count: %ld  ", ht->count);
 	if (ht->reallocs)
 		fprintf(fp, "  (%d reallocs)", ht->reallocs);
@@ -4367,9 +4157,9 @@ dump_hash_table(int verbose)
 	maxq = 0;
 
 	for (i = 0; i < NR_HASH_QUEUES; i++) {
-							 	if (ht->queue_heads[i].next == 0) {
+		if (ht->queue_heads[i].next == 0) {
 			minq = 0;
-											 	continue;
+			continue;
 		}
 
 		if (ht->queue_heads[i].qcnt < minq)
@@ -4377,55 +4167,51 @@ dump_hash_table(int verbose)
 		if (ht->queue_heads[i].qcnt > maxq)
 			maxq = ht->queue_heads[i].qcnt;
 
-							 	queues_in_use++;
+		queues_in_use++;
 	}
 
 	elements = 0;
 	list_entry = ht->memptr;
-				for (i = 0; i < ht->count; i++, list_entry++) {
-					 if (!list_entry->order) {
-									if (list_entry->value || list_entry->next)
+	for (i = 0; i < ht->count; i++, list_entry++) {
+		if (!list_entry->order) {
+			if (list_entry->value || list_entry->next)
 				goto corrupt_list_entry;
-									continue;
-					 }
+			continue;
+		}
 
-					 if (list_entry->next >= ht->count)
-													goto corrupt_list_entry;
+		if (list_entry->next >= ht->count)
+			goto corrupt_list_entry;
 
-					 ++elements;
-			 	}
+		++elements;
+	}
 
 	if (elements != ht->index)
-					fprintf(fp, "     elements found: %ld (expected %ld)\n",
-			elements, ht->index);
-				fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use,
-		NR_HASH_QUEUES);
+		fprintf(fp, "     elements found: %ld (expected %ld)\n", elements, ht->index);
+	fprintf(fp, "      queues in use: %ld of %d\n", queues_in_use, NR_HASH_QUEUES);
 	fprintf(fp, " queue length range: %d to %d\n", minq, maxq);
 
 	if (verbose) {
 		if (!elements) {
-						fprintf(fp, "            entries: (none)\n");
+			fprintf(fp, "            entries: (none)\n");
 			return;
 		}
 
-					fprintf(fp, "            entries: ");
+		fprintf(fp, "            entries: ");
 
-					list_entry = ht->memptr;
-					for (i = 0; i < ht->count; i++, list_entry++) {
-									 if (list_entry->order)
-													fprintf(fp, "%s%lx (%d)\n",
+		list_entry = ht->memptr;
+		for (i = 0; i < ht->count; i++, list_entry++) {
+			if (list_entry->order)
+				fprintf(fp, "%s%lx (%d)\n",
 					list_entry->order == 1 ?
-					"" : "                     ",
-																	list_entry->value, list_entry->order);
-					}
+					"" : "                     ", list_entry->value, list_entry->order);
+		}
 	}
 	return;
 
-corrupt_list_entry:
+ corrupt_list_entry:
 
-				error(INFO, corrupt_hq,
-					list_entry->value, list_entry->next, list_entry->order);
-				ht->flags |= HASH_QUEUE_NONE;
+	error(INFO, corrupt_hq, list_entry->value, list_entry->next, list_entry->order);
+	ht->flags |= HASH_QUEUE_NONE;
 }
 
 /*
@@ -4437,19 +4223,17 @@ corrupt_list_entry:
  *  subsequent ones will go directly to where the non-zero (valid) entries
  *  start in the potentially very large list_entry memory chunk.
  */
-int
-retrieve_list(ulong array[], int count)
+int retrieve_list(ulong array[], int count)
 {
-				int i;
-				struct hash_table *ht;
-				struct hq_entry *list_entry;
-				int elements;
+	int i;
+	struct hash_table *ht;
+	struct hq_entry *list_entry;
+	int elements;
 
 	if (!(pc->flags & HASH))
-		error(FATAL,
-				"cannot perform this command with hash turned off\n");
+		error(FATAL, "cannot perform this command with hash turned off\n");
 
-				ht = &hash_table;
+	ht = &hash_table;
 
 	list_entry = ht->memptr;
 	for (i = elements = 0; i < ht->count; i++, list_entry++) {
@@ -4459,32 +4243,30 @@ retrieve_list(ulong array[], int count)
 			continue;
 		}
 
-								if (list_entry->next >= ht->count)
+		if (list_entry->next >= ht->count)
 			goto corrupt_list_entry;
 
 		if (array)
 			array[elements] = list_entry->value;
 
-								if (++elements == count)
-											 	break;
+		if (++elements == count)
+			break;
 	}
 
 	return elements;
 
-corrupt_list_entry:
+ corrupt_list_entry:
 
-				error(INFO, corrupt_hq,
-							 list_entry->value, list_entry->next, list_entry->order);
-				ht->flags |= HASH_QUEUE_NONE;
-				return(-1);
+	error(INFO, corrupt_hq, list_entry->value, list_entry->next, list_entry->order);
+	ht->flags |= HASH_QUEUE_NONE;
+	return (-1);
 }
 
 /*
  *  For a given value, check to see if a hash queue entry exists.  If an
  *  entry is found, return TRUE; for all other possibilities return FALSE.
  */
-int
-hq_entry_exists(ulong value)
+int hq_entry_exists(ulong value)
 {
 	struct hash_table *ht;
 	struct hq_entry *list_entry;
@@ -4509,10 +4291,7 @@ hq_entry_exists(ulong value)
 			return TRUE;
 
 		if (list_entry->next >= ht->count) {
-			error(INFO, corrupt_hq,
-				list_entry->value,
-				list_entry->next,
- 				list_entry->order);
+			error(INFO, corrupt_hq, list_entry->value, list_entry->next, list_entry->order);
 			ht->flags |= HASH_QUEUE_NONE;
 			return FALSE;
 		}
@@ -4529,8 +4308,7 @@ hq_entry_exists(ulong value)
 /*
  *  K&R power function for integers
  */
-long
-power(long base, int exp)
+long power(long base, int exp)
 {
 	int i;
 	long p;
@@ -4542,17 +4320,16 @@ power(long base, int exp)
 	return p;
 }
 
-long long
-ll_power(long long base, long long exp)
+long long ll_power(long long base, long long exp)
 {
-				long long i;
-				long long p;
+	long long i;
+	long long p;
 
-				p = 1;
-				for (i = 1; i <= exp; i++)
-								p = p * base;
+	p = 1;
+	for (i = 1; i <= exp; i++)
+		p = p * base;
 
-				return p;
+	return p;
 }
 
 /*
@@ -4608,16 +4385,16 @@ struct shared_bufs {
 	long buf_4K_used;
 	long buf_8K_used;
 	long buf_32K_used;
-				long buf_1K_maxuse;
-				long buf_2K_maxuse;
-				long buf_4K_maxuse;
-				long buf_8K_maxuse;
-				long buf_32K_maxuse;
-				long buf_1K_ovf;
-				long buf_2K_ovf;
-				long buf_4K_ovf;
-				long buf_8K_ovf;
-				long buf_32K_ovf;
+	long buf_1K_maxuse;
+	long buf_2K_maxuse;
+	long buf_4K_maxuse;
+	long buf_8K_maxuse;
+	long buf_32K_maxuse;
+	long buf_1K_ovf;
+	long buf_2K_ovf;
+	long buf_4K_ovf;
+	long buf_8K_ovf;
+	long buf_32K_ovf;
 	int buf_inuse[SHARED_BUF_SIZES];
 	char *malloc_bp[MAX_MALLOC_BUFS];
 	long smallest;
@@ -4630,8 +4407,7 @@ struct shared_bufs {
 	ulong reqs;
 } shared_bufs;
 
-void
-buf_init(void)
+void buf_init(void)
 {
 	struct shared_bufs *bp;
 
@@ -4641,7 +4417,6 @@ buf_init(void)
 	bp->smallest = 0x7fffffff;
 	bp->total = 0.0;
 }
-
 
 /*
  *  Free up all buffers used by the last command.
@@ -4654,8 +4429,8 @@ void free_all_bufs(void)
 	bp = &shared_bufs;
 	bp->embedded = 0;
 
-				for (i = 0; i < SHARED_BUF_SIZES; i++)
-								bp->buf_inuse[i] = 0;
+	for (i = 0; i < SHARED_BUF_SIZES; i++)
+		bp->buf_inuse[i] = 0;
 
 	for (i = 0; i < MAX_MALLOC_BUFS; i++) {
 		if (bp->malloc_bp[i]) {
@@ -4667,8 +4442,7 @@ void free_all_bufs(void)
 
 	if (bp->mallocs != bp->frees) {
 		dump_shared_bufs();
-		error(FATAL, "malloc-free mismatch (%ld-%ld)\n",
-			bp->mallocs, bp->frees);
+		error(FATAL, "malloc-free mismatch (%ld-%ld)\n", bp->mallocs, bp->frees);
 	}
 }
 
@@ -4677,19 +4451,18 @@ void free_all_bufs(void)
  *  If the address is one of the static buffers, look for it and
  *  clear its inuse bit.
  */
-void
-freebuf(char *addr)
+void freebuf(char *addr)
 {
-				int i;
-				struct shared_bufs *bp;
+	int i;
+	struct shared_bufs *bp;
 
-				bp = &shared_bufs;
+	bp = &shared_bufs;
 	bp->embedded--;
 
-				if (CRASHDEBUG(8)) {
-		INDENT(bp->embedded*2);
-								fprintf(fp, "FREEBUF(%ld)\n", bp->embedded);
-				}
+	if (CRASHDEBUG(8)) {
+		INDENT(bp->embedded * 2);
+		fprintf(fp, "FREEBUF(%ld)\n", bp->embedded);
+	}
 
 	for (i = 0; i < NUMBER_1K_BUFS; i++) {
 		if (addr == (char *)&bp->buf_1K[i]) {
@@ -4719,105 +4492,95 @@ freebuf(char *addr)
 		}
 	}
 
-				for (i = 0; i < NUMBER_32K_BUFS; i++) {
-								if (addr == (char *)&bp->buf_32K[i]) {
-												bp->buf_inuse[B32K] &= ~(1 << i);
-												return;
-								}
-				}
+	for (i = 0; i < NUMBER_32K_BUFS; i++) {
+		if (addr == (char *)&bp->buf_32K[i]) {
+			bp->buf_inuse[B32K] &= ~(1 << i);
+			return;
+		}
+	}
 
-				for (i = 0; i < MAX_MALLOC_BUFS; i++) {
-								if (bp->malloc_bp[i] == addr) {
-												free(bp->malloc_bp[i]);
-												bp->malloc_bp[i] = NULL;
-												bp->frees++;
-												return;
-								}
-				}
+	for (i = 0; i < MAX_MALLOC_BUFS; i++) {
+		if (bp->malloc_bp[i] == addr) {
+			free(bp->malloc_bp[i]);
+			bp->malloc_bp[i] = NULL;
+			bp->frees++;
+			return;
+		}
+	}
 
-	error(FATAL,
-			"freeing an unknown buffer -- shared buffer inconsistency!\n");
+	error(FATAL, "freeing an unknown buffer -- shared buffer inconsistency!\n");
 }
 
 /* DEBUG */
-void
-dump_embedded(char *s)
+void dump_embedded(char *s)
 {
-				struct shared_bufs *bp;
+	struct shared_bufs *bp;
 	char *p1;
 
 	p1 = s ? s : "";
 
-				bp = &shared_bufs;
-				console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n",
-		p1, bp->embedded, bp->mallocs, bp->frees);
+	bp = &shared_bufs;
+	console("%s: embedded: %ld  mallocs: %ld  frees: %ld\n", p1, bp->embedded, bp->mallocs, bp->frees);
 }
+
 /* DEBUG */
-long
-get_embedded(void)
+long get_embedded(void)
 {
 	struct shared_bufs *bp;
 
-				bp = &shared_bufs;
-	return(bp->embedded);
+	bp = &shared_bufs;
+	return (bp->embedded);
 }
 
 /*
  *  "help -b" output
  */
-void
-dump_shared_bufs(void)
+void dump_shared_bufs(void)
 {
-				int i;
-				struct shared_bufs *bp;
+	int i;
+	struct shared_bufs *bp;
 
-				bp = &shared_bufs;
+	bp = &shared_bufs;
 
-				fprintf(fp, "   buf_1K_used: %ld\n", bp->buf_1K_used);
-				fprintf(fp, "   buf_2K_used: %ld\n", bp->buf_2K_used);
-				fprintf(fp, "   buf_4K_used: %ld\n", bp->buf_4K_used);
-				fprintf(fp, "   buf_8K_used: %ld\n", bp->buf_8K_used);
-				fprintf(fp, "  buf_32K_used: %ld\n", bp->buf_32K_used);
+	fprintf(fp, "   buf_1K_used: %ld\n", bp->buf_1K_used);
+	fprintf(fp, "   buf_2K_used: %ld\n", bp->buf_2K_used);
+	fprintf(fp, "   buf_4K_used: %ld\n", bp->buf_4K_used);
+	fprintf(fp, "   buf_8K_used: %ld\n", bp->buf_8K_used);
+	fprintf(fp, "  buf_32K_used: %ld\n", bp->buf_32K_used);
 
-				fprintf(fp, "    buf_1K_ovf: %ld\n", bp->buf_1K_ovf);
-				fprintf(fp, "    buf_2K_ovf: %ld\n", bp->buf_2K_ovf);
-				fprintf(fp, "    buf_4K_ovf: %ld\n", bp->buf_4K_ovf);
-				fprintf(fp, "    buf_8K_ovf: %ld\n", bp->buf_8K_ovf);
-				fprintf(fp, "   buf_32K_ovf: %ld\n", bp->buf_32K_ovf);
+	fprintf(fp, "    buf_1K_ovf: %ld\n", bp->buf_1K_ovf);
+	fprintf(fp, "    buf_2K_ovf: %ld\n", bp->buf_2K_ovf);
+	fprintf(fp, "    buf_4K_ovf: %ld\n", bp->buf_4K_ovf);
+	fprintf(fp, "    buf_8K_ovf: %ld\n", bp->buf_8K_ovf);
+	fprintf(fp, "   buf_32K_ovf: %ld\n", bp->buf_32K_ovf);
 
-				fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse,
-		NUMBER_1K_BUFS);
-				fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse,
-		NUMBER_2K_BUFS);
-				fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse,
-		NUMBER_4K_BUFS);
-				fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse,
-		NUMBER_8K_BUFS);
-				fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse,
-		NUMBER_32K_BUFS);
+	fprintf(fp, " buf_1K_maxuse: %2ld of %d\n", bp->buf_1K_maxuse, NUMBER_1K_BUFS);
+	fprintf(fp, " buf_2K_maxuse: %2ld of %d\n", bp->buf_2K_maxuse, NUMBER_2K_BUFS);
+	fprintf(fp, " buf_4K_maxuse: %2ld of %d\n", bp->buf_4K_maxuse, NUMBER_4K_BUFS);
+	fprintf(fp, " buf_8K_maxuse: %2ld of %d\n", bp->buf_8K_maxuse, NUMBER_8K_BUFS);
+	fprintf(fp, "buf_32K_maxuse: %2ld of %d\n", bp->buf_32K_maxuse, NUMBER_32K_BUFS);
 
 	fprintf(fp, "  buf_inuse[%d]: ", SHARED_BUF_SIZES);
 	for (i = 0; i < SHARED_BUF_SIZES; i++)
-		fprintf(fp, "[%lx]", (ulong)bp->buf_inuse[i]);
+		fprintf(fp, "[%lx]", (ulong) bp->buf_inuse[i]);
 	fprintf(fp, "\n");
 
-				for (i = 0; i < MAX_MALLOC_BUFS; i++)
+	for (i = 0; i < MAX_MALLOC_BUFS; i++)
 		if (bp->malloc_bp[i])
-			fprintf(fp, "  malloc_bp[%d]: %lx\n",
-				i, (ulong)bp->malloc_bp[i]);
+			fprintf(fp, "  malloc_bp[%d]: %lx\n", i, (ulong) bp->malloc_bp[i]);
 
 	if (bp->smallest == 0x7fffffff)
-					fprintf(fp, "      smallest: 0\n");
+		fprintf(fp, "      smallest: 0\n");
 	else
-					fprintf(fp, "      smallest: %ld\n", bp->smallest);
-				fprintf(fp, "       largest: %ld\n", bp->largest);
+		fprintf(fp, "      smallest: %ld\n", bp->smallest);
+	fprintf(fp, "       largest: %ld\n", bp->largest);
 
 	fprintf(fp, "      embedded: %ld\n", bp->embedded);
 	fprintf(fp, "  max_embedded: %ld\n", bp->max_embedded);
 	fprintf(fp, "       mallocs: %ld\n", bp->mallocs);
 	fprintf(fp, "         frees: %ld\n", bp->frees);
 	fprintf(fp, "    reqs/total: %ld/%.1f\n", bp->reqs, bp->total);
-	fprintf(fp, "  average size: %.1f\n", bp->total/bp->reqs);
+	fprintf(fp, "  average size: %.1f\n", bp->total / bp->reqs);
 }
 
 /*
@@ -4832,8 +4595,7 @@ dump_shared_bufs(void)
 														((size <= 8192) ? 8192 >> 7 : \
 																((size <= 32768) ? 32768 >> 7 : -1)))))
 
-char *
-getbuf(long reqsize)
+char *getbuf(long reqsize)
 {
 	int i;
 	int index;
@@ -4843,21 +4605,19 @@ getbuf(long reqsize)
 	char *bufp;
 
 	if (!reqsize) {
-								ulong retaddr = (ulong)__builtin_return_address(0);
-								error(FATAL, "zero-size memory allocation! (called from %lx)\n",
-												retaddr);
-				}
+		ulong retaddr = (ulong) __builtin_return_address(0);
+		error(FATAL, "zero-size memory allocation! (called from %lx)\n", retaddr);
+	}
 
 	bp = &shared_bufs;
 
 	index = SHARED_BUFSIZE(reqsize);
 
 	if (CRASHDEBUG(7) && (reqsize > MAX_CACHE_SIZE))
-		error(NOTE, "GETBUF request > MAX_CACHE_SIZE: %ld\n",
-			reqsize);
+		error(NOTE, "GETBUF request > MAX_CACHE_SIZE: %ld\n", reqsize);
 
 	if (CRASHDEBUG(8)) {
-		INDENT(bp->embedded*2);
+		INDENT(bp->embedded * 2);
 		fprintf(fp, "GETBUF(%ld -> %ld)\n", reqsize, bp->embedded);
 	}
 
@@ -4873,80 +4633,74 @@ getbuf(long reqsize)
 	bp->total += reqsize;
 	bp->reqs++;
 
-	switch (index)
-	{
+	switch (index) {
 	case -1:
 		break;
 
 	case 8:
-								if (SHARED_1K_BUF_AVAIL(bp->buf_inuse[B1K])) {
-												mask = ~(bp->buf_inuse[B1K]);
-												bdx = ffs(mask) - 1;
-												bufp = bp->buf_1K[bdx];
-												bp->buf_1K_used++;
-												bp->buf_inuse[B1K] |= (1 << bdx);
-			bp->buf_1K_maxuse = MAX(bp->buf_1K_maxuse,
-				count_bits_int(bp->buf_inuse[B1K]));
-												BZERO(bufp, 1024);
-												return(bufp);
-								}
-		bp->buf_1K_ovf++;  /* FALLTHROUGH */
+		if (SHARED_1K_BUF_AVAIL(bp->buf_inuse[B1K])) {
+			mask = ~(bp->buf_inuse[B1K]);
+			bdx = ffs(mask) - 1;
+			bufp = bp->buf_1K[bdx];
+			bp->buf_1K_used++;
+			bp->buf_inuse[B1K] |= (1 << bdx);
+			bp->buf_1K_maxuse = MAX(bp->buf_1K_maxuse, count_bits_int(bp->buf_inuse[B1K]));
+			BZERO(bufp, 1024);
+			return (bufp);
+		}
+		bp->buf_1K_ovf++;	/* FALLTHROUGH */
 
 	case 16:
-								if (SHARED_2K_BUF_AVAIL(bp->buf_inuse[B2K])) {
-												mask = ~(bp->buf_inuse[B2K]);
-												bdx = ffs(mask) - 1;
-												bufp = bp->buf_2K[bdx];
-												bp->buf_2K_used++;
-												bp->buf_inuse[B2K] |= (1 << bdx);
-												bp->buf_2K_maxuse = MAX(bp->buf_2K_maxuse,
-																count_bits_int(bp->buf_inuse[B2K]));
-												BZERO(bufp, 2048);
-												return(bufp);
-								}
-		bp->buf_2K_ovf++;  /* FALLTHROUGH */
+		if (SHARED_2K_BUF_AVAIL(bp->buf_inuse[B2K])) {
+			mask = ~(bp->buf_inuse[B2K]);
+			bdx = ffs(mask) - 1;
+			bufp = bp->buf_2K[bdx];
+			bp->buf_2K_used++;
+			bp->buf_inuse[B2K] |= (1 << bdx);
+			bp->buf_2K_maxuse = MAX(bp->buf_2K_maxuse, count_bits_int(bp->buf_inuse[B2K]));
+			BZERO(bufp, 2048);
+			return (bufp);
+		}
+		bp->buf_2K_ovf++;	/* FALLTHROUGH */
 
 	case 32:
-								if (SHARED_4K_BUF_AVAIL(bp->buf_inuse[B4K])) {
-												mask = ~(bp->buf_inuse[B4K]);
-												bdx = ffs(mask) - 1;
-												bufp = bp->buf_4K[bdx];
-												bp->buf_4K_used++;
-												bp->buf_inuse[B4K] |= (1 << bdx);
-												bp->buf_4K_maxuse = MAX(bp->buf_4K_maxuse,
-																count_bits_int(bp->buf_inuse[B4K]));
-												BZERO(bufp, 4096);
-												return(bufp);
-								}
-		bp->buf_4K_ovf++;  /* FALLTHROUGH */
+		if (SHARED_4K_BUF_AVAIL(bp->buf_inuse[B4K])) {
+			mask = ~(bp->buf_inuse[B4K]);
+			bdx = ffs(mask) - 1;
+			bufp = bp->buf_4K[bdx];
+			bp->buf_4K_used++;
+			bp->buf_inuse[B4K] |= (1 << bdx);
+			bp->buf_4K_maxuse = MAX(bp->buf_4K_maxuse, count_bits_int(bp->buf_inuse[B4K]));
+			BZERO(bufp, 4096);
+			return (bufp);
+		}
+		bp->buf_4K_ovf++;	/* FALLTHROUGH */
 
-				case 64:
-								if (SHARED_8K_BUF_AVAIL(bp->buf_inuse[B8K])) {
-												mask = ~(bp->buf_inuse[B8K]);
-												bdx = ffs(mask) - 1;
-												bufp = bp->buf_8K[bdx];
-												bp->buf_8K_used++;
-												bp->buf_inuse[B8K] |= (1 << bdx);
-												bp->buf_8K_maxuse = MAX(bp->buf_8K_maxuse,
-																count_bits_int(bp->buf_inuse[B8K]));
-												BZERO(bufp, 8192);
-												return(bufp);
-								}
-		bp->buf_8K_ovf++;  /* FALLTHROUGH */
+	case 64:
+		if (SHARED_8K_BUF_AVAIL(bp->buf_inuse[B8K])) {
+			mask = ~(bp->buf_inuse[B8K]);
+			bdx = ffs(mask) - 1;
+			bufp = bp->buf_8K[bdx];
+			bp->buf_8K_used++;
+			bp->buf_inuse[B8K] |= (1 << bdx);
+			bp->buf_8K_maxuse = MAX(bp->buf_8K_maxuse, count_bits_int(bp->buf_inuse[B8K]));
+			BZERO(bufp, 8192);
+			return (bufp);
+		}
+		bp->buf_8K_ovf++;	/* FALLTHROUGH */
 
 	case 256:
-							 if (SHARED_32K_BUF_AVAIL(bp->buf_inuse[B32K])) {
-												mask = ~(bp->buf_inuse[B32K]);
-												bdx = ffs(mask) - 1;
-												bufp = bp->buf_32K[bdx];
-												bp->buf_32K_used++;
-												bp->buf_inuse[B32K] |= (1 << bdx);
-												bp->buf_32K_maxuse = MAX(bp->buf_32K_maxuse,
-																count_bits_int(bp->buf_inuse[B32K]));
-												BZERO(bufp, 32768);
-												return(bufp);
-								}
-								bp->buf_32K_ovf++;
+		if (SHARED_32K_BUF_AVAIL(bp->buf_inuse[B32K])) {
+			mask = ~(bp->buf_inuse[B32K]);
+			bdx = ffs(mask) - 1;
+			bufp = bp->buf_32K[bdx];
+			bp->buf_32K_used++;
+			bp->buf_inuse[B32K] |= (1 << bdx);
+			bp->buf_32K_maxuse = MAX(bp->buf_32K_maxuse, count_bits_int(bp->buf_inuse[B32K]));
+			BZERO(bufp, 32768);
+			return (bufp);
+		}
+		bp->buf_32K_ovf++;
 		break;
 	}
 
@@ -4957,7 +4711,7 @@ getbuf(long reqsize)
 		if ((bp->malloc_bp[i] = (char *)malloc(reqsize))) {
 			BZERO(bp->malloc_bp[i], reqsize);
 			bp->mallocs++;
-			return(bp->malloc_bp[i]);
+			return (bp->malloc_bp[i]);
 		}
 
 		break;
@@ -4976,8 +4730,7 @@ getbuf(long reqsize)
  *  and return the address of the new buffer, which will have
  *  a different address than oldbuf.
  */
-char *
-resizebuf(char *oldbuf, long oldsize, long newsize)
+char *resizebuf(char *oldbuf, long oldsize, long newsize)
 {
 	char *newbuf;
 
@@ -4992,8 +4745,7 @@ resizebuf(char *oldbuf, long oldsize, long newsize)
  *  Return the number of bits set in an int or long.
  */
 
-int
-count_bits_int(int val)
+int count_bits_int(int val)
 {
 	int i, cnt;
 	int total;
@@ -5009,58 +4761,55 @@ count_bits_int(int val)
 	return total;
 }
 
-int
-count_bits_long(ulong val)
+int count_bits_long(ulong val)
 {
-				int i, cnt;
-				int total;
+	int i, cnt;
+	int total;
 
-				cnt = sizeof(long) * 8;
+	cnt = sizeof(long) * 8;
 
-				for (i = total = 0; i < cnt; i++) {
-								if (val & 1)
-												total++;
-								val >>= 1;
-				}
+	for (i = total = 0; i < cnt; i++) {
+		if (val & 1)
+			total++;
+		val >>= 1;
+	}
 
-				return total;
+	return total;
 }
 
-int
-highest_bit_long(ulong val)
+int highest_bit_long(ulong val)
 {
-				int i, cnt;
-				int total;
+	int i, cnt;
+	int total;
 	int highest;
 
 	highest = -1;
-				cnt = sizeof(long) * 8;
+	cnt = sizeof(long) * 8;
 
-				for (i = total = 0; i < cnt; i++) {
-								if (val & 1)
-												highest = i;
-								val >>= 1;
-				}
+	for (i = total = 0; i < cnt; i++) {
+		if (val & 1)
+			highest = i;
+		val >>= 1;
+	}
 
-				return highest;
+	return highest;
 }
 
-int
-lowest_bit_long(ulong val)
+int lowest_bit_long(ulong val)
 {
-				int i, cnt;
+	int i, cnt;
 	int lowest;
 
 	lowest = -1;
 	cnt = sizeof(long) * 8;
 
-				for (i = 0; i < cnt; i++) {
-								if (val & 1) {
-												lowest = i;
+	for (i = 0; i < cnt; i++) {
+		if (val & 1) {
+			lowest = i;
 			break;
 		}
-								val >>= 1;
-				}
+		val >>= 1;
+	}
 
 	return lowest;
 }
@@ -5068,8 +4817,7 @@ lowest_bit_long(ulong val)
 /*
  *  Debug routine to stop whatever's going on in its tracks.
  */
-void
-drop_core(char *s)
+void drop_core(char *s)
 {
 	volatile int *nullptr;
 	int i ATTRIBUTE_UNUSED;
@@ -5077,13 +4825,12 @@ drop_core(char *s)
 	if (s && ascii_string(s))
 		fprintf(stderr, "%s", s);
 
-	kill((pid_t)pc->program_pid, 3);
+	kill((pid_t) pc->program_pid, 3);
 
 	nullptr = NULL;
 	while (TRUE)
 		i = *nullptr;
 }
-
 
 /*
  *  For debug output to a device other than the current terminal.
@@ -5095,123 +4842,113 @@ drop_core(char *s)
  *
  *  The first time it's called, the device will be opened.
  */
-int
-console(char *fmt, ...)
+int console(char *fmt, ...)
 {
-				char output[BUFSIZE*2];
+	char output[BUFSIZE * 2];
 	va_list ap;
 
-				if (!pc->console || !strlen(pc->console) ||
-						(pc->flags & NO_CONSOLE) || (pc->confd == -1))
-								return 0;
+	if (!pc->console || !strlen(pc->console) || (pc->flags & NO_CONSOLE) || (pc->confd == -1))
+		return 0;
 
-				if (!fmt || !strlen(fmt))
-								return 0;
+	if (!fmt || !strlen(fmt))
+		return 0;
 
-				va_start(ap, fmt);
-				(void)vsnprintf(output, BUFSIZE*2, fmt, ap);
-				va_end(ap);
+	va_start(ap, fmt);
+	(void)vsnprintf(output, BUFSIZE * 2, fmt, ap);
+	va_end(ap);
 
-				if (pc->confd == -2) {
-								if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
-												error(INFO, "console device %s: %s\n",
-																pc->console, strerror(errno), 0, 0);
-												return 0;
-								}
-				}
+	if (pc->confd == -2) {
+		if ((pc->confd = open(pc->console, O_WRONLY | O_NDELAY)) < 0) {
+			error(INFO, "console device %s: %s\n", pc->console, strerror(errno), 0, 0);
+			return 0;
+		}
+	}
 
-				return(write(pc->confd, output, strlen(output)));
+	return (write(pc->confd, output, strlen(output)));
 }
 
 /*
  *  Allocate space to store the designated console device name.
  *  If a console device pre-exists, free its name space and close the device.
  */
-void
-create_console_device(char *dev)
+void create_console_device(char *dev)
 {
-				if (pc->console) {
-								if (pc->confd != -1)
-												close(pc->confd);
-								free(pc->console);
-				}
-
-				pc->confd = -2;
-
-				if ((pc->console = (char *)malloc(strlen(dev)+1)) == NULL)
-								fprintf(stderr, "console name malloc: %s\n", strerror(errno));
-				else {
-								strcpy(pc->console, dev);
-								if (console("debug console [%ld]: %s\n",
-				pc->program_pid, (ulong)pc->console) < 0) {
+	if (pc->console) {
+		if (pc->confd != -1)
 			close(pc->confd);
-									free(pc->console);
+		free(pc->console);
+	}
+
+	pc->confd = -2;
+
+	if ((pc->console = (char *)malloc(strlen(dev) + 1)) == NULL)
+		fprintf(stderr, "console name malloc: %s\n", strerror(errno));
+	else {
+		strcpy(pc->console, dev);
+		if (console("debug console [%ld]: %s\n", pc->program_pid, (ulong) pc->console) < 0) {
+			close(pc->confd);
+			free(pc->console);
 			pc->console = NULL;
 			pc->confd = -1;
 			if (!(pc->flags & RUNTIME))
 				error(INFO, "cannot set console to %s\n", dev);
 
 		}
-				}
+	}
 }
 
 /*
  *  Disable console output without closing the device.
  *  Typically used with CONSOLE_OFF() macro.
  */
-int
-console_off(void)
+int console_off(void)
 {
-				int orig_no_console;
+	int orig_no_console;
 
-				orig_no_console = pc->flags & NO_CONSOLE;
-				pc->flags |= NO_CONSOLE;
+	orig_no_console = pc->flags & NO_CONSOLE;
+	pc->flags |= NO_CONSOLE;
 
-				return orig_no_console;
+	return orig_no_console;
 }
 
 /*
  *  Re-enable console output.  Typically used with CONSOLE_ON() macro.
  */
-int
-console_on(int orig_no_console)
+int console_on(int orig_no_console)
 {
-				if (!orig_no_console)
-								pc->flags &= ~NO_CONSOLE;
+	if (!orig_no_console)
+		pc->flags &= ~NO_CONSOLE;
 
-				return(pc->flags & NO_CONSOLE);
+	return (pc->flags & NO_CONSOLE);
 }
 
 /*
  *  Print a string to the console device with no formatting, useful for
  *  sending strings containing % signs.
  */
-int
-console_verbatim(char *s)
+int console_verbatim(char *s)
 {
-				char *p;
+	char *p;
 	int cnt;
 
-				if (!pc->console || !strlen(pc->console) ||
-			(pc->flags & NO_CONSOLE) || (pc->confd == -1))
-								return 0;
+	if (!pc->console || !strlen(pc->console) || (pc->flags & NO_CONSOLE) || (pc->confd == -1))
+		return 0;
 
-				if (!s || !strlen(s))
-								return 0;
+	if (!s || !strlen(s))
+		return 0;
 
-				if (pc->confd == -2) {
-								if ((pc->confd = open(pc->console, O_WRONLY|O_NDELAY)) < 0) {
-												fprintf(stderr, "%s: %s\n",
-																pc->console, strerror(errno));
-												return 0;
-								}
-				}
+	if (pc->confd == -2) {
+		if ((pc->confd = open(pc->console, O_WRONLY | O_NDELAY)) < 0) {
+			fprintf(stderr, "%s: %s\n", pc->console, strerror(errno));
+			return 0;
+		}
+	}
 
-				for (cnt = 0, p = s; *p; p++) {
-								if (write(pc->confd, p, 1) != 1)
+	for (cnt = 0, p = s; *p; p++) {
+		if (write(pc->confd, p, 1) != 1)
 			break;
 		cnt++;
-				}
+	}
 
 	return cnt;
 }
@@ -5219,13 +4956,12 @@ console_verbatim(char *s)
 /*
  *  Set up a signal handler.
  */
-void
-sigsetup(int sig, void *handler, struct sigaction *act,struct sigaction *oldact)
+void sigsetup(int sig, void *handler, struct sigaction *act, struct sigaction *oldact)
 {
 	BZERO(act, sizeof(struct sigaction));
-				act->sa_handler = handler;
-				act->sa_flags = SA_NOMASK;
-				sigaction(sig, act, oldact);
+	act->sa_handler = handler;
+	act->sa_flags = SA_NOMASK;
+	sigaction(sig, act, oldact);
 }
 
 /*
@@ -5236,8 +4972,7 @@ sigsetup(int sig, void *handler, struct sigaction *act,struct sigaction *oldact)
 #define SEC_HOURS    (60 * SEC_MINUTES)
 #define SEC_DAYS     (24 * SEC_HOURS)
 
-char *
-convert_time(ulonglong count, char *buf)
+char *convert_time(ulonglong count, char *buf)
 {
 	ulonglong total, days, hours, minutes, seconds;
 
@@ -5249,21 +4984,20 @@ convert_time(ulonglong count, char *buf)
 		return buf;
 	}
 
-				total = (count)/(ulonglong)machdep->hz;
+	total = (count) / (ulonglong) machdep->hz;
 
-				days = total / SEC_DAYS;
-				total %= SEC_DAYS;
-				hours = total / SEC_HOURS;
-				total %= SEC_HOURS;
-				minutes = total / SEC_MINUTES;
-				seconds = total % SEC_MINUTES;
+	days = total / SEC_DAYS;
+	total %= SEC_DAYS;
+	hours = total / SEC_HOURS;
+	total %= SEC_HOURS;
+	minutes = total / SEC_MINUTES;
+	seconds = total % SEC_MINUTES;
 
 	buf[0] = NULLCHAR;
 
-				if (days)
-					sprintf(buf, "%llu days, ", days);
-				sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu",
-		hours, minutes, seconds);
+	if (days)
+		sprintf(buf, "%llu days, ", days);
+	sprintf(&buf[strlen(buf)], "%02llu:%02llu:%02llu", hours, minutes, seconds);
 
 	return buf;
 }
@@ -5271,23 +5005,20 @@ convert_time(ulonglong count, char *buf)
 /*
  *  Stall for a number of microseconds.
  */
-void
-stall(ulong microseconds)
+void stall(ulong microseconds)
 {
-				struct timeval delay;
+	struct timeval delay;
 
-				delay.tv_sec = 0;
-				delay.tv_usec = (__time_t)microseconds;
+	delay.tv_sec = 0;
+	delay.tv_usec = (__time_t) microseconds;
 
-				(void) select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, &delay);
+	(void)select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, &delay);
 }
-
 
 /*
  *  Fill a buffer with a page count translated to a GB/MB/KB value.
  */
-char *
-pages_to_size(ulong pages, char *buf)
+char *pages_to_size(ulong pages, char *buf)
 {
 	double total;
 	char *p1, *p2;
@@ -5297,14 +5028,14 @@ pages_to_size(ulong pages, char *buf)
 		return buf;
 	}
 
-	total = (double)pages * (double)PAGESIZE();
+	total = (double)pages *(double)PAGESIZE();
 
-			if (total >= GIGABYTES(1))
-					sprintf(buf, "%.1f GB", total/(double)GIGABYTES(1));
-			else if (total >= MEGABYTES(1))
-					sprintf(buf, "%.1f MB", total/(double)MEGABYTES(1));
-				else
-					sprintf(buf, "%ld KB", (ulong)(total/(double)KILOBYTES(1)));
+	if (total >= GIGABYTES(1))
+		sprintf(buf, "%.1f GB", total / (double)GIGABYTES(1));
+	else if (total >= MEGABYTES(1))
+		sprintf(buf, "%.1f MB", total / (double)MEGABYTES(1));
+	else
+		sprintf(buf, "%ld KB", (ulong) (total / (double)KILOBYTES(1)));
 
 	if ((p1 = strstr(buf, ".0 "))) {
 		p2 = p1 + 3;
@@ -5318,60 +5049,50 @@ pages_to_size(ulong pages, char *buf)
 /*
  *  If the list_head.next value points to itself, it's an emtpy list.
  */
-int
-empty_list(ulong list_head_addr)
+int empty_list(ulong list_head_addr)
 {
 	ulong next;
 
-	if (!readmem(list_head_addr, KVADDR, &next, sizeof(void *),
-						"list_head next contents", RETURN_ON_ERROR))
+	if (!readmem(list_head_addr, KVADDR, &next, sizeof(void *), "list_head next contents", RETURN_ON_ERROR))
 		return TRUE;
 
 	return (next == list_head_addr);
 }
 
-int
-machine_type(char *type)
+int machine_type(char *type)
 {
 	return STREQ(MACHINE_TYPE, type);
 }
 
-int
-machine_type_mismatch(char *file, char *e_machine, char *alt, ulong query)
+int machine_type_mismatch(char *file, char *e_machine, char *alt, ulong query)
 {
 	if (machine_type(e_machine) || machine_type(alt))
 		return FALSE;
 
-	if (query == KDUMP_LOCAL)  /* already printed by NETDUMP_LOCAL */
+	if (query == KDUMP_LOCAL)	/* already printed by NETDUMP_LOCAL */
 		return TRUE;
 
 	error(WARNING, "machine type mismatch:\n");
 
 	fprintf(fp, "         crash utility: %s\n", MACHINE_TYPE);
-	fprintf(fp, "         %s: %s%s%s\n\n", file, e_machine,
-		alt ? " or " : "", alt ? alt : "");
+	fprintf(fp, "         %s: %s%s%s\n\n", file, e_machine, alt ? " or " : "", alt ? alt : "");
 
 	return TRUE;
 }
-void
-command_not_supported()
+
+void command_not_supported()
 {
-	error(FATAL,
-			"command not supported or applicable on this architecture or kernel\n");
+	error(FATAL, "command not supported or applicable on this architecture or kernel\n");
 }
 
-void
-option_not_supported(int c)
+void option_not_supported(int c)
 {
-	error(FATAL,
-			"-%c option not supported or applicable on this architecture or kernel\n",
-		(char)c);
+	error(FATAL, "-%c option not supported or applicable on this architecture or kernel\n", (char)c);
 }
 
 static int please_wait_len = 0;
 
-void
-please_wait(char *s)
+void please_wait(char *s)
 {
 	int fd;
 	char buf[BUFSIZE];
@@ -5380,21 +5101,20 @@ please_wait(char *s)
 		return;
 
 	if (!(pc->flags & TTY) && KVMDUMP_DUMPFILE()) {
-		if (!isatty(fileno(stdin)) ||
-				((fd = open("/dev/tty", O_RDONLY)) < 0))
+		if (!isatty(fileno(stdin))
+		    || ((fd = open("/dev/tty", O_RDONLY)) < 0))
 			return;
 		close(fd);
 	}
 
 	pc->flags |= PLEASE_WAIT;
 
-				please_wait_len = sprintf(buf, "\rplease wait... (%s)", s);
+	please_wait_len = sprintf(buf, "\rplease wait... (%s)", s);
 	fprintf(fp, buf);
-				fflush(fp);
+	fflush(fp);
 }
 
-void
-please_wait_done(void)
+void please_wait_done(void)
 {
 	if (!(pc->flags & PLEASE_WAIT))
 		return;
@@ -5410,21 +5130,24 @@ please_wait_done(void)
 /*
  *  Compare two pathnames.
  */
-int
-pathcmp(char *p1, char *p2)
+int pathcmp(char *p1, char *p2)
 {
-				char c1, c2;
+	char c1, c2;
 
-				do {
-								if ((c1 = *p1++) == '/')
-												while (*p1 == '/') { p1++; }
-								if ((c2 = *p2++) == '/')
-												while (*p2 == '/') { p2++; }
-								if (c1 == '\0')
-												return ((c2 == '/') && (*p2 == '\0')) ? 0 : c1 - c2;
-				} while (c1 == c2);
+	do {
+		if ((c1 = *p1++) == '/')
+			while (*p1 == '/') {
+				p1++;
+			}
+		if ((c2 = *p2++) == '/')
+			while (*p2 == '/') {
+				p2++;
+			}
+		if (c1 == '\0')
+			return ((c2 == '/') && (*p2 == '\0')) ? 0 : c1 - c2;
+	} while (c1 == c2);
 
-				return ((c2 == '\0') && (c1 == '/') && (*p1 == '\0')) ? 0 : c1 - c2;
+	return ((c2 == '\0') && (c1 == '/') && (*p1 == '\0')) ? 0 : c1 - c2;
 }
 
 #include <elf.h>
@@ -5432,13 +5155,11 @@ pathcmp(char *p1, char *p2)
 /*
  *  Check the byte-order of an ELF file vs. the host byte order.
  */
-int
-endian_mismatch(char *file, char dumpfile_endian, ulong query)
+int endian_mismatch(char *file, char dumpfile_endian, ulong query)
 {
 	char *endian;
 
-	switch (dumpfile_endian)
-	{
+	switch (dumpfile_endian) {
 	case ELFDATA2LSB:
 		if (__BYTE_ORDER == __LITTLE_ENDIAN)
 			return FALSE;
@@ -5454,43 +5175,35 @@ endian_mismatch(char *file, char dumpfile_endian, ulong query)
 		break;
 	}
 
-	if (query == KDUMP_LOCAL)  /* already printed by NETDUMP_LOCAL */
+	if (query == KDUMP_LOCAL)	/* already printed by NETDUMP_LOCAL */
 		return TRUE;
 
-				error(WARNING, "endian mismatch:\n");
+	error(WARNING, "endian mismatch:\n");
 
-				fprintf(fp, "         crash utility: %s\n",
-		(__BYTE_ORDER == __LITTLE_ENDIAN) ?
-		"little-endian" : "big-endian");
-				fprintf(fp, "         %s: %s\n\n", file, endian);
+	fprintf(fp, "         crash utility: %s\n", (__BYTE_ORDER == __LITTLE_ENDIAN) ? "little-endian" : "big-endian");
+	fprintf(fp, "         %s: %s\n\n", file, endian);
 
 	return TRUE;
 }
 
-uint16_t
-swap16(uint16_t val, int swap)
+uint16_t swap16(uint16_t val, int swap)
 {
 	if (swap)
-					return (((val & 0x00ff) << 8) |
-									((val & 0xff00) >> 8));
+		return (((val & 0x00ff) << 8) | ((val & 0xff00) >> 8));
 	else
 		return val;
 }
 
-uint32_t
-swap32(uint32_t val, int swap)
+uint32_t swap32(uint32_t val, int swap)
 {
 	if (swap)
-					return (((val & 0x000000ffU) << 24) |
-									((val & 0x0000ff00U) <<  8) |
-									((val & 0x00ff0000U) >>  8) |
-									((val & 0xff000000U) >> 24));
+		return (((val & 0x000000ffU) << 24) |
+			((val & 0x0000ff00U) << 8) | ((val & 0x00ff0000U) >> 8) | ((val & 0xff000000U) >> 24));
 	else
 		return val;
 }
 
-int
-make_cpumask(char *s, ulong *mask, int flags, int *errptr)
+int make_cpumask(char *s, ulong * mask, int flags, int *errptr)
 {
 	char *p, *q;
 	int start, end;
@@ -5522,9 +5235,8 @@ make_cpumask(char *s, ulong *mask, int flags, int *errptr)
 
 	return TRUE;
 
-make_cpumask_error:
-	switch (flags & (FAULT_ON_ERROR|RETURN_ON_ERROR))
-	{
+ make_cpumask_error:
+	switch (flags & (FAULT_ON_ERROR | RETURN_ON_ERROR)) {
 	case FAULT_ON_ERROR:
 		RESTART();
 
@@ -5542,8 +5254,7 @@ make_cpumask_error:
  * the resultant string in the sized buffer so that it will
  * always be NULL-terminated.
  */
-size_t
-strlcpy(char *dest, char *src, size_t size)
+size_t strlcpy(char *dest, char *src, size_t size)
 {
 	size_t ret = strlen(src);
 
@@ -5555,60 +5266,51 @@ strlcpy(char *dest, char *src, size_t size)
 	return ret;
 }
 
-struct rb_node *
-rb_first(struct rb_root *root)
+struct rb_node *rb_first(struct rb_root *root)
 {
-				struct rb_root rloc;
-				struct rb_node *n;
+	struct rb_root rloc;
+	struct rb_node *n;
 	struct rb_node nloc;
 
-	readmem((ulong)root, KVADDR, &rloc, sizeof(struct rb_root),
-		"rb_root", FAULT_ON_ERROR);
+	readmem((ulong) root, KVADDR, &rloc, sizeof(struct rb_root), "rb_root", FAULT_ON_ERROR);
 
-				n = rloc.rb_node;
-				if (!n)
-								return NULL;
-				while (rb_left(n, &nloc))
+	n = rloc.rb_node;
+	if (!n)
+		return NULL;
+	while (rb_left(n, &nloc))
 		n = nloc.rb_left;
 
-				return n;
+	return n;
 }
 
-struct rb_node *
-rb_parent(struct rb_node *node, struct rb_node *nloc)
+struct rb_node *rb_parent(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
-		"rb_node", FAULT_ON_ERROR);
+	readmem((ulong) node, KVADDR, nloc, sizeof(struct rb_node), "rb_node", FAULT_ON_ERROR);
 
 	return (struct rb_node *)(nloc->rb_parent_color & ~3);
 }
 
-struct rb_node *
-rb_right(struct rb_node *node, struct rb_node *nloc)
+struct rb_node *rb_right(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
-		"rb_node", FAULT_ON_ERROR);
+	readmem((ulong) node, KVADDR, nloc, sizeof(struct rb_node), "rb_node", FAULT_ON_ERROR);
 
 	return nloc->rb_right;
 }
 
-struct rb_node *
-rb_left(struct rb_node *node, struct rb_node *nloc)
+struct rb_node *rb_left(struct rb_node *node, struct rb_node *nloc)
 {
-	readmem((ulong)node, KVADDR, nloc, sizeof(struct rb_node),
-		"rb_node", FAULT_ON_ERROR);
+	readmem((ulong) node, KVADDR, nloc, sizeof(struct rb_node), "rb_node", FAULT_ON_ERROR);
 
 	return nloc->rb_left;
 }
 
-struct rb_node *
-rb_next(struct rb_node *node)
+struct rb_node *rb_next(struct rb_node *node)
 {
 	struct rb_node nloc;
-				struct rb_node *parent;
+	struct rb_node *parent;
 
 	/* node is destroyed */
-	if (!accessible((ulong)node))
+	if (!accessible((ulong) node))
 		return NULL;
 
 	parent = rb_parent(node, &nloc);
@@ -5616,15 +5318,15 @@ rb_next(struct rb_node *node)
 	if (parent == node)
 		return NULL;
 
-				if (nloc.rb_right) {
+	if (nloc.rb_right) {
 		/* rb_right is destroyed */
-		if (!accessible((ulong)nloc.rb_right))
+		if (!accessible((ulong) nloc.rb_right))
 			return NULL;
 
 		node = nloc.rb_right;
 		while (rb_left(node, &nloc)) {
 			/* rb_left is destroyed */
-			if (!accessible((ulong)nloc.rb_left))
+			if (!accessible((ulong) nloc.rb_left))
 				return NULL;
 			node = nloc.rb_left;
 		}
@@ -5633,9 +5335,8 @@ rb_next(struct rb_node *node)
 
 	while ((parent = rb_parent(node, &nloc))) {
 		/* parent is destroyed */
-								if (!accessible((ulong)parent))
-												return NULL;
-
+		if (!accessible((ulong) parent))
+			return NULL;
 
 		if (node != rb_right(parent, &nloc))
 			break;
@@ -5643,39 +5344,36 @@ rb_next(struct rb_node *node)
 		node = parent;
 	}
 
-				return parent;
+	return parent;
 }
 
-struct rb_node *
-rb_last(struct rb_root *root)
+struct rb_node *rb_last(struct rb_root *root)
 {
 	struct rb_node *node;
 	struct rb_node nloc;
 
 	/* meet destroyed data */
-	if (!accessible((ulong)(root + OFFSET(rb_root_rb_node))))
+	if (!accessible((ulong) (root + OFFSET(rb_root_rb_node))))
 		return NULL;
 
-	readmem((ulong)(root + OFFSET(rb_root_rb_node)), KVADDR, &node,
-		sizeof(node), "rb_root node", FAULT_ON_ERROR);
+	readmem((ulong) (root + OFFSET(rb_root_rb_node)), KVADDR, &node, sizeof(node), "rb_root node", FAULT_ON_ERROR);
 
 	while (1) {
 		if (!node)
 			break;
 
 		/* meet destroyed data */
-		if (!accessible((ulong)node))
+		if (!accessible((ulong) node))
 			return NULL;
 
-		readmem((ulong)node, KVADDR, &nloc, sizeof(struct rb_node),
-		"rb_node last", FAULT_ON_ERROR);
+		readmem((ulong) node, KVADDR, &nloc, sizeof(struct rb_node), "rb_node last", FAULT_ON_ERROR);
 
 		/*  meet the last one  */
 		if (!nloc.rb_right)
 			break;
 
 		/* meet destroyed data */
-		if (!!accessible((ulong)nloc.rb_right))
+		if (! !accessible((ulong) nloc.rb_right))
 			break;
 
 		node = nloc.rb_right;

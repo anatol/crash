@@ -26,8 +26,8 @@ void cmd_snap(void);
 char *help_snap[];
 
 static struct command_table_entry command_table[] = {
-	{ "snap", cmd_snap, help_snap, 0 },
-	{ NULL }
+	{"snap", cmd_snap, help_snap, 0},
+	{NULL}
 };
 
 static char *generate_elf_header(int, int, char *);
@@ -41,25 +41,23 @@ int supported = TRUE;
 int supported = FALSE;
 #endif
 
-void __attribute__((constructor))
-snap_init(void) /* Register the command set. */
-{
-				register_extension(command_table);
+void __attribute__ ((constructor))
+    snap_init(void)
+{				/* Register the command set. */
+	register_extension(command_table);
 }
 
-void __attribute__((destructor))
-snap_fini(void)
+void __attribute__ ((destructor))
+    snap_fini(void)
 {
 }
-
 
 /*
  *  Just pass in an unused filename.
  */
-void
-cmd_snap(void)
+void cmd_snap(void)
 {
-				int c, fd, n;
+	int c, fd, n;
 	physaddr_t paddr;
 	size_t offset;
 	char *buf;
@@ -71,38 +69,36 @@ cmd_snap(void)
 	int load_index;
 
 	if (!supported)
-		error(FATAL, "command not supported on the %s architecture\n",
-			pc->machine_type);
+		error(FATAL, "command not supported on the %s architecture\n", pc->machine_type);
 
 	filename = NULL;
 	buf = GETBUF(PAGESIZE());
 	type = KDUMP_ELF64;
 
-				while ((c = getopt(argcnt, args, "n")) != EOF) {
-								switch(c)
-								{
+	while ((c = getopt(argcnt, args, "n")) != EOF) {
+		switch (c) {
 		case 'n':
 			if (machine_type("X86_64"))
 				option_not_supported('n');
 			else
 				type = NETDUMP_ELF64;
 			break;
-								default:
-												argerrs++;
-												break;
-								}
-				}
+		default:
+			argerrs++;
+			break;
+		}
+	}
 
-				if (argerrs || !args[optind])
-								cmd_usage(pc->curcmd, SYNOPSIS);
+	if (argerrs || !args[optind])
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	while (args[optind]) {
 		if (filename)
-									cmd_usage(pc->curcmd, SYNOPSIS);
+			cmd_usage(pc->curcmd, SYNOPSIS);
 
 		if (file_exists(args[optind], NULL))
 			error(FATAL, "%s: file already exists\n", args[optind]);
-		else if ((fd = open(args[optind], O_RDWR|O_CREAT, 0644)) < 0)
+		else if ((fd = open(args[optind], O_RDWR | O_CREAT, 0644)) < 0)
 			error(FATAL, args[optind]);
 
 		filename = args[optind];
@@ -110,14 +106,14 @@ cmd_snap(void)
 	}
 
 	if (!filename)
-								cmd_usage(pc->curcmd, SYNOPSIS);
+		cmd_usage(pc->curcmd, SYNOPSIS);
 
 	init_ram_segments();
 
 	if (!(elf_header = generate_elf_header(type, fd, filename)))
 		error(FATAL, "cannot generate ELF header\n");
 
-	load = (Elf64_Phdr *)(elf_header + sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr));
+	load = (Elf64_Phdr *) (elf_header + sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr));
 	load_index = machine_type("X86_64") || machine_type("IA64") ? 1 : 0;
 
 	for (n = 0; n < vt->numnodes; n++) {
@@ -128,11 +124,10 @@ cmd_snap(void)
 		for (c = 0; c < nt->size; c++, paddr += PAGESIZE()) {
 			if (!verify_paddr(paddr))
 				continue;
-			if (!readmem(paddr, PHYSADDR, &buf[0], PAGESIZE(),
-					"memory page", QUIET|RETURN_ON_ERROR))
+			if (!readmem(paddr, PHYSADDR, &buf[0], PAGESIZE(), "memory page", QUIET | RETURN_ON_ERROR))
 				continue;
 
-			lseek(fd, (off_t)(paddr + offset - nt->start_paddr), SEEK_SET);
+			lseek(fd, (off_t) (paddr + offset - nt->start_paddr), SEEK_SET);
 			if (write(fd, &buf[0], PAGESIZE()) != PAGESIZE())
 				error(FATAL, "write to dumpfile failed\n");
 
@@ -141,7 +136,7 @@ cmd_snap(void)
 		}
 	}
 
-				fprintf(stderr, "\r%s: [100%%] ", filename);
+	fprintf(stderr, "\r%s: [100%%] ", filename);
 	fprintf(fp, "\n");
 	sprintf(buf, "/bin/ls -l %s\n", filename);
 	system(buf);
@@ -150,18 +145,17 @@ cmd_snap(void)
 	FREEBUF(buf);
 }
 
-
 char *help_snap[] = {
-				"snap",                     /* command name */
-				"take a memory snapshot",   /* short description */
-				"[-n] dumpfile",            /* filename */
+	"snap",			/* command name */
+	"take a memory snapshot",	/* short description */
+	"[-n] dumpfile",	/* filename */
 
-				"  This command takes a snapshot of physical memory and creates an ELF vmcore.",
+	"  This command takes a snapshot of physical memory and creates an ELF vmcore.",
 	"  The default vmcore is a kdump-style dumpfile.  Supported on x86, x86_64,",
 	"  ia64 and ppc64 architectures only.",
 	" ",
 	"    -n  create a netdump-style vmcore (n/a on x86_64).",
-				NULL
+	NULL
 };
 
 /*
@@ -178,32 +172,31 @@ char *help_snap[] = {
  *  Host-platform independent data
  */
 #define ELF_PRARGSZ	(80)	/* Number of chars for args */
-struct elf_prpsinfo_64
-{
-				char    pr_state;       /* numeric process state */
-				char    pr_sname;       /* char for pr_state */
-				char    pr_zomb;        /* zombie */
-				char    pr_nice;        /* nice val */
-				__u64   pr_flag;        /* flags */
-				__u32   pr_uid;
-				__u32   pr_gid;
-				__u32   pr_pid, pr_ppid, pr_pgrp, pr_sid;
-				/* Lots missing */
-				char    pr_fname[16];   /* filename of executable */
-				char    pr_psargs[ELF_PRARGSZ]; /* initial part of arg list */
+struct elf_prpsinfo_64 {
+	char pr_state;		/* numeric process state */
+	char pr_sname;		/* char for pr_state */
+	char pr_zomb;		/* zombie */
+	char pr_nice;		/* nice val */
+	__u64 pr_flag;		/* flags */
+	__u32 pr_uid;
+	__u32 pr_gid;
+	__u32 pr_pid, pr_ppid, pr_pgrp, pr_sid;
+	/* Lots missing */
+	char pr_fname[16];	/* filename of executable */
+	char pr_psargs[ELF_PRARGSZ];	/* initial part of arg list */
 };
 
 /*
  *  i386 specific
  */
 struct user_regs_struct_i386 {
-				__u32 ebx, ecx, edx, esi, edi, ebp, eax;
-				__u16 ds, __ds, es, __es;
-				__u16 fs, __fs, gs, __gs;
-				__u32 orig_eax, eip;
-				__u16 cs, __cs;
-				__u32 eflags, esp;
-				__u16 ss, __ss;
+	__u32 ebx, ecx, edx, esi, edi, ebp, eax;
+	__u16 ds, __ds, es, __es;
+	__u16 fs, __fs, gs, __gs;
+	__u32 orig_eax, eip;
+	__u16 cs, __cs;
+	__u32 eflags, esp;
+	__u16 ss, __ss;
 };
 
 #define ELF_NGREG_I386 (sizeof (struct user_regs_struct_i386) / sizeof(__u32))
@@ -212,41 +205,41 @@ typedef __u32 elf_gregset_i386_t[ELF_NGREG_I386];
 struct elf_prstatus_i386 {
 	char pad[72];
 	elf_gregset_i386_t pr_reg;	/* GP registers */
-	__u32 pr_fpvalid;		/* True if math co-processor being used.  */
+	__u32 pr_fpvalid;	/* True if math co-processor being used.  */
 };
 
 /*
  *  x86_64 specific
  */
 struct user_regs_struct_x86_64 {
-				__u64 r15,r14,r13,r12,rbp,rbx,r11,r10;
-				__u64 r9,r8,rax,rcx,rdx,rsi,rdi,orig_rax;
-				__u64 rip,cs,eflags;
-				__u64 rsp,ss;
-				__u64 fs_base, gs_base;
-				__u64 ds,es,fs,gs;
+	__u64 r15, r14, r13, r12, rbp, rbx, r11, r10;
+	__u64 r9, r8, rax, rcx, rdx, rsi, rdi, orig_rax;
+	__u64 rip, cs, eflags;
+	__u64 rsp, ss;
+	__u64 fs_base, gs_base;
+	__u64 ds, es, fs, gs;
 };
 
 #define ELF_NGREG_X86_64 (sizeof (struct user_regs_struct_x86_64) / sizeof(__u64))
 typedef __u64 elf_gregset_x86_64_t[ELF_NGREG_X86_64];
 
 struct elf_prstatus_x86_64 {
-				char pad[112];
-				elf_gregset_x86_64_t pr_reg;      /* GP registers */
-				__u32 pr_fpvalid;         	  /* True if math co-processor being used.  */
+	char pad[112];
+	elf_gregset_x86_64_t pr_reg;	/* GP registers */
+	__u32 pr_fpvalid;	/* True if math co-processor being used.  */
 };
 
 /*
  *  ppc64 specific
  */
 struct user_regs_struct_ppc64 {
-				__u64 gpr[32];
+	__u64 gpr[32];
 	__u64 nip;
 	__u64 msr;
 	__u64 orig_gpr3;
 	__u64 ctr;
 	__u64 link;
-				__u64 xer;
+	__u64 xer;
 	__u64 ccr;
 	__u64 softe;
 	__u64 trap;
@@ -259,27 +252,27 @@ struct user_regs_struct_ppc64 {
 typedef __u64 elf_gregset_ppc64_t[ELF_NGREG_PPC64];
 
 struct elf_prstatus_ppc64 {
-				char pad[112];
-				elf_gregset_ppc64_t pr_reg;       /* GP registers */
-				__u32 pr_fpvalid;         	  /* True if math co-processor being used.  */
+	char pad[112];
+	elf_gregset_ppc64_t pr_reg;	/* GP registers */
+	__u32 pr_fpvalid;	/* True if math co-processor being used.  */
 };
 
 /*
  *  ia64 specific
  */
 struct _ia64_fpreg {
-				union {
-								__u64 bits[2];
-				} u;
-} __attribute__ ((aligned (16)));
+	union {
+		__u64 bits[2];
+	} u;
+} __attribute__ ((aligned(16)));
 
 struct user_regs_struct_ia64 {
 	/* The following registers are saved by SAVE_MIN: */
 	__u64 b6;		/* scratch */
 	__u64 b7;		/* scratch */
 
-	__u64 ar_csd;           /* used by cmp8xchg16 (scratch) */
-	__u64 ar_ssd;           /* reserved for future use (scratch) */
+	__u64 ar_csd;		/* used by cmp8xchg16 (scratch) */
+	__u64 ar_ssd;		/* reserved for future use (scratch) */
 
 	__u64 r8;		/* scratch (return value register 0) */
 	__u64 r9;		/* scratch (return value register 1) */
@@ -337,21 +330,21 @@ struct user_regs_struct_ia64 {
 	/*
 	 * Floating point registers that the kernel considers scratch:
 	 */
-	struct _ia64_fpreg f6;		/* scratch */
-	struct _ia64_fpreg f7;		/* scratch */
-	struct _ia64_fpreg f8;		/* scratch */
-	struct _ia64_fpreg f9;		/* scratch */
-	struct _ia64_fpreg f10;		/* scratch */
-	struct _ia64_fpreg f11;		/* scratch */
+	struct _ia64_fpreg f6;	/* scratch */
+	struct _ia64_fpreg f7;	/* scratch */
+	struct _ia64_fpreg f8;	/* scratch */
+	struct _ia64_fpreg f9;	/* scratch */
+	struct _ia64_fpreg f10;	/* scratch */
+	struct _ia64_fpreg f11;	/* scratch */
 };
 
 #define ELF_NGREG_IA64 (sizeof (struct user_regs_struct_ia64) / sizeof(__u64))
 typedef __u64 elf_gregset_ia64_t[ELF_NGREG_IA64];
 
 struct elf_prstatus_ia64 {
-				char pad[112];
-				elf_gregset_ia64_t pr_reg;       /* GP registers */
-				__u32 pr_fpvalid;         	  /* True if math co-processor being used.  */
+	char pad[112];
+	elf_gregset_ia64_t pr_reg;	/* GP registers */
+	__u32 pr_fpvalid;	/* True if math co-processor being used.  */
 };
 
 union prstatus {
@@ -361,13 +354,12 @@ union prstatus {
 	struct elf_prstatus_ia64 ia64;
 };
 
-static size_t
-dump_elf_note(char *buf, Elf64_Word type, char *name, char *desc, int d_len)
+static size_t dump_elf_note(char *buf, Elf64_Word type, char *name, char *desc, int d_len)
 {
 	Elf64_Nhdr *note;
 	size_t len;
 
-	note = (Elf64_Nhdr *)buf;
+	note = (Elf64_Nhdr *) buf;
 	note->n_namesz = strlen(name);
 	note->n_descsz = d_len;
 	note->n_type = type;
@@ -382,8 +374,7 @@ dump_elf_note(char *buf, Elf64_Word type, char *name, char *desc, int d_len)
 	return len;
 }
 
-char *
-generate_elf_header(int type, int fd, char *filename)
+char *generate_elf_header(int type, int fd, char *filename)
 {
 	int i, n;
 	char *buffer, *ptr;
@@ -405,27 +396,26 @@ generate_elf_header(int type, int fd, char *filename)
 	if (machine_type("X86_64")) {
 		e_machine = EM_X86_64;
 		prstatus_len = sizeof(prstatus.x86_64);
-		num_segments += 1;  /* mapped kernel section for phys_base */
+		num_segments += 1;	/* mapped kernel section for phys_base */
 	} else if (machine_type("X86")) {
 		e_machine = EM_386;
 		prstatus_len = sizeof(prstatus.x86);
 	} else if (machine_type("IA64")) {
 		e_machine = EM_IA_64;
 		prstatus_len = sizeof(prstatus.ia64);
-		num_segments += 1;  /* mapped kernel section for phys_start */
+		num_segments += 1;	/* mapped kernel section for phys_start */
 	} else if (machine_type("PPC64")) {
 		e_machine = EM_PPC64;
 		prstatus_len = sizeof(prstatus.ppc64);
 	}
 
 	/* should be enought for the notes + roundup + two blocks */
-	buffer = (char *)GETBUF(sizeof(Elf64_Ehdr) +
-		num_segments * sizeof(Elf64_Phdr) + PAGESIZE() * 2);
+	buffer = (char *)GETBUF(sizeof(Elf64_Ehdr) + num_segments * sizeof(Elf64_Phdr) + PAGESIZE() * 2);
 	offset = 0;
 	ptr = buffer;
 
 	/* Elf header */
-	elf = (Elf64_Ehdr *)ptr;
+	elf = (Elf64_Ehdr *) ptr;
 	memcpy(elf->e_ident, ELFMAG, SELFMAG);
 	elf->e_ident[EI_CLASS] = ELFCLASS64;
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -436,7 +426,7 @@ generate_elf_header(int type, int fd, char *filename)
 	elf->e_ident[EI_VERSION] = EV_CURRENT;
 	elf->e_ident[EI_OSABI] = ELFOSABI_SYSV;
 	elf->e_ident[EI_ABIVERSION] = 0;
-	memset(elf->e_ident+EI_PAD, 0, EI_NIDENT-EI_PAD);
+	memset(elf->e_ident + EI_PAD, 0, EI_NIDENT - EI_PAD);
 
 	elf->e_type = ET_CORE;
 	elf->e_machine = e_machine;
@@ -456,12 +446,12 @@ generate_elf_header(int type, int fd, char *filename)
 	ptr += sizeof(Elf64_Ehdr);
 
 	/* PT_NOTE */
-	notes = (Elf64_Phdr *)ptr;
+	notes = (Elf64_Phdr *) ptr;
 	notes->p_type = PT_NOTE;
-	notes->p_offset = 0; /* TO BE FILLED IN */
+	notes->p_offset = 0;	/* TO BE FILLED IN */
 	notes->p_vaddr = 0;
 	notes->p_paddr = 0;
-	notes->p_filesz = 0; /* TO BE FILLED IN */
+	notes->p_filesz = 0;	/* TO BE FILLED IN */
 	notes->p_memsz = 0;
 	notes->p_flags = 0;
 	notes->p_align = 0;
@@ -470,13 +460,12 @@ generate_elf_header(int type, int fd, char *filename)
 	ptr += sizeof(Elf64_Phdr);
 
 	/* PT_LOAD */
-	load = (Elf64_Phdr *)ptr;
+	load = (Elf64_Phdr *) ptr;
 	for (i = n = 0; i < num_segments; i++) {
 		load[i].p_type = PT_LOAD;
-		load[i].p_offset = 0; /* TO BE FILLED IN */
+		load[i].p_offset = 0;	/* TO BE FILLED IN */
 
-		switch (e_machine)
-		{
+		switch (e_machine) {
 		case EM_X86_64:
 			nt = &vt->node_table[n];
 			if (i == 0) {
@@ -520,7 +509,7 @@ generate_elf_header(int type, int fd, char *filename)
 				load[i].p_vaddr = PTOV(nt->start_paddr);
 				load[i].p_paddr = nt->start_paddr;
 				load[i].p_filesz = nt->size * PAGESIZE();
- 				load[i].p_memsz = load[i].p_filesz;
+				load[i].p_memsz = load[i].p_filesz;
 				n++;
 			}
 			load[i].p_flags = PF_R | PF_W | PF_X;
@@ -546,8 +535,7 @@ generate_elf_header(int type, int fd, char *filename)
 
 	/* NT_PRSTATUS note */
 	memset(&prstatus, 0, sizeof(prstatus));
-	len = dump_elf_note(ptr, NT_PRSTATUS, "CORE",
-		(char *)&prstatus, prstatus_len);
+	len = dump_elf_note(ptr, NT_PRSTATUS, "CORE", (char *)&prstatus, prstatus_len);
 	offset += len;
 	ptr += len;
 	notes->p_filesz += len;
@@ -559,23 +547,21 @@ generate_elf_header(int type, int fd, char *filename)
 	prpsinfo.pr_zomb = 0;
 	strcpy(prpsinfo.pr_fname, "vmlinux");
 
-	len = dump_elf_note(ptr, NT_PRPSINFO, "CORE",
-		(char *)&prpsinfo, sizeof(prpsinfo));
+	len = dump_elf_note(ptr, NT_PRPSINFO, "CORE", (char *)&prpsinfo, sizeof(prpsinfo));
 
 	offset += len;
 	ptr += len;
 	notes->p_filesz += len;
 
-		/* NT_TASKSTRUCT note */
+	/* NT_TASKSTRUCT note */
 	task_struct = CURRENT_TASK();
-	len = dump_elf_note (ptr, NT_TASKSTRUCT, "SNAP",
-		(char *)&task_struct, sizeof(ulonglong));
+	len = dump_elf_note(ptr, NT_TASKSTRUCT, "SNAP", (char *)&task_struct, sizeof(ulonglong));
 	offset += len;
 	ptr += len;
 	notes->p_filesz += len;
 
 	if (type == NETDUMP_ELF64)
-		offset = roundup (offset, PAGESIZE());
+		offset = roundup(offset, PAGESIZE());
 
 	l_offset = offset;
 	for (i = 0; i < num_segments; i++) {
@@ -606,11 +592,10 @@ struct ram_segments {
 static struct ram_segments *ram_segments = NULL;
 static int nr_segments = 0;
 
-static void
-init_ram_segments(void)
+static void init_ram_segments(void)
 {
 	int i, errflag;
-				FILE *iomem;
+	FILE *iomem;
 	char buf[BUFSIZE], *p1, *p2;
 	physaddr_t start, end;
 
@@ -627,7 +612,7 @@ init_ram_segments(void)
 		goto fail_iomem;
 
 	ram_segments = (struct ram_segments *)
-		GETBUF(sizeof(struct ram_segments) * nr_segments);
+	    GETBUF(sizeof(struct ram_segments) * nr_segments);
 
 	rewind(iomem);
 	i = 0;
@@ -645,19 +630,18 @@ init_ram_segments(void)
 			*p2 = NULLCHAR;
 			p2++;
 			errflag = 0;
-			start = htoll(p1, RETURN_ON_ERROR|QUIET, &errflag);
-			end = htoll(p2, RETURN_ON_ERROR|QUIET, &errflag);
+			start = htoll(p1, RETURN_ON_ERROR | QUIET, &errflag);
+			end = htoll(p2, RETURN_ON_ERROR | QUIET, &errflag);
 			if (errflag)
 				goto fail_iomem;
 			ram_segments[i].start = PHYSPAGEBASE(start);
 			if (PAGEOFFSET(start))
 				ram_segments[i].start += PAGESIZE();
 			ram_segments[i].end = PHYSPAGEBASE(end);
-			if (PAGEOFFSET(end) == (PAGESIZE()-1))
+			if (PAGEOFFSET(end) == (PAGESIZE() - 1))
 				ram_segments[i].end += PAGESIZE();
-			console("ram_segments[%d]: %016llx %016llx [%s-%s]\n", i,
-				(ulonglong)ram_segments[i].start,
-				(ulonglong)ram_segments[i].end, p1, p2);
+			console("ram_segments[%d]: %016llx %016llx [%s-%s]\n",
+				i, (ulonglong) ram_segments[i].start, (ulonglong) ram_segments[i].end, p1, p2);
 			i++;
 		}
 	}
@@ -665,7 +649,7 @@ init_ram_segments(void)
 	fclose(iomem);
 	return;
 
-fail_iomem:
+ fail_iomem:
 	fclose(iomem);
 	nr_segments = 0;
 	if (ram_segments)
@@ -674,8 +658,7 @@ fail_iomem:
 	return;
 }
 
-static int
-verify_paddr(physaddr_t paddr)
+static int verify_paddr(physaddr_t paddr)
 {
 	int i, ok;
 
@@ -686,8 +669,8 @@ verify_paddr(physaddr_t paddr)
 		return TRUE;
 
 	for (i = ok = 0; i < nr_segments; i++) {
-		if ((paddr >= ram_segments[i].start) &&
-				(paddr < ram_segments[i].end)) {
+		if ((paddr >= ram_segments[i].start)
+		    && (paddr < ram_segments[i].end)) {
 			ok++;
 			break;
 		}
@@ -697,14 +680,12 @@ verify_paddr(physaddr_t paddr)
 	 *  Pre-2.6.13 x86_64 /proc/iomem was restricted to 4GB,
 	 *  so just accept it.
 	 */
-	if ((paddr >= 0x100000000ULL) &&
-			machine_type("X86_64") &&
-			(THIS_KERNEL_VERSION < LINUX(2,6,13)))
+	if ((paddr >= 0x100000000ULL) && machine_type("X86_64") && (THIS_KERNEL_VERSION < LINUX(2, 6, 13)))
 		ok++;
 
 	if (!ok) {
 		if (CRASHDEBUG(1))
-			console("reject: %llx\n", (ulonglong)paddr);
+			console("reject: %llx\n", (ulonglong) paddr);
 		return FALSE;
 	}
 
@@ -715,20 +696,19 @@ verify_paddr(physaddr_t paddr)
  *  Borrowed from makedumpfile, prints a percentage-done value
  *  once per second.
  */
-static int
-print_progress(const char *filename, ulong current)
+static int print_progress(const char *filename, ulong current)
 {
-				int n, progress;
-				time_t tm;
+	int n, progress;
+	time_t tm;
 	struct node_table *nt;
-				static time_t last_time = 0;
+	static time_t last_time = 0;
 	static ulong total_pages = 0;
 
 	if (!total_pages) {
-					for (n = 0; n < vt->numnodes; n++) {
-									nt = &vt->node_table[n];
-									total_pages += nt->size;
-					}
+		for (n = 0; n < vt->numnodes; n++) {
+			nt = &vt->node_table[n];
+			total_pages += nt->size;
+		}
 	}
 
 	if (received_SIGINT()) {
@@ -736,16 +716,16 @@ print_progress(const char *filename, ulong current)
 		return FALSE;
 	}
 
-				if (current < total_pages) {
-								tm = time(NULL);
-								if (tm - last_time < 1)
-												return TRUE;
-								last_time = tm;
-								progress = current * 100 / total_pages;
-				} else
-								progress = 100;
+	if (current < total_pages) {
+		tm = time(NULL);
+		if (tm - last_time < 1)
+			return TRUE;
+		last_time = tm;
+		progress = current * 100 / total_pages;
+	} else
+		progress = 100;
 
-				fprintf(stderr, "\r%s: [%2d%%] ", filename, progress);
+	fprintf(stderr, "\r%s: [%2d%%] ", filename, progress);
 
 	return TRUE;
 }

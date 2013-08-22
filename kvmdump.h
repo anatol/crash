@@ -49,16 +49,16 @@ struct kvmdump_data {
 	int mapfd;
 	int vmfd;
 	struct mapinfo_trailer mapinfo;
-				/* page cache */
-				struct kvm_page_cache_hdr {
-								uint64_t paddr;
-							 	char *bufptr;
-				} page_cache[KVMDUMP_CACHED_PAGES];
+	/* page cache */
+	struct kvm_page_cache_hdr {
+		uint64_t paddr;
+		char *bufptr;
+	} page_cache[KVMDUMP_CACHED_PAGES];
 	union {
 		char *curbufptr;
 		unsigned char compressed;
 	} un;
-				int evict_index;
+	int evict_index;
 	ulong accesses;
 	ulong hit_count;
 	ulong compresses;
@@ -106,4 +106,3 @@ enum CPU_REG {
 	R_EDI,
 	R_GP_MAX,
 };
-

@@ -213,14 +213,12 @@ static struct dminfo_member_entry {
 /*
  * Utility function/macro to walk the list
  */
-static unsigned long
-get_next_from_list_head(unsigned long addr)
+static unsigned long get_next_from_list_head(unsigned long addr)
 {
 	unsigned long ret;
 
 	readmem(addr + OFFSET(list_head_next), KVADDR, &ret, sizeof(void *),
-		MSG("get_next_from_list_head", "list_head", "next"),
-		FAULT_ON_ERROR);
+		MSG("get_next_from_list_head", "list_head", "next"), FAULT_ON_ERROR);
 
 	return ret;
 }
@@ -241,20 +239,19 @@ static struct dminfo_target_analyzer {
 	struct dminfo_target_analyzer *next;
 	char *target_name;
 	int (*ready) (void);	/* returns true if analyzer is available */
-	void (*show_table) (unsigned long);  /* display table info */
-	void (*show_status) (unsigned long); /* display status info */
-	void (*show_queue) (unsigned long);  /* display queued I/O info */
+	void (*show_table) (unsigned long);	/* display table info */
+	void (*show_status) (unsigned long);	/* display status info */
+	void (*show_queue) (unsigned long);	/* display queued I/O info */
 } analyzers_head;
 
-static void
-dminfo_register_target_analyzer(struct dminfo_target_analyzer *ta)
+static void dminfo_register_target_analyzer(struct dminfo_target_analyzer *ta)
 {
 	ta->next = analyzers_head.next;
 	analyzers_head.next = ta;
 }
 
-static struct
-dminfo_target_analyzer *find_target_analyzer(char *target_type)
+static struct dminfo_target_analyzer *find_target_analyzer(char
+							   *target_type)
 {
 	struct dminfo_target_analyzer *ta;
 
@@ -268,14 +265,12 @@ dminfo_target_analyzer *find_target_analyzer(char *target_type)
 /*
  * zero target
  */
-static int
-zero_ready(void)
+static int zero_ready(void)
 {
 	return 1;
 }
 
-static void
-zero_show_table(unsigned long target)
+static void zero_show_table(unsigned long target)
 {
 	unsigned long long start, len;
 
@@ -286,39 +281,35 @@ zero_show_table(unsigned long target)
 	fprintf(fp, "  begin:%llu len:%llu", start, len);
 }
 
-static void
-zero_show_status(unsigned long target)
+static void zero_show_status(unsigned long target)
 {
 	/* zero target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-zero_show_queue(unsigned long target)
+static void zero_show_queue(unsigned long target)
 {
 	/* zero target has no queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer zero_analyzer = {
-	.target_name      = "zero",
-	.ready            = zero_ready,
-	.show_table       = zero_show_table,
-	.show_status      = zero_show_status,
-	.show_queue       = zero_show_queue
+	.target_name = "zero",
+	.ready = zero_ready,
+	.show_table = zero_show_table,
+	.show_status = zero_show_status,
+	.show_queue = zero_show_queue
 };
 
 /*
  * error target
  */
-static int
-error_ready(void)
+static int error_ready(void)
 {
 	return 1;
 }
 
-static void
-error_show_table(unsigned long target)
+static void error_show_table(unsigned long target)
 {
 	unsigned long long start, len;
 
@@ -329,33 +320,30 @@ error_show_table(unsigned long target)
 	fprintf(fp, "  begin:%llu len:%llu", start, len);
 }
 
-static void
-error_show_status(unsigned long target)
+static void error_show_status(unsigned long target)
 {
 	/* error target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-error_show_queue(unsigned long target)
+static void error_show_queue(unsigned long target)
 {
 	/* error target has no queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer error_analyzer = {
-	.target_name      = "error",
-	.ready            = error_ready,
-	.show_table       = error_show_table,
-	.show_status      = error_show_status,
-	.show_queue       = error_show_queue
+	.target_name = "error",
+	.ready = error_ready,
+	.show_table = error_show_table,
+	.show_status = error_show_status,
+	.show_queue = error_show_queue
 };
 
 /*
  * linear target
  */
-static int
-linear_ready(void)
+static int linear_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -371,8 +359,7 @@ linear_ready(void)
 	return 0;
 }
 
-static void
-linear_show_table(unsigned long target)
+static void linear_show_table(unsigned long target)
 {
 	unsigned long lc, dm_dev;
 	unsigned long long start, len, offset;
@@ -386,37 +373,33 @@ linear_show_table(unsigned long target)
 	GET_STR(dm_dev, dm_dev, name, devt, BUFSIZE);
 	GET_VALUE(lc, linear_c, start, offset);
 
-	fprintf(fp, "  begin:%llu len:%llu dev:%s offset:%llu",
-		start, len, devt, offset);
+	fprintf(fp, "  begin:%llu len:%llu dev:%s offset:%llu", start, len, devt, offset);
 }
 
-static void
-linear_show_status(unsigned long target)
+static void linear_show_status(unsigned long target)
 {
 	/* linear target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-linear_show_queue(unsigned long target)
+static void linear_show_queue(unsigned long target)
 {
 	/* linear target has no I/O queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer linear_analyzer = {
-	.target_name      = "linear",
-	.ready            = linear_ready,
-	.show_table       = linear_show_table,
-	.show_status      = linear_show_status,
-	.show_queue       = linear_show_queue
+	.target_name = "linear",
+	.ready = linear_ready,
+	.show_table = linear_show_table,
+	.show_status = linear_show_status,
+	.show_queue = linear_show_queue
 };
 
 /*
  * mirror target
  */
-static int
-mirror_ready(void)
+static int mirror_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -432,8 +415,7 @@ mirror_ready(void)
 	return 0;
 }
 
-static void
-mirror_show_table(unsigned long target)
+static void mirror_show_table(unsigned long target)
 {
 	unsigned int i, nr_mir;
 	unsigned long ms, rh, log, log_type, mir_size, mir_head, mir, dm_dev;
@@ -461,7 +443,7 @@ mirror_show_table(unsigned long target)
 	GET_ADDR(ms, mirror_set, mirror, mir_head);
 	GET_VALUE(ms, mirror_set, nr_mirrors, nr_mir);
 	for (i = 0; i < nr_mir; i++) {
-		mir = mir_head + mir_size * i; /* Get next mirror */
+		mir = mir_head + mir_size * i;	/* Get next mirror */
 
 		/* Get the devt of the mirror disk */
 		GET_VALUE(mir, mirror, dev, dm_dev);
@@ -470,15 +452,13 @@ mirror_show_table(unsigned long target)
 		/* Get the offset of the mirror disk */
 		GET_VALUE(mir, mirror, offset, offset);
 
-		fprintf(fp, "%s(%llu)%s", buf, offset,
-			i == nr_mir - 1 ? "" : ",");
+		fprintf(fp, "%s(%llu)%s", buf, offset, i == nr_mir - 1 ? "" : ",");
 	}
 	if (i != nr_mir)
 		fprintf(fp, " ERROR: dev are less than nr_mir:%d", nr_mir);
 }
 
-static void
-mirror_show_status(unsigned long target)
+static void mirror_show_status(unsigned long target)
 {
 	unsigned int i, nr_mir, synced, nr_error;
 	unsigned long ms, mir_size, mir_head, mir, dm_dev;
@@ -502,7 +482,7 @@ mirror_show_status(unsigned long target)
 	GET_ADDR(ms, mirror_set, mirror, mir_head);
 	GET_VALUE(ms, mirror_set, nr_mirrors, nr_mir);
 	for (i = 0; i < nr_mir; i++) {
-		mir = mir_head + mir_size * i; /* Get next mirror */
+		mir = mir_head + mir_size * i;	/* Get next mirror */
 
 		/* Get the devt of the mirror disk */
 		GET_VALUE(mir, mirror, dev, dm_dev);
@@ -511,15 +491,13 @@ mirror_show_status(unsigned long target)
 		/* Get the offset of the mirror disk */
 		GET_VALUE(mir, mirror, error_count, nr_error);
 
-		fprintf(fp, "%s(%c,%d)%s", buf, nr_error ? 'D' : 'A', nr_error,
-			i == nr_mir - 1 ? "" : ",");
+		fprintf(fp, "%s(%c,%d)%s", buf, nr_error ? 'D' : 'A', nr_error, i == nr_mir - 1 ? "" : ",");
 	}
 	if (i != nr_mir)
 		fprintf(fp, " ERROR: dev are less than nr_mir:%d", nr_mir);
 }
 
-static void
-mirror_show_queue(unsigned long target)
+static void mirror_show_queue(unsigned long target)
 {
 	unsigned long ms, rlist, wlist, rhead, whead;
 	unsigned long rh, quis_head, rcov_head, quis_next, rcov_next;
@@ -553,18 +531,17 @@ mirror_show_queue(unsigned long target)
 }
 
 static struct dminfo_target_analyzer mirror_analyzer = {
-	.target_name      = "mirror",
-	.ready            = mirror_ready,
-	.show_table       = mirror_show_table,
-	.show_status      = mirror_show_status,
-	.show_queue       = mirror_show_queue
+	.target_name = "mirror",
+	.ready = mirror_ready,
+	.show_table = mirror_show_table,
+	.show_status = mirror_show_status,
+	.show_queue = mirror_show_queue
 };
 
 /*
  * multipath target
  */
-static int
-multipath_ready(void)
+static int multipath_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -580,8 +557,7 @@ multipath_ready(void)
 	return 0;
 }
 
-static void
-multipath_show_table(unsigned long target)
+static void multipath_show_table(unsigned long target)
 {
 	int i, j;
 	unsigned int queue_if_no_path, nr_pgs, pg_id, nr_paths;
@@ -607,15 +583,13 @@ multipath_show_table(unsigned long target)
 	/* Get the number of priority groups */
 	GET_VALUE(mp, multipath, nr_priority_groups, nr_pgs);
 
-	fprintf(fp, "  queue_if_no_path:%d hwh:%s nr_pgs:%d\n",
-		queue_if_no_path, name, nr_pgs);
+	fprintf(fp, "  queue_if_no_path:%d hwh:%s nr_pgs:%d\n", queue_if_no_path, name, nr_pgs);
 
 	/* Display information for each priority group */
-	fprintf(fp, "    %-2s  %-13s  %-8s  %s",
-		"PG", "PATH_SELECTOR", "NR_PATHS", "PATHS");
+	fprintf(fp, "    %-2s  %-13s  %-8s  %s", "PG", "PATH_SELECTOR", "NR_PATHS", "PATHS");
 	GET_ADDR(mp, multipath, priority_groups, pg_head);
 	i = 0;
-	list_for_each (pg_next, pg_head, pg_last) {
+	list_for_each(pg_next, pg_head, pg_last) {
 		/* pg_next == struct priority_group */
 
 		/* Get the index of the priority group */
@@ -634,7 +608,7 @@ multipath_show_table(unsigned long target)
 		/* Display information for each path */
 		GET_ADDR(pg_next, priority_group, pgpaths, path_head);
 		j = 0;
-		list_for_each (path_next, path_head, path_last) {
+		list_for_each(path_next, path_head, path_last) {
 			/* path_next == struct pgpath */
 
 			/* Get the devt of the pgpath */
@@ -646,16 +620,14 @@ multipath_show_table(unsigned long target)
 			j++;
 		}
 		if (j != nr_paths)
-			fprintf(fp, " ERROR: paths are less than nr_paths:%d",
-				nr_paths);
+			fprintf(fp, " ERROR: paths are less than nr_paths:%d", nr_paths);
 		i++;
 	}
 	if (i != nr_pgs)
 		fprintf(fp, " ERROR: pgs are less than nr_pgs:%d", nr_pgs);
 }
 
-static void
-multipath_show_status(unsigned long target)
+static void multipath_show_status(unsigned long target)
 {
 	int i, j;
 	unsigned int queue_if_no_path, nr_pgs, pg_id, nr_paths;
@@ -682,15 +654,13 @@ multipath_show_status(unsigned long target)
 	/* Get the number of priority groups */
 	GET_VALUE(mp, multipath, nr_priority_groups, nr_pgs);
 
-	fprintf(fp, "  queue_if_no_path:%d hwh:%s nr_pgs:%d\n",
-		queue_if_no_path, buf, nr_pgs);
+	fprintf(fp, "  queue_if_no_path:%d hwh:%s nr_pgs:%d\n", queue_if_no_path, buf, nr_pgs);
 
 	/* Display information for each priority group */
-	fprintf(fp, "    %-2s  %-9s  %-8s  %s",
-		"PG", "PG_STATUS", "NR_PATHS", "PATHS");
+	fprintf(fp, "    %-2s  %-9s  %-8s  %s", "PG", "PG_STATUS", "NR_PATHS", "PATHS");
 	GET_ADDR(mp, multipath, priority_groups, pg_head);
 	i = 0;
-	list_for_each (pg_next, pg_head, pg_last) {
+	list_for_each(pg_next, pg_head, pg_last) {
 		/* pg_next == struct priority_group */
 
 		/* Get the index of the priority group */
@@ -716,7 +686,7 @@ multipath_show_status(unsigned long target)
 		/* Display information for each path */
 		GET_ADDR(pg_next, priority_group, pgpaths, path_head);
 		j = 0;
-		list_for_each (path_next, path_head, path_last) {
+		list_for_each(path_next, path_head, path_last) {
 			/* path_next == struct pgpath */
 
 			/* Get the devt of the pgpath */
@@ -733,16 +703,14 @@ multipath_show_status(unsigned long target)
 			j++;
 		}
 		if (j != nr_paths)
-			fprintf(fp, " ERROR: paths are less than nr_paths:%d",
-				nr_paths);
+			fprintf(fp, " ERROR: paths are less than nr_paths:%d", nr_paths);
 		i++;
 	}
 	if (i != nr_pgs)
 		fprintf(fp, " ERROR: pgs are less than nr_pgs:%d", nr_pgs);
 }
 
-static void
-multipath_show_queue(unsigned long target)
+static void multipath_show_queue(unsigned long target)
 {
 	unsigned int queue_size;
 	unsigned long mp;
@@ -757,18 +725,17 @@ multipath_show_queue(unsigned long target)
 }
 
 static struct dminfo_target_analyzer multipath_analyzer = {
-	.target_name      = "multipath",
-	.ready            = multipath_ready,
-	.show_table       = multipath_show_table,
-	.show_status      = multipath_show_status,
-	.show_queue       = multipath_show_queue
+	.target_name = "multipath",
+	.ready = multipath_ready,
+	.show_table = multipath_show_table,
+	.show_status = multipath_show_status,
+	.show_queue = multipath_show_queue
 };
 
 /*
  * crypt target
  */
-static int
-crypt_ready(void)
+static int crypt_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -787,8 +754,7 @@ crypt_ready(void)
 #define DMINFO_CRYPTO_TFM_MODE_ECB 0x00000001
 #define DMINFO_CRYPTO_TFM_MODE_CBC 0x00000002
 
-static void
-crypt_show_table(unsigned long target)
+static void crypt_show_table(unsigned long target)
 {
 	int i, cit_mode, key_size;
 	unsigned long cc, tfm, crt_alg, cipher, iv_mode, dm_dev;
@@ -850,33 +816,30 @@ crypt_show_table(unsigned long target)
 		fprintf(fp, "%02x", (unsigned char)buf[i]);
 }
 
-static void
-crypt_show_status(unsigned long target)
+static void crypt_show_status(unsigned long target)
 {
 	/* crypt target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-crypt_show_queue(unsigned long target)
+static void crypt_show_queue(unsigned long target)
 {
 	/* crypt target has no queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer crypt_analyzer = {
-	.target_name      = "crypt",
-	.ready            = crypt_ready,
-	.show_table       = crypt_show_table,
-	.show_status      = crypt_show_status,
-	.show_queue       = crypt_show_queue
+	.target_name = "crypt",
+	.ready = crypt_ready,
+	.show_table = crypt_show_table,
+	.show_status = crypt_show_status,
+	.show_queue = crypt_show_queue
 };
 
 /*
  * stripe target
  */
-static int
-stripe_ready(void)
+static int stripe_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -892,8 +855,7 @@ stripe_ready(void)
 	return 0;
 }
 
-static void
-stripe_show_table(unsigned long target)
+static void stripe_show_table(unsigned long target)
 {
 	unsigned int i, n_stripe;
 	unsigned long sc, stripe_size, s, head, dm_dev;
@@ -918,7 +880,7 @@ stripe_show_table(unsigned long target)
 	GET_VALUE(sc, stripe_c, stripes, n_stripe);
 	fprintf(fp, " dev:");
 	for (i = 0; i < n_stripe; i++) {
-		s = head + stripe_size * i; /* Get next stripe */
+		s = head + stripe_size * i;	/* Get next stripe */
 
 		/* Get the devt of the stripe disk */
 		GET_VALUE(s, stripe, dev, dm_dev);
@@ -930,33 +892,30 @@ stripe_show_table(unsigned long target)
 		fprintf(fp, " ERROR: dev are less than n_stripe:%d", n_stripe);
 }
 
-static void
-stripe_show_status(unsigned long target)
+static void stripe_show_status(unsigned long target)
 {
 	/* stripe target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-stripe_show_queue(unsigned long target)
+static void stripe_show_queue(unsigned long target)
 {
 	/* stripe target has no queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer stripe_analyzer = {
-	.target_name      = "striped",
-	.ready            = stripe_ready,
-	.show_table       = stripe_show_table,
-	.show_status      = stripe_show_status,
-	.show_queue       = stripe_show_queue
+	.target_name = "striped",
+	.ready = stripe_ready,
+	.show_table = stripe_show_table,
+	.show_status = stripe_show_status,
+	.show_queue = stripe_show_queue
 };
 
 /*
  * snapshot target
  */
-static int
-snapshot_ready(void)
+static int snapshot_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -972,8 +931,7 @@ snapshot_ready(void)
 	return 0;
 }
 
-static void
-snapshot_show_table(unsigned long target)
+static void snapshot_show_table(unsigned long target)
 {
 	unsigned long snap, orig_dev, cow_dev;
 	unsigned long long chunk_size;
@@ -990,12 +948,10 @@ snapshot_show_table(unsigned long target)
 	GET_VALUE(snap, dm_snapshot, type, type);
 	GET_VALUE(snap, dm_snapshot, chunk_size, chunk_size);
 
-	fprintf(fp, "  orig:%s cow:%s type:%c chunk_size:%llu",
-		orig_name, cow_name, type, chunk_size);
+	fprintf(fp, "  orig:%s cow:%s type:%c chunk_size:%llu", orig_name, cow_name, type, chunk_size);
 }
 
-static void
-snapshot_show_status(unsigned long target)
+static void snapshot_show_status(unsigned long target)
 {
 	int valid;
 	unsigned long snap;
@@ -1009,31 +965,28 @@ snapshot_show_status(unsigned long target)
 	fprintf(fp, "  vaild:%d", valid);
 }
 
-static void
-snapshot_show_queue(unsigned long target)
+static void snapshot_show_queue(unsigned long target)
 {
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer snapshot_analyzer = {
-	.target_name      = "snapshot",
-	.ready            = snapshot_ready,
-	.show_table       = snapshot_show_table,
-	.show_status      = snapshot_show_status,
-	.show_queue       = snapshot_show_queue
+	.target_name = "snapshot",
+	.ready = snapshot_ready,
+	.show_table = snapshot_show_table,
+	.show_status = snapshot_show_status,
+	.show_queue = snapshot_show_queue
 };
 
 /*
  * snapshot-origin target
  */
-static int
-origin_ready(void)
+static int origin_ready(void)
 {
 	return 1;
 }
 
-static void
-origin_show_table(unsigned long target)
+static void origin_show_table(unsigned long target)
 {
 	unsigned long dm_dev;
 	char buf[BUFSIZE];
@@ -1045,26 +998,24 @@ origin_show_table(unsigned long target)
 	fprintf(fp, "  orig_dev:%s", buf);
 }
 
-static void
-origin_show_status(unsigned long target)
+static void origin_show_status(unsigned long target)
 {
 	/* snapshot-origin target has no status */
 	fprintf(fp, "  No status info");
 }
 
-static void
-origin_show_queue(unsigned long target)
+static void origin_show_queue(unsigned long target)
 {
 	/* snapshot-origin target has no queue */
 	fprintf(fp, "  No queue info");
 }
 
 static struct dminfo_target_analyzer snapshot_origin_analyzer = {
-	.target_name      = "snapshot-origin",
-	.ready            = origin_ready,
-	.show_table       = origin_show_table,
-	.show_status      = origin_show_status,
-	.show_queue       = origin_show_queue
+	.target_name = "snapshot-origin",
+	.ready = origin_ready,
+	.show_table = origin_show_table,
+	.show_status = origin_show_status,
+	.show_queue = origin_show_queue
 };
 
 /*
@@ -1076,8 +1027,7 @@ static struct dminfo_target_analyzer snapshot_origin_analyzer = {
 #define DMINFO_STATUS 3
 #define DMINFO_QUEUE  4
 
-static int
-dm_core_ready(void)
+static int dm_core_ready(void)
 {
 	static int debuginfo = 0;
 
@@ -1094,8 +1044,7 @@ dm_core_ready(void)
 }
 
 /* Display dependency information of the 'table' */
-static void
-dminfo_show_deps(unsigned long table)
+static void dminfo_show_deps(unsigned long table)
 {
 	int major, minor, count;
 	unsigned long head, next, last, dev, bdev;
@@ -1104,10 +1053,9 @@ dminfo_show_deps(unsigned long table)
 	/* head = dm_table.devices */
 	GET_ADDR(table, dm_table, devices, head);
 
-	fprintf(fp, "  %-3s  %-3s  %-16s  %-5s  %s\n",
-		"MAJ", "MIN", "GENDISK", "COUNT", "DEVNAME");
+	fprintf(fp, "  %-3s  %-3s  %-16s  %-5s  %s\n", "MAJ", "MIN", "GENDISK", "COUNT", "DEVNAME");
 
-	list_for_each (next, head, last) {
+	list_for_each(next, head, last) {
 		/* Get dependency information. (next == struct *dm_dev) */
 		GET_VALUE(next, dm_dev, count, count);
 		GET_VALUE(next, dm_dev, bdev, bdev);
@@ -1116,8 +1064,7 @@ dminfo_show_deps(unsigned long table)
 		GET_VALUE(dev, gendisk, first_minor, minor);
 		GET_STR(dev, gendisk, disk_name, buf, BUFSIZE);
 
-		fprintf(fp, "  %-3d  %-3d  %-16lx  %-5d  %s\n",
-			major, minor, dev, count, buf);
+		fprintf(fp, "  %-3d  %-3d  %-16lx  %-5d  %s\n", major, minor, dev, count, buf);
 	}
 }
 
@@ -1125,8 +1072,7 @@ dminfo_show_deps(unsigned long table)
  * Display target specific information in the 'table', if the target
  * analyzer is registered and available.
  */
-static void
-dminfo_show_details(unsigned long table, unsigned int num_targets, int info_type)
+static void dminfo_show_details(unsigned long table, unsigned int num_targets, int info_type)
 {
 	unsigned int i;
 	unsigned long head, target_size, target, target_type;
@@ -1140,11 +1086,10 @@ dminfo_show_details(unsigned long table, unsigned int num_targets, int info_type
 	GET_VALUE(table, dm_table, targets, head);
 	target_size = STRUCT_SIZE("struct dm_target");
 
-	fprintf(fp, "  %-16s  %-11s  %s\n",
-		"TARGET", "TARGET_TYPE", "PRIVATE_DATA");
+	fprintf(fp, "  %-16s  %-11s  %s\n", "TARGET", "TARGET_TYPE", "PRIVATE_DATA");
 
 	for (i = 0; i < num_targets; i++, fprintf(fp, "\n")) {
-		target = head + target_size * i; /* Get next target */
+		target = head + target_size * i;	/* Get next target */
 
 		/* Get target information */
 		GET_VALUE(target, dm_target, type, target_type);
@@ -1152,8 +1097,7 @@ dminfo_show_details(unsigned long table, unsigned int num_targets, int info_type
 
 		fprintf(fp, "  %-16lx  %-11s", target, buf);
 
-		if (!(ta = find_target_analyzer(buf)) || !ta->ready
-			|| !ta->ready())
+		if (!(ta = find_target_analyzer(buf)) || !ta->ready || !ta->ready())
 			continue;
 
 		switch (info_type) {
@@ -1175,16 +1119,14 @@ dminfo_show_details(unsigned long table, unsigned int num_targets, int info_type
 	}
 
 	if (i != num_targets)
-		fprintf(fp, " ERROR: targets are less than num_targets:%d",
-			num_targets);
+		fprintf(fp, " ERROR: targets are less than num_targets:%d", num_targets);
 }
 
 /*
  * Display lists (and detail information if specified) of existing
  * dm devices.
  */
-static void
-dminfo_show_list(int additional_info)
+static void dminfo_show_list(int additional_info)
 {
 	int i, major, minor, array_len;
 	unsigned int num_targets;
@@ -1196,14 +1138,13 @@ dminfo_show_list(int additional_info)
 
 	if (additional_info == DMINFO_LIST)
 		fprintf(fp, "%-3s  %-3s  %-16s  %-16s  %-7s  %s\n",
-			"MAJ", "MIN", "MAP_DEV", "DM_TABLE",
-			"TARGETS", "MAPNAME");
+			"MAJ", "MIN", "MAP_DEV", "DM_TABLE", "TARGETS", "MAPNAME");
 
 	for (i = 0; i < array_len; i++) {
 		/* head = _name_buckets[i] */
 		head = _name_buckets + (i * SIZE(list_head));
 
-		list_for_each (next, head, last) { /* next == hash_cell */
+		list_for_each(next, head, last) {	/* next == hash_cell */
 			/* Get device and table information */
 			GET_PTR_STR(next, hash_cell, name, buf, BUFSIZE);
 			GET_VALUE(next, hash_cell, md, md);
@@ -1214,22 +1155,21 @@ dminfo_show_list(int additional_info)
 			GET_VALUE(table, dm_table, num_targets, num_targets);
 
 			if (additional_info != DMINFO_LIST)
-				fprintf(fp, "%-3s  %-3s  %-16s  %-16s  %-7s  %s\n",
-					"MAJ", "MIN", "MAP_DEV", "DM_TABLE",
-					"TARGETS", "MAPNAME");
+				fprintf(fp,
+					"%-3s  %-3s  %-16s  %-16s  %-7s  %s\n",
+					"MAJ", "MIN", "MAP_DEV", "DM_TABLE", "TARGETS", "MAPNAME");
 
 			fprintf(fp, "%-3d  %-3d  %-16lx  %-16lx  %-7d  %s\n",
 				major, minor, md, table, num_targets, buf);
 
-			switch(additional_info) {
+			switch (additional_info) {
 			case DMINFO_DEPS:
 				dminfo_show_deps(table);
 				break;
 			case DMINFO_TABLE:
 			case DMINFO_STATUS:
 			case DMINFO_QUEUE:
-				dminfo_show_details(table, num_targets,
-					additional_info);
+				dminfo_show_details(table, num_targets, additional_info);
 				break;
 			default:
 				break;
@@ -1246,8 +1186,7 @@ dminfo_show_list(int additional_info)
  * If the 'bio' is for dm devices, the original bio information is pointed
  * by bio.bi_private as struct target_io.
  */
-static void
-dminfo_show_bio(unsigned long bio)
+static void dminfo_show_bio(unsigned long bio)
 {
 	int major, minor;
 	unsigned long target_io, dm_io, dm_bio, md, dev;
@@ -1263,14 +1202,11 @@ dminfo_show_bio(unsigned long bio)
 	GET_VALUE(dev, gendisk, first_minor, minor);
 	GET_STR(dev, gendisk, disk_name, buf, BUFSIZE);
 
-	fprintf(fp, "%-16s  %-3s  %-3s  %-16s  %s\n",
-		"DM_BIO_ADDRESS", "MAJ", "MIN", "MAP_DEV", "DEVNAME");
-	fprintf(fp, "%-16lx  %-3d  %-3d  %-16lx  %s\n",
-		dm_bio, major, minor, md, buf);
+	fprintf(fp, "%-16s  %-3s  %-3s  %-16s  %s\n", "DM_BIO_ADDRESS", "MAJ", "MIN", "MAP_DEV", "DEVNAME");
+	fprintf(fp, "%-16lx  %-3d  %-3d  %-16lx  %s\n", dm_bio, major, minor, md, buf);
 }
 
-static void
-cmd_dminfo(void)
+static void cmd_dminfo(void)
 {
 	int c, additional_info = DMINFO_LIST;
 	unsigned long bio;
@@ -1280,8 +1216,7 @@ cmd_dminfo(void)
 
 	/* Parse command line option */
 	while ((c = getopt(argcnt, args, "b:dlqst")) != EOF) {
-		switch(c)
-		{
+		switch (c) {
 		case 'b':
 			bio = stol(optarg, FAULT_ON_ERROR, NULL);
 			dminfo_show_bio(bio);
@@ -1317,13 +1252,13 @@ cmd_dminfo(void)
  * dminfo help
  */
 static char *help_dminfo[] = {
-	"dminfo",				/* command name */
+	"dminfo",		/* command name */
 	"device mapper (dm) information",	/* short description */
 	"[-b bio | -d | -l | -q | -s | -t]",	/* argument synopsis */
 	"  This command displays information about device-mapper mapped ",
-				"  devices (dm devices).",
-				"  If no argument is entered, displays lists of existing dm devices.",
-				"  It's same as -l option.",
+	"  devices (dm devices).",
+	"  If no argument is entered, displays lists of existing dm devices.",
+	"  It's same as -l option.",
 	"",
 	"    -b bio  displays the information of the dm device which the bio",
 	"            is submitted in.  If the bio isn't for dm devices,",
@@ -1511,8 +1446,8 @@ static struct command_table_entry command_table[] = {
 	{NULL, NULL, NULL, 0},
 };
 
-void __attribute__((constructor))
-dminfo_init(void)
+void __attribute__ ((constructor))
+    dminfo_init(void)
 {
 	register_extension(command_table);
 
@@ -1527,7 +1462,7 @@ dminfo_init(void)
 	dminfo_register_target_analyzer(&snapshot_origin_analyzer);
 }
 
-void __attribute__((destructor))
-dminfo_fini(void)
+void __attribute__ ((destructor))
+    dminfo_fini(void)
 {
 }

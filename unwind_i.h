@@ -41,12 +41,12 @@ enum unw_register_index {
 	UNW_REG_PRI_UNAT_MEM,
 
 	/* register stack */
-	UNW_REG_BSP,					/* register stack pointer */
+	UNW_REG_BSP,		/* register stack pointer */
 	UNW_REG_BSPSTORE,
-	UNW_REG_PFS,					/* previous function state */
+	UNW_REG_PFS,		/* previous function state */
 	UNW_REG_RNAT,
 	/* memory stack */
-	UNW_REG_PSP,					/* previous memory stack pointer */
+	UNW_REG_PSP,		/* previous memory stack pointer */
 	/* return pointer: */
 	UNW_REG_RP,
 
@@ -75,9 +75,9 @@ struct unw_table_entry {
 };
 
 struct unw_table {
-	struct unw_table *next;		/* must be first member! */
+	struct unw_table *next;	/* must be first member! */
 	const char *name;
-	unsigned long gp;		/* global pointer for this load-module */
+	unsigned long gp;	/* global pointer for this load-module */
 	unsigned long segment_base;	/* base for offsets in the unwind table entries */
 	unsigned long start;
 	unsigned long end;
@@ -86,58 +86,58 @@ struct unw_table {
 };
 
 enum unw_where {
-	UNW_WHERE_NONE,			/* register isn't saved at all */
-	UNW_WHERE_GR,			/* register is saved in a general register */
-	UNW_WHERE_FR,			/* register is saved in a floating-point register */
-	UNW_WHERE_BR,			/* register is saved in a branch register */
-	UNW_WHERE_SPREL,		/* register is saved on memstack (sp-relative) */
-	UNW_WHERE_PSPREL,		/* register is saved on memstack (psp-relative) */
+	UNW_WHERE_NONE,		/* register isn't saved at all */
+	UNW_WHERE_GR,		/* register is saved in a general register */
+	UNW_WHERE_FR,		/* register is saved in a floating-point register */
+	UNW_WHERE_BR,		/* register is saved in a branch register */
+	UNW_WHERE_SPREL,	/* register is saved on memstack (sp-relative) */
+	UNW_WHERE_PSPREL,	/* register is saved on memstack (psp-relative) */
 	/*
 	 * At the end of each prologue these locations get resolved to
 	 * UNW_WHERE_PSPREL and UNW_WHERE_GR, respectively:
 	 */
-	UNW_WHERE_SPILL_HOME,		/* register is saved in its spill home */
-	UNW_WHERE_GR_SAVE		/* register is saved in next general register */
+	UNW_WHERE_SPILL_HOME,	/* register is saved in its spill home */
+	UNW_WHERE_GR_SAVE	/* register is saved in next general register */
 };
 
 #define UNW_WHEN_NEVER	0x7fffffff
 
 struct unw_reg_info {
-	unsigned long val;		/* save location: register number or offset */
-	enum unw_where where;		/* where the register gets saved */
-	int when;			/* when the register gets saved */
+	unsigned long val;	/* save location: register number or offset */
+	enum unw_where where;	/* where the register gets saved */
+	int when;		/* when the register gets saved */
 };
 
 struct unw_reg_state {
-	struct unw_reg_state *next;		/* next (outer) element on state stack */
+	struct unw_reg_state *next;	/* next (outer) element on state stack */
 	struct unw_reg_info reg[UNW_NUM_REGS];	/* register save locations */
 };
 
 struct unw_labeled_state {
-	struct unw_labeled_state *next;		/* next labeled state (or NULL) */
-	unsigned long label;			/* label for this state */
+	struct unw_labeled_state *next;	/* next labeled state (or NULL) */
+	unsigned long label;	/* label for this state */
 	struct unw_reg_state saved_state;
 };
 
 struct unw_state_record {
-	unsigned int first_region : 1;	/* is this the first region? */
-	unsigned int done : 1;		/* are we done scanning descriptors? */
-	unsigned int any_spills : 1;	/* got any register spills? */
-	unsigned int in_body : 1;	/* are we inside a body (as opposed to a prologue)? */
-	unsigned long flags;		/* see UNW_FLAG_* in unwind.h */
+	unsigned int first_region:1;	/* is this the first region? */
+	unsigned int done:1;	/* are we done scanning descriptors? */
+	unsigned int any_spills:1;	/* got any register spills? */
+	unsigned int in_body:1;	/* are we inside a body (as opposed to a prologue)? */
+	unsigned long flags;	/* see UNW_FLAG_* in unwind.h */
 
-	u8 *imask;			/* imask of spill_mask record or NULL */
-	unsigned long pr_val;		/* predicate values */
-	unsigned long pr_mask;		/* predicate mask */
-	long spill_offset;		/* psp-relative offset for spill base */
+	u8 *imask;		/* imask of spill_mask record or NULL */
+	unsigned long pr_val;	/* predicate values */
+	unsigned long pr_mask;	/* predicate mask */
+	long spill_offset;	/* psp-relative offset for spill base */
 	int region_start;
 	int region_len;
 	int epilogue_start;
 	int epilogue_count;
 	int when_target;
 
-	u8 gr_save_loc;			/* next general register to use for saving a register */
-	u8 return_link_reg;		/* branch register in which the return link is passed */
+	u8 gr_save_loc;		/* next general register to use for saving a register */
+	u8 return_link_reg;	/* branch register in which the return link is passed */
 
 	struct unw_labeled_state *labeled_states;	/* list of all labeled states */
 	struct unw_reg_state curr;	/* current state */
@@ -151,23 +151,23 @@ enum unw_nat_type {
 };
 
 enum unw_insn_opcode {
-	UNW_INSN_ADD,			/* s[dst] += val */
-	UNW_INSN_ADD_PSP,		/* s[dst] = (s.psp + val) */
-	UNW_INSN_ADD_SP,		/* s[dst] = (s.sp + val) */
-	UNW_INSN_MOVE,			/* s[dst] = s[val] */
-	UNW_INSN_MOVE2,			/* s[dst] = s[val]; s[dst+1] = s[val+1] */
-	UNW_INSN_MOVE_STACKED,		/* s[dst] = ia64_rse_skip(*s.bsp, val) */
-	UNW_INSN_SETNAT_MEMSTK,		/* s[dst+1].nat.type = MEMSTK;
-						 s[dst+1].nat.off = *s.pri_unat - s[dst] */
-	UNW_INSN_SETNAT_TYPE,		/* s[dst+1].nat.type = val */
-	UNW_INSN_LOAD,			/* s[dst] = *s[val] */
-				UNW_INSN_MOVE_SCRATCH,          /* s[dst] = scratch reg "val" */
+	UNW_INSN_ADD,		/* s[dst] += val */
+	UNW_INSN_ADD_PSP,	/* s[dst] = (s.psp + val) */
+	UNW_INSN_ADD_SP,	/* s[dst] = (s.sp + val) */
+	UNW_INSN_MOVE,		/* s[dst] = s[val] */
+	UNW_INSN_MOVE2,		/* s[dst] = s[val]; s[dst+1] = s[val+1] */
+	UNW_INSN_MOVE_STACKED,	/* s[dst] = ia64_rse_skip(*s.bsp, val) */
+	UNW_INSN_SETNAT_MEMSTK,	/* s[dst+1].nat.type = MEMSTK;
+				   s[dst+1].nat.off = *s.pri_unat - s[dst] */
+	UNW_INSN_SETNAT_TYPE,	/* s[dst+1].nat.type = val */
+	UNW_INSN_LOAD,		/* s[dst] = *s[val] */
+	UNW_INSN_MOVE_SCRATCH,	/* s[dst] = scratch reg "val" */
 };
 
 struct unw_insn {
-	unsigned int opc	:  4;
-	unsigned int dst	:  9;
-	signed int val		: 19;
+	unsigned int opc:4;
+	unsigned int dst:9;
+	signed int val:19;
 };
 
 /*
@@ -179,18 +179,18 @@ struct unw_insn {
 #define UNW_MAX_SCRIPT_LEN	(UNW_NUM_REGS + 5)
 
 struct unw_script {
-	unsigned long ip;		/* ip this script is for */
-	unsigned long pr_mask;		/* mask of predicates script depends on */
-	unsigned long pr_val;		/* predicate values this script is for */
+	unsigned long ip;	/* ip this script is for */
+	unsigned long pr_mask;	/* mask of predicates script depends on */
+	unsigned long pr_val;	/* predicate values this script is for */
 #ifndef REDHAT
 	rwlock_t lock;
-#endif /* !REDHAT */
-	unsigned int flags;		/* see UNW_FLAG_* in unwind.h */
+#endif				/* !REDHAT */
+	unsigned int flags;	/* see UNW_FLAG_* in unwind.h */
 #ifndef REDHAT
 	unsigned short lru_chain;	/* used for least-recently-used chain */
 	unsigned short coll_chain;	/* used for hash collisions */
-	unsigned short hint;		/* hint for next script to try (or -1) */
-#endif /* !REDHAT */
-	unsigned short count;		/* number of instructions in script */
+	unsigned short hint;	/* hint for next script to try (or -1) */
+#endif				/* !REDHAT */
+	unsigned short count;	/* number of instructions in script */
 	struct unw_insn insn[UNW_MAX_SCRIPT_LEN];
 };

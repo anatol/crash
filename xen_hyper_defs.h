@@ -89,13 +89,13 @@
 #undef IA64_RBS_OFFSET
 #define IA64_RBS_OFFSET   ((XEN_HYPER_SIZE(vcpu) + 15) & ~15)
 
-#endif /* IA64 */
+#endif				/* IA64 */
 
 #define DIRECTMAP_VIRT_ADDR(vaddr) \
 		(((vaddr) >= DIRECTMAP_VIRT_START) && ((vaddr) < DIRECTMAP_VIRT_END))
 
-typedef uint16_t	domid_t;
-typedef uint32_t	Elf_Word;
+typedef uint16_t domid_t;
+typedef uint32_t Elf_Word;
 
 /*
  * NOTE kakuma: The following defines are temporary version for
@@ -380,12 +380,11 @@ struct xen_hyper_cmd_args {
 #define XEN_HYPER_MAX_VCPUS_ARGS XEN_HYPER_MAX_ARGS
 #define XEN_HYPER_VCPUS_ID (0x1)
 
-
 /*
  * table structs
  */
 struct xen_hyper_machdep_table {
-	void (*pcpu_init)(void);
+	void (*pcpu_init) (void);
 #ifdef IA64
 	long frame_table;
 #endif
@@ -398,11 +397,11 @@ struct xen_hyper_table {
 	ulong cpu_data_address;
 	struct new_utsname utsname;
 	uint cpu_curr;
-	uint max_cpus;			/* max cpu in system */
-	int cores;			/* number of cpu core */
-	int pcpus;			/* number of physical cpu */
-	int vcpus;			/* number of virtual cpu */
-	int domains;			/* number of domain */
+	uint max_cpus;		/* max cpu in system */
+	int cores;		/* number of cpu core */
+	int pcpus;		/* number of physical cpu */
+	int vcpus;		/* number of virtual cpu */
+	int domains;		/* number of domain */
 	ulong sys_pages;
 	int crashing_cpu;
 	struct xen_hyper_vcpu_context *crashing_vcc;
@@ -420,20 +419,20 @@ struct xen_hyper_table {
 };
 
 struct xen_hyper_dumpinfo_context {
-	ulong note;			/* per_cpu__crash_notes address */
+	ulong note;		/* per_cpu__crash_notes address */
 	uint pcpu_id;
-	char *ELF_Prstatus_ptr;		/* pointer to ELF_Prstatus buf */
-	char *pr_reg_ptr;		/* pointer to pr_reg buf */
+	char *ELF_Prstatus_ptr;	/* pointer to ELF_Prstatus buf */
+	char *pr_reg_ptr;	/* pointer to pr_reg buf */
 };
 
 struct xen_hyper_dumpinfo_context_xen_core {
-	ulong note;			/* per_cpu__crash_notes v3:xen_regs address */
+	ulong note;		/* per_cpu__crash_notes v3:xen_regs address */
 	uint pcpu_id;
 	char *crash_xen_core_ptr;	/* pointer to crash_xen_core_t buf */
 };
 
 struct xen_hyper_dumpinfo_context_xen_info {
-	ulong note;			/* per_cpu__crash_notes v2:xen, v3:xen_info address */
+	ulong note;		/* per_cpu__crash_notes v2:xen, v3:xen_info address */
 	uint pcpu_id;
 	char *crash_xen_info_ptr;	/* pointer to v2:xen_crash_xen_regs_t, v3:crash_xen_info_t buf */
 };
@@ -458,7 +457,7 @@ struct xen_hyper_dumpinfo_table {
 
 /* domain */
 struct xen_hyper_domain_context {
-	ulong domain;			/* domain address */
+	ulong domain;		/* domain address */
 	domid_t domain_id;
 	uint tot_pages;
 	uint max_pages;
@@ -490,7 +489,7 @@ struct xen_hyper_domain_table {
 
 /* vcpu */
 struct xen_hyper_vcpu_context {
-	ulong vcpu;			/* vcpu address */
+	ulong vcpu;		/* vcpu address */
 	int vcpu_id;
 	int processor;
 	ulong vcpu_info;
@@ -524,7 +523,7 @@ struct xen_hyper_vcpu_table {
 /* pcpu */
 struct xen_hyper_pcpu_context {
 	/* pcpu info */
-	ulong pcpu;			/* pcpu address */
+	ulong pcpu;		/* pcpu address */
 	uint processor_id;
 	ulong guest_cpu_user_regs;
 	ulong current_vcpu;
@@ -569,7 +568,7 @@ struct xen_hyper_symbol_table_data {
 };
 
 struct xen_hyper_size_table {
-	long ELF_Prstatus;			/* elf note v1,v2,v3,v4 */
+	long ELF_Prstatus;	/* elf note v1,v2,v3,v4 */
 	long ELF_Signifo;
 	long ELF_Gregset;
 	long ELF_Timeval;
@@ -581,19 +580,19 @@ struct xen_hyper_size_table {
 	long cpumask_t;
 	long cpuinfo_ia64;
 	long cpuinfo_x86;
-	long crash_note_t;			/* elf note v2, v3 */
-	long crash_note_core_t;			/* elf note v2, v3 */
-	long crash_note_xen_t;			/* elf note v2 */
-	long crash_note_xen_core_t;		/* elf note v3 */
-	long crash_note_xen_info_t;		/* elf note v3 */
-	long crash_xen_core_t;			/* elf note v3,v4 */
-	long crash_xen_info_t;			/* elf note v3,v4 */
+	long crash_note_t;	/* elf note v2, v3 */
+	long crash_note_core_t;	/* elf note v2, v3 */
+	long crash_note_xen_t;	/* elf note v2 */
+	long crash_note_xen_core_t;	/* elf note v3 */
+	long crash_note_xen_info_t;	/* elf note v3 */
+	long crash_xen_core_t;	/* elf note v3,v4 */
+	long crash_xen_info_t;	/* elf note v3,v4 */
 	long domain;
 	long domain_vcpu;
 #ifdef IA64
 	long mm_struct;
 #endif
-	long note_buf_t;			/* elf note v1 */
+	long note_buf_t;	/* elf note v1 */
 	long schedule_data;
 	long scheduler;
 	long shared_info;
@@ -601,7 +600,7 @@ struct xen_hyper_size_table {
 	long tss_struct;
 	long vcpu;
 	long vcpu_runstate_info;
-	long xen_crash_xen_regs_t;		/* elf note v2 */
+	long xen_crash_xen_regs_t;	/* elf note v2 */
 };
 
 struct xen_hyper_offset_table {
@@ -644,10 +643,10 @@ struct xen_hyper_offset_table {
 	long cpuinfo_ia64_proc_freq;
 	long cpuinfo_ia64_vendor;
 	/* crash_note_t */
-	long crash_note_t_core;			/* elf note v2, v3 */
-	long crash_note_t_xen;			/* elf note v2 */
-	long crash_note_t_xen_regs;		/* elf note v3 */
-	long crash_note_t_xen_info;		/* elf note v3 */
+	long crash_note_t_core;	/* elf note v2, v3 */
+	long crash_note_t_xen;	/* elf note v2 */
+	long crash_note_t_xen_regs;	/* elf note v3 */
+	long crash_note_t_xen_info;	/* elf note v3 */
 	/* crash_note_core_t elf note v2, v3 */
 	long crash_note_core_t_note;
 	long crash_note_core_t_desc;
@@ -890,17 +889,16 @@ char *xen_hyper_fill_elf_notes(ulong note, char *note_buf, int type);
 /* domain */
 void xen_hyper_refresh_domain_context_space(void);
 int xen_hyper_get_domains(void);
-char *xen_hyper_get_domain_next(int mod, ulong *next);
+char *xen_hyper_get_domain_next(int mod, ulong * next);
 domid_t xen_hyper_domain_to_id(ulong domain);
 char *xen_hyper_id_to_domain_struct(domid_t id);
-struct xen_hyper_domain_context *
-xen_hyper_domain_to_domain_context(ulong domain);
-struct xen_hyper_domain_context *
-xen_hyper_id_to_domain_context(domid_t id);
-struct xen_hyper_domain_context *
-xen_hyper_store_domain_context(struct xen_hyper_domain_context *dc,
-		ulong domain, char *dp);
-char *xen_hyper_read_domain_from_context(struct xen_hyper_domain_context *dc);
+struct xen_hyper_domain_context *xen_hyper_domain_to_domain_context(ulong domain);
+struct xen_hyper_domain_context *xen_hyper_id_to_domain_context(domid_t id);
+struct xen_hyper_domain_context *xen_hyper_store_domain_context(struct
+								xen_hyper_domain_context
+								*dc, ulong domain, char *dp);
+char *xen_hyper_read_domain_from_context(struct xen_hyper_domain_context
+					 *dc);
 char *xen_hyper_read_domain(ulong domain);
 char *xen_hyper_read_domain_verify(ulong domain);
 char *xen_hyper_fill_domain_struct(ulong domain, char *domain_struct);
@@ -909,24 +907,22 @@ ulong xen_hyper_domain_state(struct xen_hyper_domain_context *dc);
 
 /* vcpu */
 void xen_hyper_refresh_vcpu_context_space(void);
-struct xen_hyper_vcpu_context *
-xen_hyper_vcpu_to_vcpu_context(ulong vcpu);
-struct xen_hyper_vcpu_context *
-xen_hyper_id_to_vcpu_context(ulong domain, domid_t did, int vcid);
-struct xen_hyper_vcpu_context_array *
-xen_hyper_domain_to_vcpu_context_array(ulong domain);
-struct xen_hyper_vcpu_context_array *
-xen_hyper_domid_to_vcpu_context_array(domid_t id);
-struct xen_hyper_vcpu_context *
-xen_hyper_store_vcpu_context(struct xen_hyper_vcpu_context *vcc,
-	ulong vcpu, char *vcp);
-char *
-xen_hyper_read_vcpu_from_context(struct xen_hyper_vcpu_context *vcc);
+struct xen_hyper_vcpu_context *xen_hyper_vcpu_to_vcpu_context(ulong vcpu);
+struct xen_hyper_vcpu_context *xen_hyper_id_to_vcpu_context(ulong domain, domid_t did, int vcid);
+struct xen_hyper_vcpu_context_array
+*xen_hyper_domain_to_vcpu_context_array(ulong domain);
+struct xen_hyper_vcpu_context_array
+*xen_hyper_domid_to_vcpu_context_array(domid_t id);
+struct xen_hyper_vcpu_context *xen_hyper_store_vcpu_context(struct
+							    xen_hyper_vcpu_context
+							    *vcc, ulong vcpu, char *vcp);
+char *xen_hyper_read_vcpu_from_context(struct xen_hyper_vcpu_context *vcc);
 char *xen_hyper_read_vcpu(ulong vcpu);
 char *xen_hyper_read_vcpu_verify(ulong vcpu);
 char *xen_hyper_fill_vcpu_struct(ulong vcpu, char *vcpu_struct);
 void xen_hyper_alloc_vcpu_context_arrays_space(int domains);
-void xen_hyper_alloc_vcpu_context_space(struct xen_hyper_vcpu_context_array *vcca, int vcpus);
+void xen_hyper_alloc_vcpu_context_space(struct xen_hyper_vcpu_context_array
+					*vcca, int vcpus);
 int xen_hyper_vcpu_state(struct xen_hyper_vcpu_context *vcc);
 
 /* pcpu */
@@ -937,10 +933,12 @@ void xen_hyper_ia64_pcpu_init(void);
 #endif
 struct xen_hyper_pcpu_context *xen_hyper_id_to_pcpu_context(uint id);
 struct xen_hyper_pcpu_context *xen_hyper_pcpu_to_pcpu_context(ulong pcpu);
-struct xen_hyper_pcpu_context *xen_hyper_store_pcpu_context(struct xen_hyper_pcpu_context *pcc,
-	ulong pcpu, char *pcp);
-struct xen_hyper_pcpu_context *xen_hyper_store_pcpu_context_tss(struct xen_hyper_pcpu_context *pcc,
-	ulong init_tss, char *tss);
+struct xen_hyper_pcpu_context *xen_hyper_store_pcpu_context(struct
+							    xen_hyper_pcpu_context
+							    *pcc, ulong pcpu, char *pcp);
+struct xen_hyper_pcpu_context *xen_hyper_store_pcpu_context_tss(struct
+								xen_hyper_pcpu_context
+								*pcc, ulong init_tss, char *tss);
 char *xen_hyper_read_pcpu(ulong pcpu);
 char *xen_hyper_fill_pcpu_struct(ulong pcpu, char *pcpu_struct);
 void xen_hyper_alloc_pcpu_context_space(int pcpus);
@@ -949,7 +947,7 @@ void xen_hyper_alloc_pcpu_context_space(int pcpus);
 char *xen_hyper_x86_fill_cpu_data(int idx, char *cpuinfo_x86);
 char *xen_hyper_ia64_fill_cpu_data(int idx, char *cpuinfo_ia64);
 int xen_hyper_is_vcpu_crash(struct xen_hyper_vcpu_context *vcc);
-void xen_hyper_print_bt_header(FILE *out, ulong pcpu, int newline);
+void xen_hyper_print_bt_header(FILE * out, ulong pcpu, int newline);
 ulong xen_hyper_get_active_vcpu_from_pcpuid(ulong pcpu);
 ulong xen_hyper_pcpu_to_active_vcpu(ulong pcpu);
 void xen_hyper_get_cpu_info(void);
@@ -972,13 +970,11 @@ void xen_hyper_cmd_vcpus(void);
 void xen_hyper_display_sys_stats(void);
 
 void xen_hyper_show_vcpu_context(struct xen_hyper_vcpu_context *vcc);
-char *xen_hyper_domain_state_string(struct xen_hyper_domain_context *dc,
-	char *buf, int verbose);
-char *xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc,
-	char *buf, int verbose);
+char *xen_hyper_domain_state_string(struct xen_hyper_domain_context *dc, char *buf, int verbose);
+char *xen_hyper_vcpu_state_string(struct xen_hyper_vcpu_context *vcc, char *buf, int verbose);
 
 /* tools */
-void xen_hyper_fpr_indent(FILE *fp, int len, char *str1, char *str2, int flag);
+void xen_hyper_fpr_indent(FILE * fp, int len, char *str1, char *str2, int flag);
 
 #else
 

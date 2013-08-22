@@ -28,13 +28,13 @@
 #define NUM_SIG_MDF             (sizeof(MAKEDUMPFILE_SIGNATURE) - 1)
 #define SIZE_SIG_MDF            roundup(sizeof(char) * NUM_SIG_MDF, 8)
 #define SIG_LEN_MDF             (SIZE_SIG_MDF / sizeof(char))
-#define MAX_SIZE_MDF_HEADER     (4096) /* max size of makedumpfile_header */
-#define TYPE_FLAT_HEADER        (1)    /* type of flattened format */
-#define VERSION_FLAT_HEADER     (1)    /* current version of flattened format */
+#define MAX_SIZE_MDF_HEADER     (4096)	/* max size of makedumpfile_header */
+#define TYPE_FLAT_HEADER        (1)	/* type of flattened format */
+#define VERSION_FLAT_HEADER     (1)	/* current version of flattened format */
 #define END_FLAG_FLAT_HEADER    (-1)
 
 struct makedumpfile_header {
-	char    signature[SIG_LEN_MDF]; /* = "makedumpfile" */
+	char signature[SIG_LEN_MDF];	/* = "makedumpfile" */
 	int64_t type;
 	int64_t version;
 };
@@ -43,4 +43,3 @@ struct makedumpfile_data_header {
 	int64_t offset;
 	int64_t buf_size;
 };
-

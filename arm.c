@@ -65,9 +65,9 @@ static struct machine_specific arm_machine_specific;
  * unwinding the stack.
  */
 struct arm_cpu_context_save {
-	ulong	fp;
-	ulong	sp;
-	ulong	pc;
+	ulong fp;
+	ulong sp;
+	ulong pc;
 };
 
 /*
@@ -84,8 +84,7 @@ static struct arm_pt_regs *panic_task_regs;
 #define PMD_TYPE_SECT   2
 #define PMD_TYPE_TABLE  1
 
-static inline ulong *
-pmd_page_addr(ulong pmd)
+static inline ulong *pmd_page_addr(ulong pmd)
 {
 	ulong ptr;
 
@@ -96,7 +95,7 @@ pmd_page_addr(ulong pmd)
 		ptr += PTRS_PER_PTE * sizeof(void *);
 	}
 
-	return (ulong *)ptr;
+	return (ulong *) ptr;
 }
 
 /*
@@ -167,7 +166,7 @@ pmd_page_addr(ulong pmd)
 
 static const char *processor_modes[] = {
 	"USER_26", "FIQ_26", "IRQ_26", "SVC_26", "UK4_26", "UK5_26",
-	"UK6_26", "UK7_26" , "UK8_26", "UK9_26", "UK10_26", "UK11_26",
+	"UK6_26", "UK7_26", "UK8_26", "UK9_26", "UK10_26", "UK11_26",
 	"UK12_26", "UK13_26", "UK14_26", "UK15_26", "USER_32", "FIQ_32",
 	"IRQ_32", "SVC_32", "UK4_32", "UK5_32", "UK6_32", "ABT_32",
 	"UK8_32", "UK9_32", "UK10_32", "UND_32", "UK12_32", "UK13_32",
@@ -175,7 +174,7 @@ static const char *processor_modes[] = {
 };
 
 static const char *isa_modes[] = {
-	"ARM" , "Thumb" , "Jazelle", "ThumbEE",
+	"ARM", "Thumb", "Jazelle", "ThumbEE",
 };
 
 #define NOT_IMPLEMENTED() \
@@ -185,8 +184,7 @@ static const char *isa_modes[] = {
  * Do all necessary machine-specific setup here. This is called several times
  * during initialization.
  */
-void
-arm_init(int when)
+void arm_init(int when)
 {
 	ulong vaddr;
 
@@ -204,7 +202,7 @@ arm_init(int when)
 		machdep->pagesize = memory_page_size();
 		machdep->pageshift = ffs(machdep->pagesize) - 1;
 		machdep->pageoffset = machdep->pagesize - 1;
-		machdep->pagemask = ~((ulonglong)machdep->pageoffset);
+		machdep->pagemask = ~((ulonglong) machdep->pageoffset);
 		machdep->stacksize = machdep->pagesize * 2;
 		machdep->last_pgd_read = 0;
 		machdep->last_pmd_read = 0;
@@ -225,7 +223,7 @@ arm_init(int when)
 		/*
 		 * Kernel text starts 16k after PAGE_OFFSET.
 		 */
-					machdep->kvbase = symbol_value("_stext") & 0xffff0000UL;
+		machdep->kvbase = symbol_value("_stext") & 0xffff0000UL;
 		machdep->identity_map_base = machdep->kvbase;
 		machdep->is_kvaddr = arm_is_kvaddr;
 		machdep->is_uvaddr = arm_is_uvaddr;
@@ -262,36 +260,30 @@ arm_init(int when)
 		 * d30e45eeabe (ARM: pgtable: switch order of Linux vs
 		 * hardware page tables).
 		 */
-		if (THIS_KERNEL_VERSION > LINUX(2,6,37) ||
-				STRUCT_EXISTS("pteval_t"))
+		if (THIS_KERNEL_VERSION > LINUX(2, 6, 37)
+		    || STRUCT_EXISTS("pteval_t"))
 			machdep->flags |= PGTABLE_V2;
 
-		if (THIS_KERNEL_VERSION >= LINUX(3,3,0) ||
-				symbol_exists("idmap_pgd"))
+		if (THIS_KERNEL_VERSION >= LINUX(3, 3, 0)
+		    || symbol_exists("idmap_pgd"))
 			machdep->flags |= IDMAP_PGD;
 
 		machdep->section_size_bits = _SECTION_SIZE_BITS;
 		machdep->max_physmem_bits = _MAX_PHYSMEM_BITS;
 
 		if (symbol_exists("irq_desc"))
-			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc,
-						"irq_desc", NULL, 0);
+			ARRAY_LENGTH_INIT(machdep->nr_irqs, irq_desc, "irq_desc", NULL, 0);
 		else if (kernel_symbol_exists("nr_irqs"))
-			get_symbol_data("nr_irqs", sizeof(unsigned int),
-				&machdep->nr_irqs);
+			get_symbol_data("nr_irqs", sizeof(unsigned int), &machdep->nr_irqs);
 		/*
 		 * Registers for idle threads are saved in
 		 * thread_info.cpu_context.
 		 */
 		STRUCT_SIZE_INIT(cpu_context_save, "cpu_context_save");
-		MEMBER_OFFSET_INIT(cpu_context_save_fp,
-			"cpu_context_save", "fp");
-		MEMBER_OFFSET_INIT(cpu_context_save_sp,
-			"cpu_context_save", "sp");
-		MEMBER_OFFSET_INIT(cpu_context_save_pc,
-			"cpu_context_save", "pc");
-		MEMBER_OFFSET_INIT(thread_info_cpu_context,
-			"thread_info", "cpu_context");
+		MEMBER_OFFSET_INIT(cpu_context_save_fp, "cpu_context_save", "fp");
+		MEMBER_OFFSET_INIT(cpu_context_save_sp, "cpu_context_save", "sp");
+		MEMBER_OFFSET_INIT(cpu_context_save_pc, "cpu_context_save", "pc");
+		MEMBER_OFFSET_INIT(thread_info_cpu_context, "thread_info", "cpu_context");
 
 		/*
 		 * We need to have information about note_buf_t which is used to
@@ -301,10 +293,8 @@ arm_init(int when)
 		STRUCT_SIZE_INIT(note_buf, "note_buf_t");
 
 		STRUCT_SIZE_INIT(elf_prstatus, "elf_prstatus");
-		MEMBER_OFFSET_INIT(elf_prstatus_pr_pid, "elf_prstatus",
-					 "pr_pid");
-		MEMBER_OFFSET_INIT(elf_prstatus_pr_reg, "elf_prstatus",
-					 "pr_reg");
+		MEMBER_OFFSET_INIT(elf_prstatus_pr_pid, "elf_prstatus", "pr_pid");
+		MEMBER_OFFSET_INIT(elf_prstatus_pr_reg, "elf_prstatus", "pr_reg");
 		break;
 
 	case POST_VM:
@@ -346,14 +336,13 @@ arm_init(int when)
 	}
 }
 
-void
-arm_dump_machdep_table(ulong arg)
+void arm_dump_machdep_table(ulong arg)
 {
 	const struct machine_specific *ms;
 	int others, i;
 
-				others = 0;
-				fprintf(fp, "              flags: %lx (", machdep->flags);
+	others = 0;
+	fprintf(fp, "              flags: %lx (", machdep->flags);
 	if (machdep->flags & KSYMS_START)
 		fprintf(fp, "%sKSYMS_START", others++ ? "|" : "");
 	if (machdep->flags & PHYS_BASE)
@@ -362,19 +351,18 @@ arm_dump_machdep_table(ulong arg)
 		fprintf(fp, "%sPGTABLE_V2", others++ ? "|" : "");
 	if (machdep->flags & IDMAP_PGD)
 		fprintf(fp, "%sIDMAP_PGD", others++ ? "|" : "");
-				fprintf(fp, ")\n");
+	fprintf(fp, ")\n");
 
 	fprintf(fp, "             kvbase: %lx\n", machdep->kvbase);
 	fprintf(fp, "  identity_map_base: %lx\n", machdep->kvbase);
 	fprintf(fp, "           pagesize: %d\n", machdep->pagesize);
 	fprintf(fp, "          pageshift: %d\n", machdep->pageshift);
-	fprintf(fp, "           pagemask: %lx\n", (ulong)machdep->pagemask);
+	fprintf(fp, "           pagemask: %lx\n", (ulong) machdep->pagemask);
 	fprintf(fp, "         pageoffset: %lx\n", machdep->pageoffset);
 	fprintf(fp, "          stacksize: %ld\n", machdep->stacksize);
 	fprintf(fp, "                 hz: %d\n", machdep->hz);
 	fprintf(fp, "                mhz: %ld\n", machdep->mhz);
-	fprintf(fp, "            memsize: %lld (0x%llx)\n",
-		machdep->memsize, machdep->memsize);
+	fprintf(fp, "            memsize: %lld (0x%llx)\n", machdep->memsize, machdep->memsize);
 	fprintf(fp, "               bits: %d\n", machdep->bits);
 	fprintf(fp, "            nr_irqs: %d\n", machdep->nr_irqs);
 	fprintf(fp, "      eframe_search: arm_eframe_search()\n");
@@ -399,7 +387,7 @@ arm_dump_machdep_table(ulong arg)
 	fprintf(fp, "          is_uvaddr: arm_is_uvaddr()\n");
 	fprintf(fp, "       verify_paddr: generic_verify_paddr()\n");
 	fprintf(fp, "    show_interrupts: generic_show_interrupts()\n");
-				fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
+	fprintf(fp, "   get_irq_affinity: generic_get_irq_affinity()\n");
 
 	fprintf(fp, " xendump_p2m_create: NULL\n");
 	fprintf(fp, "xen_kdump_p2m_create: NULL\n");
@@ -408,9 +396,9 @@ arm_dump_machdep_table(ulong arg)
 	fprintf(fp, "      last_pmd_read: %lx\n", machdep->last_pmd_read);
 	fprintf(fp, "     last_ptbl_read: %lx\n", machdep->last_ptbl_read);
 	fprintf(fp, "clear_machdep_cache: NULL\n");
-	fprintf(fp, "                pgd: %lx\n", (ulong)machdep->pgd);
-	fprintf(fp, "                pmd: %lx\n", (ulong)machdep->pmd);
-	fprintf(fp, "               ptbl: %lx\n", (ulong)machdep->ptbl);
+	fprintf(fp, "                pgd: %lx\n", (ulong) machdep->pgd);
+	fprintf(fp, "                pmd: %lx\n", (ulong) machdep->pmd);
+	fprintf(fp, "               ptbl: %lx\n", (ulong) machdep->ptbl);
 	fprintf(fp, "       ptrs_per_pgd: %d\n", machdep->ptrs_per_pgd);
 	fprintf(fp, "  section_size_bits: %ld\n", machdep->section_size_bits);
 	fprintf(fp, "   max_physmem_bits: %ld\n", machdep->max_physmem_bits);
@@ -418,13 +406,12 @@ arm_dump_machdep_table(ulong arg)
 
 	for (i = 0; i < MAX_MACHDEP_ARGS; i++) {
 		fprintf(fp, "    cmdline_args[%d]: %s\n",
-			i, machdep->cmdline_args[i] ?
-			machdep->cmdline_args[i] : "(unused)");
+			i, machdep->cmdline_args[i] ? machdep->cmdline_args[i] : "(unused)");
 	}
 
 	ms = machdep->machspec;
 
-	fprintf(fp, "           machspec: %lx\n", (ulong)ms);
+	fprintf(fp, "           machspec: %lx\n", (ulong) ms);
 	fprintf(fp, "          phys_base: %lx\n", ms->phys_base);
 	fprintf(fp, " vmalloc_start_addr: %lx\n", ms->vmalloc_start_addr);
 	fprintf(fp, "      modules_vaddr: %lx\n", ms->modules_vaddr);
@@ -433,7 +420,7 @@ arm_dump_machdep_table(ulong arg)
 	fprintf(fp, "    kernel_text_end: %lx\n", ms->kernel_text_end);
 	fprintf(fp, "exception_text_start: %lx\n", ms->exception_text_start);
 	fprintf(fp, " exception_text_end: %lx\n", ms->exception_text_end);
-	fprintf(fp, "    crash_task_regs: %lx\n", (ulong)ms->crash_task_regs);
+	fprintf(fp, "    crash_task_regs: %lx\n", (ulong) ms->crash_task_regs);
 	fprintf(fp, "unwind_index_prel31: %d\n", ms->unwind_index_prel31);
 }
 
@@ -444,8 +431,7 @@ arm_dump_machdep_table(ulong arg)
  *
  *  --machdep phys_base=<address>
  */
-static void
-arm_parse_cmdline_args(void)
+static void arm_parse_cmdline_args(void)
 {
 	int index, i, c, err;
 	char *arglist[MAXARGS];
@@ -458,8 +444,7 @@ arm_parse_cmdline_args(void)
 			break;
 
 		if (!strstr(machdep->cmdline_args[index], "=")) {
-			error(WARNING, "ignoring --machdep option: %x\n",
-				machdep->cmdline_args[index]);
+			error(WARNING, "ignoring --machdep option: %x\n", machdep->cmdline_args[index]);
 			continue;
 		}
 
@@ -479,8 +464,8 @@ arm_parse_cmdline_args(void)
 				int megabytes = FALSE;
 				int flags = RETURN_ON_ERROR | QUIET;
 
-				if ((LASTCHAR(arglist[i]) == 'm') ||
-						(LASTCHAR(arglist[i]) == 'M')) {
+				if ((LASTCHAR(arglist[i]) == 'm')
+				    || (LASTCHAR(arglist[i]) == 'M')) {
 					LASTCHAR(arglist[i]) = NULLCHAR;
 					megabytes = TRUE;
 				}
@@ -499,17 +484,14 @@ arm_parse_cmdline_args(void)
 
 					machdep->machspec->phys_base = value;
 
-					error(NOTE,
-						"setting phys_base to: 0x%lx\n",
-						machdep->machspec->phys_base);
+					error(NOTE, "setting phys_base to: 0x%lx\n", machdep->machspec->phys_base);
 
 					machdep->flags |= PHYS_BASE;
 					continue;
 				}
 			}
 
-			error(WARNING, "ignoring --machdep option: %s\n",
-				arglist[i]);
+			error(WARNING, "ignoring --machdep option: %s\n", arglist[i]);
 		}
 	}
 }
@@ -517,8 +499,7 @@ arm_parse_cmdline_args(void)
 /*
  * Retrieve task registers for the time of the crash.
  */
-static int
-arm_get_crash_notes(void)
+static int arm_get_crash_notes(void)
 {
 	struct machine_specific *ms = machdep->machspec;
 	ulong crash_notes;
@@ -533,15 +514,14 @@ arm_get_crash_notes(void)
 
 	crash_notes = symbol_value("crash_notes");
 
-	notes_ptrs = (ulong *)GETBUF(kt->cpus*sizeof(notes_ptrs[0]));
+	notes_ptrs = (ulong *) GETBUF(kt->cpus * sizeof(notes_ptrs[0]));
 
 	/*
 	 * Read crash_notes for the first CPU. crash_notes are in standard ELF
 	 * note format.
 	 */
-	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus-1],
-			sizeof(notes_ptrs[kt->cpus-1]), "crash_notes",
-				 RETURN_ON_ERROR)) {
+	if (!readmem(crash_notes, KVADDR, &notes_ptrs[kt->cpus - 1],
+		     sizeof(notes_ptrs[kt->cpus - 1]), "crash_notes", RETURN_ON_ERROR)) {
 		error(WARNING, "cannot read crash_notes\n");
 		FREEBUF(notes_ptrs);
 		return FALSE;
@@ -550,19 +530,18 @@ arm_get_crash_notes(void)
 	if (symbol_exists("__per_cpu_offset")) {
 
 		/* Add __per_cpu_offset for each cpu to form the pointer to the notes */
-		for (i = 0; i<kt->cpus; i++)
-			notes_ptrs[i] = notes_ptrs[kt->cpus-1] + kt->__per_cpu_offset[i];
+		for (i = 0; i < kt->cpus; i++)
+			notes_ptrs[i] = notes_ptrs[kt->cpus - 1] + kt->__per_cpu_offset[i];
 	}
 
 	buf = GETBUF(SIZE(note_buf));
 
-	if (!(panic_task_regs = malloc(kt->cpus*sizeof(*panic_task_regs))))
+	if (!(panic_task_regs = malloc(kt->cpus * sizeof(*panic_task_regs))))
 		error(FATAL, "cannot malloc panic_task_regs space\n");
 
-	for  (i=0;i<kt->cpus;i++) {
+	for (i = 0; i < kt->cpus; i++) {
 
-		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf), "note_buf_t",
-					 RETURN_ON_ERROR)) {
+		if (!readmem(notes_ptrs[i], KVADDR, buf, SIZE(note_buf), "note_buf_t", RETURN_ON_ERROR)) {
 			error(WARNING, "failed to read note_buf_t\n");
 			goto fail;
 		}
@@ -570,7 +549,7 @@ arm_get_crash_notes(void)
 		/*
 		 * Do some sanity checks for this note before reading registers from it.
 		 */
-		note = (Elf32_Nhdr *)buf;
+		note = (Elf32_Nhdr *) buf;
 		p = buf + sizeof(Elf32_Nhdr);
 
 		if (note->n_type != NT_PRSTATUS) {
@@ -588,10 +567,9 @@ arm_get_crash_notes(void)
 		 */
 		offset = sizeof(Elf32_Nhdr);
 		offset = roundup(offset + note->n_namesz, 4);
-		p = buf + offset; /* start of elf_prstatus */
+		p = buf + offset;	/* start of elf_prstatus */
 
-		BCOPY(p + OFFSET(elf_prstatus_pr_reg), &panic_task_regs[i],
-					sizeof(panic_task_regs[i]));
+		BCOPY(p + OFFSET(elf_prstatus_pr_reg), &panic_task_regs[i], sizeof(panic_task_regs[i]));
 
 	}
 
@@ -605,7 +583,7 @@ arm_get_crash_notes(void)
 	FREEBUF(notes_ptrs);
 	return TRUE;
 
-fail:
+ fail:
 	FREEBUF(buf);
 	FREEBUF(notes_ptrs);
 	free(panic_task_regs);
@@ -615,8 +593,7 @@ fail:
 /*
  * Accept or reject a symbol from the kernel namelist.
  */
-static int
-arm_verify_symbol(const char *name, ulong value, char type)
+static int arm_verify_symbol(const char *name, ulong value, char type)
 {
 	if (STREQ(name, "swapper_pg_dir"))
 		machdep->flags |= KSYMS_START;
@@ -639,8 +616,7 @@ arm_verify_symbol(const char *name, ulong value, char type)
 	return TRUE;
 }
 
-static int
-arm_is_module_addr(ulong vaddr)
+static int arm_is_module_addr(ulong vaddr)
 {
 	ulong modules_start;
 	ulong modules_end = machdep->machspec->modules_end;
@@ -659,8 +635,7 @@ arm_is_module_addr(ulong vaddr)
 	return (vaddr >= modules_start && vaddr <= modules_end);
 }
 
-int
-arm_is_vmalloc_addr(ulong vaddr)
+int arm_is_vmalloc_addr(ulong vaddr)
 {
 	if (arm_is_module_addr(vaddr))
 		return TRUE;
@@ -675,8 +650,7 @@ arm_is_vmalloc_addr(ulong vaddr)
  * Check whether given address falls inside kernel address space (including
  * modules).
  */
-static int
-arm_is_kvaddr(ulong vaddr)
+static int arm_is_kvaddr(ulong vaddr)
 {
 	if (arm_is_module_addr(vaddr))
 		return TRUE;
@@ -684,8 +658,7 @@ arm_is_kvaddr(ulong vaddr)
 	return (vaddr >= machdep->kvbase);
 }
 
-static int
-arm_is_uvaddr(ulong vaddr, struct task_context *unused)
+static int arm_is_uvaddr(ulong vaddr, struct task_context *unused)
 {
 	if (arm_is_module_addr(vaddr))
 		return FALSE;
@@ -696,8 +669,7 @@ arm_is_uvaddr(ulong vaddr, struct task_context *unused)
 /*
  * Returns TRUE if given pc is in exception area.
  */
-static int
-arm_in_exception_text(ulong pc)
+static int arm_in_exception_text(ulong pc)
 {
 	ulong exception_start = machdep->machspec->exception_text_start;
 	ulong exception_end = machdep->machspec->exception_text_end;
@@ -714,14 +686,13 @@ arm_in_exception_text(ulong pc)
  * it is filled with the offset that should be added to the SP to get
  * address of the exception frame where the user registers are.
  */
-static int
-arm_in_ret_from_syscall(ulong pc, int *offset)
+static int arm_in_ret_from_syscall(ulong pc, int *offset)
 {
 	/*
 	 * On fast syscall return path, the stack looks like:
 	 *
-	 * SP + 0	{r4, r5}
-	 * SP + 8	user pt_regs
+	 * SP + 0       {r4, r5}
+	 * SP + 8       user pt_regs
 	 *
 	 * The asm syscall handler pushes fifth and sixth registers
 	 * onto the stack before calling the actual syscall handler.
@@ -752,8 +723,7 @@ arm_in_ret_from_syscall(ulong pc, int *offset)
 /*
  *  Unroll the kernel stack using a minimal amount of gdb services.
  */
-static void
-arm_back_trace(struct bt_info *bt)
+static void arm_back_trace(struct bt_info *bt)
 {
 	int n = 0;
 
@@ -808,8 +778,7 @@ arm_back_trace(struct bt_info *bt)
 /*
  * Unroll a kernel stack.
  */
-static void
-arm_back_trace_cmd(struct bt_info *bt)
+static void arm_back_trace_cmd(struct bt_info *bt)
 {
 	if (kt->flags & DWARF_UNWIND)
 		unwind_backtrace(bt);
@@ -820,8 +789,7 @@ arm_back_trace_cmd(struct bt_info *bt)
 /*
  * Calculate and return the speed of the processor.
  */
-static ulong
-arm_processor_speed(void)
+static ulong arm_processor_speed(void)
 {
 	/*
 	 * For now, we don't support reading CPU speed.
@@ -833,8 +801,7 @@ arm_processor_speed(void)
  * Translate a PTE, returning TRUE if the page is present. If a physaddr pointer
  * is passed in, don't print anything.
  */
-static int
-arm_translate_pte(ulong pte, void *physaddr, ulonglong pae_pte)
+static int arm_translate_pte(ulong pte, void *physaddr, ulonglong pae_pte)
 {
 	char ptebuf[BUFSIZE];
 	char physbuf[BUFSIZE];
@@ -847,7 +814,7 @@ arm_translate_pte(ulong pte, void *physaddr, ulonglong pae_pte)
 	paddr = PAGEBASE(pte);
 
 	if (physaddr) {
-		*((ulong *)physaddr) = paddr;
+		*((ulong *) physaddr) = paddr;
 		return page_present;
 	}
 
@@ -866,8 +833,7 @@ arm_translate_pte(ulong pte, void *physaddr, ulonglong pae_pte)
 
 	fprintf(fp, "FLAGS\n");
 	fprintf(fp, "%s  %s  ",
-		mkstring(ptebuf, len1, CENTER | RJUST, NULL),
-		mkstring(physbuf, len2, CENTER | RJUST, NULL));
+		mkstring(ptebuf, len1, CENTER | RJUST, NULL), mkstring(physbuf, len2, CENTER | RJUST, NULL));
 
 	fprintf(fp, "(");
 	others = 0;
@@ -903,8 +869,7 @@ arm_translate_pte(ulong pte, void *physaddr, ulonglong pae_pte)
  * Virtual to physical memory translation. This function will be called by both
  * arm_kvtop() and arm_uvtop().
  */
-static int
-arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
+static int arm_vtop(ulong vaddr, ulong * pgd, physaddr_t * paddr, int verbose)
 {
 	char buf[BUFSIZE];
 	ulong *page_dir;
@@ -963,7 +928,7 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 	 */
 
 	if (verbose)
-		fprintf(fp, "PAGE DIRECTORY: %lx\n", (ulong)pgd);
+		fprintf(fp, "PAGE DIRECTORY: %lx\n", (ulong) pgd);
 
 	/*
 	 * pgd_offset(pgd, vaddr)
@@ -983,8 +948,7 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 
 	if (verbose)
 		fprintf(fp, "  PGD: %s => %lx\n",
-			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX,
-			MKSTR((ulong)page_dir)), pgd_pte);
+			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR((ulong) page_dir)), pgd_pte);
 
 	if (!pgd_pte)
 		return FALSE;
@@ -999,16 +963,14 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 
 	if (verbose)
 		fprintf(fp, "  PMD: %s => %lx\n",
-			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX,
-			MKSTR((ulong)page_middle)), pmd_pte);
+			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR((ulong) page_middle)), pmd_pte);
 
 	if ((pmd_pte & PMD_TYPE_MASK) == PMD_TYPE_SECT) {
 		ulong sectionbase = pmd_pte & _SECTION_PAGE_MASK;
 
 		if (verbose) {
 			fprintf(fp, " PAGE: %s  (1MB)\n\n",
-				mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX,
-				MKSTR(sectionbase)));
+				mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR(sectionbase)));
 		}
 		*paddr = sectionbase + (vaddr & ~_SECTION_PAGE_MASK);
 		return TRUE;
@@ -1024,8 +986,7 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 
 	if (verbose) {
 		fprintf(fp, "  PTE: %s => %lx\n\n",
-			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX,
-			MKSTR((ulong)page_table)), pte);
+			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR((ulong) page_table)), pte);
 	}
 
 	if (!pte_present(pte)) {
@@ -1039,9 +1000,7 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
 	*paddr = PAGEBASE(pte) + PAGEOFFSET(vaddr);
 
 	if (verbose) {
-		fprintf(fp, " PAGE: %s\n\n",
-			mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX,
-			MKSTR(PAGEBASE(pte))));
+		fprintf(fp, " PAGE: %s\n\n", mkstring(buf, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR(PAGEBASE(pte))));
 		arm_translate_pte(pte, 0, 0);
 	}
 
@@ -1053,8 +1012,7 @@ arm_vtop(ulong vaddr, ulong *pgd, physaddr_t *paddr, int verbose)
  * the verbose flag so that the pte translation gets displayed; all other
  * callers quietly accept the translation.
  */
-static int
-arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
+static int arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t * paddr, int verbose)
 {
 	ulong *pgd;
 
@@ -1072,20 +1030,16 @@ arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
 
 	*paddr = 0;
 
-				if (is_kernel_thread(tc->task) && IS_KVADDR(uvaddr)) {
+	if (is_kernel_thread(tc->task) && IS_KVADDR(uvaddr)) {
 		ulong active_mm;
 
 		readmem(tc->task + OFFSET(task_struct_active_mm),
-			KVADDR, &active_mm, sizeof(void *),
-			"task active_mm contents", FAULT_ON_ERROR);
+			KVADDR, &active_mm, sizeof(void *), "task active_mm contents", FAULT_ON_ERROR);
 
 		if (!active_mm)
-			error(FATAL,
-					 "no active_mm for this kernel thread\n");
+			error(FATAL, "no active_mm for this kernel thread\n");
 
-		readmem(active_mm + OFFSET(mm_struct_pgd),
-			KVADDR, &pgd, sizeof(long),
-			"mm_struct pgd", FAULT_ON_ERROR);
+		readmem(active_mm + OFFSET(mm_struct_pgd), KVADDR, &pgd, sizeof(long), "mm_struct pgd", FAULT_ON_ERROR);
 	} else {
 		ulong mm;
 
@@ -1094,8 +1048,7 @@ arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
 			pgd = ULONG_PTR(tt->mm_struct + OFFSET(mm_struct_pgd));
 		else
 			readmem(tc->mm_struct + OFFSET(mm_struct_pgd),
-				KVADDR, &pgd, sizeof(long), "mm_struct pgd",
-				FAULT_ON_ERROR);
+				KVADDR, &pgd, sizeof(long), "mm_struct pgd", FAULT_ON_ERROR);
 	}
 
 	return arm_vtop(uvaddr, pgd, paddr, verbose);
@@ -1106,8 +1059,7 @@ arm_uvtop(struct task_context *tc, ulong uvaddr, physaddr_t *paddr, int verbose)
  * the verbose flag so that the pte translation gets displayed; all other
  * callers quietly accept the translation.
  */
-static int
-arm_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbose)
+static int arm_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t * paddr, int verbose)
 {
 	if (!IS_KVADDR(kvaddr))
 		return FALSE;
@@ -1123,14 +1075,13 @@ arm_kvtop(struct task_context *tc, ulong kvaddr, physaddr_t *paddr, int verbose)
 			return TRUE;
 	}
 
-	return arm_vtop(kvaddr, (ulong *)vt->kernel_pgd[0], paddr, verbose);
+	return arm_vtop(kvaddr, (ulong *) vt->kernel_pgd[0], paddr, verbose);
 }
 
 /*
  * Get SP and PC values for idle tasks.
  */
-static int
-arm_get_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
+static int arm_get_frame(struct bt_info *bt, ulong * pcp, ulong * spp)
 {
 	const char *cpu_context;
 
@@ -1159,8 +1110,7 @@ arm_get_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 /*
  * Get the starting point for the active cpu in a diskdump.
  */
-static int
-arm_get_dumpfile_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
+static int arm_get_dumpfile_stack_frame(struct bt_info *bt, ulong * nip, ulong * ksp)
 {
 	const struct machine_specific *ms = machdep->machspec;
 
@@ -1188,8 +1138,7 @@ arm_get_dumpfile_stack_frame(struct bt_info *bt, ulong *nip, ulong *ksp)
 /*
  * Get a stack frame combination of PC and SP from the most relevant spot.
  */
-static void
-arm_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
+static void arm_get_stack_frame(struct bt_info *bt, ulong * pcp, ulong * spp)
 {
 	ulong ip, sp;
 	int ret;
@@ -1216,31 +1165,25 @@ arm_get_stack_frame(struct bt_info *bt, ulong *pcp, ulong *spp)
 /*
  * Prints out exception stack starting from start.
  */
-void
-arm_dump_exception_stack(ulong start, ulong end)
+void arm_dump_exception_stack(ulong start, ulong end)
 {
 	struct arm_pt_regs regs;
 	ulong flags;
 	char buf[64];
 
-	if (!readmem(start, KVADDR, &regs, sizeof(regs),
-				 "exception regs", RETURN_ON_ERROR)) {
+	if (!readmem(start, KVADDR, &regs, sizeof(regs), "exception regs", RETURN_ON_ERROR)) {
 		error(WARNING, "failed to read exception registers\n");
 		return;
 	}
 
 	fprintf(fp, "    pc : [<%08lx>]    lr : [<%08lx>]    psr: %08lx\n"
 		"    sp : %08lx  ip : %08lx  fp : %08lx\n",
-		regs.ARM_pc, regs.ARM_lr, regs.ARM_cpsr,
-		regs.ARM_sp, regs.ARM_ip, regs.ARM_fp);
-	fprintf(fp, "    r10: %08lx  r9 : %08lx  r8 : %08lx\n",
-		regs.ARM_r10, regs.ARM_r9, regs.ARM_r8);
+		regs.ARM_pc, regs.ARM_lr, regs.ARM_cpsr, regs.ARM_sp, regs.ARM_ip, regs.ARM_fp);
+	fprintf(fp, "    r10: %08lx  r9 : %08lx  r8 : %08lx\n", regs.ARM_r10, regs.ARM_r9, regs.ARM_r8);
 	fprintf(fp, "    r7 : %08lx  r6 : %08lx  r5 : %08lx  r4 : %08lx\n",
-		regs.ARM_r7, regs.ARM_r6,
-		regs.ARM_r5, regs.ARM_r4);
+		regs.ARM_r7, regs.ARM_r6, regs.ARM_r5, regs.ARM_r4);
 	fprintf(fp, "    r3 : %08lx  r2 : %08lx  r1 : %08lx  r0 : %08lx\n",
-		regs.ARM_r3, regs.ARM_r2,
-		regs.ARM_r1, regs.ARM_r0);
+		regs.ARM_r3, regs.ARM_r2, regs.ARM_r1, regs.ARM_r0);
 
 	flags = regs.ARM_cpsr;
 	buf[0] = flags & PSR_N_BIT ? 'N' : 'n';
@@ -1252,12 +1195,10 @@ arm_dump_exception_stack(ulong start, ulong end)
 	fprintf(fp, "    Flags: %s  IRQs o%s  FIQs o%s  Mode %s  ISA %s\n",
 		buf, interrupts_enabled(&regs) ? "n" : "ff",
 		fast_interrupts_enabled(&regs) ? "n" : "ff",
-		processor_modes[processor_mode(&regs)],
-		isa_modes[isa_mode(&regs)]);
+		processor_modes[processor_mode(&regs)], isa_modes[isa_mode(&regs)]);
 }
 
-static void
-arm_display_full_frame(struct bt_info *bt, ulong sp)
+static void arm_display_full_frame(struct bt_info *bt, ulong sp)
 {
 	ulong words, addr;
 	ulong *up;
@@ -1280,7 +1221,7 @@ arm_display_full_frame(struct bt_info *bt, ulong sp)
 		if ((i % 4) == 0)
 			fprintf(fp, "%s    %lx: ", i ? "\n" : "", addr);
 
-		up = (ulong *)(&bt->stackbuf[u_idx * sizeof(ulong)]);
+		up = (ulong *) (&bt->stackbuf[u_idx * sizeof(ulong)]);
 		fprintf(fp, "%s ", format_stack_entry(bt, buf, *up, 0));
 		addr += sizeof(ulong);
 	}
@@ -1299,8 +1240,7 @@ arm_display_full_frame(struct bt_info *bt, ulong sp)
  *	from = LR
  *	sp = previous/saved SP
  */
-void
-arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
+void arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
 {
 	struct load_module *lm;
 	const char *name;
@@ -1317,21 +1257,16 @@ arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
 		symp = value_search(bt->instptr, &symbol_offset);
 
 		if (symp && symbol_offset)
-			name_plus_offset =
-				value_to_symstr(bt->instptr, buf, bt->radix);
+			name_plus_offset = value_to_symstr(bt->instptr, buf, bt->radix);
 	}
 
 	if (module_symbol(bt->instptr, NULL, &lm, NULL, 0)) {
 		fprintf(fp, "%s#%d [<%08lx>] (%s [%s]) from [<%08lx>]\n",
 			level < 10 ? " " : "",
-			level, bt->instptr,
-			name_plus_offset ? name_plus_offset : name,
-			lm->mod_name, from);
+			level, bt->instptr, name_plus_offset ? name_plus_offset : name, lm->mod_name, from);
 	} else {
 		fprintf(fp, "%s#%d [<%08lx>] (%s) from [<%08lx>]\n",
-			level < 10 ? " " : "",
-			level, bt->instptr,
-			name_plus_offset ? name_plus_offset : name, from);
+			level < 10 ? " " : "", level, bt->instptr, name_plus_offset ? name_plus_offset : name, from);
 	}
 
 	if (bt->flags & BT_LINE_NUMBERS) {
@@ -1358,9 +1293,7 @@ arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
 		} else {
 			fprintf(fp, "    "
 				"[PC: %08lx  LR: %08lx  SP: %08lx  FP: %08lx  "
-				"SIZE: %ld]\n",
-				bt->instptr, from, bt->stkptr, bt->frameptr,
-				sp - bt->stkptr);
+				"SIZE: %ld]\n", bt->instptr, from, bt->stkptr, bt->frameptr, sp - bt->stkptr);
 		}
 		arm_display_full_frame(bt, sp);
 	}
@@ -1369,8 +1302,7 @@ arm_dump_backtrace_entry(struct bt_info *bt, int level, ulong from, ulong sp)
 /*
  * Determine where vmalloc'd memory starts.
  */
-static ulong
-arm_vmalloc_start(void)
+static ulong arm_vmalloc_start(void)
 {
 	return vt->high_memory;
 }
@@ -1378,8 +1310,7 @@ arm_vmalloc_start(void)
 /*
  * Checks whether given task is valid task address.
  */
-static int
-arm_is_task_addr(ulong task)
+static int arm_is_task_addr(ulong task)
 {
 	if (tt->flags & THREAD_INFO)
 		return IS_KVADDR(task);
@@ -1390,8 +1321,7 @@ arm_is_task_addr(ulong task)
 /*
  * Filter dissassembly output if the output radix is not gdb's default 10
  */
-static int
-arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
+static int arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 {
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
@@ -1412,8 +1342,7 @@ arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	colon = strstr(inbuf, ":");
 
 	if (colon) {
-		sprintf(buf1, "0x%lx <%s>", vaddr,
-			value_to_symstr(vaddr, buf2, output_radix));
+		sprintf(buf1, "0x%lx <%s>", vaddr, value_to_symstr(vaddr, buf2, output_radix));
 		sprintf(buf2, "%s%s", buf1, colon);
 		strcpy(inbuf, buf2);
 	}
@@ -1421,8 +1350,7 @@ arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 	strcpy(buf1, inbuf);
 	argc = parse_line(buf1, argv);
 
-	if ((FIRSTCHAR(argv[argc-1]) == '<') &&
-			(LASTCHAR(argv[argc-1]) == '>')) {
+	if ((FIRSTCHAR(argv[argc - 1]) == '<') && (LASTCHAR(argv[argc - 1]) == '>')) {
 		p1 = rindex(inbuf, '<');
 		while ((p1 > inbuf) && !STRNEQ(p1, " 0x"))
 			p1--;
@@ -1434,8 +1362,7 @@ arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 		if (!extract_hex(p1, &value, NULLCHAR, TRUE))
 			return FALSE;
 
-		sprintf(buf1, "0x%lx <%s>\n", value,
-			value_to_symstr(value, buf2, output_radix));
+		sprintf(buf1, "0x%lx <%s>\n", value, value_to_symstr(value, buf2, output_radix));
 
 		sprintf(p1, buf1);
 	}
@@ -1448,8 +1375,7 @@ arm_dis_filter(ulong vaddr, char *inbuf, unsigned int output_radix)
 /*
  * Look for likely exception frames in a stack.
  */
-static int
-arm_eframe_search(struct bt_info *bt)
+static int arm_eframe_search(struct bt_info *bt)
 {
 	return (NOT_IMPLEMENTED());
 }
@@ -1457,8 +1383,7 @@ arm_eframe_search(struct bt_info *bt)
 /*
  * Get the relevant page directory pointer from a task structure.
  */
-static ulong
-arm_get_task_pgd(ulong task)
+static ulong arm_get_task_pgd(ulong task)
 {
 	return (NOT_IMPLEMENTED());
 }
@@ -1466,8 +1391,7 @@ arm_get_task_pgd(ulong task)
 /*
  * Machine dependent command.
  */
-static void
-arm_cmd_mach(void)
+static void arm_cmd_mach(void)
 {
 	int c;
 
@@ -1490,8 +1414,7 @@ arm_cmd_mach(void)
 	arm_display_machine_stats();
 }
 
-static void
-arm_display_machine_stats(void)
+static void arm_display_machine_stats(void)
 {
 	struct new_utsname *uts;
 	char buf[BUFSIZE];
@@ -1515,8 +1438,7 @@ arm_display_machine_stats(void)
 	fprintf(fp, "  KERNEL STACK SIZE: %ld\n", STACKSIZE());
 }
 
-static int
-arm_get_smp_cpus(void)
+static int arm_get_smp_cpus(void)
 {
 	return get_cpus_online();
 }
@@ -1524,14 +1446,12 @@ arm_get_smp_cpus(void)
 /*
  * Initialize ARM specific stuff.
  */
-static void
-arm_init_machspec(void)
+static void arm_init_machspec(void)
 {
 	struct machine_specific *ms = machdep->machspec;
 	ulong phys_base;
 
-	if (symbol_exists("__exception_text_start") &&
-			symbol_exists("__exception_text_end")) {
+	if (symbol_exists("__exception_text_start") && symbol_exists("__exception_text_end")) {
 		ms->exception_text_start = symbol_value("__exception_text_start");
 		ms->exception_text_end = symbol_value("__exception_text_end");
 	}
@@ -1542,13 +1462,11 @@ arm_init_machspec(void)
 	}
 
 	if (CRASHDEBUG(1)) {
-		fprintf(fp, "kernel text:    [%lx - %lx]\n",
-			ms->kernel_text_start, ms->kernel_text_end);
-		fprintf(fp, "exception text: [%lx - %lx]\n",
-			ms->exception_text_start, ms->exception_text_end);
+		fprintf(fp, "kernel text:    [%lx - %lx]\n", ms->kernel_text_start, ms->kernel_text_end);
+		fprintf(fp, "exception text: [%lx - %lx]\n", ms->exception_text_start, ms->exception_text_end);
 	}
 
-	if (machdep->flags & PHYS_BASE) /* --machdep override */
+	if (machdep->flags & PHYS_BASE)	/* --machdep override */
 		return;
 
 	/*
@@ -1599,9 +1517,9 @@ arm_init_machspec(void)
 		ms->phys_base = phys_base;
 	} else {
 		error(WARNING,
-			"phys_base cannot be determined from the dumpfile.\n"
-			"Using default value of 0. If this is not correct,\n"
-			"consider using '--machdep phys_base=<addr>'\n");
+		      "phys_base cannot be determined from the dumpfile.\n"
+		      "Using default value of 0. If this is not correct,\n"
+		      "consider using '--machdep phys_base=<addr>'\n");
 	}
 
 	if (CRASHDEBUG(1))
@@ -1617,15 +1535,15 @@ static const char *hook_files[] = {
 #define ENTRY_COMMON_S	((char **)&hook_files[1])
 
 static struct line_number_hook arm_line_number_hooks[] = {
-	{ "__dabt_svc", ENTRY_ARMV_S },
-	{ "__irq_svc", ENTRY_ARMV_S },
-	{ "__und_svc", ENTRY_ARMV_S },
-	{ "__pabt_svc", ENTRY_ARMV_S },
-	{ "__switch_to", ENTRY_ARMV_S },
+	{"__dabt_svc", ENTRY_ARMV_S},
+	{"__irq_svc", ENTRY_ARMV_S},
+	{"__und_svc", ENTRY_ARMV_S},
+	{"__pabt_svc", ENTRY_ARMV_S},
+	{"__switch_to", ENTRY_ARMV_S},
 
-	{ "ret_fast_syscall", ENTRY_COMMON_S },
-	{ "ret_slow_syscall", ENTRY_COMMON_S },
-	{ "ret_from_fork", ENTRY_COMMON_S },
-	{ NULL, NULL },
+	{"ret_fast_syscall", ENTRY_COMMON_S},
+	{"ret_slow_syscall", ENTRY_COMMON_S},
+	{"ret_from_fork", ENTRY_COMMON_S},
+	{NULL, NULL},
 };
-#endif /* ARM */
+#endif				/* ARM */

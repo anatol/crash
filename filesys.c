@@ -48,72 +48,67 @@ static void *radix_tree_lookup(ulong, ulong, int);
 static int match_file_string(char *, char *, char *);
 static ulong get_root_vfsmount(char *);
 
-
 #define DENTRY_CACHE (20)
 #define INODE_CACHE  (20)
 #define FILE_CACHE   (20)
 
 static struct filesys_table {
-				char *dentry_cache;
+	char *dentry_cache;
 	ulong cached_dentry[DENTRY_CACHE];
 	ulong cached_dentry_hits[DENTRY_CACHE];
 	int dentry_cache_index;
 	ulong dentry_cache_fills;
 
-				char *inode_cache;
-				ulong cached_inode[INODE_CACHE];
-				ulong cached_inode_hits[INODE_CACHE];
-				int inode_cache_index;
-				ulong inode_cache_fills;
+	char *inode_cache;
+	ulong cached_inode[INODE_CACHE];
+	ulong cached_inode_hits[INODE_CACHE];
+	int inode_cache_index;
+	ulong inode_cache_fills;
 
-				char *file_cache;
-				ulong cached_file[FILE_CACHE];
-				ulong cached_file_hits[FILE_CACHE];
-				int file_cache_index;
-				ulong file_cache_fills;
+	char *file_cache;
+	ulong cached_file[FILE_CACHE];
+	ulong cached_file_hits[FILE_CACHE];
+	int file_cache_index;
+	ulong file_cache_fills;
 
-} filesys_table = { 0 };
-
+} filesys_table = {
+0};
 
 static struct filesys_table *ft = &filesys_table;
 
 /*
  *  Open the namelist, dumpfile and output devices.
  */
-void
-fd_init(void)
+void fd_init(void)
 {
 	pc->nfd = pc->kfd = pc->mfd = pc->dfd = -1;
 
-				if ((pc->nullfp = fopen("/dev/null", "w+")) == NULL)
-								error(INFO, "cannot open /dev/null (for extraneous output)");
+	if ((pc->nullfp = fopen("/dev/null", "w+")) == NULL)
+		error(INFO, "cannot open /dev/null (for extraneous output)");
 
 	if (REMOTE())
 		remote_fd_init();
 	else {
 		if (pc->namelist && pc->namelist_debug && pc->system_map) {
 			error(INFO,
-								"too many namelist options:\n       %s\n       %s\n       %s\n",
-				pc->namelist, pc->namelist_debug,
-				pc->system_map);
+			      "too many namelist options:\n       %s\n       %s\n       %s\n",
+			      pc->namelist, pc->namelist_debug, pc->system_map);
 			program_usage(SHORT_FORM);
 		}
 
 		if (pc->namelist) {
 			if (XEN_HYPER_MODE() && !pc->dumpfile)
-				error(FATAL,
-						"Xen hypervisor mode requires a dumpfile\n");
+				error(FATAL, "Xen hypervisor mode requires a dumpfile\n");
 
 			if (!pc->dumpfile && !get_proc_version())
-										error(INFO, "/proc/version: %s\n",
-					strerror(errno));
+				error(INFO, "/proc/version: %s\n", strerror(errno));
 		} else {
 			if (pc->dumpfile) {
 				error(INFO, "namelist argument required\n");
 				program_usage(SHORT_FORM);
 			}
 			if (!find_booted_kernel())
-										program_usage(SHORT_FORM);
+				program_usage(SHORT_FORM);
 		}
 
 		if (!pc->dumpfile) {
@@ -153,8 +148,7 @@ fd_init(void)
 /*
  *  Do whatever's necessary to handle the memory source.
  */
-static void
-memory_source_init(void)
+static void memory_source_init(void)
 {
 	if (REMOTE() && !(pc->flags & MEMSRC_LOCAL))
 		return;
@@ -162,12 +156,11 @@ memory_source_init(void)
 	if (pc->flags & KERNEL_DEBUG_QUERY)
 		return;
 
-				if (ACTIVE()) {
-		if (pc->mfd != -1)  /* already been here */
+	if (ACTIVE()) {
+		if (pc->mfd != -1)	/* already been here */
 			return;
 
-		if (!STREQ(pc->live_memsrc, "/dev/mem") &&
-				 STREQ(pc->live_memsrc, pc->memory_device)) {
+		if (!STREQ(pc->live_memsrc, "/dev/mem") && STREQ(pc->live_memsrc, pc->memory_device)) {
 			if (memory_driver_init())
 				return;
 
@@ -181,66 +174,52 @@ memory_source_init(void)
 		}
 
 		if (STREQ(pc->live_memsrc, "/dev/mem")) {
-									if ((pc->mfd = open("/dev/mem", O_RDWR)) < 0) {
-													if ((pc->mfd = open("/dev/mem", O_RDONLY)) < 0)
-																	error(FATAL, "/dev/mem: %s\n",
-																					strerror(errno));
-									} else
-													pc->flags |= MFD_RDWR;
+			if ((pc->mfd = open("/dev/mem", O_RDWR)) < 0) {
+				if ((pc->mfd = open("/dev/mem", O_RDONLY)) < 0)
+					error(FATAL, "/dev/mem: %s\n", strerror(errno));
+			} else
+				pc->flags |= MFD_RDWR;
 		} else if (STREQ(pc->live_memsrc, "/proc/kcore")) {
 			if ((pc->mfd = open("/proc/kcore", O_RDONLY)) < 0)
-				error(FATAL, "/proc/kcore: %s\n",
-					strerror(errno));
+				error(FATAL, "/proc/kcore: %s\n", strerror(errno));
 			if (!proc_kcore_init(fp))
-				error(FATAL,
-						"/proc/kcore: initialization failed\n");
+				error(FATAL, "/proc/kcore: initialization failed\n");
 		} else
-			error(FATAL, "unknown memory device: %s\n",
-				pc->live_memsrc);
+			error(FATAL, "unknown memory device: %s\n", pc->live_memsrc);
 
 		return;
-				}
+	}
 
 	if (pc->dumpfile) {
-					if (!file_exists(pc->dumpfile, NULL))
-						error(FATAL, "%s: %s\n", pc->dumpfile,
-				strerror(ENOENT));
+		if (!file_exists(pc->dumpfile, NULL))
+			error(FATAL, "%s: %s\n", pc->dumpfile, strerror(ENOENT));
 
 		if (!(pc->flags & DUMPFILE_TYPES))
-			error(FATAL, "%s: dump format not supported!\n",
-				pc->dumpfile);
+			error(FATAL, "%s: dump format not supported!\n", pc->dumpfile);
 
-								if (pc->flags & NETDUMP) {
-												if (!netdump_init(pc->dumpfile, fp))
-																error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
+		if (pc->flags & NETDUMP) {
+			if (!netdump_init(pc->dumpfile, fp))
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		} else if (pc->flags & KDUMP) {
-												if (!kdump_init(pc->dumpfile, fp))
-																error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
+			if (!kdump_init(pc->dumpfile, fp))
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		} else if (pc->flags & XENDUMP) {
-												if (!xendump_init(pc->dumpfile, fp))
-																error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
+			if (!xendump_init(pc->dumpfile, fp))
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		} else if (pc->flags & KVMDUMP) {
-												if (!kvmdump_init(pc->dumpfile, fp))
-																error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
+			if (!kvmdump_init(pc->dumpfile, fp))
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		} else if (pc->flags & DISKDUMP) {
-												if (!diskdump_init(pc->dumpfile, fp))
-																error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
-								} else if (pc->flags & LKCD) {
-						if ((pc->dfd = open(pc->dumpfile, O_RDONLY)) < 0)
-										error(FATAL, "%s: %s\n", pc->dumpfile,
-					strerror(errno));
+			if (!diskdump_init(pc->dumpfile, fp))
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
+		} else if (pc->flags & LKCD) {
+			if ((pc->dfd = open(pc->dumpfile, O_RDONLY)) < 0)
+				error(FATAL, "%s: %s\n", pc->dumpfile, strerror(errno));
 			if (!lkcd_dump_init(fp, pc->dfd, pc->dumpfile))
-										error(FATAL, "%s: initialization failed\n",
-					pc->dumpfile);
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		} else if (pc->flags & S390D) {
 			if (!s390_dump_init(pc->dumpfile))
-				error(FATAL, "%s: initialization failed\n",
-																				pc->dumpfile);
+				error(FATAL, "%s: initialization failed\n", pc->dumpfile);
 		}
 	}
 }
@@ -250,8 +229,7 @@ memory_source_init(void)
  *  version string doesn't match /proc/version, try to avert a failure
  *  by assigning it to a matching System.map.
  */
-static void
-match_proc_version(void)
+static void match_proc_version(void)
 {
 	char buffer[BUFSIZE], *p1, *p2;
 
@@ -262,7 +240,7 @@ match_proc_version(void)
 		return;
 
 	if (match_file_string(pc->namelist, kt->proc_version, buffer)) {
-								if (CRASHDEBUG(1)) {
+		if (CRASHDEBUG(1)) {
 			fprintf(fp, "/proc/version:\n%s\n", kt->proc_version);
 			fprintf(fp, "%s:\n%s", pc->namelist, buffer);
 		}
@@ -270,8 +248,7 @@ match_proc_version(void)
 	}
 
 	error(WARNING, "%s%sand /proc/version do not match!\n\n",
-		pc->namelist,
-		strlen(pc->namelist) > 39 ? "\n         " : " ");
+	      pc->namelist, strlen(pc->namelist) > 39 ? "\n         " : " ");
 
 	/*
 	 *  find_booted_system_map() requires VTOP(), which used to be a
@@ -286,36 +263,35 @@ match_proc_version(void)
 		p2 = strstr(p1, " ");
 		*p2 = NULLCHAR;
 		error(WARNING, "/proc/version indicates kernel version: %s\n", p1);
-		error(FATAL, "please use the vmlinux file for that kernel version, or try using\n"
-			"       the System.map for that kernel version as an additional argument.\n", p1);
+		error(FATAL,
+		      "please use the vmlinux file for that kernel version, or try using\n"
+		      "       the System.map for that kernel version as an additional argument.\n", p1);
 		clean_exit(1);
 	}
 
 	if (find_booted_system_map())
-								pc->flags |= SYSMAP;
+		pc->flags |= SYSMAP;
 }
-
 
 #define CREATE  1
 #define DESTROY 0
 #define DEFAULT_SEARCHDIRS 5
 
-static char **
-build_searchdirs(int create, int *preferred)
+static char **build_searchdirs(int create, int *preferred)
 {
 	int i;
 	int cnt, start;
 	DIR *dirp;
-				struct dirent *dp;
+	struct dirent *dp;
 	char dirbuf[BUFSIZE];
 	static char **searchdirs = { 0 };
-	static char *default_searchdirs[DEFAULT_SEARCHDIRS+1] = {
-					"/usr/src/linux/",
-					"/boot/",
-					"/boot/efi/redhat",
+	static char *default_searchdirs[DEFAULT_SEARCHDIRS + 1] = {
+		"/usr/src/linux/",
+		"/boot/",
+		"/boot/efi/redhat",
 		"/boot/efi/EFI/redhat",
-					"/",
-					NULL
+		"/",
+		NULL
 	};
 
 	if (!create) {
@@ -337,13 +313,12 @@ build_searchdirs(int create, int *preferred)
 	 */
 	cnt = DEFAULT_SEARCHDIRS + 3;
 
-				if ((dirp = opendir("/usr/src"))) {
-								for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp))
+	if ((dirp = opendir("/usr/src"))) {
+		for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp))
 			cnt++;
 
 		if ((searchdirs = calloc(cnt, sizeof(char *))) == NULL) {
-			error(INFO, "/usr/src/ directory list malloc: %s\n",
-																strerror(errno));
+			error(INFO, "/usr/src/ directory list malloc: %s\n", strerror(errno));
 			closedir(dirp);
 			return default_searchdirs;
 		}
@@ -354,11 +329,9 @@ build_searchdirs(int create, int *preferred)
 
 		rewinddir(dirp);
 
-					for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
+		for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
 			if (STREQ(dp->d_name, "linux") ||
-					STREQ(dp->d_name, "redhat") ||
-					STREQ(dp->d_name, ".") ||
-					STREQ(dp->d_name, ".."))
+			    STREQ(dp->d_name, "redhat") || STREQ(dp->d_name, ".") || STREQ(dp->d_name, ".."))
 				continue;
 
 			sprintf(dirbuf, "/usr/src/%s", dp->d_name);
@@ -368,10 +341,8 @@ build_searchdirs(int create, int *preferred)
 				continue;
 
 			if ((searchdirs[cnt] = (char *)
-					malloc(strlen(dirbuf)+2)) == NULL) {
-				error(INFO,
-						"/usr/src/ directory entry malloc: %s\n",
-																	strerror(errno));
+			     malloc(strlen(dirbuf) + 2)) == NULL) {
+				error(INFO, "/usr/src/ directory entry malloc: %s\n", strerror(errno));
 				break;
 			}
 			sprintf(searchdirs[cnt], "%s/", dirbuf);
@@ -383,8 +354,7 @@ build_searchdirs(int create, int *preferred)
 		searchdirs[cnt] = NULL;
 	} else {
 		if ((searchdirs = calloc(cnt, sizeof(char *))) == NULL) {
-			error(INFO, "search directory list malloc: %s\n",
-																strerror(errno));
+			error(INFO, "search directory list malloc: %s\n", strerror(errno));
 			closedir(dirp);
 			return default_searchdirs;
 		}
@@ -393,50 +363,44 @@ build_searchdirs(int create, int *preferred)
 		cnt = DEFAULT_SEARCHDIRS;
 	}
 
-				if (redhat_kernel_directory_v1(dirbuf)) {
-								if ((searchdirs[cnt] = (char *)
-				malloc(strlen(dirbuf)+2)) == NULL) {
-												error(INFO,
-					"/usr/src/redhat directory entry malloc: %s\n",
-													strerror(errno));
-								} else {
-												sprintf(searchdirs[cnt], "%s/", dirbuf);
-												cnt++;
-								}
-				}
+	if (redhat_kernel_directory_v1(dirbuf)) {
+		if ((searchdirs[cnt] = (char *)
+		     malloc(strlen(dirbuf) + 2)) == NULL) {
+			error(INFO, "/usr/src/redhat directory entry malloc: %s\n", strerror(errno));
+		} else {
+			sprintf(searchdirs[cnt], "%s/", dirbuf);
+			cnt++;
+		}
+	}
 
-				if (redhat_kernel_directory_v2(dirbuf)) {
-								if ((searchdirs[cnt] = (char *)
-										malloc(strlen(dirbuf)+2)) == NULL) {
-												error(INFO,
-														"/usr/src/redhat directory entry malloc: %s\n",
-																strerror(errno));
-								} else {
-												sprintf(searchdirs[cnt], "%s/", dirbuf);
-												cnt++;
-								}
-				}
+	if (redhat_kernel_directory_v2(dirbuf)) {
+		if ((searchdirs[cnt] = (char *)
+		     malloc(strlen(dirbuf) + 2)) == NULL) {
+			error(INFO, "/usr/src/redhat directory entry malloc: %s\n", strerror(errno));
+		} else {
+			sprintf(searchdirs[cnt], "%s/", dirbuf);
+			cnt++;
+		}
+	}
 
-				if (redhat_debug_directory(dirbuf)) {
-								if ((searchdirs[cnt] = (char *)
-										 malloc(strlen(dirbuf)+2)) == NULL) {
-												 error(INFO, "%s directory entry malloc: %s\n",
-																 dirbuf, strerror(errno));
-								} else {
-												 sprintf(searchdirs[cnt], "%s/", dirbuf);
+	if (redhat_debug_directory(dirbuf)) {
+		if ((searchdirs[cnt] = (char *)
+		     malloc(strlen(dirbuf) + 2)) == NULL) {
+			error(INFO, "%s directory entry malloc: %s\n", dirbuf, strerror(errno));
+		} else {
+			sprintf(searchdirs[cnt], "%s/", dirbuf);
 			if (preferred)
 				*preferred = cnt;
-												 cnt++;
-								}
-				}
+			cnt++;
+		}
+	}
 
 	searchdirs[cnt] = NULL;
 
 	if (CRASHDEBUG(1)) {
 		i = start = preferred ? *preferred : 0;
 		do {
-			fprintf(fp, "searchdirs[%d]: %s\n",
-				i, searchdirs[i]);
+			fprintf(fp, "searchdirs[%d]: %s\n", i, searchdirs[i]);
 			if (++i == cnt) {
 				if (start != 0)
 					i = 0;
@@ -449,8 +413,7 @@ build_searchdirs(int create, int *preferred)
 	return searchdirs;
 }
 
-static int
-redhat_kernel_directory_v1(char *buf)
+static int redhat_kernel_directory_v1(char *buf)
 {
 	char *p1, *p2;
 
@@ -470,53 +433,50 @@ redhat_kernel_directory_v1(char *buf)
 	return TRUE;
 }
 
-static int
-redhat_kernel_directory_v2(char *buf)
+static int redhat_kernel_directory_v2(char *buf)
 {
-				char *p1, *p2;
+	char *p1, *p2;
 
-				if (!strstr(kt->proc_version, "Linux version "))
-								return FALSE;
+	if (!strstr(kt->proc_version, "Linux version "))
+		return FALSE;
 
-				BZERO(buf, BUFSIZE);
-				sprintf(buf, "/usr/src/redhat/BUILD/kernel-");
+	BZERO(buf, BUFSIZE);
+	sprintf(buf, "/usr/src/redhat/BUILD/kernel-");
 
-				p1 = &kt->proc_version[strlen("Linux version ")];
-				p2 = &buf[strlen(buf)];
+	p1 = &kt->proc_version[strlen("Linux version ")];
+	p2 = &buf[strlen(buf)];
 
-				while (((*p1 >= '0') && (*p1 <= '9')) || (*p1 == '.'))
-								*p2++ = *p1++;
+	while (((*p1 >= '0') && (*p1 <= '9')) || (*p1 == '.'))
+		*p2++ = *p1++;
 
-				strcat(buf, "/linux-");
+	strcat(buf, "/linux-");
 
-				p1 = &kt->proc_version[strlen("Linux version ")];
-				p2 = &buf[strlen(buf)];
+	p1 = &kt->proc_version[strlen("Linux version ")];
+	p2 = &buf[strlen(buf)];
 
-				while (((*p1 >= '0') && (*p1 <= '9')) || (*p1 == '.'))
-								*p2++ = *p1++;
+	while (((*p1 >= '0') && (*p1 <= '9')) || (*p1 == '.'))
+		*p2++ = *p1++;
 
-				return TRUE;
+	return TRUE;
 }
 
-
-static int
-redhat_debug_directory(char *buf)
+static int redhat_debug_directory(char *buf)
 {
-				char *p1, *p2;
+	char *p1, *p2;
 
-				if (!strstr(kt->proc_version, "Linux version "))
-								return FALSE;
+	if (!strstr(kt->proc_version, "Linux version "))
+		return FALSE;
 
-				BZERO(buf, BUFSIZE);
-				sprintf(buf, "%s/", pc->redhat_debug_loc);
+	BZERO(buf, BUFSIZE);
+	sprintf(buf, "%s/", pc->redhat_debug_loc);
 
-				p1 = &kt->proc_version[strlen("Linux version ")];
-				p2 = &buf[strlen(buf)];
+	p1 = &kt->proc_version[strlen("Linux version ")];
+	p2 = &buf[strlen(buf)];
 
-				while (*p1 != ' ')
-								*p2++ = *p1++;
+	while (*p1 != ' ')
+		*p2++ = *p1++;
 
-				return TRUE;
+	return TRUE;
 }
 
 /*
@@ -525,15 +485,14 @@ redhat_debug_directory(char *buf)
  *  the search directories for a kernel with the same version string embedded
  *  in it.
  */
-static int
-find_booted_kernel(void)
+static int find_booted_kernel(void)
 {
 	char kernel[BUFSIZE];
 	char buffer[BUFSIZE];
 	char **searchdirs;
 	int i, preferred, wrapped;
-				DIR *dirp;
-				struct dirent *dp;
+	DIR *dirp;
+	struct dirent *dp;
 	int found;
 
 	pc->flags |= FINDKERNEL;
@@ -541,22 +500,19 @@ find_booted_kernel(void)
 	fflush(fp);
 
 	if (!file_exists("/proc/version", NULL)) {
-		error(INFO,
-				"/proc/version: %s: cannot determine booted kernel\n",
-			strerror(ENOENT));
+		error(INFO, "/proc/version: %s: cannot determine booted kernel\n", strerror(ENOENT));
 		return FALSE;
 	}
 
 	if (!get_proc_version()) {
-								error(INFO, "/proc/version: %s\n", strerror(errno));
-								return FALSE;
+		error(INFO, "/proc/version: %s\n", strerror(errno));
+		return FALSE;
 	}
 
-				if (CRASHDEBUG(1))
-								fprintf(fp, "\nfind_booted_kernel: search for [%s]\n",
-			kt->proc_version);
+	if (CRASHDEBUG(1))
+		fprintf(fp, "\nfind_booted_kernel: search for [%s]\n", kt->proc_version);
 
-				searchdirs = build_searchdirs(CREATE, &preferred);
+	searchdirs = build_searchdirs(CREATE, &preferred);
 
 	for (i = preferred, wrapped = found = FALSE; !found; i++) {
 		if (!searchdirs[i]) {
@@ -568,29 +524,26 @@ find_booted_kernel(void)
 		} else if (wrapped && (preferred == i))
 			break;
 
-					dirp = opendir(searchdirs[i]);
+		dirp = opendir(searchdirs[i]);
 		if (!dirp)
 			continue;
-					for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
+		for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
 			if (dp->d_name[0] == '.')
 				continue;
 
 			sprintf(kernel, "%s%s", searchdirs[i], dp->d_name);
 
-			if (mount_point(kernel) ||
-					!file_readable(kernel) ||
-														!is_elf_file(kernel))
+			if (mount_point(kernel) || !file_readable(kernel) || !is_elf_file(kernel))
 				continue;
 
 			if (CRASHDEBUG(1))
-				fprintf(fp, "find_booted_kernel: check: %s\n",
-					kernel);
+				fprintf(fp, "find_booted_kernel: check: %s\n", kernel);
 
 			found = match_file_string(kernel, kt->proc_version, buffer);
 
 			if (found)
 				break;
-					}
+		}
 		closedir(dirp);
 	}
 
@@ -598,21 +551,17 @@ find_booted_kernel(void)
 	build_searchdirs(DESTROY, NULL);
 
 	if (found) {
-								if ((pc->namelist = (char *)malloc
-				(strlen(kernel)+1)) == NULL)
-			error(FATAL, "booted kernel name malloc: %s\n",
-				strerror(errno));
-								else {
-												strcpy(pc->namelist, kernel);
+		if ((pc->namelist = (char *)malloc(strlen(kernel) + 1)) == NULL)
+			error(FATAL, "booted kernel name malloc: %s\n", strerror(errno));
+		else {
+			strcpy(pc->namelist, kernel);
 			if (CRASHDEBUG(1))
-				fprintf(fp, "find_booted_kernel: found: %s\n",
-					pc->namelist);
-												return TRUE;
-								}
+				fprintf(fp, "find_booted_kernel: found: %s\n", pc->namelist);
+			return TRUE;
+		}
 	}
 
-	error(INFO,
-						 "cannot find booted kernel -- please enter namelist argument\n\n");
+	error(INFO, "cannot find booted kernel -- please enter namelist argument\n\n");
 	return FALSE;
 }
 
@@ -622,17 +571,16 @@ find_booted_kernel(void)
  *  fstat() calls on nfs mount-points where the remote directory is no longer
  *  available.
  */
-static int
-mount_point(char *name)
+static int mount_point(char *name)
 {
 	int i;
 	static int mount_points_gathered = -1;
 	static char **mount_points;
-				char *arglist[MAXARGS];
+	char *arglist[MAXARGS];
 	char buf[BUFSIZE];
 	char mntfile[BUFSIZE];
 	int argc, found;
-				FILE *mp;
+	FILE *mp;
 
 	/*
 	 *  The first time through, stash a list of mount points.
@@ -641,18 +589,18 @@ mount_point(char *name)
 	if (mount_points_gathered < 0) {
 		found = mount_points_gathered = 0;
 
-					if (file_exists("/proc/mounts", NULL))
+		if (file_exists("/proc/mounts", NULL))
 			sprintf(mntfile, "/proc/mounts");
 		else if (file_exists("/etc/mtab", NULL))
 			sprintf(mntfile, "/etc/mtab");
 		else
-									return FALSE;
+			return FALSE;
 
-					if ((mp = fopen(mntfile, "r")) == NULL)
-									return FALSE;
+		if ((mp = fopen(mntfile, "r")) == NULL)
+			return FALSE;
 
 		while (fgets(buf, BUFSIZE, mp)) {
-						argc = parse_line(buf, arglist);
+			argc = parse_line(buf, arglist);
 			if (argc < 2)
 				continue;
 			found++;
@@ -662,28 +610,27 @@ mount_point(char *name)
 		if (!(mount_points = (char **)malloc(sizeof(char *) * found)))
 			return FALSE;
 
-								if ((mp = fopen(mntfile, "r")) == NULL)
-												return FALSE;
+		if ((mp = fopen(mntfile, "r")) == NULL)
+			return FALSE;
 
 		i = 0;
-								while (fgets(buf, BUFSIZE, mp) &&
-					 (mount_points_gathered < found)) {
-												argc = parse_line(buf, arglist);
-												if (argc < 2)
-																continue;
+		while (fgets(buf, BUFSIZE, mp)
+		       && (mount_points_gathered < found)) {
+			argc = parse_line(buf, arglist);
+			if (argc < 2)
+				continue;
 			if ((mount_points[i] = (char *)
-					 malloc(strlen(arglist[1])*2))) {
+			     malloc(strlen(arglist[1]) * 2))) {
 				strcpy(mount_points[i], arglist[1]);
-													mount_points_gathered++, i++;
+				mount_points_gathered++, i++;
 			}
-								}
-					pclose(mp);
+		}
+		pclose(mp);
 
 		if (CRASHDEBUG(2))
 			for (i = 0; i < mount_points_gathered; i++)
 				fprintf(fp, "mount_points[%d]: %s (%lx)\n",
-					i, mount_points[i],
-					(ulong)mount_points[i]);
+					i, mount_points[i], (ulong) mount_points[i]);
 
 	}
 
@@ -691,79 +638,70 @@ mount_point(char *name)
 	 *  A null name string means we're done with this routine forever,
 	 *  so the malloc'd memory can be freed.
 	 */
-				if (!name) {
-								for (i = 0; i < mount_points_gathered; i++)
-												free(mount_points[i]);
-								free(mount_points);
-								return FALSE;
-				}
-
+	if (!name) {
+		for (i = 0; i < mount_points_gathered; i++)
+			free(mount_points[i]);
+		free(mount_points);
+		return FALSE;
+	}
 
 	for (i = 0; i < mount_points_gathered; i++) {
 		if (STREQ(name, mount_points[i]))
 			return TRUE;
 	}
 
-
-				return FALSE;
+	return FALSE;
 }
-
 
 /*
  *  If /proc/version exists, get it for verification purposes later.
  */
-int
-get_proc_version(void)
+int get_proc_version(void)
 {
-				FILE *version;
+	FILE *version;
 
-	if (strlen(kt->proc_version))  /* been here, done that... */
+	if (strlen(kt->proc_version))	/* been here, done that... */
 		return TRUE;
 
-				if (!file_exists("/proc/version", NULL))
-								return FALSE;
+	if (!file_exists("/proc/version", NULL))
+		return FALSE;
 
-				if ((version = fopen("/proc/version", "r")) == NULL)
-								return FALSE;
+	if ((version = fopen("/proc/version", "r")) == NULL)
+		return FALSE;
 
-				if (fread(&kt->proc_version, sizeof(char),
-				BUFSIZE-1, version) <= 0)
-								return FALSE;
+	if (fread(&kt->proc_version, sizeof(char), BUFSIZE - 1, version) <= 0)
+		return FALSE;
 
-				fclose(version);
+	fclose(version);
 
 	strip_linefeeds(kt->proc_version);
 
 	return TRUE;
 }
 
-
 /*
  *  Given a non-matching kernel namelist, try to find a System.map file
  *  that has a system_utsname whose contents match /proc/version.
  */
-static int
-find_booted_system_map(void)
+static int find_booted_system_map(void)
 {
 	char system_map[BUFSIZE];
 	char **searchdirs;
 	int i;
-				DIR *dirp;
-				struct dirent *dp;
+	DIR *dirp;
+	struct dirent *dp;
 	int found;
 
 	fflush(fp);
 
 	if (!file_exists("/proc/version", NULL)) {
-		error(INFO,
-				"/proc/version: %s: cannot determine booted System.map\n",
-			strerror(ENOENT));
+		error(INFO, "/proc/version: %s: cannot determine booted System.map\n", strerror(ENOENT));
 		return FALSE;
 	}
 
 	if (!get_proc_version()) {
-								error(INFO, "/proc/version: %s\n", strerror(errno));
-								return FALSE;
+		error(INFO, "/proc/version: %s\n", strerror(errno));
+		return FALSE;
 	}
 
 	found = FALSE;
@@ -775,30 +713,28 @@ find_booted_system_map(void)
 	if (file_readable(system_map) && verify_utsname(system_map)) {
 		found = TRUE;
 	} else {
-					searchdirs = build_searchdirs(CREATE, NULL);
+		searchdirs = build_searchdirs(CREATE, NULL);
 
 		for (i = 0; !found && searchdirs[i]; i++) {
-						dirp = opendir(searchdirs[i]);
+			dirp = opendir(searchdirs[i]);
 			if (!dirp)
 				continue;
-						for (dp = readdir(dirp); dp != NULL;
-					 dp = readdir(dirp)) {
+			for (dp = readdir(dirp); dp != NULL; dp = readdir(dirp)) {
 				if (!strstr(dp->d_name, "System.map"))
 					continue;
 
-				sprintf(system_map, "%s%s", searchdirs[i],
-					dp->d_name);
+				sprintf(system_map, "%s%s", searchdirs[i], dp->d_name);
 
-				if (mount_point(system_map) ||
-						!file_readable(system_map) ||
-															!is_system_map(system_map))
+				if (mount_point(system_map)
+				    || !file_readable(system_map)
+				    || !is_system_map(system_map))
 					continue;
 
 				if (verify_utsname(system_map)) {
 					found = TRUE;
 					break;
 				}
-						}
+			}
 			closedir(dirp);
 		}
 
@@ -807,19 +743,15 @@ find_booted_system_map(void)
 	}
 
 	if (found) {
-								if ((pc->system_map = (char *)malloc
-				(strlen(system_map)+1)) == NULL)
-			error(FATAL, "booted system map name malloc: %s\n",
-				strerror(errno));
-								strcpy(pc->system_map, system_map);
+		if ((pc->system_map = (char *)malloc(strlen(system_map) + 1)) == NULL)
+			error(FATAL, "booted system map name malloc: %s\n", strerror(errno));
+		strcpy(pc->system_map, system_map);
 		if (CRASHDEBUG(1))
-			fprintf(fp, "find_booted_system_map: found: %s\n",
-				pc->system_map);
-								return TRUE;
+			fprintf(fp, "find_booted_system_map: found: %s\n", pc->system_map);
+		return TRUE;
 	}
 
-	error(INFO,
- "cannot find booted system map -- please enter namelist or system map\n\n");
+	error(INFO, "cannot find booted system map -- please enter namelist or system map\n\n");
 	return FALSE;
 }
 
@@ -827,8 +759,7 @@ find_booted_system_map(void)
  *  Read the system_utsname from /dev/mem, based upon the address found
  *  in the passed-in System.map file, and compare it to /proc/version.
  */
-static int
-verify_utsname(char *system_map)
+static int verify_utsname(char *system_map)
 {
 	char buffer[BUFSIZE];
 	ulong value;
@@ -841,20 +772,18 @@ verify_utsname(char *system_map)
 		return FALSE;
 
 	if (extract_hex(buffer, &value, NULLCHAR, TRUE) &&
-			(READMEM(pc->mfd, &new_utsname,
-			 sizeof(struct new_utsname), value,
-			 VTOP(value)) > 0) &&
-			ascii_string(new_utsname.release) &&
-			ascii_string(new_utsname.version) &&
-			STRNEQ(new_utsname.release, "2.") &&
-			(strlen(new_utsname.release) > 4) &&
-			(strlen(new_utsname.version) > 27)) {
+	    (READMEM(pc->mfd, &new_utsname,
+		     sizeof(struct new_utsname), value,
+		     VTOP(value)) > 0) &&
+	    ascii_string(new_utsname.release) &&
+	    ascii_string(new_utsname.version) &&
+	    STRNEQ(new_utsname.release, "2.") &&
+	    (strlen(new_utsname.release) > 4) && (strlen(new_utsname.version) > 27)) {
 		if (CRASHDEBUG(1)) {
 			fprintf(fp, "release: [%s]\n", new_utsname.release);
 			fprintf(fp, "version: [%s]\n", new_utsname.version);
 		}
-		if (strstr(kt->proc_version, new_utsname.release) &&
-				strstr(kt->proc_version, new_utsname.version)) {
+		if (strstr(kt->proc_version, new_utsname.release) && strstr(kt->proc_version, new_utsname.version)) {
 			return TRUE;
 		}
 	}
@@ -866,22 +795,20 @@ verify_utsname(char *system_map)
  *  Determine whether a file exists, using the caller's stat structure if
  *  one was passed in.
  */
-int
-file_exists(char *file, struct stat *sp)
+int file_exists(char *file, struct stat *sp)
 {
-				struct stat sbuf;
+	struct stat sbuf;
 
-				if (stat(file, sp ? sp : &sbuf) == 0)
-								return TRUE;
+	if (stat(file, sp ? sp : &sbuf) == 0)
+		return TRUE;
 
-				return FALSE;
+	return FALSE;
 }
 
 /*
  *  Determine whether a file exists, and if so, if it's readable.
  */
-int
-file_readable(char *file)
+int file_readable(char *file)
 {
 	char tmp;
 	int fd;
@@ -904,15 +831,13 @@ file_readable(char *file)
 /*
  *  Quick file checksummer.
  */
-int
-file_checksum(char *file, long *retsum)
+int file_checksum(char *file, long *retsum)
 {
 	int i;
 	int fd;
 	ssize_t cnt;
 	char buf[MIN_PAGE_SIZE];
 	long csum;
-
 
 	if ((fd = open(file, O_RDONLY)) < 0)
 		return FALSE;
@@ -931,20 +856,18 @@ file_checksum(char *file, long *retsum)
 	return TRUE;
 }
 
-int
-is_directory(char *file)
+int is_directory(char *file)
 {
-		struct stat sbuf;
+	struct stat sbuf;
 
-		if (!file || !strlen(file))
-				return(FALSE);
+	if (!file || !strlen(file))
+		return (FALSE);
 
-		if (stat(file, &sbuf) == -1)
-				return(FALSE);                         /* This file doesn't exist. */
+	if (stat(file, &sbuf) == -1)
+		return (FALSE);	/* This file doesn't exist. */
 
-		return((sbuf.st_mode & S_IFMT) == S_IFDIR ? TRUE : FALSE);
+	return ((sbuf.st_mode & S_IFMT) == S_IFDIR ? TRUE : FALSE);
 }
-
 
 /*
  *  Search a directory tree for filename, and if found, return a temporarily
@@ -953,8 +876,7 @@ is_directory(char *file)
  *  command completes.  (I thought this was impossible until I saw it happen...)
  *  When time permits, rewrite this doing the search by hand.
  */
-char *
-search_directory_tree(char *directory, char *file, int follow_links)
+char *search_directory_tree(char *directory, char *file, int follow_links)
 {
 	char command[BUFSIZE];
 	char buf[BUFSIZE];
@@ -964,49 +886,45 @@ search_directory_tree(char *directory, char *file, int follow_links)
 	int regex_used, done;
 
 	if (!file_exists("/usr/bin/find", NULL) ||
-			!file_exists("/bin/echo", NULL) ||
-			!is_directory(directory) ||
-			(*file == '('))
+	    !file_exists("/bin/echo", NULL) || !is_directory(directory) || (*file == '('))
 		return NULL;
 
 	sprintf(command,
-						"/usr/bin/find %s %s -name %s -print; /bin/echo search done",
+		"/usr/bin/find %s %s -name %s -print; /bin/echo search done",
 		follow_links ? "-L" : "", directory, file);
 
-				if ((pipe = popen(command, "r")) == NULL) {
-								error(INFO, "%s: %s\n", command, strerror(errno));
-								return NULL;
-				}
+	if ((pipe = popen(command, "r")) == NULL) {
+		error(INFO, "%s: %s\n", command, strerror(errno));
+		return NULL;
+	}
 
 	done = FALSE;
 	retbuf = NULL;
 	regex_used = ((start = strstr(file, "[")) &&
-		(end = strstr(file, "]")) && (start < end) &&
-		(regcomp(&regex, file, 0) == 0));
+		      (end = strstr(file, "]")) && (start < end) && (regcomp(&regex, file, 0) == 0));
 
-				while (fgets(buf, BUFSIZE-1, pipe) || !done) {
-								if (STREQ(buf, "search done\n")) {
-												done = TRUE;
-												break;
-								}
-								if (!retbuf && !regex_used &&
-										STREQ((char *)basename(strip_linefeeds(buf)), file)) {
-												retbuf = GETBUF(strlen(buf)+1);
-												strcpy(retbuf, buf);
-								}
+	while (fgets(buf, BUFSIZE - 1, pipe) || !done) {
+		if (STREQ(buf, "search done\n")) {
+			done = TRUE;
+			break;
+		}
+		if (!retbuf && !regex_used && STREQ((char *)basename(strip_linefeeds(buf)), file)) {
+			retbuf = GETBUF(strlen(buf) + 1);
+			strcpy(retbuf, buf);
+		}
 		if (!retbuf && regex_used) {
 			module = basename(strip_linefeeds(buf));
 			if (regexec(&regex, module, 0, NULL, 0) == 0) {
-				retbuf = GETBUF(strlen(buf)+1);
+				retbuf = GETBUF(strlen(buf) + 1);
 				strcpy(retbuf, buf);
 			}
 		}
-				}
+	}
 
 	if (regex_used)
 		regfree(&regex);
 
-				pclose(pipe);
+	pclose(pipe);
 
 	return retbuf;
 }
@@ -1014,21 +932,20 @@ search_directory_tree(char *directory, char *file, int follow_links)
 /*
  *  Determine whether a file exists, and if so, if it's a tty.
  */
-int
-is_a_tty(char *filename)
+int is_a_tty(char *filename)
 {
-				int fd;
+	int fd;
 
-				if ((fd = open(filename, O_RDONLY)) < 0)
-								return FALSE;
+	if ((fd = open(filename, O_RDONLY)) < 0)
+		return FALSE;
 
-				if (isatty(fd)) {
-								close(fd);
-								return TRUE;
-				}
+	if (isatty(fd)) {
+		close(fd);
+		return TRUE;
+	}
 
-				close(fd);
-				return FALSE;
+	close(fd);
+	return FALSE;
 }
 
 /*
@@ -1040,17 +957,16 @@ is_a_tty(char *filename)
 #define OPEN_ONLY_ONCE
 
 #ifdef OPEN_ONLY_ONCE
-void
-open_tmpfile(void)
+void open_tmpfile(void)
 {
 	int ret ATTRIBUTE_UNUSED;
 
-				if (pc->tmpfile)
-								error(FATAL, "recursive temporary file usage\n");
+	if (pc->tmpfile)
+		error(FATAL, "recursive temporary file usage\n");
 
 	if (!pc->tmp_fp) {
-					if ((pc->tmp_fp = tmpfile()) == NULL)
-									error(FATAL, "cannot open temporary file\n");
+		if ((pc->tmp_fp = tmpfile()) == NULL)
+			error(FATAL, "cannot open temporary file\n");
 	}
 
 	fflush(pc->tmpfile);
@@ -1062,18 +978,17 @@ open_tmpfile(void)
 	fp = pc->tmpfile;
 }
 #else
-void
-open_tmpfile(void)
+void open_tmpfile(void)
 {
-				if (pc->tmpfile)
-								error(FATAL, "recursive temporary file usage\n");
+	if (pc->tmpfile)
+		error(FATAL, "recursive temporary file usage\n");
 
-				if ((pc->tmpfile = tmpfile()) == NULL) {
-								error(FATAL, "cannot open temporary file\n");
-				} else {
-								pc->saved_fp = fp;
-								fp = pc->tmpfile;
-				}
+	if ((pc->tmpfile = tmpfile()) == NULL) {
+		error(FATAL, "cannot open temporary file\n");
+	} else {
+		pc->saved_fp = fp;
+		fp = pc->tmpfile;
+	}
 }
 #endif
 
@@ -1082,8 +997,7 @@ open_tmpfile(void)
  *  it had when open_tmpfile() was called.
  */
 #ifdef OPEN_ONLY_ONCE
-void
-close_tmpfile(void)
+void close_tmpfile(void)
 {
 	int ret ATTRIBUTE_UNUSED;
 
@@ -1097,15 +1011,14 @@ close_tmpfile(void)
 		error(FATAL, "trying to close an unopened temporary file\n");
 }
 #else
-void
-close_tmpfile(void)
+void close_tmpfile(void)
 {
-				if (pc->tmpfile) {
-								fp = pc->saved_fp;
-								fclose(pc->tmpfile);
-								pc->tmpfile = NULL;
-				} else
-								error(FATAL, "trying to close an unopened temporary file\n");
+	if (pc->tmpfile) {
+		fp = pc->saved_fp;
+		fclose(pc->tmpfile);
+		pc->tmpfile = NULL;
+	} else
+		error(FATAL, "trying to close an unopened temporary file\n");
 
 }
 #endif
@@ -1119,37 +1032,33 @@ close_tmpfile(void)
  *  be called by a higher-level function using the primary permanent tmpfile,
  *  or alternatively a caller may pass in a FILE pointer to set_tmpfile2().
  */
-void
-open_tmpfile2(void)
+void open_tmpfile2(void)
 {
-				if (pc->tmpfile2)
-								error(FATAL, "recursive secondary temporary file usage\n");
+	if (pc->tmpfile2)
+		error(FATAL, "recursive secondary temporary file usage\n");
 
-				if ((pc->tmpfile2 = tmpfile()) == NULL)
-								error(FATAL, "cannot open secondary temporary file\n");
+	if ((pc->tmpfile2 = tmpfile()) == NULL)
+		error(FATAL, "cannot open secondary temporary file\n");
 
-				rewind(pc->tmpfile2);
+	rewind(pc->tmpfile2);
 }
 
-void
-close_tmpfile2(void)
+void close_tmpfile2(void)
 {
 	if (pc->tmpfile2) {
 		fflush(pc->tmpfile2);
 		fclose(pc->tmpfile2);
-					pc->tmpfile2 = NULL;
+		pc->tmpfile2 = NULL;
 	}
 }
 
-void
-set_tmpfile2(FILE *fptr)
+void set_tmpfile2(FILE * fptr)
 {
-				if (pc->tmpfile2)
-								error(FATAL, "secondary temporary file already in use\n");
+	if (pc->tmpfile2)
+		error(FATAL, "secondary temporary file already in use\n");
 
 	pc->tmpfile2 = fptr;
 }
-
 
 #define MOUNT_PRINT_INODES  0x1
 #define MOUNT_PRINT_FILES   0x2
@@ -1165,8 +1074,7 @@ set_tmpfile2(FILE *fptr)
 
 static char mount_hdr[BUFSIZE] = { 0 };
 
-void
-cmd_mount(void)
+void cmd_mount(void)
 {
 	int i;
 	int c, found;
@@ -1175,7 +1083,7 @@ cmd_mount(void)
 	char *spec_string;
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
-	char *arglist[MAXARGS*2];
+	char *arglist[MAXARGS * 2];
 	ulong vfsmount = 0;
 	int flags = 0;
 	int save_next;
@@ -1187,13 +1095,10 @@ cmd_mount(void)
 		pid++;
 
 	while ((c = getopt(argcnt, args, "ifn:")) != EOF) {
-		switch(c)
-		{
+		switch (c) {
 		case 'i':
 			if (INVALID_MEMBER(super_block_s_dirty)) {
-				error(INFO,
-						"the super_block.s_dirty linked list does "
-						"not exist in this kernel\n");
+				error(INFO, "the super_block.s_dirty linked list does " "not exist in this kernel\n");
 				option_not_supported(c);
 			}
 			flags |= MOUNT_PRINT_INODES;
@@ -1210,8 +1115,7 @@ cmd_mount(void)
 				namespace_context = tc;
 				break;
 			case STR_INVALID:
-				error(FATAL, "invalid task or pid value: %s\n",
-					optarg);
+				error(FATAL, "invalid task or pid value: %s\n", optarg);
 				break;
 			}
 			break;
@@ -1236,13 +1140,11 @@ cmd_mount(void)
 	 */
 	open_tmpfile();
 	show_mounts(0, MOUNT_PRINT_FILES |
-		(VALID_MEMBER(super_block_s_dirty) ? MOUNT_PRINT_INODES : 0),
-		namespace_context);
+		    (VALID_MEMBER(super_block_s_dirty) ? MOUNT_PRINT_INODES : 0), namespace_context);
 
 	do {
 		spec_string = args[optind];
-		if (STRNEQ(spec_string, "0x") &&
-				hexadecimal(spec_string, 0))
+		if (STRNEQ(spec_string, "0x") && hexadecimal(spec_string, 0))
 			shift_string_left(spec_string, 2);
 
 		found = FALSE;
@@ -1269,15 +1171,11 @@ cmd_mount(void)
 				 *  Check for a vfsmount address
 				 *  embedded in a struct mount.
 				 */
-				if ((i == 0) && (c == 5) &&
-						VALID_MEMBER(mount_mnt) &&
-						hexadecimal(spec_string, 0) &&
-						hexadecimal(arglist[i], 0)) {
-					value1 = htol(spec_string,
-						FAULT_ON_ERROR, NULL);
-					value2 = htol(arglist[i],
-						FAULT_ON_ERROR, NULL) +
-						OFFSET(mount_mnt);
+				if ((i == 0) && (c == 5) && VALID_MEMBER(mount_mnt)
+				    && hexadecimal(spec_string, 0)
+				    && hexadecimal(arglist[i], 0)) {
+					value1 = htol(spec_string, FAULT_ON_ERROR, NULL);
+					value2 = htol(arglist[i], FAULT_ON_ERROR, NULL) + OFFSET(mount_mnt);
 					if (value1 == value2)
 						found = TRUE;
 				}
@@ -1285,9 +1183,8 @@ cmd_mount(void)
 			if (found) {
 				fp = pc->saved_fp;
 				if (flags) {
-					sscanf(buf2,"%lx", &vfsmount);
-					show_mounts(vfsmount, flags,
-						namespace_context);
+					sscanf(buf2, "%lx", &vfsmount);
+					show_mounts(vfsmount, flags, namespace_context);
 				} else {
 					if (!(pc->curcmd_flags & HEADER_PRINTED)) {
 						fprintf(fp, mount_hdr);
@@ -1308,8 +1205,7 @@ cmd_mount(void)
  *  Do the work for cmd_mount();
  */
 
-static void
-show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_context)
+static void show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_context)
 {
 	ulong one_vfsmount_list;
 	long sb_s_files;
@@ -1331,12 +1227,10 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 	char mount_files_header[BUFSIZE];
 	long per_cpu_s_files;
 
-				sprintf(mount_files_header, "%s%s%s%sTYPE%sPATH\n",
-								mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "DENTRY"),
-								space(MINSPACE),
-								mkstring(buf2, VADDR_PRLEN, CENTER|LJUST, "INODE"),
-								space(MINSPACE),
-		space(MINSPACE));
+	sprintf(mount_files_header, "%s%s%s%sTYPE%sPATH\n",
+		mkstring(buf1, VADDR_PRLEN, CENTER | LJUST, "DENTRY"),
+		space(MINSPACE),
+		mkstring(buf2, VADDR_PRLEN, CENTER | LJUST, "INODE"), space(MINSPACE), space(MINSPACE));
 
 	dirp = dentry = mnt_parent = sb_s_files = s_dirty = 0;
 
@@ -1356,28 +1250,25 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 	} else
 		mntlist = get_mount_list(&mount_cnt, namespace_context);
 
-	devlen = strlen("DEVNAME")+2;
+	devlen = strlen("DEVNAME") + 2;
 
 	if (!strlen(mount_hdr)) {
 		snprintf(mount_hdr, sizeof(mount_hdr), "%s %s %s %s DIRNAME\n",
-									mkstring(buf1, VADDR_PRLEN, CENTER,
-				VALID_STRUCT(mount) ?  "MOUNT" : "VFSMOUNT"),
-									mkstring(buf2, VADDR_PRLEN, CENTER, "SUPERBLK"),
-									mkstring(buf3, strlen("rootfs"), LJUST, "TYPE"),
-			mkstring(buf4, devlen, LJUST, "DEVNAME"));
+			 mkstring(buf1, VADDR_PRLEN, CENTER,
+				  VALID_STRUCT(mount) ? "MOUNT" : "VFSMOUNT"),
+			 mkstring(buf2, VADDR_PRLEN, CENTER, "SUPERBLK"),
+			 mkstring(buf3, strlen("rootfs"), LJUST, "TYPE"), mkstring(buf4, devlen, LJUST, "DEVNAME"));
 	}
 
 	if (flags == 0)
 		fprintf(fp, "%s", mount_hdr);
 
-	if ((flags & MOUNT_PRINT_FILES) &&
-			(sb_s_files = OFFSET(super_block_s_files)) == INVALID_OFFSET) {
+	if ((flags & MOUNT_PRINT_FILES) && (sb_s_files = OFFSET(super_block_s_files)) == INVALID_OFFSET) {
 		/*
 		 * No open files list in super_block (2.2).
 		 * Use inuse_filps list instead.
 		 */
-		dentry_list = create_dentry_array(symbol_value("inuse_filps"),
-			&cnt);
+		dentry_list = create_dentry_array(symbol_value("inuse_filps"), &cnt);
 	}
 
 	if (VALID_STRUCT(mount)) {
@@ -1391,29 +1282,22 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 
 	for (m = 0, vfsmnt = mntlist; m < mount_cnt; m++, vfsmnt++) {
 		if (VALID_STRUCT(mount)) {
-			readmem(*vfsmnt, KVADDR, mount_buf, SIZE(mount),
-				"mount buffer", FAULT_ON_ERROR);
-			devp = ULONG(mount_buf +  OFFSET(mount_mnt_devname));
+			readmem(*vfsmnt, KVADDR, mount_buf, SIZE(mount), "mount buffer", FAULT_ON_ERROR);
+			devp = ULONG(mount_buf + OFFSET(mount_mnt_devname));
 		} else {
-			readmem(*vfsmnt, KVADDR, vfsmount_buf, SIZE(vfsmount),
-				"vfsmount buffer", FAULT_ON_ERROR);
-			devp = ULONG(vfsmount_buf +  OFFSET(vfsmount_mnt_devname));
+			readmem(*vfsmnt, KVADDR, vfsmount_buf, SIZE(vfsmount), "vfsmount buffer", FAULT_ON_ERROR);
+			devp = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_devname));
 		}
 
 		if (VALID_MEMBER(vfsmount_mnt_dirname)) {
-			dirp = ULONG(vfsmount_buf +
-				OFFSET(vfsmount_mnt_dirname));
+			dirp = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_dirname));
 		} else {
 			if (VALID_STRUCT(mount)) {
-				mnt_parent = ULONG(mount_buf +
-					OFFSET(mount_mnt_parent));
-				dentry = ULONG(mount_buf +
-					OFFSET(mount_mnt_mountpoint));
+				mnt_parent = ULONG(mount_buf + OFFSET(mount_mnt_parent));
+				dentry = ULONG(mount_buf + OFFSET(mount_mnt_mountpoint));
 			} else {
-				mnt_parent = ULONG(vfsmount_buf +
-					OFFSET(vfsmount_mnt_parent));
-				dentry = ULONG(vfsmount_buf +
-					OFFSET(vfsmount_mnt_mountpoint));
+				mnt_parent = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_parent));
+				dentry = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_mountpoint));
 			}
 		}
 
@@ -1421,71 +1305,60 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 
 		if (flags)
 			fprintf(fp, mount_hdr);
-								fprintf(fp, "%s %s ",
-			mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX,
-			MKSTR(*vfsmnt)),
-			mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX,
-			MKSTR(sbp)));
+		fprintf(fp, "%s %s ",
+			mkstring(buf1, VADDR_PRLEN, RJUST | LONG_HEX,
+				 MKSTR(*vfsmnt)), mkstring(buf2, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR(sbp)));
 
-								readmem(sbp, KVADDR, super_block_buf, SIZE(super_block),
-												"super_block buffer", FAULT_ON_ERROR);
+		readmem(sbp, KVADDR, super_block_buf, SIZE(super_block), "super_block buffer", FAULT_ON_ERROR);
 		type = ULONG(super_block_buf + OFFSET(super_block_s_type));
-								readmem(type + OFFSET(file_system_type_name),
-												KVADDR, &name, sizeof(void *),
-												"file_system_type name", FAULT_ON_ERROR);
+		readmem(type + OFFSET(file_system_type_name),
+			KVADDR, &name, sizeof(void *), "file_system_type name", FAULT_ON_ERROR);
 
-								if (read_string(name, buf1, BUFSIZE-1))
+		if (read_string(name, buf1, BUFSIZE - 1))
 			sprintf(buf3, "%-6s ", buf1);
-								else
+		else
 			sprintf(buf3, "unknown ");
 
-		if (read_string(devp, buf1, BUFSIZE-1))
-			sprintf(buf4, "%s ",
-				mkstring(buf2, devlen, LJUST, buf1));
+		if (read_string(devp, buf1, BUFSIZE - 1))
+			sprintf(buf4, "%s ", mkstring(buf2, devlen, LJUST, buf1));
 		else
-			sprintf(buf4, "%s ",
-				mkstring(buf2, devlen, LJUST, "(unknown)"));
+			sprintf(buf4, "%s ", mkstring(buf2, devlen, LJUST, "(unknown)"));
 
 		sprintf(buf1, "%s%s", buf3, buf4);
-		while ((strlen(buf1) > 17) && (buf1[strlen(buf1)-2] == ' '))
+		while ((strlen(buf1) > 17) && (buf1[strlen(buf1) - 2] == ' '))
 			strip_ending_char(buf1, ' ');
 		fprintf(fp, buf1);
 
 		if (VALID_MEMBER(vfsmount_mnt_dirname)) {
-									if (read_string(dirp, buf1, BUFSIZE-1))
-													fprintf(fp, "%-10s\n", buf1);
-									else
-													fprintf(fp, "%-10s\n", "(unknown)");
+			if (read_string(dirp, buf1, BUFSIZE - 1))
+				fprintf(fp, "%-10s\n", buf1);
+			else
+				fprintf(fp, "%-10s\n", "(unknown)");
 		} else {
-			get_pathname(dentry, buf1, BUFSIZE, 1, VALID_STRUCT(mount) ?
-				mnt_parent + OFFSET(mount_mnt) : mnt_parent);
-											 	fprintf(fp, "%-10s\n", buf1);
+			get_pathname(dentry, buf1, BUFSIZE, 1,
+				     VALID_STRUCT(mount) ? mnt_parent + OFFSET(mount_mnt) : mnt_parent);
+			fprintf(fp, "%-10s\n", buf1);
 		}
 
 		if (flags & MOUNT_PRINT_FILES) {
 			if (sb_s_files != INVALID_OFFSET) {
 				dentry_list = per_cpu_s_files ?
-					create_dentry_array_percpu(sbp+
-							sb_s_files, &cnt) :
-					create_dentry_array(sbp+sb_s_files,
-							&cnt);
+				    create_dentry_array_percpu(sbp +
+							       sb_s_files,
+							       &cnt) : create_dentry_array(sbp + sb_s_files, &cnt);
 			}
 			files_header_printed = 0;
-			for (i=0, dp = dentry_list; i<cnt; i++, dp++) {
+			for (i = 0, dp = dentry_list; i < cnt; i++, dp++) {
 				dentry_buf = fill_dentry_cache(*dp);
-				inode = ULONG(dentry_buf +
-					OFFSET(dentry_d_inode));
+				inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
 				if (!inode)
 					continue;
 				inode_buf = fill_inode_cache(inode);
-				inode_sb = ULONG(inode_buf +
-					OFFSET(inode_i_sb));
+				inode_sb = ULONG(inode_buf + OFFSET(inode_i_sb));
 				if (inode_sb != sbp)
 					continue;
 				if (files_header_printed == 0) {
-					fprintf(fp, "%s\n",
-																						mkstring(buf2, VADDR_PRLEN,
-																								CENTER, "OPEN FILES"));
+					fprintf(fp, "%s\n", mkstring(buf2, VADDR_PRLEN, CENTER, "OPEN FILES"));
 					fprintf(fp, mount_files_header);
 					files_header_printed = 1;
 				}
@@ -1493,26 +1366,24 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 			}
 			if (files_header_printed == 0) {
 				fprintf(fp, "%s\nNo open files found\n",
-					mkstring(buf2, VADDR_PRLEN,
-																						CENTER, "OPEN FILES"));
+					mkstring(buf2, VADDR_PRLEN, CENTER, "OPEN FILES"));
 			}
 		}
 
 		if (flags & MOUNT_PRINT_INODES) {
 			dirty = ULONG(super_block_buf + s_dirty);
 
-			if (dirty != (sbp+s_dirty)) {
+			if (dirty != (sbp + s_dirty)) {
 				BZERO(ld, sizeof(struct list_data));
-													ld->flags = VERBOSE;
-													ld->start = dirty;
-													ld->end = (sbp+s_dirty);
+				ld->flags = VERBOSE;
+				ld->start = dirty;
+				ld->end = (sbp + s_dirty);
 				ld->header = "DIRTY INODES\n";
 				hq_open();
-													do_list(ld);
+				do_list(ld);
 				hq_close();
 			} else {
-				fprintf(fp,
-						"DIRTY INODES\nNo dirty inodes found\n");
+				fprintf(fp, "DIRTY INODES\nNo dirty inodes found\n");
 			}
 		}
 
@@ -1533,85 +1404,78 @@ show_mounts(ulong one_vfsmount, int flags, struct task_context *namespace_contex
 /*
  *  Allocate and fill a list of the currently-mounted vfsmount pointers.
  */
-static ulong *
-get_mount_list(int *cntptr, struct task_context *namespace_context)
+static ulong *get_mount_list(int *cntptr, struct task_context *namespace_context)
 {
 	struct list_data list_data, *ld;
 	int mount_cnt;
 	ulong *mntlist, namespace, root, nsproxy, mnt_ns;
 	struct task_context *tc;
 
-				ld = &list_data;
-				BZERO(ld, sizeof(struct list_data));
+	ld = &list_data;
+	BZERO(ld, sizeof(struct list_data));
 
 	if (symbol_exists("vfsmntlist")) {
-					get_symbol_data("vfsmntlist", sizeof(void *), &ld->start);
-							 	ld->end = symbol_value("vfsmntlist");
+		get_symbol_data("vfsmntlist", sizeof(void *), &ld->start);
+		ld->end = symbol_value("vfsmntlist");
 	} else if (VALID_MEMBER(task_struct_nsproxy)) {
- 		tc = namespace_context;
+		tc = namespace_context;
 
-					readmem(tc->task + OFFSET(task_struct_nsproxy), KVADDR,
-			&nsproxy, sizeof(void *), "task nsproxy",
-			FAULT_ON_ERROR);
-					if (!readmem(nsproxy + OFFSET(nsproxy_mnt_ns), KVADDR,
-			&mnt_ns, sizeof(void *), "nsproxy mnt_ns",
-			RETURN_ON_ERROR|QUIET))
+		readmem(tc->task + OFFSET(task_struct_nsproxy), KVADDR,
+			&nsproxy, sizeof(void *), "task nsproxy", FAULT_ON_ERROR);
+		if (!readmem
+		    (nsproxy + OFFSET(nsproxy_mnt_ns), KVADDR, &mnt_ns,
+		     sizeof(void *), "nsproxy mnt_ns", RETURN_ON_ERROR | QUIET))
 			error(FATAL, "cannot determine mount list location!\n");
-					if (!readmem(mnt_ns + OFFSET(mnt_namespace_root), KVADDR,
-			&root, sizeof(void *), "mnt_namespace root",
-			RETURN_ON_ERROR|QUIET))
+		if (!readmem(mnt_ns + OFFSET(mnt_namespace_root), KVADDR,
+			     &root, sizeof(void *), "mnt_namespace root", RETURN_ON_ERROR | QUIET))
 			error(FATAL, "cannot determine mount list location!\n");
 
 		ld->start = root + OFFSET_OPTION(vfsmount_mnt_list, mount_mnt_list);
-					ld->end = mnt_ns + OFFSET(mnt_namespace_list);
+		ld->end = mnt_ns + OFFSET(mnt_namespace_list);
 
 	} else if (VALID_MEMBER(namespace_root)) {
- 		tc = namespace_context;
+		tc = namespace_context;
 
-					readmem(tc->task + OFFSET(task_struct_namespace), KVADDR,
-			&namespace, sizeof(void *), "task namespace",
-			FAULT_ON_ERROR);
-					if (!readmem(namespace + OFFSET(namespace_root), KVADDR,
-			&root, sizeof(void *), "namespace root",
-			RETURN_ON_ERROR|QUIET))
+		readmem(tc->task + OFFSET(task_struct_namespace), KVADDR,
+			&namespace, sizeof(void *), "task namespace", FAULT_ON_ERROR);
+		if (!readmem
+		    (namespace + OFFSET(namespace_root), KVADDR, &root,
+		     sizeof(void *), "namespace root", RETURN_ON_ERROR | QUIET))
 			error(FATAL, "cannot determine mount list location!\n");
 
 		if (CRASHDEBUG(1))
-			console("namespace: %lx => root: %lx\n",
-				namespace, root);
+			console("namespace: %lx => root: %lx\n", namespace, root);
 
 		ld->start = root + OFFSET_OPTION(vfsmount_mnt_list, mount_mnt_list);
-					ld->end = namespace + OFFSET(namespace_list);
+		ld->end = namespace + OFFSET(namespace_list);
 	} else
 		error(FATAL, "cannot determine mount list location!\n");
 
-				if (VALID_MEMBER(vfsmount_mnt_list))
-								ld->list_head_offset = OFFSET(vfsmount_mnt_list);
+	if (VALID_MEMBER(vfsmount_mnt_list))
+		ld->list_head_offset = OFFSET(vfsmount_mnt_list);
 	else if (VALID_STRUCT(mount))
 		ld->list_head_offset = OFFSET(mount_mnt_list);
 	else
-								ld->member_offset = OFFSET(vfsmount_mnt_next);
+		ld->member_offset = OFFSET(vfsmount_mnt_next);
 
-				hq_open();
-				mount_cnt = do_list(ld);
-				mntlist = (ulong *)GETBUF(mount_cnt * sizeof(ulong));
-				mount_cnt = retrieve_list(mntlist, mount_cnt);
-				hq_close();
+	hq_open();
+	mount_cnt = do_list(ld);
+	mntlist = (ulong *) GETBUF(mount_cnt * sizeof(ulong));
+	mount_cnt = retrieve_list(mntlist, mount_cnt);
+	hq_close();
 
 	*cntptr = mount_cnt;
 	return mntlist;
 }
 
-
 /*
  *  Given a dentry, display its address, inode, super_block, pathname.
  */
-static void
-display_dentry_info(ulong dentry)
+static void display_dentry_info(ulong dentry)
 {
 	int m, found;
-				char *dentry_buf, *inode_buf, *vfsmount_buf, *mount_buf;
-				ulong inode, superblock, sb, vfs;
+	char *dentry_buf, *inode_buf, *vfsmount_buf, *mount_buf;
+	ulong inode, superblock, sb, vfs;
 	ulong *mntlist, *vfsmnt;
 	char pathname[BUFSIZE];
 	char buf1[BUFSIZE];
@@ -1619,22 +1483,20 @@ display_dentry_info(ulong dentry)
 	char buf3[BUFSIZE];
 	int mount_cnt;
 
-				fprintf(fp, "%s%s%s%s%s%sTYPE%sPATH\n",
-								mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "DENTRY"),
-								space(MINSPACE),
-								mkstring(buf2, VADDR_PRLEN, CENTER|LJUST, "INODE"),
-								space(MINSPACE),
-								mkstring(buf3, VADDR_PRLEN, CENTER|LJUST, "SUPERBLK"),
-								space(MINSPACE),
-		space(MINSPACE));
+	fprintf(fp, "%s%s%s%s%s%sTYPE%sPATH\n",
+		mkstring(buf1, VADDR_PRLEN, CENTER | LJUST, "DENTRY"),
+		space(MINSPACE),
+		mkstring(buf2, VADDR_PRLEN, CENTER | LJUST, "INODE"),
+		space(MINSPACE),
+		mkstring(buf3, VADDR_PRLEN, CENTER | LJUST, "SUPERBLK"), space(MINSPACE), space(MINSPACE));
 
-				dentry_buf = fill_dentry_cache(dentry);
-				inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
+	dentry_buf = fill_dentry_cache(dentry);
+	inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
 	pathname[0] = NULLCHAR;
 
-				if (inode) {
-								inode_buf = fill_inode_cache(inode);
-								superblock = ULONG(inode_buf + OFFSET(inode_i_sb));
+	if (inode) {
+		inode_buf = fill_inode_cache(inode);
+		superblock = ULONG(inode_buf + OFFSET(inode_i_sb));
 	} else {
 		inode_buf = NULL;
 		superblock = 0;
@@ -1643,7 +1505,7 @@ display_dentry_info(ulong dentry)
 	if (!inode || !superblock)
 		goto nopath;
 
-				if (VALID_MEMBER(file_f_vfsmnt)) {
+	if (VALID_MEMBER(file_f_vfsmnt)) {
 		mntlist = get_mount_list(&mount_cnt, pid_to_context(1));
 		if (VALID_STRUCT(mount)) {
 			mount_buf = GETBUF(SIZE(mount));
@@ -1653,19 +1515,16 @@ display_dentry_info(ulong dentry)
 			vfsmount_buf = GETBUF(SIZE(vfsmount));
 		}
 
-					for (m = found = 0, vfsmnt = mntlist;
-				 m < mount_cnt; m++, vfsmnt++) {
+		for (m = found = 0, vfsmnt = mntlist; m < mount_cnt; m++, vfsmnt++) {
 			if (VALID_STRUCT(mount))
-				readmem(*vfsmnt, KVADDR, mount_buf, SIZE(mount),
-					"mount buffer", FAULT_ON_ERROR);
+				readmem(*vfsmnt, KVADDR, mount_buf, SIZE(mount), "mount buffer", FAULT_ON_ERROR);
 			else
-				readmem(*vfsmnt, KVADDR, vfsmount_buf, SIZE(vfsmount),
-					"vfsmount buffer", FAULT_ON_ERROR);
-									sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
+				readmem(*vfsmnt, KVADDR, vfsmount_buf,
+					SIZE(vfsmount), "vfsmount buffer", FAULT_ON_ERROR);
+			sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
 			if (superblock && (sb == superblock)) {
-										get_pathname(dentry, pathname, BUFSIZE, 1,
-					VALID_STRUCT(mount) ?
-					*vfsmnt+OFFSET(mount_mnt) : *vfsmnt);
+				get_pathname(dentry, pathname, BUFSIZE, 1,
+					     VALID_STRUCT(mount) ? *vfsmnt + OFFSET(mount_mnt) : *vfsmnt);
 				found = TRUE;
 			}
 		}
@@ -1673,34 +1532,32 @@ display_dentry_info(ulong dentry)
 		if (!found && symbol_exists("pipe_mnt")) {
 			get_symbol_data("pipe_mnt", sizeof(long), &vfs);
 			if (VALID_STRUCT(mount))
-				readmem(vfs - OFFSET(mount_mnt), KVADDR, mount_buf, SIZE(mount),
-					"mount buffer", FAULT_ON_ERROR);
+				readmem(vfs - OFFSET(mount_mnt), KVADDR,
+					mount_buf, SIZE(mount), "mount buffer", FAULT_ON_ERROR);
 			else
-				readmem(vfs, KVADDR, vfsmount_buf, SIZE(vfsmount),
-					"vfsmount buffer", FAULT_ON_ERROR);
-												sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
-												if (superblock && (sb == superblock)) {
-																get_pathname(dentry, pathname, BUFSIZE, 1, vfs);
-																found = TRUE;
-												}
+				readmem(vfs, KVADDR, vfsmount_buf, SIZE(vfsmount), "vfsmount buffer", FAULT_ON_ERROR);
+			sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
+			if (superblock && (sb == superblock)) {
+				get_pathname(dentry, pathname, BUFSIZE, 1, vfs);
+				found = TRUE;
+			}
 		}
 		if (!found && symbol_exists("sock_mnt")) {
 			get_symbol_data("sock_mnt", sizeof(long), &vfs);
 			if (VALID_STRUCT(mount))
-				readmem(vfs - OFFSET(mount_mnt), KVADDR, mount_buf, SIZE(mount),
-					"mount buffer", FAULT_ON_ERROR);
+				readmem(vfs - OFFSET(mount_mnt), KVADDR,
+					mount_buf, SIZE(mount), "mount buffer", FAULT_ON_ERROR);
 			else
-				readmem(vfs, KVADDR, vfsmount_buf, SIZE(vfsmount),
-					"vfsmount buffer", FAULT_ON_ERROR);
-												sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
-												if (superblock && (sb == superblock)) {
-																get_pathname(dentry, pathname, BUFSIZE, 1, vfs);
-																found = TRUE;
-												}
+				readmem(vfs, KVADDR, vfsmount_buf, SIZE(vfsmount), "vfsmount buffer", FAULT_ON_ERROR);
+			sb = ULONG(vfsmount_buf + OFFSET(vfsmount_mnt_sb));
+			if (superblock && (sb == superblock)) {
+				get_pathname(dentry, pathname, BUFSIZE, 1, vfs);
+				found = TRUE;
+			}
 		}
-				} else {
+	} else {
 		mntlist = 0;
-					get_pathname(dentry, pathname, BUFSIZE, 1, 0);
+		get_pathname(dentry, pathname, BUFSIZE, 1, 0);
 	}
 
 	if (mntlist) {
@@ -1711,47 +1568,44 @@ display_dentry_info(ulong dentry)
 			FREEBUF(vfsmount_buf);
 	}
 
-nopath:
+ nopath:
 	fprintf(fp, "%s%s%s%s%s%s%s%s%s\n",
-		mkstring(buf1, VADDR_PRLEN, RJUST|LONG_HEX, MKSTR(dentry)),
+		mkstring(buf1, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR(dentry)),
 		space(MINSPACE),
-		mkstring(buf2, VADDR_PRLEN, RJUST|LONG_HEX, MKSTR(inode)),
+		mkstring(buf2, VADDR_PRLEN, RJUST | LONG_HEX, MKSTR(inode)),
 		space(MINSPACE),
-		mkstring(buf3, VADDR_PRLEN, CENTER|LONG_HEX, MKSTR(superblock)),
-		space(MINSPACE),
-		inode ? inode_type(inode_buf, pathname) : "N/A",
-		space(MINSPACE), pathname);
+		mkstring(buf3, VADDR_PRLEN, CENTER | LONG_HEX,
+			 MKSTR(superblock)), space(MINSPACE),
+		inode ? inode_type(inode_buf, pathname) : "N/A", space(MINSPACE), pathname);
 }
 
 /*
  *  Return a 4-character type string of an inode, modifying a previously
  *  gathered pathname if necessary.
  */
-char *
-inode_type(char *inode_buf, char *pathname)
+char *inode_type(char *inode_buf, char *pathname)
 {
 	char *type;
-				uint32_t umode32;
-				uint16_t umode16;
-				uint mode;
-				ulong inode_i_op;
-				ulong inode_i_fop;
+	uint32_t umode32;
+	uint16_t umode16;
+	uint mode;
+	ulong inode_i_op;
+	ulong inode_i_fop;
 	long i_fop_off;
 
-				mode = umode16 = umode32 = 0;
+	mode = umode16 = umode32 = 0;
 
-				switch (SIZE(umode_t))
-				{
-				case SIZEOF_32BIT:
-								umode32 = UINT(inode_buf + OFFSET(inode_i_mode));
+	switch (SIZE(umode_t)) {
+	case SIZEOF_32BIT:
+		umode32 = UINT(inode_buf + OFFSET(inode_i_mode));
 		mode = umode32;
-								break;
+		break;
 
-				case SIZEOF_16BIT:
-								umode16 = USHORT(inode_buf + OFFSET(inode_i_mode));
-		mode = (uint)umode16;
-								break;
-				}
+	case SIZEOF_16BIT:
+		umode16 = USHORT(inode_buf + OFFSET(inode_i_mode));
+		mode = (uint) umode16;
+		break;
+	}
 
 	type = "UNKN";
 	if (S_ISREG(mode))
@@ -1768,20 +1622,17 @@ inode_type(char *inode_buf, char *pathname)
 		type = "FIFO";
 		if (symbol_exists("pipe_inode_operations")) {
 			inode_i_op = ULONG(inode_buf + OFFSET(inode_i_op));
-			if (inode_i_op ==
-					symbol_value("pipe_inode_operations")) {
+			if (inode_i_op == symbol_value("pipe_inode_operations")) {
 				type = "PIPE";
 				pathname[0] = NULLCHAR;
 			}
 		} else {
-			if (symbol_exists("rdwr_pipe_fops") &&
-					(i_fop_off = OFFSET(inode_i_fop)) > 0) {
-				 inode_i_fop = ULONG(inode_buf + i_fop_off);
-				 if (inode_i_fop ==
-						 symbol_value("rdwr_pipe_fops")) {
+			if (symbol_exists("rdwr_pipe_fops") && (i_fop_off = OFFSET(inode_i_fop)) > 0) {
+				inode_i_fop = ULONG(inode_buf + i_fop_off);
+				if (inode_i_fop == symbol_value("rdwr_pipe_fops")) {
 					type = "PIPE";
 					pathname[0] = NULLCHAR;
-				 }
+				}
 			}
 		}
 	}
@@ -1794,12 +1645,10 @@ inode_type(char *inode_buf, char *pathname)
 	return type;
 }
 
-
 /*
  *  Walk an open file list and return an array of open dentries.
  */
-static ulong *
-create_dentry_array(ulong list_addr, int *count)
+static ulong *create_dentry_array(ulong list_addr, int *count)
 {
 	struct list_data list_data, *ld;
 	ulong *file, *files_list, *dentry_list;
@@ -1810,10 +1659,9 @@ create_dentry_array(ulong list_addr, int *count)
 
 	ld = &list_data;
 	BZERO(ld, sizeof(struct list_data));
-	readmem(list_addr, KVADDR, &ld->start, sizeof(void *), "file list head",
-		FAULT_ON_ERROR);
+	readmem(list_addr, KVADDR, &ld->start, sizeof(void *), "file list head", FAULT_ON_ERROR);
 
-	if (list_addr == ld->start) {  /* empty list? */
+	if (list_addr == ld->start) {	/* empty list? */
 		*count = 0;
 		return NULL;
 	}
@@ -1826,12 +1674,12 @@ create_dentry_array(ulong list_addr, int *count)
 		*count = 0;
 		return NULL;
 	}
-	files_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+	files_list = (ulong *) GETBUF(cnt * sizeof(ulong));
 	cnt = retrieve_list(files_list, cnt);
 	hq_close();
 	hq_open();
 
-	for (i=0, file = files_list; i<cnt; i++, file++) {
+	for (i = 0, file = files_list; i < cnt; i++, file++) {
 		file_buf = fill_file_cache(*file);
 
 		f_count = INT(file_buf + OFFSET(file_f_count));
@@ -1851,7 +1699,7 @@ create_dentry_array(ulong list_addr, int *count)
 			dentry_cnt++;
 	}
 	if (dentry_cnt) {
-		dentry_list = (ulong *)GETBUF(dentry_cnt * sizeof(ulong));
+		dentry_list = (ulong *) GETBUF(dentry_cnt * sizeof(ulong));
 		*count = retrieve_list(dentry_list, dentry_cnt);
 	} else {
 		*count = 0;
@@ -1865,8 +1713,7 @@ create_dentry_array(ulong list_addr, int *count)
 /*
  *  Walk each per-cpu open file list and return an array of open dentries.
  */
-static ulong *
-create_dentry_array_percpu(ulong percpu_list_addr, int *count)
+static ulong *create_dentry_array_percpu(ulong percpu_list_addr, int *count)
 {
 	int i, j, c, total;
 	int cpu;
@@ -1881,27 +1728,25 @@ create_dentry_array_percpu(ulong percpu_list_addr, int *count)
 		error(FATAL, "cannot determine highest cpu online\n");
 
 	percpu_list = (struct percpu_list *)
-		GETBUF(sizeof(struct percpu_list) * (cpu+1));
+	    GETBUF(sizeof(struct percpu_list) * (cpu + 1));
 
-				readmem(percpu_list_addr, KVADDR, &percpu_list_offset, sizeof(void *),
-			"percpu file list head offset", FAULT_ON_ERROR);
+	readmem(percpu_list_addr, KVADDR, &percpu_list_offset, sizeof(void *),
+		"percpu file list head offset", FAULT_ON_ERROR);
 
-	for (c = total = 0; c < (cpu+1); c++) {
+	for (c = total = 0; c < (cpu + 1); c++) {
 		list_addr = percpu_list_offset + kt->__per_cpu_offset[c];
-		percpu_list[c].dentry_list = create_dentry_array(list_addr,
-			&percpu_list[c].count);
+		percpu_list[c].dentry_list = create_dentry_array(list_addr, &percpu_list[c].count);
 		total += percpu_list[c].count;
 	}
 
 	if (total) {
-		dentry_list = (ulong *)GETBUF(total * sizeof(ulong));
+		dentry_list = (ulong *) GETBUF(total * sizeof(ulong));
 
-		for (c = i = 0; c < (cpu+1); c++) {
+		for (c = i = 0; c < (cpu + 1); c++) {
 			if (percpu_list[c].count == 0)
 				continue;
 			for (j = 0; j < percpu_list[c].count; j++)
-				dentry_list[i++] =
-					percpu_list[c].dentry_list[j];
+				dentry_list[i++] = percpu_list[c].dentry_list[j];
 			FREEBUF(percpu_list[c].dentry_list);
 		}
 	} else
@@ -1915,18 +1760,16 @@ create_dentry_array_percpu(ulong percpu_list_addr, int *count)
 /*
  *  Stash vfs structure offsets
  */
-void
-vfs_init(void)
+void vfs_init(void)
 {
-				MEMBER_OFFSET_INIT(nlm_file_f_file, "nlm_file", "f_file");
+	MEMBER_OFFSET_INIT(nlm_file_f_file, "nlm_file", "f_file");
 	MEMBER_OFFSET_INIT(task_struct_files, "task_struct", "files");
 	MEMBER_OFFSET_INIT(task_struct_fs, "task_struct", "fs");
 	MEMBER_OFFSET_INIT(fs_struct_root, "fs_struct", "root");
 	MEMBER_OFFSET_INIT(fs_struct_pwd, "fs_struct", "pwd");
 	MEMBER_OFFSET_INIT(fs_struct_rootmnt, "fs_struct", "rootmnt");
 	MEMBER_OFFSET_INIT(fs_struct_pwdmnt, "fs_struct", "pwdmnt");
-	MEMBER_OFFSET_INIT(files_struct_open_fds_init,
-		"files_struct", "open_fds_init");
+	MEMBER_OFFSET_INIT(files_struct_open_fds_init, "files_struct", "open_fds_init");
 	MEMBER_OFFSET_INIT(files_struct_fdt, "files_struct", "fdt");
 	if (VALID_MEMBER(files_struct_fdt)) {
 		MEMBER_OFFSET_INIT(fdtable_max_fds, "fdtable", "max_fds");
@@ -1964,51 +1807,47 @@ vfs_init(void)
 		ANON_MEMBER_OFFSET_INIT(qstr_len, "qstr", "len");
 
 	MEMBER_OFFSET_INIT(vfsmount_mnt_next, "vfsmount", "mnt_next");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_devname, "vfsmount", "mnt_devname");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_devname, "vfsmount", "mnt_devname");
 	if (INVALID_MEMBER(vfsmount_mnt_devname))
 		MEMBER_OFFSET_INIT(mount_mnt_devname, "mount", "mnt_devname");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_dirname, "vfsmount", "mnt_dirname");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_sb, "vfsmount", "mnt_sb");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_list, "vfsmount", "mnt_list");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_dirname, "vfsmount", "mnt_dirname");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_sb, "vfsmount", "mnt_sb");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_list, "vfsmount", "mnt_list");
 	if (INVALID_MEMBER(vfsmount_mnt_devname))
 		MEMBER_OFFSET_INIT(mount_mnt_list, "mount", "mnt_list");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_parent, "vfsmount", "mnt_parent");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_parent, "vfsmount", "mnt_parent");
 	if (INVALID_MEMBER(vfsmount_mnt_devname))
 		MEMBER_OFFSET_INIT(mount_mnt_parent, "mount", "mnt_parent");
-				MEMBER_OFFSET_INIT(vfsmount_mnt_mountpoint,
-		"vfsmount", "mnt_mountpoint");
+	MEMBER_OFFSET_INIT(vfsmount_mnt_mountpoint, "vfsmount", "mnt_mountpoint");
 	if (INVALID_MEMBER(vfsmount_mnt_devname))
-		MEMBER_OFFSET_INIT(mount_mnt_mountpoint,
-			"mount", "mnt_mountpoint");
+		MEMBER_OFFSET_INIT(mount_mnt_mountpoint, "mount", "mnt_mountpoint");
 	MEMBER_OFFSET_INIT(mount_mnt, "mount", "mnt");
 	MEMBER_OFFSET_INIT(namespace_root, "namespace", "root");
 	MEMBER_OFFSET_INIT(task_struct_nsproxy, "task_struct", "nsproxy");
 	if (VALID_MEMBER(namespace_root)) {
 		MEMBER_OFFSET_INIT(namespace_list, "namespace", "list");
-		MEMBER_OFFSET_INIT(task_struct_namespace,
-			"task_struct", "namespace");
+		MEMBER_OFFSET_INIT(task_struct_namespace, "task_struct", "namespace");
 	} else if (VALID_MEMBER(task_struct_nsproxy)) {
 		MEMBER_OFFSET_INIT(nsproxy_mnt_ns, "nsproxy", "mnt_ns");
-					MEMBER_OFFSET_INIT(mnt_namespace_root, "mnt_namespace", "root");
-					MEMBER_OFFSET_INIT(mnt_namespace_list, "mnt_namespace", "list");
-	} else if (THIS_KERNEL_VERSION >= LINUX(2,4,20)) {
+		MEMBER_OFFSET_INIT(mnt_namespace_root, "mnt_namespace", "root");
+		MEMBER_OFFSET_INIT(mnt_namespace_list, "mnt_namespace", "list");
+	} else if (THIS_KERNEL_VERSION >= LINUX(2, 4, 20)) {
 		if (CRASHDEBUG(2))
 			fprintf(fp, "hardwiring namespace stuff\n");
-		ASSIGN_OFFSET(task_struct_namespace) = OFFSET(task_struct_files) +
-			sizeof(void *);
+		ASSIGN_OFFSET(task_struct_namespace) = OFFSET(task_struct_files) + sizeof(void *);
 		ASSIGN_OFFSET(namespace_root) = sizeof(void *);
 		ASSIGN_OFFSET(namespace_list) = sizeof(void *) * 2;
 	}
 
-				MEMBER_OFFSET_INIT(super_block_s_dirty, "super_block", "s_dirty");
-				MEMBER_OFFSET_INIT(super_block_s_type, "super_block", "s_type");
-				MEMBER_OFFSET_INIT(file_system_type_name, "file_system_type", "name");
+	MEMBER_OFFSET_INIT(super_block_s_dirty, "super_block", "s_dirty");
+	MEMBER_OFFSET_INIT(super_block_s_type, "super_block", "s_type");
+	MEMBER_OFFSET_INIT(file_system_type_name, "file_system_type", "name");
 	MEMBER_OFFSET_INIT(super_block_s_files, "super_block", "s_files");
-				MEMBER_OFFSET_INIT(inode_i_flock, "inode", "i_flock");
-				MEMBER_OFFSET_INIT(file_lock_fl_owner, "file_lock", "fl_owner");
-				MEMBER_OFFSET_INIT(nlm_host_h_exportent, "nlm_host", "h_exportent");
-				MEMBER_OFFSET_INIT(svc_client_cl_ident, "svc_client", "cl_ident");
-	MEMBER_OFFSET_INIT(inode_i_fop, "inode","i_fop");
+	MEMBER_OFFSET_INIT(inode_i_flock, "inode", "i_flock");
+	MEMBER_OFFSET_INIT(file_lock_fl_owner, "file_lock", "fl_owner");
+	MEMBER_OFFSET_INIT(nlm_host_h_exportent, "nlm_host", "h_exportent");
+	MEMBER_OFFSET_INIT(svc_client_cl_ident, "svc_client", "cl_ident");
+	MEMBER_OFFSET_INIT(inode_i_fop, "inode", "i_fop");
 
 	STRUCT_SIZE_INIT(umode_t, "umode_t");
 	STRUCT_SIZE_INIT(dentry, "dentry");
@@ -2022,42 +1861,32 @@ vfs_init(void)
 	STRUCT_SIZE_INIT(fs_struct, "fs_struct");
 	STRUCT_SIZE_INIT(super_block, "super_block");
 
-	if (!(ft->file_cache = (char *)malloc(SIZE(file)*FILE_CACHE)))
+	if (!(ft->file_cache = (char *)malloc(SIZE(file) * FILE_CACHE)))
 		error(FATAL, "cannot malloc file cache\n");
-	if (!(ft->dentry_cache = (char *)malloc(SIZE(dentry)*DENTRY_CACHE)))
+	if (!(ft->dentry_cache = (char *)malloc(SIZE(dentry) * DENTRY_CACHE)))
 		error(FATAL, "cannot malloc dentry cache\n");
-	if (!(ft->inode_cache = (char *)malloc(SIZE(inode)*INODE_CACHE)))
+	if (!(ft->inode_cache = (char *)malloc(SIZE(inode) * INODE_CACHE)))
 		error(FATAL, "cannot malloc inode cache\n");
 
 	if (symbol_exists("height_to_maxindex")) {
 		int tmp ATTRIBUTE_UNUSED;
 		if (LKCD_KERNTYPES())
-			ARRAY_LENGTH_INIT_ALT(tmp, "height_to_maxindex",
-				"radix_tree_preload.nodes", NULL, 0);
+			ARRAY_LENGTH_INIT_ALT(tmp, "height_to_maxindex", "radix_tree_preload.nodes", NULL, 0);
 		else
-			ARRAY_LENGTH_INIT(tmp, height_to_maxindex,
-													"height_to_maxindex", NULL, 0);
+			ARRAY_LENGTH_INIT(tmp, height_to_maxindex, "height_to_maxindex", NULL, 0);
 		STRUCT_SIZE_INIT(radix_tree_root, "radix_tree_root");
 		STRUCT_SIZE_INIT(radix_tree_node, "radix_tree_node");
-		MEMBER_OFFSET_INIT(radix_tree_root_height,
-			"radix_tree_root","height");
-		MEMBER_OFFSET_INIT(radix_tree_root_rnode,
-			"radix_tree_root","rnode");
-		MEMBER_OFFSET_INIT(radix_tree_node_slots,
-			"radix_tree_node","slots");
-		MEMBER_OFFSET_INIT(radix_tree_node_height,
-			"radix_tree_node","height");
+		MEMBER_OFFSET_INIT(radix_tree_root_height, "radix_tree_root", "height");
+		MEMBER_OFFSET_INIT(radix_tree_root_rnode, "radix_tree_root", "rnode");
+		MEMBER_OFFSET_INIT(radix_tree_node_slots, "radix_tree_node", "slots");
+		MEMBER_OFFSET_INIT(radix_tree_node_height, "radix_tree_node", "height");
 	}
-	MEMBER_OFFSET_INIT(rb_root_rb_node,
-		"rb_root","rb_node");
-	MEMBER_OFFSET_INIT(rb_node_rb_left,
-		"rb_node","rb_left");
-	MEMBER_OFFSET_INIT(rb_node_rb_right,
-		"rb_node","rb_right");
+	MEMBER_OFFSET_INIT(rb_root_rb_node, "rb_root", "rb_node");
+	MEMBER_OFFSET_INIT(rb_node_rb_left, "rb_node", "rb_left");
+	MEMBER_OFFSET_INIT(rb_node_rb_right, "rb_node", "rb_right");
 }
 
-void
-dump_filesys_table(int verbose)
+void dump_filesys_table(int verbose)
 {
 	int i;
 	ulong fhits, dhits, ihits;
@@ -2065,56 +1894,47 @@ dump_filesys_table(int verbose)
 	if (!verbose)
 		goto show_hit_rates;
 
-				for (i = 0; i < FILE_CACHE; i++)
-								fprintf(fp, "   cached_file[%2d]: %lx (%ld)\n",
-												i, ft->cached_file[i],
-												ft->cached_file_hits[i]);
-				fprintf(fp, "        file_cache: %lx\n", (ulong)ft->file_cache);
-				fprintf(fp, "  file_cache_index: %d\n", ft->file_cache_index);
-				fprintf(fp, "  file_cache_fills: %ld\n", ft->file_cache_fills);
+	for (i = 0; i < FILE_CACHE; i++)
+		fprintf(fp, "   cached_file[%2d]: %lx (%ld)\n", i, ft->cached_file[i], ft->cached_file_hits[i]);
+	fprintf(fp, "        file_cache: %lx\n", (ulong) ft->file_cache);
+	fprintf(fp, "  file_cache_index: %d\n", ft->file_cache_index);
+	fprintf(fp, "  file_cache_fills: %ld\n", ft->file_cache_fills);
 
 	for (i = 0; i < DENTRY_CACHE; i++)
-		fprintf(fp, "  cached_dentry[%2d]: %lx (%ld)\n",
-			i, ft->cached_dentry[i],
-			ft->cached_dentry_hits[i]);
-	fprintf(fp, "      dentry_cache: %lx\n", (ulong)ft->dentry_cache);
+		fprintf(fp, "  cached_dentry[%2d]: %lx (%ld)\n", i, ft->cached_dentry[i], ft->cached_dentry_hits[i]);
+	fprintf(fp, "      dentry_cache: %lx\n", (ulong) ft->dentry_cache);
 	fprintf(fp, "dentry_cache_index: %d\n", ft->dentry_cache_index);
 	fprintf(fp, "dentry_cache_fills: %ld\n", ft->dentry_cache_fills);
 
-				for (i = 0; i < INODE_CACHE; i++)
-								fprintf(fp, "  cached_inode[%2d]: %lx (%ld)\n",
-												i, ft->cached_inode[i],
-												ft->cached_inode_hits[i]);
-				fprintf(fp, "       inode_cache: %lx\n", (ulong)ft->inode_cache);
-				fprintf(fp, " inode_cache_index: %d\n", ft->inode_cache_index);
-				fprintf(fp, " inode_cache_fills: %ld\n", ft->inode_cache_fills);
+	for (i = 0; i < INODE_CACHE; i++)
+		fprintf(fp, "  cached_inode[%2d]: %lx (%ld)\n", i, ft->cached_inode[i], ft->cached_inode_hits[i]);
+	fprintf(fp, "       inode_cache: %lx\n", (ulong) ft->inode_cache);
+	fprintf(fp, " inode_cache_index: %d\n", ft->inode_cache_index);
+	fprintf(fp, " inode_cache_fills: %ld\n", ft->inode_cache_fills);
 
-show_hit_rates:
-				if (ft->file_cache_fills) {
-								for (i = fhits = 0; i < FILE_CACHE; i++)
-												fhits += ft->cached_file_hits[i];
+ show_hit_rates:
+	if (ft->file_cache_fills) {
+		for (i = fhits = 0; i < FILE_CACHE; i++)
+			fhits += ft->cached_file_hits[i];
 
-								fprintf(fp, "     file hit rate: %2ld%% (%ld of %ld)\n",
-												(fhits * 100)/ft->file_cache_fills,
-												fhits, ft->file_cache_fills);
+		fprintf(fp, "     file hit rate: %2ld%% (%ld of %ld)\n",
+			(fhits * 100) / ft->file_cache_fills, fhits, ft->file_cache_fills);
 	}
 
-				if (ft->dentry_cache_fills) {
-								for (i = dhits = 0; i < DENTRY_CACHE; i++)
-												dhits += ft->cached_dentry_hits[i];
+	if (ft->dentry_cache_fills) {
+		for (i = dhits = 0; i < DENTRY_CACHE; i++)
+			dhits += ft->cached_dentry_hits[i];
 
 		fprintf(fp, "   dentry hit rate: %2ld%% (%ld of %ld)\n",
-			(dhits * 100)/ft->dentry_cache_fills,
-			dhits, ft->dentry_cache_fills);
+			(dhits * 100) / ft->dentry_cache_fills, dhits, ft->dentry_cache_fills);
 	}
 
-				if (ft->inode_cache_fills) {
-								for (i = ihits = 0; i < INODE_CACHE; i++)
-												ihits += ft->cached_inode_hits[i];
+	if (ft->inode_cache_fills) {
+		for (i = ihits = 0; i < INODE_CACHE; i++)
+			ihits += ft->cached_inode_hits[i];
 
 		fprintf(fp, "    inode hit rate: %2ld%% (%ld of %ld)\n",
-												(ihits * 100)/ft->inode_cache_fills,
-												ihits, ft->inode_cache_fills);
+			(ihits * 100) / ft->inode_cache_fills, ihits, ft->inode_cache_fills);
 	}
 }
 
@@ -2129,8 +1949,7 @@ show_hit_rates:
  *  lockd server on behalf of an NFS client are displayed.
  */
 
-void
-cmd_files(void)
+void cmd_files(void)
 {
 	int c;
 	ulong value;
@@ -2139,19 +1958,18 @@ cmd_files(void)
 	struct reference reference, *ref;
 	char *refarg;
 
-				ref = NULL;
-				refarg = NULL;
+	ref = NULL;
+	refarg = NULL;
 
-				while ((c = getopt(argcnt, args, "d:R:")) != EOF) {
-								switch(c)
-		{
+	while ((c = getopt(argcnt, args, "d:R:")) != EOF) {
+		switch (c) {
 		case 'R':
 			if (ref) {
 				error(INFO, "only one -R option allowed\n");
 				argerrs++;
 			} else {
 				ref = &reference;
-							BZERO(ref, sizeof(struct reference));
+				BZERO(ref, sizeof(struct reference));
 				ref->str = refarg = optarg;
 			}
 			break;
@@ -2182,32 +2000,30 @@ cmd_files(void)
 	while (args[optind]) {
 
 		if (ref && subsequent) {
-												BZERO(ref, sizeof(struct reference));
-												ref->str = refarg;
-								}
+			BZERO(ref, sizeof(struct reference));
+			ref->str = refarg;
+		}
 
-								switch (str_to_context(args[optind], &value, &tc))
-								{
-								case STR_PID:
-												for (tc = pid_to_context(value); tc; tc = tc->tc_next) {
-																if (!ref)
-																				print_task_header(fp, tc, subsequent);
-																open_files_dump(tc->task, 0, ref);
-																fprintf(fp, "\n");
-												}
-												break;
+		switch (str_to_context(args[optind], &value, &tc)) {
+		case STR_PID:
+			for (tc = pid_to_context(value); tc; tc = tc->tc_next) {
+				if (!ref)
+					print_task_header(fp, tc, subsequent);
+				open_files_dump(tc->task, 0, ref);
+				fprintf(fp, "\n");
+			}
+			break;
 
-								case STR_TASK:
-												if (!ref)
-																print_task_header(fp, tc, subsequent);
-												open_files_dump(tc->task, 0, ref);
-												break;
+		case STR_TASK:
+			if (!ref)
+				print_task_header(fp, tc, subsequent);
+			open_files_dump(tc->task, 0, ref);
+			break;
 
-								case STR_INVALID:
-												error(INFO, "invalid task or pid value: %s\n",
-																args[optind]);
-												break;
-								}
+		case STR_INVALID:
+			error(INFO, "invalid task or pid value: %s\n", args[optind]);
+			break;
+		}
 
 		subsequent++;
 		optind++;
@@ -2235,16 +2051,13 @@ cmd_files(void)
 				((STREQ((P), "/") && STREQ((C), "/")) || \
 	(!STREQ((C), "/") && strstr((P),(C))))
 
-
-
 /*
  *  open_files_dump() does the work for cmd_files().
  */
 
-void
-open_files_dump(ulong task, int flags, struct reference *ref)
+void open_files_dump(ulong task, int flags, struct reference *ref)
 {
-				struct task_context *tc;
+	struct task_context *tc;
 	ulong files_struct_addr;
 	ulong fdtable_addr = 0;
 	char *files_struct_buf, *fdtable_buf = NULL;
@@ -2282,13 +2095,11 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 
 	sprintf(files_header, " FD%s%s%s%s%s%s%sTYPE%sPATH\n",
 		space(MINSPACE),
-		mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "FILE"),
+		mkstring(buf1, VADDR_PRLEN, CENTER | LJUST, "FILE"),
 		space(MINSPACE),
-		mkstring(buf2, VADDR_PRLEN, CENTER|LJUST, "DENTRY"),
+		mkstring(buf2, VADDR_PRLEN, CENTER | LJUST, "DENTRY"),
 		space(MINSPACE),
-		mkstring(buf3, VADDR_PRLEN, CENTER|LJUST, "INODE"),
-		space(MINSPACE),
-		space(MINSPACE));
+		mkstring(buf3, VADDR_PRLEN, CENTER | LJUST, "INODE"), space(MINSPACE), space(MINSPACE));
 
 	tc = task_to_context(task);
 
@@ -2297,58 +2108,43 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 
 	fs_struct_addr = ULONG(tt->task_struct + OFFSET(task_struct_fs));
 
-				if (fs_struct_addr) {
+	if (fs_struct_addr) {
 		fs_struct_buf = GETBUF(SIZE(fs_struct));
-								readmem(fs_struct_addr, KVADDR, fs_struct_buf, SIZE(fs_struct),
-			"fs_struct buffer", FAULT_ON_ERROR);
+		readmem(fs_struct_addr, KVADDR, fs_struct_buf, SIZE(fs_struct), "fs_struct buffer", FAULT_ON_ERROR);
 
 		use_path = (MEMBER_TYPE("fs_struct", "root") == TYPE_CODE_STRUCT);
 		if (use_path)
-			root_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_root) +
-				OFFSET(path_dentry));
+			root_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_root) + OFFSET(path_dentry));
 		else
 			root_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_root));
 
 		if (root_dentry) {
 			if (VALID_MEMBER(fs_struct_rootmnt)) {
-										vfsmnt = ULONG(fs_struct_buf +
-														OFFSET(fs_struct_rootmnt));
-				get_pathname(root_dentry, root_pathname,
-					BUFSIZE, 1, vfsmnt);
+				vfsmnt = ULONG(fs_struct_buf + OFFSET(fs_struct_rootmnt));
+				get_pathname(root_dentry, root_pathname, BUFSIZE, 1, vfsmnt);
 			} else if (use_path) {
-				vfsmnt = ULONG(fs_struct_buf +
-					OFFSET(fs_struct_root) +
-					OFFSET(path_mnt));
-				get_pathname(root_dentry, root_pathname,
-					BUFSIZE, 1, vfsmnt);
+				vfsmnt = ULONG(fs_struct_buf + OFFSET(fs_struct_root) + OFFSET(path_mnt));
+				get_pathname(root_dentry, root_pathname, BUFSIZE, 1, vfsmnt);
 			} else {
-				get_pathname(root_dentry, root_pathname,
-					BUFSIZE, 1, 0);
+				get_pathname(root_dentry, root_pathname, BUFSIZE, 1, 0);
 			}
 		}
 
 		if (use_path)
-			pwd_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_pwd) +
-				OFFSET(path_dentry));
+			pwd_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_pwd) + OFFSET(path_dentry));
 		else
 			pwd_dentry = ULONG(fs_struct_buf + OFFSET(fs_struct_pwd));
 
 		if (pwd_dentry) {
 			if (VALID_MEMBER(fs_struct_pwdmnt)) {
-										vfsmnt = ULONG(fs_struct_buf +
-														OFFSET(fs_struct_pwdmnt));
-				get_pathname(pwd_dentry, pwd_pathname,
-					BUFSIZE, 1, vfsmnt);
+				vfsmnt = ULONG(fs_struct_buf + OFFSET(fs_struct_pwdmnt));
+				get_pathname(pwd_dentry, pwd_pathname, BUFSIZE, 1, vfsmnt);
 			} else if (use_path) {
-				vfsmnt = ULONG(fs_struct_buf +
-					OFFSET(fs_struct_pwd) +
-					OFFSET(path_mnt));
-				get_pathname(pwd_dentry, pwd_pathname,
-					BUFSIZE, 1, vfsmnt);
+				vfsmnt = ULONG(fs_struct_buf + OFFSET(fs_struct_pwd) + OFFSET(path_mnt));
+				get_pathname(pwd_dentry, pwd_pathname, BUFSIZE, 1, vfsmnt);
 
 			} else {
-				get_pathname(pwd_dentry, pwd_pathname,
-					BUFSIZE, 1, 0);
+				get_pathname(pwd_dentry, pwd_pathname, BUFSIZE, 1, 0);
 			}
 		}
 
@@ -2358,22 +2154,18 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 			dentry_buf = fill_dentry_cache(pwd_dentry);
 			pwd_inode = ULONG(dentry_buf + OFFSET(dentry_d_inode));
 			fprintf(fp, "ROOT: %lx %s    CWD: %lx %s\n",
-				root_inode, root_pathname, pwd_inode,
-				pwd_pathname);
+				root_inode, root_pathname, pwd_inode, pwd_pathname);
 		} else if (ref) {
-			snprintf(root_pwd, sizeof(root_pwd),
-					 	"ROOT: %s    CWD: %s \n",
-				root_pathname, pwd_pathname);
-			if (FILENAME_COMPONENT(root_pathname, ref->str) ||
-					FILENAME_COMPONENT(pwd_pathname, ref->str)) {
+			snprintf(root_pwd, sizeof(root_pwd), "ROOT: %s    CWD: %s \n", root_pathname, pwd_pathname);
+			if (FILENAME_COMPONENT(root_pathname, ref->str)
+			    || FILENAME_COMPONENT(pwd_pathname, ref->str)) {
 				print_task_header(fp, tc, 0);
 				fprintf(fp, "%s", root_pwd);
 				root_pwd_printed = TRUE;
 				ref->cmdflags |= FILES_REF_FOUND;
 			}
 		} else
-			fprintf(fp, "ROOT: %s    CWD: %s\n",
-				root_pathname, pwd_pathname);
+			fprintf(fp, "ROOT: %s    CWD: %s\n", root_pathname, pwd_pathname);
 
 		FREEBUF(fs_struct_buf);
 	}
@@ -2382,15 +2174,12 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 
 	if (files_struct_addr) {
 		readmem(files_struct_addr, KVADDR, files_struct_buf,
-			SIZE(files_struct), "files_struct buffer",
-			FAULT_ON_ERROR);
+			SIZE(files_struct), "files_struct buffer", FAULT_ON_ERROR);
 
 		if (VALID_MEMBER(files_struct_max_fdset)) {
-			max_fdset = INT(files_struct_buf +
-			OFFSET(files_struct_max_fdset));
+			max_fdset = INT(files_struct_buf + OFFSET(files_struct_max_fdset));
 
-			max_fds = INT(files_struct_buf +
-			OFFSET(files_struct_max_fds));
+			max_fds = INT(files_struct_buf + OFFSET(files_struct_max_fds));
 		}
 	}
 
@@ -2398,20 +2187,16 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 		fdtable_addr = ULONG(files_struct_buf + OFFSET(files_struct_fdt));
 
 		if (fdtable_addr) {
-			readmem(fdtable_addr, KVADDR, fdtable_buf,
-	 			SIZE(fdtable), "fdtable buffer", FAULT_ON_ERROR);
+			readmem(fdtable_addr, KVADDR, fdtable_buf, SIZE(fdtable), "fdtable buffer", FAULT_ON_ERROR);
 			if (VALID_MEMBER(fdtable_max_fdset))
-				max_fdset = INT(fdtable_buf +
-					OFFSET(fdtable_max_fdset));
+				max_fdset = INT(fdtable_buf + OFFSET(fdtable_max_fdset));
 			else
 				max_fdset = -1;
-			max_fds = INT(fdtable_buf +
-													OFFSET(fdtable_max_fds));
+			max_fds = INT(fdtable_buf + OFFSET(fdtable_max_fds));
 		}
 	}
 
-	if ((VALID_MEMBER(files_struct_fdt) && !fdtable_addr) ||
-			!files_struct_addr || max_fdset == 0 || max_fds == 0) {
+	if ((VALID_MEMBER(files_struct_fdt) && !fdtable_addr) || !files_struct_addr || max_fdset == 0 || max_fds == 0) {
 		if (ref) {
 			if (ref->cmdflags & FILES_REF_FOUND)
 				fprintf(fp, "\n");
@@ -2423,41 +2208,33 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 		return;
 	}
 
-				if (ref && IS_A_NUMBER(ref->str)) {
-								if (hexadecimal_only(ref->str, 0)) {
-												ref->hexval = htol(ref->str, FAULT_ON_ERROR, NULL);
-												ref->cmdflags |= FILES_REF_HEXNUM;
-								} else {
+	if (ref && IS_A_NUMBER(ref->str)) {
+		if (hexadecimal_only(ref->str, 0)) {
+			ref->hexval = htol(ref->str, FAULT_ON_ERROR, NULL);
+			ref->cmdflags |= FILES_REF_HEXNUM;
+		} else {
 			value = dtol(ref->str, FAULT_ON_ERROR, NULL);
 			if (value <= MAX(max_fdset, max_fds)) {
-																ref->decval = value;
-															 	ref->cmdflags |= FILES_REF_DECNUM;
+				ref->decval = value;
+				ref->cmdflags |= FILES_REF_DECNUM;
 			} else {
-														 	ref->hexval = htol(ref->str,
-					FAULT_ON_ERROR, NULL);
-																ref->cmdflags |= FILES_REF_HEXNUM;
+				ref->hexval = htol(ref->str, FAULT_ON_ERROR, NULL);
+				ref->cmdflags |= FILES_REF_HEXNUM;
 			}
 		}
-				}
+	}
 
 	if (VALID_MEMBER(fdtable_open_fds))
-		open_fds_addr = ULONG(fdtable_buf +
-			OFFSET(fdtable_open_fds));
+		open_fds_addr = ULONG(fdtable_buf + OFFSET(fdtable_open_fds));
 	else
-		open_fds_addr = ULONG(files_struct_buf +
-			OFFSET(files_struct_open_fds));
+		open_fds_addr = ULONG(files_struct_buf + OFFSET(files_struct_open_fds));
 
 	if (open_fds_addr) {
 		if (VALID_MEMBER(files_struct_open_fds_init) &&
-				(open_fds_addr == (files_struct_addr +
-				OFFSET(files_struct_open_fds_init))))
-			BCOPY(files_struct_buf +
-							OFFSET(files_struct_open_fds_init),
-				&open_fds, sizeof(fd_set));
+		    (open_fds_addr == (files_struct_addr + OFFSET(files_struct_open_fds_init))))
+			BCOPY(files_struct_buf + OFFSET(files_struct_open_fds_init), &open_fds, sizeof(fd_set));
 		else
-			readmem(open_fds_addr, KVADDR, &open_fds,
-				sizeof(fd_set), "fdtable open_fds",
-				FAULT_ON_ERROR);
+			readmem(open_fds_addr, KVADDR, &open_fds, sizeof(fd_set), "fdtable open_fds", FAULT_ON_ERROR);
 	}
 
 	if (VALID_MEMBER(fdtable_fd))
@@ -2466,8 +2243,8 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 		fd = ULONG(files_struct_buf + OFFSET(files_struct_fd));
 
 	if (!open_fds_addr || !fd) {
-								if (ref && (ref->cmdflags & FILES_REF_FOUND))
-									fprintf(fp, "\n");
+		if (ref && (ref->cmdflags & FILES_REF_FOUND))
+			fprintf(fp, "\n");
 		if (fdtable_buf)
 			FREEBUF(fdtable_buf);
 		FREEBUF(files_struct_buf);
@@ -2478,24 +2255,20 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 	for (;;) {
 		unsigned long set;
 		i = j * __NFDBITS;
-		if (((max_fdset >= 0) && (i >= max_fdset)) ||
-				(i >= max_fds))
-			 break;
+		if (((max_fdset >= 0) && (i >= max_fdset)) || (i >= max_fds))
+			break;
 		set = open_fds.__fds_bits[j++];
 		while (set) {
 			if (set & 1) {
-							readmem(fd + i*sizeof(struct file *), KVADDR,
-					&file, sizeof(struct file *),
-					"fd file", FAULT_ON_ERROR);
+				readmem(fd + i * sizeof(struct file *), KVADDR,
+					&file, sizeof(struct file *), "fd file", FAULT_ON_ERROR);
 
 				if (ref && file) {
 					open_tmpfile();
-																				if (file_dump(file, 0, 0, i,
-																						DUMP_FULL_NAME|DUMP_EMPTY_FILE)) {
+					if (file_dump(file, 0, 0, i, DUMP_FULL_NAME | DUMP_EMPTY_FILE)) {
 						BZERO(buf4, BUFSIZE);
 						rewind(pc->tmpfile);
-						ret = fgets(buf4, BUFSIZE,
-							pc->tmpfile);
+						ret = fgets(buf4, BUFSIZE, pc->tmpfile);
 						close_tmpfile();
 						ref->refp = buf4;
 						if (open_file_reference(ref)) {
@@ -2503,14 +2276,12 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 						}
 					} else
 						close_tmpfile();
-				}
-				else if (file) {
+				} else if (file) {
 					if (!header_printed) {
 						fprintf(fp, files_header);
 						header_printed = 1;
 					}
-					file_dump(file, 0, 0, i,
-						DUMP_FULL_NAME|DUMP_EMPTY_FILE);
+					file_dump(file, 0, 0, i, DUMP_FULL_NAME | DUMP_EMPTY_FILE);
 				}
 			}
 			i++;
@@ -2532,8 +2303,7 @@ open_files_dump(ulong task, int flags, struct reference *ref)
 /*
  *  Check an open file string for references.
  */
-static int
-open_file_reference(struct reference *ref)
+static int open_file_reference(struct reference *ref)
 {
 	char buf[BUFSIZE];
 	char *arglist[MAXARGS];
@@ -2544,22 +2314,20 @@ open_file_reference(struct reference *ref)
 	if ((argcnt = parse_line(buf, arglist)) < 5)
 		return FALSE;
 
-	if (ref->cmdflags & (FILES_REF_HEXNUM|FILES_REF_DECNUM)) {
+	if (ref->cmdflags & (FILES_REF_HEXNUM | FILES_REF_DECNUM)) {
 		fd = dtol(arglist[0], FAULT_ON_ERROR, NULL);
-		if (((ref->cmdflags & FILES_REF_HEXNUM) &&
-				(fd == ref->hexval)) ||
-										((ref->cmdflags & FILES_REF_DECNUM) &&
-				(fd == ref->decval))) {
+		if (((ref->cmdflags & FILES_REF_HEXNUM) && (fd == ref->hexval)) || ((ref->cmdflags & FILES_REF_DECNUM)
+										    && (fd == ref->decval))) {
 			return TRUE;
 		}
 
-					for (i = 1; i < 4; i++) {
+		for (i = 1; i < 4; i++) {
 			if (STREQ(arglist[i], "?"))
 				continue;
-						vaddr = htol(arglist[i], FAULT_ON_ERROR, NULL);
-						if (vaddr == ref->hexval)
-							return TRUE;
-					}
+			vaddr = htol(arglist[i], FAULT_ON_ERROR, NULL);
+			if (vaddr == ref->hexval)
+				return TRUE;
+		}
 	}
 
 	if (STREQ(ref->str, arglist[4])) {
@@ -2582,11 +2350,10 @@ open_file_reference(struct reference *ref)
 #define FILE_NRHASH 32
 
 char nlm_files_header[BUFSIZE] = { 0 };
-char *nlm_header = \
-"Files open by lockd for client discretionary file locks:\n";
 
-void
-nlm_files_dump(void)
+char *nlm_header = "Files open by lockd for client discretionary file locks:\n";
+
+void nlm_files_dump(void)
 {
 	int header_printed = 0;
 	int i, j, cnt;
@@ -2599,17 +2366,15 @@ nlm_files_dump(void)
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
 
-				if (!strlen(nlm_files_header)) {
-								sprintf(nlm_files_header,
-										"CLIENT               %s %s%sTYPE%sPATH\n",
-												mkstring(buf1, VADDR_PRLEN, CENTER|LJUST, "NLM_FILE"),
-												mkstring(buf2, VADDR_PRLEN, CENTER|LJUST, "INODE"),
-												space(MINSPACE),
-												space(MINSPACE));
-				}
+	if (!strlen(nlm_files_header)) {
+		sprintf(nlm_files_header,
+			"CLIENT               %s %s%sTYPE%sPATH\n",
+			mkstring(buf1, VADDR_PRLEN, CENTER | LJUST, "NLM_FILE"),
+			mkstring(buf2, VADDR_PRLEN, CENTER | LJUST, "INODE"), space(MINSPACE), space(MINSPACE));
+	}
 
 	if (!symbol_exists("nlm_files") || !symbol_exists("nlmsvc_ops")
-			|| !symbol_exists("nfsd_nlm_ops")) {
+	    || !symbol_exists("nfsd_nlm_ops")) {
 		goto out;
 	}
 	get_symbol_data("nlmsvc_ops", sizeof(void *), &nlmsvc_ops);
@@ -2621,17 +2386,13 @@ nlm_files_dump(void)
 		goto out;
 	}
 	nlm_files = symbol_value("nlm_files");
-	if (((nsp->value - nlm_files) / sizeof(void *)) != FILE_NRHASH ) {
-		error(WARNING, "FILE_NRHASH has changed from %d\n",
-					FILE_NRHASH);
-		if (((nsp->value - nlm_files) / sizeof(void *)) <
-				FILE_NRHASH )
+	if (((nsp->value - nlm_files) / sizeof(void *)) != FILE_NRHASH) {
+		error(WARNING, "FILE_NRHASH has changed from %d\n", FILE_NRHASH);
+		if (((nsp->value - nlm_files) / sizeof(void *)) < FILE_NRHASH)
 			goto out;
 	}
 
-	readmem(nlm_files, KVADDR, nlm_files_array,
-		sizeof(ulong) * FILE_NRHASH, "nlm_files array",
-		FAULT_ON_ERROR);
+	readmem(nlm_files, KVADDR, nlm_files_array, sizeof(ulong) * FILE_NRHASH, "nlm_files array", FAULT_ON_ERROR);
 	for (i = 0; i < FILE_NRHASH; i++) {
 		if (nlm_files_array[i] == 0) {
 			continue;
@@ -2641,38 +2402,32 @@ nlm_files_dump(void)
 		ld->start = nlm_files_array[i];
 		hq_open();
 		cnt = do_list(ld);
-		files_list = (ulong *)GETBUF(cnt * sizeof(ulong));
+		files_list = (ulong *) GETBUF(cnt * sizeof(ulong));
 		cnt = retrieve_list(files_list, cnt);
 		hq_close();
-		for (j=0, file = files_list; j<cnt; j++, file++) {
+		for (j = 0, file = files_list; j < cnt; j++, file++) {
 			readmem(*file + OFFSET(nlm_file_f_file) +
 				OFFSET(file_f_dentry), KVADDR, &dentry,
-				sizeof(void *), "nlm_file dentry",
-				FAULT_ON_ERROR);
+				sizeof(void *), "nlm_file dentry", FAULT_ON_ERROR);
 			if (!dentry)
 				continue;
 			readmem(dentry + OFFSET(dentry_d_inode), KVADDR,
-				&inode, sizeof(void *), "dentry d_inode",
-				FAULT_ON_ERROR);
+				&inode, sizeof(void *), "dentry d_inode", FAULT_ON_ERROR);
 			if (!inode)
 				continue;
 			readmem(inode + OFFSET(inode_i_flock), KVADDR,
-				&flock, sizeof(void *), "inode i_flock",
-				FAULT_ON_ERROR);
+				&flock, sizeof(void *), "inode i_flock", FAULT_ON_ERROR);
 			if (!flock)
 				continue;
 			readmem(flock + OFFSET(file_lock_fl_owner), KVADDR,
-				&host, sizeof(void *),
-				"file_lock fl_owner", FAULT_ON_ERROR);
+				&host, sizeof(void *), "file_lock fl_owner", FAULT_ON_ERROR);
 			if (!host)
 				continue;
 			readmem(host + OFFSET(nlm_host_h_exportent), KVADDR,
-				&client, sizeof(void *),
-				"nlm_host h_exportent", FAULT_ON_ERROR);
+				&client, sizeof(void *), "nlm_host h_exportent", FAULT_ON_ERROR);
 			if (!client)
 				continue;
-			if (!read_string(client + OFFSET(svc_client_cl_ident),
-					buf1, BUFSIZE-1))
+			if (!read_string(client + OFFSET(svc_client_cl_ident), buf1, BUFSIZE - 1))
 				continue;
 			if (!header_printed) {
 				fprintf(fp, nlm_header);
@@ -2681,11 +2436,10 @@ nlm_files_dump(void)
 			}
 
 			fprintf(fp, "%-20s %8lx ", buf1, *file);
-			file_dump(*file, dentry, inode, 0,
-					DUMP_INODE_ONLY | DUMP_FULL_NAME);
+			file_dump(*file, dentry, inode, 0, DUMP_INODE_ONLY | DUMP_FULL_NAME);
 		}
 	}
-out:
+ out:
 	if (!header_printed)
 		fprintf(fp, "No lockd server files open for NFS clients\n");
 }
@@ -2695,8 +2449,7 @@ out:
  * file_dump() prints info for an open file descriptor
  */
 
-int
-file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
+int file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 {
 	ulong vfsmnt;
 	char *dentry_buf, *file_buf, *inode_buf, *type;
@@ -2719,20 +2472,15 @@ file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 				fd,
 				space(MINSPACE),
 				mkstring(buf1, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(file)),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(file)),
 				space(MINSPACE),
 				mkstring(buf2, VADDR_PRLEN,
-				CENTER|LONG_HEX|ZERO_FILL,
-				MKSTR(dentry)),
+					 CENTER | LONG_HEX | ZERO_FILL,
+					 MKSTR(dentry)),
 				space(MINSPACE),
 				mkstring(buf3, VADDR_PRLEN,
-				CENTER,
-				"?"),
-				space(MINSPACE),
-				"?   ",
-				space(MINSPACE),
-				"?");
+					 CENTER, "?"), space(MINSPACE), "?   ", space(MINSPACE), "?");
 			return TRUE;
 		}
 		return FALSE;
@@ -2749,20 +2497,16 @@ file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 				fd,
 				space(MINSPACE),
 				mkstring(buf1, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(file)),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(file)),
 				space(MINSPACE),
 				mkstring(buf2, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(dentry)),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(dentry)),
 				space(MINSPACE),
 				mkstring(buf3, VADDR_PRLEN,
-				CENTER|LONG_HEX|ZERO_FILL,
-				MKSTR(inode)),
-				space(MINSPACE),
-				"?   ",
-				space(MINSPACE),
-				"?");
+					 CENTER | LONG_HEX | ZERO_FILL,
+					 MKSTR(inode)), space(MINSPACE), "?   ", space(MINSPACE), "?");
 			return TRUE;
 		}
 		return FALSE;
@@ -2774,9 +2518,7 @@ file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 		if (VALID_MEMBER(file_f_vfsmnt)) {
 			vfsmnt = get_root_vfsmount(file_buf);
 			get_pathname(dentry, pathname, BUFSIZE, 1, vfsmnt);
-			if (STRNEQ(pathname, "/pts/") &&
-					STREQ(vfsmount_devname(vfsmnt, buf1, BUFSIZE),
-					"devpts"))
+			if (STRNEQ(pathname, "/pts/") && STREQ(vfsmount_devname(vfsmnt, buf1, BUFSIZE), "devpts"))
 				string_insert("/dev", pathname);
 		} else {
 			get_pathname(dentry, pathname, BUFSIZE, 1, 0);
@@ -2789,50 +2531,38 @@ file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 	if (flags & DUMP_FULL_NAME)
 		printpath = pathname;
 	else
-		printpath = pathname+1;
+		printpath = pathname + 1;
 
 	if (flags & DUMP_INODE_ONLY) {
 		fprintf(fp, "%s%s%s%s%s\n",
 			mkstring(buf1, VADDR_PRLEN,
-			CENTER|RJUST|LONG_HEX,
-			MKSTR(inode)),
-			space(MINSPACE),
-			type,
-			space(MINSPACE),
-			printpath);
+				 CENTER | RJUST | LONG_HEX,
+				 MKSTR(inode)), space(MINSPACE), type, space(MINSPACE), printpath);
 	} else {
 		if (flags & DUMP_DENTRY_ONLY) {
 			fprintf(fp, "%s%s%s%s%s%s%s\n",
 				mkstring(buf1, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(dentry)),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(dentry)),
 				space(MINSPACE),
 				mkstring(buf2, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(inode)),
-				space(MINSPACE),
-				type,
-				space(MINSPACE),
-				pathname+1);
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(inode)), space(MINSPACE), type, space(MINSPACE), pathname + 1);
 		} else {
-												fprintf(fp, "%3d%s%s%s%s%s%s%s%s%s%s\n",
-																fd,
-																space(MINSPACE),
+			fprintf(fp, "%3d%s%s%s%s%s%s%s%s%s%s\n",
+				fd,
+				space(MINSPACE),
 				mkstring(buf1, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(file)),
-																space(MINSPACE),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(file)),
+				space(MINSPACE),
 				mkstring(buf2, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(dentry)),
-																space(MINSPACE),
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(dentry)),
+				space(MINSPACE),
 				mkstring(buf3, VADDR_PRLEN,
-				CENTER|RJUST|LONG_HEX,
-				MKSTR(inode)),
-																space(MINSPACE),
-																type,
-																space(MINSPACE),
-																pathname);
+					 CENTER | RJUST | LONG_HEX,
+					 MKSTR(inode)), space(MINSPACE), type, space(MINSPACE), pathname);
 		}
 	}
 
@@ -2842,22 +2572,20 @@ file_dump(ulong file, ulong dentry, ulong inode, int fd, int flags)
 /*
  *  Get the dentry associated with a file.
  */
-ulong
-file_to_dentry(ulong file)
+ulong file_to_dentry(ulong file)
 {
-				char *file_buf;
+	char *file_buf;
 	ulong dentry;
 
-				file_buf = fill_file_cache(file);
-				dentry = ULONG(file_buf + OFFSET(file_f_dentry));
-				return dentry;
+	file_buf = fill_file_cache(file);
+	dentry = ULONG(file_buf + OFFSET(file_f_dentry));
+	return dentry;
 }
 
 /*
  *  Get the vfsmnt associated with a file.
  */
-ulong
-file_to_vfsmnt(ulong file)
+ulong file_to_vfsmnt(ulong file)
 {
 	char *file_buf;
 	ulong vfsmnt;
@@ -2871,8 +2599,7 @@ file_to_vfsmnt(ulong file)
  * get_pathname() fills in a pathname string for an ending dentry
  * See __d_path() in the kernel for help fixing problems.
  */
-void
-get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
+void get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
 {
 	char buf[BUFSIZE];
 	char tmpname[BUFSIZE];
@@ -2895,8 +2622,7 @@ get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
 		}
 	} else {
 		mnt_buf = NULL;
-		vfsmnt_buf = VALID_MEMBER(vfsmount_mnt_mountpoint) ?
-			GETBUF(SIZE(vfsmount)) : NULL;
+		vfsmnt_buf = VALID_MEMBER(vfsmount_mnt_mountpoint) ? GETBUF(SIZE(vfsmount)) : NULL;
 	}
 
 	parent = dentry;
@@ -2907,32 +2633,28 @@ get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
 
 		dentry_buf = fill_dentry_cache(tmp_dentry);
 
-		d_name_len = INT(dentry_buf +
-			OFFSET(dentry_d_name) + OFFSET(qstr_len));
+		d_name_len = INT(dentry_buf + OFFSET(dentry_d_name) + OFFSET(qstr_len));
 
 		if (!d_name_len)
 			break;
 
 		d_name_name = ULONG(dentry_buf + OFFSET(dentry_d_name)
-			+ OFFSET(qstr_name));
+				    + OFFSET(qstr_name));
 
 		if (!d_name_name)
 			break;
 
-		if (!get_pathname_component(tmp_dentry, d_name_name, d_name_len,
-				 dentry_buf, buf))
+		if (!get_pathname_component(tmp_dentry, d_name_name, d_name_len, dentry_buf, buf))
 			break;
 
 		if (tmp_dentry != dentry) {
 			strncpy(tmpname, pathname, BUFSIZE);
 			if (strlen(tmpname) + d_name_len < BUFSIZE) {
-				if ((d_name_len > 1 || !STREQ(buf, "/")) &&
-						!STRNEQ(tmpname, "/")) {
-					sprintf(pathname, "%s%s%s", buf,
-						"/", tmpname);
+				if ((d_name_len > 1 || !STREQ(buf, "/"))
+				    && !STRNEQ(tmpname, "/")) {
+					sprintf(pathname, "%s%s%s", buf, "/", tmpname);
 				} else {
-					sprintf(pathname,
-						"%s%s", buf, tmpname);
+					sprintf(pathname, "%s%s", buf, tmpname);
 				}
 			}
 		} else {
@@ -2946,14 +2668,10 @@ get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
 				if (tmp_vfsmnt) {
 					if (strncmp(pathname, "//", 2) == 0)
 						shift_string_left(pathname, 1);
-																				readmem(tmp_vfsmnt, KVADDR, vfsmnt_buf,
-						SIZE(vfsmount),
-						"vfsmount buffer",
-						FAULT_ON_ERROR);
-								parent = ULONG(vfsmnt_buf +
-							OFFSET(vfsmount_mnt_mountpoint));
-								mnt_parent = ULONG(vfsmnt_buf +
-							OFFSET(vfsmount_mnt_parent));
+					readmem(tmp_vfsmnt, KVADDR, vfsmnt_buf,
+						SIZE(vfsmount), "vfsmount buffer", FAULT_ON_ERROR);
+					parent = ULONG(vfsmnt_buf + OFFSET(vfsmount_mnt_mountpoint));
+					mnt_parent = ULONG(vfsmnt_buf + OFFSET(vfsmount_mnt_parent));
 					if (tmp_vfsmnt == mnt_parent)
 						break;
 					else
@@ -2963,24 +2681,17 @@ get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
 				if (tmp_vfsmnt) {
 					if (strncmp(pathname, "//", 2) == 0)
 						shift_string_left(pathname, 1);
-																				readmem(tmp_vfsmnt - OFFSET(mount_mnt),
-						KVADDR, mnt_buf,
-						SIZE(mount),
-						"mount buffer",
-						FAULT_ON_ERROR);
-								parent = ULONG(mnt_buf +
-							OFFSET(mount_mnt_mountpoint));
-								mnt_parent = ULONG(mnt_buf +
-							OFFSET(mount_mnt_parent));
+					readmem(tmp_vfsmnt - OFFSET(mount_mnt),
+						KVADDR, mnt_buf, SIZE(mount), "mount buffer", FAULT_ON_ERROR);
+					parent = ULONG(mnt_buf + OFFSET(mount_mnt_mountpoint));
+					mnt_parent = ULONG(mnt_buf + OFFSET(mount_mnt_parent));
 					if ((tmp_vfsmnt - OFFSET(mount_mnt)) == mnt_parent)
 						break;
 					else
 						tmp_vfsmnt = mnt_parent + OFFSET(mount_mnt);
 				}
-			}
-			else {
-				parent = ULONG(dentry_buf +
-					OFFSET(dentry_d_covers));
+			} else {
+				parent = ULONG(dentry_buf + OFFSET(dentry_d_covers));
 			}
 		}
 
@@ -2997,22 +2708,17 @@ get_pathname(ulong dentry, char *pathname, int length, int full, ulong vfsmnt)
  *  dentry, has string length equal to what's expected, copy it into the
  *  passed-in buffer, and return its length.  If it doesn't match, return 0.
  */
-static int
-get_pathname_component(ulong dentry,
-					 ulong d_name_name,
-					 int d_name_len,
-					 char *dentry_buf,
-					 char *pathbuf)
+static int get_pathname_component(ulong dentry, ulong d_name_name, int d_name_len, char *dentry_buf, char *pathbuf)
 {
-	int len = d_name_len;   /* presume success */
+	int len = d_name_len;	/* presume success */
 
-				if (d_name_name == (dentry + OFFSET(dentry_d_iname))) {
-								if (strlen(dentry_buf + OFFSET(dentry_d_iname)) == d_name_len)
-									strcpy(pathbuf, dentry_buf + OFFSET(dentry_d_iname));
-								else
-												len = 0;
-				} else if ((read_string(d_name_name, pathbuf, BUFSIZE)) != d_name_len)
-								len = 0;
+	if (d_name_name == (dentry + OFFSET(dentry_d_iname))) {
+		if (strlen(dentry_buf + OFFSET(dentry_d_iname)) == d_name_len)
+			strcpy(pathbuf, dentry_buf + OFFSET(dentry_d_iname));
+		else
+			len = 0;
+	} else if ((read_string(d_name_name, pathbuf, BUFSIZE)) != d_name_len)
+		len = 0;
 
 	return len;
 }
@@ -3020,158 +2726,146 @@ get_pathname_component(ulong dentry,
 /*
  *  Cache the passed-in file structure.
  */
-char *
-fill_file_cache(ulong file)
+char *fill_file_cache(ulong file)
 {
-				int i;
-				char *cache;
+	int i;
+	char *cache;
 
-				ft->file_cache_fills++;
+	ft->file_cache_fills++;
 
-				for (i = 0; i < DENTRY_CACHE; i++) {
-								if (ft->cached_file[i] == file) {
-												ft->cached_file_hits[i]++;
-												cache = ft->file_cache + (SIZE(file)*i);
-												return(cache);
-								}
-				}
+	for (i = 0; i < DENTRY_CACHE; i++) {
+		if (ft->cached_file[i] == file) {
+			ft->cached_file_hits[i]++;
+			cache = ft->file_cache + (SIZE(file) * i);
+			return (cache);
+		}
+	}
 
-				cache = ft->file_cache + (SIZE(file)*ft->file_cache_index);
+	cache = ft->file_cache + (SIZE(file) * ft->file_cache_index);
 
-				readmem(file, KVADDR, cache, SIZE(file),
-								"fill_file_cache", FAULT_ON_ERROR);
+	readmem(file, KVADDR, cache, SIZE(file), "fill_file_cache", FAULT_ON_ERROR);
 
-				ft->cached_file[ft->file_cache_index] = file;
+	ft->cached_file[ft->file_cache_index] = file;
 
-				ft->file_cache_index = (ft->file_cache_index+1) % DENTRY_CACHE;
+	ft->file_cache_index = (ft->file_cache_index + 1) % DENTRY_CACHE;
 
-				return(cache);
+	return (cache);
 }
 
 /*
  *  If active, clear the file references.
  */
-void
-clear_file_cache(void)
-{
-				int i;
-
-				if (DUMPFILE())
-								return;
-
-				for (i = 0; i < DENTRY_CACHE; i++) {
-								ft->cached_file[i] = 0;
-								ft->cached_file_hits[i] = 0;
-				}
-
-				ft->file_cache_fills = 0;
-				ft->file_cache_index = 0;
-}
-
-
-
-/*
- *  Cache the passed-in dentry structure.
- */
-char *
-fill_dentry_cache(ulong dentry)
-{
-	int i;
-	char *cache;
-
-	ft->dentry_cache_fills++;
-
-				for (i = 0; i < DENTRY_CACHE; i++) {
-								if (ft->cached_dentry[i] == dentry) {
-			ft->cached_dentry_hits[i]++;
-			cache = ft->dentry_cache + (SIZE(dentry)*i);
-			return(cache);
-		}
-	}
-
-	cache = ft->dentry_cache + (SIZE(dentry)*ft->dentry_cache_index);
-
-				readmem(dentry, KVADDR, cache, SIZE(dentry),
-					"fill_dentry_cache", FAULT_ON_ERROR);
-
-	ft->cached_dentry[ft->dentry_cache_index] = dentry;
-
-	ft->dentry_cache_index = (ft->dentry_cache_index+1) % DENTRY_CACHE;
-
-	return(cache);
-}
-
-/*
- *  If active, clear the dentry references.
- */
-void
-clear_dentry_cache(void)
+void clear_file_cache(void)
 {
 	int i;
 
 	if (DUMPFILE())
 		return;
 
-				for (i = 0; i < DENTRY_CACHE; i++) {
-								ft->cached_dentry[i] = 0;
-					ft->cached_dentry_hits[i] = 0;
+	for (i = 0; i < DENTRY_CACHE; i++) {
+		ft->cached_file[i] = 0;
+		ft->cached_file_hits[i] = 0;
 	}
 
-				ft->dentry_cache_fills = 0;
+	ft->file_cache_fills = 0;
+	ft->file_cache_index = 0;
+}
+
+/*
+ *  Cache the passed-in dentry structure.
+ */
+char *fill_dentry_cache(ulong dentry)
+{
+	int i;
+	char *cache;
+
+	ft->dentry_cache_fills++;
+
+	for (i = 0; i < DENTRY_CACHE; i++) {
+		if (ft->cached_dentry[i] == dentry) {
+			ft->cached_dentry_hits[i]++;
+			cache = ft->dentry_cache + (SIZE(dentry) * i);
+			return (cache);
+		}
+	}
+
+	cache = ft->dentry_cache + (SIZE(dentry) * ft->dentry_cache_index);
+
+	readmem(dentry, KVADDR, cache, SIZE(dentry), "fill_dentry_cache", FAULT_ON_ERROR);
+
+	ft->cached_dentry[ft->dentry_cache_index] = dentry;
+
+	ft->dentry_cache_index = (ft->dentry_cache_index + 1) % DENTRY_CACHE;
+
+	return (cache);
+}
+
+/*
+ *  If active, clear the dentry references.
+ */
+void clear_dentry_cache(void)
+{
+	int i;
+
+	if (DUMPFILE())
+		return;
+
+	for (i = 0; i < DENTRY_CACHE; i++) {
+		ft->cached_dentry[i] = 0;
+		ft->cached_dentry_hits[i] = 0;
+	}
+
+	ft->dentry_cache_fills = 0;
 	ft->dentry_cache_index = 0;
 }
 
 /*
  *  Cache the passed-in inode structure.
  */
-char *
-fill_inode_cache(ulong inode)
+char *fill_inode_cache(ulong inode)
 {
-				int i;
-				char *cache;
+	int i;
+	char *cache;
 
-				ft->inode_cache_fills++;
+	ft->inode_cache_fills++;
 
-				for (i = 0; i < INODE_CACHE; i++) {
-								if (ft->cached_inode[i] == inode) {
-												ft->cached_inode_hits[i]++;
-												cache = ft->inode_cache + (SIZE(inode)*i);
-												return(cache);
-								}
-				}
+	for (i = 0; i < INODE_CACHE; i++) {
+		if (ft->cached_inode[i] == inode) {
+			ft->cached_inode_hits[i]++;
+			cache = ft->inode_cache + (SIZE(inode) * i);
+			return (cache);
+		}
+	}
 
-				cache = ft->inode_cache + (SIZE(inode)*ft->inode_cache_index);
+	cache = ft->inode_cache + (SIZE(inode) * ft->inode_cache_index);
 
-				readmem(inode, KVADDR, cache, SIZE(inode),
-								"fill_inode_cache", FAULT_ON_ERROR);
+	readmem(inode, KVADDR, cache, SIZE(inode), "fill_inode_cache", FAULT_ON_ERROR);
 
-				ft->cached_inode[ft->inode_cache_index] = inode;
+	ft->cached_inode[ft->inode_cache_index] = inode;
 
-				ft->inode_cache_index = (ft->inode_cache_index+1) % INODE_CACHE;
+	ft->inode_cache_index = (ft->inode_cache_index + 1) % INODE_CACHE;
 
-				return(cache);
+	return (cache);
 }
 
 /*
  *  If active, clear the inode references.
  */
-void
-clear_inode_cache(void)
+void clear_inode_cache(void)
 {
-				int i;
+	int i;
 
-				if (DUMPFILE())
-								return;
+	if (DUMPFILE())
+		return;
 
-				for (i = 0; i < DENTRY_CACHE; i++) {
-								ft->cached_inode[i] = 0;
-								ft->cached_inode_hits[i] = 0;
-				}
+	for (i = 0; i < DENTRY_CACHE; i++) {
+		ft->cached_inode[i] = 0;
+		ft->cached_inode_hits[i] = 0;
+	}
 
-				ft->inode_cache_fills = 0;
-				ft->inode_cache_index = 0;
+	ft->inode_cache_fills = 0;
+	ft->inode_cache_index = 0;
 }
-
 
 /*
  *  This command displays the tasks using specified files or sockets.
@@ -3182,8 +2876,7 @@ clear_inode_cache(void)
  *  address.
  */
 
-void
-cmd_fuser(void)
+void cmd_fuser(void)
 {
 	int c;
 	char *spec_string, *tmp;
@@ -3195,9 +2888,8 @@ cmd_fuser(void)
 	int doing_fds, doing_mmap, len;
 	int fuser_header_printed, lockd_header_printed;
 
-				while ((c = getopt(argcnt, args, "")) != EOF) {
-								switch(c)
-		{
+	while ((c = getopt(argcnt, args, "")) != EOF) {
+		switch (c) {
 		default:
 			argerrs++;
 			break;
@@ -3212,12 +2904,11 @@ cmd_fuser(void)
 		return;
 	}
 
-	sprintf(fuser_header, " PID   %s  COMM             USAGE\n",
-		mkstring(buf, VADDR_PRLEN, CENTER, "TASK"));
+	sprintf(fuser_header, " PID   %s  COMM             USAGE\n", mkstring(buf, VADDR_PRLEN, CENTER, "TASK"));
 
 	doing_fds = doing_mmap = 0;
 	while (args[optind]) {
-								spec_string = args[optind];
+		spec_string = args[optind];
 		if (STRNEQ(spec_string, "0x") && hexadecimal(spec_string, 0))
 			shift_string_left(spec_string, 2);
 		len = strlen(spec_string);
@@ -3237,8 +2928,7 @@ cmd_fuser(void)
 			if (STRNEQ(buf, "PID:")) {
 				if (!STREQ(uses, "")) {
 					if (!fuser_header_printed) {
-						fprintf(pc->saved_fp,
-							fuser_header);
+						fprintf(pc->saved_fp, fuser_header);
 						fuser_header_printed = 1;
 					}
 					show_fuser(task_buf, uses);
@@ -3250,14 +2940,11 @@ cmd_fuser(void)
 				continue;
 			}
 			if (STRNEQ(buf, "ROOT:")) {
-				if ((tmp = strstr(buf, spec_string)) &&
-						(tmp[len] == ' ' || tmp[len] == '\n')) {
+				if ((tmp = strstr(buf, spec_string)) && (tmp[len] == ' ' || tmp[len] == '\n')) {
 					if (strstr(tmp, "CWD:")) {
 						strcat(uses, "root ");
-						if ((tmp = strstr(tmp+len,
-								spec_string)) &&
-								(tmp[len] == ' ' ||
-								 tmp[len] == '\n')) {
+						if ((tmp = strstr(tmp + len, spec_string))
+						    && (tmp[len] == ' ' || tmp[len] == '\n')) {
 							strcat(uses, "cwd ");
 						}
 					} else {
@@ -3279,8 +2966,7 @@ cmd_fuser(void)
 				doing_fds = 0;
 				continue;
 			}
-			if ((tmp = strstr(buf, spec_string)) &&
-					(tmp[len] == ' ' || tmp[len] == '\n')) {
+			if ((tmp = strstr(buf, spec_string)) && (tmp[len] == ' ' || tmp[len] == '\n')) {
 				if (doing_fds) {
 					strcat(uses, "fd ");
 					doing_fds = 0;
@@ -3308,8 +2994,7 @@ cmd_fuser(void)
 	}
 }
 
-static void
-show_fuser(char *buf, char *uses)
+static void show_fuser(char *buf, char *uses)
 {
 	char pid[10];
 	char task[20];
@@ -3345,27 +3030,21 @@ show_fuser(char *buf, char *uses)
 	}
 	command[16] = NULLCHAR;
 
-				fprintf(pc->saved_fp, "%5s  %s  %s %s\n",
-								pid, task, command, uses);
+	fprintf(pc->saved_fp, "%5s  %s  %s %s\n", pid, task, command, uses);
 }
-
 
 /*
  *  Gather some host memory/swap statistics, passing back whatever the
  *  caller requires.
  */
 
-int
-monitor_memory(long *freemem_pages,
-				 long *freeswap_pages,
-				 long *mem_usage,
-				 long *swap_usage)
+int monitor_memory(long *freemem_pages, long *freeswap_pages, long *mem_usage, long *swap_usage)
 {
 	FILE *mp;
 	char buf[BUFSIZE];
-				char *arglist[MAXARGS];
-				int argc ATTRIBUTE_UNUSED;
-				int params;
+	char *arglist[MAXARGS];
+	int argc ATTRIBUTE_UNUSED;
+	int params;
 	ulong freemem, memtotal, freeswap, swaptotal;
 
 	if (!file_exists("/proc/meminfo", NULL))
@@ -3382,29 +3061,29 @@ monitor_memory(long *freemem_pages,
 			params++;
 			argc = parse_line(buf, arglist);
 			if (decimal(arglist[1], 0))
-				freeswap = (atol(arglist[1]) * 1024)/PAGESIZE();
+				freeswap = (atol(arglist[1]) * 1024) / PAGESIZE();
 		}
 
 		if (strstr(buf, "MemFree")) {
 			params++;
-												argc = parse_line(buf, arglist);
-												if (decimal(arglist[1], 0))
-																freemem = (atol(arglist[1]) * 1024)/PAGESIZE();
-								}
+			argc = parse_line(buf, arglist);
+			if (decimal(arglist[1], 0))
+				freemem = (atol(arglist[1]) * 1024) / PAGESIZE();
+		}
 
-								if (strstr(buf, "MemTotal")) {
+		if (strstr(buf, "MemTotal")) {
 			params++;
-												argc = parse_line(buf, arglist);
-												if (decimal(arglist[1], 0))
-																memtotal = (atol(arglist[1]) * 1024)/PAGESIZE();
-								}
+			argc = parse_line(buf, arglist);
+			if (decimal(arglist[1], 0))
+				memtotal = (atol(arglist[1]) * 1024) / PAGESIZE();
+		}
 
-								if (strstr(buf, "SwapTotal")) {
-												params++;
-												argc = parse_line(buf, arglist);
-												if (decimal(arglist[1], 0))
-															 swaptotal = (atol(arglist[1]) * 1024)/PAGESIZE();
-								}
+		if (strstr(buf, "SwapTotal")) {
+			params++;
+			argc = parse_line(buf, arglist);
+			if (decimal(arglist[1], 0))
+				swaptotal = (atol(arglist[1]) * 1024) / PAGESIZE();
+		}
 
 	}
 
@@ -3416,11 +3095,11 @@ monitor_memory(long *freemem_pages,
 	if (freemem_pages)
 		*freemem_pages = freemem;
 	if (freeswap_pages)
-					*freeswap_pages = freeswap;
+		*freeswap_pages = freeswap;
 	if (mem_usage)
-		*mem_usage = ((memtotal-freemem)*100) / memtotal;
+		*mem_usage = ((memtotal - freemem) * 100) / memtotal;
 	if (swap_usage)
-		*swap_usage = ((swaptotal-freeswap)*100) / swaptotal;
+		*swap_usage = ((swaptotal - freeswap) * 100) / swaptotal;
 
 	return TRUE;
 }
@@ -3428,21 +3107,18 @@ monitor_memory(long *freemem_pages,
 /*
  *  Determine whether two filenames reference the same file.
  */
-int
-same_file(char *f1, char *f2)
+int same_file(char *f1, char *f2)
 {
 	struct stat stat1, stat2;
 
 	if ((stat(f1, &stat1) != 0) || (stat(f2, &stat2) != 0))
 		return FALSE;
 
-	if ((stat1.st_dev == stat2.st_dev) &&
-			(stat1.st_ino == stat2.st_ino))
+	if ((stat1.st_dev == stat2.st_dev) && (stat1.st_ino == stat2.st_ino))
 		return TRUE;
 
 	return FALSE;
 }
-
 
 /*
  *  Determine which live memory source to use.
@@ -3450,8 +3126,7 @@ same_file(char *f1, char *f2)
 
 #define MODPROBE_CMD "/sbin/modprobe -l --type drivers/char 2>&1"
 
-static void
-get_live_memory_source(void)
+static void get_live_memory_source(void)
 {
 	FILE *pipe;
 	char buf[BUFSIZE];
@@ -3471,37 +3146,31 @@ get_live_memory_source(void)
 	use_module = crashbuiltin = FALSE;
 
 	if (file_exists("/dev/mem", &stat1) &&
-			file_exists(pc->memory_device, &stat2) &&
-			S_ISCHR(stat1.st_mode) && S_ISCHR(stat2.st_mode) &&
-			(stat1.st_rdev == stat2.st_rdev)) {
+	    file_exists(pc->memory_device, &stat2) &&
+	    S_ISCHR(stat1.st_mode) && S_ISCHR(stat2.st_mode) && (stat1.st_rdev == stat2.st_rdev)) {
 		if (!STREQ(pc->memory_device, "/dev/mem"))
 			error(INFO, "%s: same device as /dev/mem\n%s",
-				pc->memory_device,
-				pc->memory_module ? "" : "\n");
+			      pc->memory_device, pc->memory_module ? "" : "\n");
 		if (pc->memory_module)
-			error(INFO, "ignoring --memory_module %s request\n\n",
-				pc->memory_module);
+			error(INFO, "ignoring --memory_module %s request\n\n", pc->memory_module);
 	} else if (pc->memory_module && memory_driver_module_loaded(NULL)) {
-		error(INFO, "using pre-loaded \"%s\" module\n\n",
-			pc->memory_module);
+		error(INFO, "using pre-loaded \"%s\" module\n\n", pc->memory_module);
 		pc->flags |= MODPRELOAD;
 		use_module = TRUE;
 	} else {
 		pc->memory_module = MEMORY_DRIVER_MODULE;
 
-					if ((pipe = popen(MODPROBE_CMD, "r")) == NULL) {
+		if ((pipe = popen(MODPROBE_CMD, "r")) == NULL) {
 			error(INFO, "%s: %s\n", MODPROBE_CMD, strerror(errno));
-									return;
+			return;
 		}
 
 		sprintf(modname1, "%s.o", pc->memory_module);
-								sprintf(modname2, "%s.ko", pc->memory_module);
-					while (fgets(buf, BUFSIZE, pipe)) {
-			if (strstr(buf, "invalid option") &&
-					(uname(&utsname) == 0)) {
-				sprintf(buf,
-						"/lib/modules/%s/kernel/drivers/char/%s",
-					utsname.release, modname2);
+		sprintf(modname2, "%s.ko", pc->memory_module);
+		while (fgets(buf, BUFSIZE, pipe)) {
+			if (strstr(buf, "invalid option")
+			    && (uname(&utsname) == 0)) {
+				sprintf(buf, "/lib/modules/%s/kernel/drivers/char/%s", utsname.release, modname2);
 				if (file_exists(buf, &stat1))
 					use_module = TRUE;
 				break;
@@ -3515,8 +3184,7 @@ get_live_memory_source(void)
 
 		pclose(pipe);
 
-		if (!use_module && file_exists("/dev/crash", &stat1) &&
-				S_ISCHR(stat1.st_mode))
+		if (!use_module && file_exists("/dev/crash", &stat1) && S_ISCHR(stat1.st_mode))
 			crashbuiltin = TRUE;
 	}
 
@@ -3537,7 +3205,7 @@ get_live_memory_source(void)
 		pc->memory_module = NULL;
 	}
 
-live_report:
+ live_report:
 	if (CRASHDEBUG(1))
 		fprintf(fp, "get_live_memory_source: %s\n", pc->live_memsrc);
 }
@@ -3546,39 +3214,37 @@ live_report:
  *  Read /proc/modules to determine whether the crash driver module
  *  has been loaded.
  */
-static int
-memory_driver_module_loaded(int *count)
+static int memory_driver_module_loaded(int *count)
 {
-				FILE *modules;
-				int argcnt, module_loaded;
-				char *arglist[MAXARGS];
+	FILE *modules;
+	int argcnt, module_loaded;
+	char *arglist[MAXARGS];
 	char buf[BUFSIZE];
 
-				if ((modules = fopen("/proc/modules", "r")) == NULL) {
-								error(INFO, "/proc/modules: %s\n", strerror(errno));
-								return FALSE;
-				}
+	if ((modules = fopen("/proc/modules", "r")) == NULL) {
+		error(INFO, "/proc/modules: %s\n", strerror(errno));
+		return FALSE;
+	}
 
-				module_loaded = FALSE;
-				while (fgets(buf, BUFSIZE, modules)) {
+	module_loaded = FALSE;
+	while (fgets(buf, BUFSIZE, modules)) {
 		console("%s", buf);
-								argcnt = parse_line(buf, arglist);
-								if (argcnt < 3)
-												continue;
-								if (STREQ(arglist[0], pc->memory_module)) {
-												module_loaded = TRUE;
-												if (CRASHDEBUG(1))
-																fprintf(stderr,
-						"\"%s\" module loaded: [%s][%s][%s]\n",
-					arglist[0], arglist[0],
-					arglist[1], arglist[2]);
+		argcnt = parse_line(buf, arglist);
+		if (argcnt < 3)
+			continue;
+		if (STREQ(arglist[0], pc->memory_module)) {
+			module_loaded = TRUE;
+			if (CRASHDEBUG(1))
+				fprintf(stderr,
+					"\"%s\" module loaded: [%s][%s][%s]\n",
+					arglist[0], arglist[0], arglist[1], arglist[2]);
 			if (count)
 				*count = atoi(arglist[2]);
-												break;
-								}
-				}
+			break;
+		}
+	}
 
-				fclose(modules);
+	fclose(modules);
 
 	return module_loaded;
 }
@@ -3586,10 +3252,9 @@ memory_driver_module_loaded(int *count)
 /*
  *  Insmod the memory driver module.
  */
-static int
-insmod_memory_driver_module(void)
+static int insmod_memory_driver_module(void)
 {
-				FILE *pipe;
+	FILE *pipe;
 	char buf[BUFSIZE];
 	char command[BUFSIZE];
 
@@ -3597,14 +3262,14 @@ insmod_memory_driver_module(void)
 	if (CRASHDEBUG(1))
 		fprintf(fp, "%s\n", command);
 
-				if ((pipe = popen(command, "r")) == NULL) {
+	if ((pipe = popen(command, "r")) == NULL) {
 		error(INFO, "%s: %s", command, strerror(errno));
 		return FALSE;
 	}
 
-				while (fgets(buf, BUFSIZE, pipe))
-					fprintf(fp, "%s\n", buf);
-				pclose(pipe);
+	while (fgets(buf, BUFSIZE, pipe))
+		fprintf(fp, "%s\n", buf);
+	pclose(pipe);
 
 	if (!memory_driver_module_loaded(NULL)) {
 		error(INFO, "cannot insmod \"%s\" module\n", pc->memory_module);
@@ -3619,32 +3284,30 @@ insmod_memory_driver_module(void)
  *  be that of the kernel's misc driver; the minor is dynamically created
  *  when the module at inmod time, and found in /proc/misc.
  */
-static int
-get_memory_driver_dev(dev_t *devp)
+static int get_memory_driver_dev(dev_t * devp)
 {
 	char buf[BUFSIZE];
-				char *arglist[MAXARGS];
-				int argcnt;
+	char *arglist[MAXARGS];
+	int argcnt;
 	FILE *misc;
 	int minor;
 	dev_t dev;
 
 	dev = 0;
 
-				if ((misc = fopen("/proc/misc", "r")) == NULL) {
+	if ((misc = fopen("/proc/misc", "r")) == NULL) {
 		error(INFO, "/proc/misc: %s", strerror(errno));
-				} else {
-					while (fgets(buf, BUFSIZE, misc)) {
-									argcnt = parse_line(buf, arglist);
-			if ((argcnt == 2) &&
-					STREQ(arglist[1], pc->memory_module)) {
+	} else {
+		while (fgets(buf, BUFSIZE, misc)) {
+			argcnt = parse_line(buf, arglist);
+			if ((argcnt == 2)
+			    && STREQ(arglist[1], pc->memory_module)) {
 				minor = atoi(arglist[0]);
 				dev = makedev(MISC_MAJOR, minor);
 				if (CRASHDEBUG(1))
 					fprintf(fp,
-							"/proc/misc: %s %s => %d/%d\n",
-						arglist[0], arglist[1],
-						major(dev), minor(dev));
+						"/proc/misc: %s %s => %d/%d\n",
+						arglist[0], arglist[1], major(dev), minor(dev));
 				break;
 			}
 		}
@@ -3652,8 +3315,7 @@ get_memory_driver_dev(dev_t *devp)
 	}
 
 	if (!dev) {
-		error(INFO, "cannot determine minor number of %s driver\n",
-			pc->memory_module);
+		error(INFO, "cannot determine minor number of %s driver\n", pc->memory_module);
 		return FALSE;
 	}
 
@@ -3671,8 +3333,7 @@ get_memory_driver_dev(dev_t *devp)
  *      user to delete it.
  *   3. Otherwise, create it.
  */
-static int
-create_memory_device(dev_t dev)
+static int create_memory_device(dev_t dev)
 {
 	struct stat stat;
 
@@ -3680,8 +3341,8 @@ create_memory_device(dev_t dev)
 		/*
 		 *  It already exists -- just use it.
 		 */
-		if ((stat.st_mode == MEMORY_DRIVER_DEVICE_MODE) &&
-				(stat.st_rdev == dev))
+		if ((stat.st_mode == MEMORY_DRIVER_DEVICE_MODE)
+		    && (stat.st_rdev == dev))
 			return TRUE;
 
 		/*
@@ -3690,14 +3351,11 @@ create_memory_device(dev_t dev)
 		 *  Unlink the file -- it shouldn't be there.
 		 */
 		if (!S_ISCHR(stat.st_mode))
-			error(FATAL,
-					"%s: not a character device -- please delete it!\n",
-				pc->live_memsrc);
+			error(FATAL, "%s: not a character device -- please delete it!\n", pc->live_memsrc);
 		else if (dev != stat.st_rdev)
 			error(FATAL,
-					"%s: invalid device: %d/%d  -- please delete it!\n",
-				pc->live_memsrc, major(stat.st_rdev),
-				minor(stat.st_rdev));
+			      "%s: invalid device: %d/%d  -- please delete it!\n",
+			      pc->live_memsrc, major(stat.st_rdev), minor(stat.st_rdev));
 		else
 			unlink(pc->live_memsrc);
 	}
@@ -3707,8 +3365,7 @@ create_memory_device(dev_t dev)
 	 *  In either case, try to create it.
 	 */
 	if (mknod(pc->live_memsrc, MEMORY_DRIVER_DEVICE_MODE, dev)) {
-		error(INFO, "%s: mknod: %s\n", pc->live_memsrc,
-			strerror(errno));
+		error(INFO, "%s: mknod: %s\n", pc->live_memsrc, strerror(errno));
 		return FALSE;
 	}
 
@@ -3725,8 +3382,7 @@ create_memory_device(dev_t dev)
  *   5. Then just open it.
  */
 
-static int
-memory_driver_init(void)
+static int memory_driver_init(void)
 {
 	dev_t dev;
 
@@ -3734,7 +3390,7 @@ memory_driver_init(void)
 		goto open_device;
 
 	if (!memory_driver_module_loaded(NULL)) {
-				if (!insmod_memory_driver_module())
+		if (!insmod_memory_driver_module())
 			return FALSE;
 	} else
 		pc->flags |= MODPRELOAD;
@@ -3745,10 +3401,9 @@ memory_driver_init(void)
 	if (!create_memory_device(dev))
 		return FALSE;
 
-open_device:
+ open_device:
 	if ((pc->mfd = open(pc->memory_device, O_RDONLY)) < 0) {
-		error(INFO, "%s: open: %s\n", pc->memory_device,
-			strerror(errno));
+		error(INFO, "%s: open: %s\n", pc->memory_device, strerror(errno));
 		return FALSE;
 	}
 
@@ -3758,11 +3413,10 @@ open_device:
 /*
  *  Remove the memory driver module and associated file.
  */
-int
-cleanup_memory_driver(void)
+int cleanup_memory_driver(void)
 {
 	int errors, count;
-				char command[BUFSIZE];
+	char command[BUFSIZE];
 
 	count = errors = 0;
 
@@ -3770,15 +3424,13 @@ cleanup_memory_driver(void)
 		return TRUE;
 
 	close(pc->mfd);
-	if (file_exists(pc->memory_device, NULL) &&
-			unlink(pc->memory_device)) {
-								error(INFO, "%s: %s\n", pc->memory_device, strerror(errno));
+	if (file_exists(pc->memory_device, NULL) && unlink(pc->memory_device)) {
+		error(INFO, "%s: %s\n", pc->memory_device, strerror(errno));
 		errors++;
 	}
 
-	if (!(pc->flags & MODPRELOAD) &&
-			memory_driver_module_loaded(&count) && !count) {
-					sprintf(command, "/sbin/rmmod %s", pc->memory_module);
+	if (!(pc->flags & MODPRELOAD) && memory_driver_module_loaded(&count) && !count) {
+		sprintf(command, "/sbin/rmmod %s", pc->memory_module);
 		if (CRASHDEBUG(1))
 			fprintf(fp, "%s\n", command);
 		errors += system(command);
@@ -3789,7 +3441,6 @@ cleanup_memory_driver(void)
 
 	return errors ? FALSE : TRUE;
 }
-
 
 /*
  *  Use the kernel's radix_tree_lookup() function as a template to dump
@@ -3824,8 +3475,7 @@ ulong RADIX_TREE_MAP_MASK = UNINITIALIZED;
  *          be stored in the index field of the first structure to avoid
  *          any chance of an overrun.
  */
-ulong
-do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
+ulong do_radix_tree(ulong root, int flag, struct radix_tree_pair * rtp)
 {
 	int i, ilen, height;
 	long nlen;
@@ -3839,51 +3489,43 @@ do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
 	count = 0;
 
 	if (!VALID_STRUCT(radix_tree_root) || !VALID_STRUCT(radix_tree_node) ||
-			!VALID_MEMBER(radix_tree_root_height) ||
-			!VALID_MEMBER(radix_tree_root_rnode) ||
-			!VALID_MEMBER(radix_tree_node_slots) ||
-			!ARRAY_LENGTH(height_to_maxindex))
-		error(FATAL,
-			 "radix trees do not exist (or have changed their format)\n");
+	    !VALID_MEMBER(radix_tree_root_height) ||
+	    !VALID_MEMBER(radix_tree_root_rnode) ||
+	    !VALID_MEMBER(radix_tree_node_slots) || !ARRAY_LENGTH(height_to_maxindex))
+		error(FATAL, "radix trees do not exist (or have changed their format)\n");
 
 	if (RADIX_TREE_MAP_SHIFT == UNINITIALIZED) {
 		if (!(nlen = MEMBER_SIZE("radix_tree_node", "slots")))
-			error(FATAL, "cannot determine length of "
-						 "radix_tree_node.slots[] array\n");
+			error(FATAL, "cannot determine length of " "radix_tree_node.slots[] array\n");
 		nlen /= sizeof(void *);
 		RADIX_TREE_MAP_SHIFT = ffsl(nlen) - 1;
 		RADIX_TREE_MAP_SIZE = (1UL << RADIX_TREE_MAP_SHIFT);
-		RADIX_TREE_MAP_MASK = (RADIX_TREE_MAP_SIZE-1);
+		RADIX_TREE_MAP_MASK = (RADIX_TREE_MAP_SIZE - 1);
 	}
 
 	ilen = ARRAY_LENGTH(height_to_maxindex);
 	height_to_maxindex = (long *)GETBUF(ilen * sizeof(long));
 	readmem(symbol_value("height_to_maxindex"), KVADDR,
-				height_to_maxindex, ilen*sizeof(long),
-		"height_to_maxindex array", FAULT_ON_ERROR);
+		height_to_maxindex, ilen * sizeof(long), "height_to_maxindex array", FAULT_ON_ERROR);
 
 	if (CRASHDEBUG(1)) {
-		fprintf(fp, "radix_tree_node.slots[%ld]\n",
-			RADIX_TREE_MAP_SIZE);
+		fprintf(fp, "radix_tree_node.slots[%ld]\n", RADIX_TREE_MAP_SIZE);
 		fprintf(fp, "height_to_maxindex[%d]: ", ilen);
 		for (i = 0; i < ilen; i++)
 			fprintf(fp, "%lu ", height_to_maxindex[i]);
 		fprintf(fp, "\n");
 		fprintf(fp, "radix_tree_root at %lx:\n", root);
-		dump_struct("radix_tree_root", (ulong)root, RADIX(16));
+		dump_struct("radix_tree_root", (ulong) root, RADIX(16));
 	}
 
 	radix_tree_root_buf = GETBUF(SIZE(radix_tree_root));
-	readmem(root, KVADDR, radix_tree_root_buf, SIZE(radix_tree_root),
-		"radix_tree_root", FAULT_ON_ERROR);
+	readmem(root, KVADDR, radix_tree_root_buf, SIZE(radix_tree_root), "radix_tree_root", FAULT_ON_ERROR);
 	height = UINT(radix_tree_root_buf + OFFSET(radix_tree_root_height));
 
 	if (height > ilen) {
 		fprintf(fp, "radix_tree_root at %lx:\n", root);
-		dump_struct("radix_tree_root", (ulong)root, RADIX(16));
-		error(FATAL,
-									 "height %d is greater than height_to_maxindex[] index %ld\n",
-			height, ilen);
+		dump_struct("radix_tree_root", (ulong) root, RADIX(16));
+		error(FATAL, "height %d is greater than height_to_maxindex[] index %ld\n", height, ilen);
 	}
 
 	maxindex = height_to_maxindex[height];
@@ -3892,8 +3534,7 @@ do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
 
 	root_rnode = root + OFFSET(radix_tree_root_rnode);
 
-	switch (flag)
-	{
+	switch (flag) {
 	case RADIX_TREE_COUNT:
 		for (index = count = 0; index <= maxindex; index++) {
 			if (radix_tree_lookup(root_rnode, index, height))
@@ -3914,9 +3555,8 @@ do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
 
 	case RADIX_TREE_DUMP:
 		for (index = count = 0; index <= maxindex; index++) {
-			if ((ret =
-					radix_tree_lookup(root_rnode, index, height))) {
-				fprintf(fp, "[%ld] %lx\n", index, (ulong)ret);
+			if ((ret = radix_tree_lookup(root_rnode, index, height))) {
+				fprintf(fp, "[%ld] %lx\n", index, (ulong) ret);
 				count++;
 			}
 		}
@@ -3924,19 +3564,18 @@ do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
 
 	case RADIX_TREE_GATHER:
 		if (!(maxcount = rtp->index))
-			maxcount = (ulong)(-1);   /* caller beware */
+			maxcount = (ulong) (-1);	/* caller beware */
 
-								for (index = count = 0, r = rtp; index <= maxindex; index++) {
-												if ((ret =
-					radix_tree_lookup(root_rnode, index, height))) {
+		for (index = count = 0, r = rtp; index <= maxindex; index++) {
+			if ((ret = radix_tree_lookup(root_rnode, index, height))) {
 				r->index = index;
 				r->value = ret;
 				count++;
-																if (--maxcount <= 0)
+				if (--maxcount <= 0)
 					break;
 				r++;
-												}
-								}
+			}
+		}
 		break;
 
 	default:
@@ -3946,30 +3585,27 @@ do_radix_tree(ulong root, int flag, struct radix_tree_pair *rtp)
 	return count;
 }
 
-static void *
-radix_tree_lookup(ulong root_rnode, ulong index, int height)
+static void *radix_tree_lookup(ulong root_rnode, ulong index, int height)
 {
 	unsigned int shift;
 	ulong rnode;
 	ulong *slots;
 
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
 
-	readmem(root_rnode, KVADDR, &rnode, sizeof(void *),
-		"radix_tree_root rnode", FAULT_ON_ERROR);
+	readmem(root_rnode, KVADDR, &rnode, sizeof(void *), "radix_tree_root rnode", FAULT_ON_ERROR);
 
 	if (rnode & 1)
 		rnode &= ~1;
 
-	slots = (ulong *)GETBUF(sizeof(void *) * RADIX_TREE_MAP_SIZE);
+	slots = (ulong *) GETBUF(sizeof(void *) * RADIX_TREE_MAP_SIZE);
 
 	while (height > 0) {
 		if (rnode == 0)
 			break;
 
-		readmem((ulong)rnode+OFFSET(radix_tree_node_slots), KVADDR,
-			&slots[0], sizeof(void *) * RADIX_TREE_MAP_SIZE,
-			"radix_tree_node.slots array", FAULT_ON_ERROR);
+		readmem((ulong) rnode + OFFSET(radix_tree_node_slots), KVADDR,
+			&slots[0], sizeof(void *) * RADIX_TREE_MAP_SIZE, "radix_tree_node.slots array", FAULT_ON_ERROR);
 
 		rnode = slots[((index >> shift) & RADIX_TREE_MAP_MASK)];
 
@@ -3982,12 +3618,11 @@ radix_tree_lookup(ulong root_rnode, ulong index, int height)
 	return (void *)rnode;
 }
 
-int
-is_readable(char *filename)
+int is_readable(char *filename)
 {
 	int fd;
 
-				if ((fd = open(filename, O_RDONLY)) < 0) {
+	if ((fd = open(filename, O_RDONLY)) < 0) {
 		error(INFO, "%s: %s\n", filename, strerror(errno));
 		return FALSE;
 	} else
@@ -3996,59 +3631,54 @@ is_readable(char *filename)
 	return TRUE;
 }
 
-static int
-match_file_string(char *filename, char *string, char *buffer)
+static int match_file_string(char *filename, char *string, char *buffer)
 {
 	int found;
 	char command[BUFSIZE];
 	FILE *pipe;
 
-
 	sprintf(command, "/usr/bin/strings %s", filename);
-				if ((pipe = popen(command, "r")) == NULL) {
-								error(INFO, "%s: %s\n", filename, strerror(errno));
-								return FALSE;
-				}
+	if ((pipe = popen(command, "r")) == NULL) {
+		error(INFO, "%s: %s\n", filename, strerror(errno));
+		return FALSE;
+	}
 
-				found = FALSE;
-				while (fgets(buffer, BUFSIZE-1, pipe)) {
-								if (strstr(buffer, string)) {
-												found = TRUE;
-												break;
-								}
-				}
-				pclose(pipe);
+	found = FALSE;
+	while (fgets(buffer, BUFSIZE - 1, pipe)) {
+		if (strstr(buffer, string)) {
+			found = TRUE;
+			break;
+		}
+	}
+	pclose(pipe);
 
 	return found;
 }
 
-char *
-vfsmount_devname(ulong vfsmnt, char *buf, int maxlen)
+char *vfsmount_devname(ulong vfsmnt, char *buf, int maxlen)
 {
 	ulong devp;
 
 	BZERO(buf, maxlen);
 
 	if (VALID_STRUCT(mount)) {
-		if (!readmem(vfsmnt - OFFSET(mount_mnt) + OFFSET(mount_mnt_devname),
-				KVADDR, &devp, sizeof(void *), "mount mnt_devname",
-				QUIET|RETURN_ON_ERROR))
+		if (!readmem
+		    (vfsmnt - OFFSET(mount_mnt) + OFFSET(mount_mnt_devname),
+		     KVADDR, &devp, sizeof(void *), "mount mnt_devname", QUIET | RETURN_ON_ERROR))
 			return buf;
 	} else {
 		if (!readmem(vfsmnt + OFFSET(vfsmount_mnt_devname),
-				KVADDR, &devp, sizeof(void *), "vfsmount mnt_devname",
-				QUIET|RETURN_ON_ERROR))
+			     KVADDR, &devp, sizeof(void *), "vfsmount mnt_devname", QUIET | RETURN_ON_ERROR))
 			return buf;
 	}
 
-	if (read_string(devp, buf, BUFSIZE-1))
+	if (read_string(devp, buf, BUFSIZE - 1))
 		return buf;
 
 	return buf;
 }
 
-static ulong
-get_root_vfsmount(char *file_buf)
+static ulong get_root_vfsmount(char *file_buf)
 {
 	char buf1[BUFSIZE];
 	char buf2[BUFSIZE];
@@ -4062,14 +3692,15 @@ get_root_vfsmount(char *file_buf)
 
 	if (STREQ(buf1, "udev") || STREQ(buf1, "devtmpfs")) {
 		if (VALID_STRUCT(mount)) {
-			if (!readmem(vfsmnt - OFFSET(mount_mnt) + OFFSET(mount_mnt_parent), KVADDR,
-					&mnt_parent, sizeof(void *), "mount mnt_parent",
-					QUIET|RETURN_ON_ERROR))
+			if (!readmem
+			    (vfsmnt - OFFSET(mount_mnt) +
+			     OFFSET(mount_mnt_parent), KVADDR, &mnt_parent,
+			     sizeof(void *), "mount mnt_parent", QUIET | RETURN_ON_ERROR))
 				return vfsmnt;
 		} else {
-			if (!readmem(vfsmnt + OFFSET(vfsmount_mnt_parent), KVADDR,
-					&mnt_parent, sizeof(void *), "vfsmount mnt_parent",
-					QUIET|RETURN_ON_ERROR))
+			if (!readmem
+			    (vfsmnt + OFFSET(vfsmount_mnt_parent), KVADDR,
+			     &mnt_parent, sizeof(void *), "vfsmount mnt_parent", QUIET | RETURN_ON_ERROR))
 				return vfsmnt;
 		}
 

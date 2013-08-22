@@ -64,22 +64,21 @@ extern int INT_EFRAME_GS;
 
 extern ulong int_eframe[];
 
-#endif  /* REDHAT */
-
+#endif				/* REDHAT */
 
 /*
  *  lkcdutils-4.1/libklib/include/asm-i386/kl_types.h
  */
-typedef uint32_t        uaddr_t;
-typedef uint64_t        k_error_t;
+typedef uint32_t uaddr_t;
+typedef uint64_t k_error_t;
 
 /*
  *  lkcdutils-4.1/lcrash/include/lc_command.h
  */
-#define C_ALL           0x00000004   /* All elements */
-#define C_PERM          0x00000008   /* Allocate perminant blocks */
-#define C_TEMP                   0   /* For completeness */
-#define C_FULL          0x00000010   /* Full output */
+#define C_ALL           0x00000004	/* All elements */
+#define C_PERM          0x00000008	/* Allocate perminant blocks */
+#define C_TEMP                   0	/* For completeness */
+#define C_FULL          0x00000010	/* Full output */
 
 /*
  *  lkcdutils-4.1/libklib/include/klib.h
@@ -100,47 +99,47 @@ typedef uint64_t        k_error_t;
  */
 
 typedef struct instr_buf_s {
-	kaddr_t 	addr;
-	int		size;
-	unsigned char  *ptr;
-	unsigned char	buf[256];
+	kaddr_t addr;
+	int size;
+	unsigned char *ptr;
+	unsigned char buf[256];
 } instr_buf_t;
 
 typedef struct opcode_rec_s {
-	char    *name;
-	int     Op1;
-	int     opdata1;
-	int     Op2;
-	int     opdata2;
-	int     Op3;
-	int     opdata3;
+	char *name;
+	int Op1;
+	int opdata1;
+	int Op2;
+	int opdata2;
+	int Op3;
+	int opdata3;
 } opcode_rec_t;
 
 typedef struct op_s {
-	int             op_type;
-	int		op_seg;
-	int		op_reg;
-	int		op_disp;
-	int		op_base;
-	int		op_index;
-	int		op_scale;
-	kaddr_t         op_addr;
+	int op_type;
+	int op_seg;
+	int op_reg;
+	int op_disp;
+	int op_base;
+	int op_index;
+	int op_scale;
+	kaddr_t op_addr;
 } op_t;
 
 typedef struct instr_rec_s {
-	struct instr_rec_s	*next;
-	struct instr_rec_s	*prev;
-	kaddr_t			 addr;	    /* start address of instruction */
-	opcode_rec_t    	*opcodep;
-	int		 	 size;
-	int		 	 aflag;
-	int		 	 dflag;
-	unsigned int     	 prefixes;
-	unsigned int     	 opcode;
-	unsigned char    	 modrm;
-	unsigned char    	 sib;
-	int		 	 have_sib; /* needed because sib can be zero */
-	op_t             	 operand[3];
+	struct instr_rec_s *next;
+	struct instr_rec_s *prev;
+	kaddr_t addr;		/* start address of instruction */
+	opcode_rec_t *opcodep;
+	int size;
+	int aflag;
+	int dflag;
+	unsigned int prefixes;
+	unsigned int opcode;
+	unsigned char modrm;
+	unsigned char sib;
+	int have_sib;		/* needed because sib can be zero */
+	op_t operand[3];
 } instr_rec_t;
 
 /* Addressing methods
@@ -175,7 +174,7 @@ typedef struct instr_rec_s {
 #define M_indirREG    	27
 #define M_FLOAT		28
 #define M_FGRP		29
-#define M_BAD    	30  /* Must be last on list */
+#define M_BAD    	30	/* Must be last on list */
 
 /* Operand data types
  */
@@ -393,18 +392,15 @@ typedef struct instr_rec_s {
 #ifndef REDHAT
 /* Function prototypes
  */
-int get_instr_info(
-	kaddr_t 	/* pc */,
-	instr_rec_t * 	/* pointer to instr_rec_s struct */);
+int get_instr_info(kaddr_t /* pc */ ,
+		   instr_rec_t * /* pointer to instr_rec_s struct */ );
 
-instr_rec_t *get_instr_stream(
-	kaddr_t 	/* program counter */,
-	int 		/* before count */,
-	int 		/* after count */);
+instr_rec_t *get_instr_stream(kaddr_t /* program counter */ ,
+			      int /* before count */ ,
+			      int /* after count */ );
 
-void free_instr_stream(
-	instr_rec_t *);
-#endif /* !REDHAT */
+void free_instr_stream(instr_rec_t *);
+#endif				/* !REDHAT */
 
 /*
  *  lkcdutils-4.1/lcrash/include/asm-i386/lc_trace.h
@@ -417,9 +413,9 @@ void free_instr_stream(
 #ifdef REDHAT
 #define STACK_SIZE   (STACKSIZE())
 #define KSTACK_SIZE  (STACKSIZE())
-#else  /* REDHAT */
+#else				/* REDHAT */
 #define STACK_SIZE	0x2000
-#endif /* !REDHAT */
+#endif				/* !REDHAT */
 
 #ifdef NOT
 #define INCLUDE_REGINFO 1
@@ -430,72 +426,72 @@ void free_instr_stream(
 #define NUM_REGS	8
 #define REGVAL_UNKNOWN  0
 #define REGVAL_VALID    1
-#define REGVAL_BAD      2  /* Value loaded into register before it was saved */
+#define REGVAL_BAD      2	/* Value loaded into register before it was saved */
 
 /* Register record
  */
 typedef struct reg_rec {
-	uint32_t			state;
-	uint32_t			value;
+	uint32_t state;
+	uint32_t value;
 } reg_rec_t;
 #endif
 
 /* Stack frame
  */
 typedef struct sframe_rec {
-	struct sframe_rec      *next;
-	struct sframe_rec      *prev;
-	int			flag;
-	int			level;
-	char		       *funcname;
-	char		       *srcfile;
-	int			line_no;
-	kaddr_t			pc;
-	kaddr_t			ra;
-	kaddr_t			sp;
-	kaddr_t			fp;
-	uint32_t	       *asp;
-	int			frame_size;
-	int			ptr;
-	uint64_t		error;
+	struct sframe_rec *next;
+	struct sframe_rec *prev;
+	int flag;
+	int level;
+	char *funcname;
+	char *srcfile;
+	int line_no;
+	kaddr_t pc;
+	kaddr_t ra;
+	kaddr_t sp;
+	kaddr_t fp;
+	uint32_t *asp;
+	int frame_size;
+	int ptr;
+	uint64_t error;
 #ifdef INCLUDE_REGINFO
-	reg_rec_t		regs[NUM_REGS];
+	reg_rec_t regs[NUM_REGS];
 #endif
 } sframe_t;
 
 /* flag field of sframe_t */
 #define EX_FRAME	0x1	/* this frame is an interrupt or exception
-					 frame, pt_regs field of sframe_t is valid
-					 in this case */
+				   frame, pt_regs field of sframe_t is valid
+				   in this case */
 #define INCOMPLETE_EX_FRAME  0x2
 #define SET_EX_FRAME_ADDR    0x4
 
 /* Stack segment structure
  */
 struct stack_s {
-	int			type;
-	uint32_t		size;
-	kaddr_t			addr;
-	uint32_t	       *ptr;
+	int type;
+	uint32_t size;
+	kaddr_t addr;
+	uint32_t *ptr;
 };
 
 /* Stack trace header
  */
 typedef struct trace_rec {
-	int			flags;
-	kaddr_t			task;
-	struct task_struct     *tsp;
-	struct stack_s		stack[STACK_SEGMENTS];
-	int			stackcnt;
-	sframe_t	       *frame;
-	int			nframes;
+	int flags;
+	kaddr_t task;
+	struct task_struct *tsp;
+	struct stack_s stack[STACK_SEGMENTS];
+	int stackcnt;
+	sframe_t *frame;
+	int nframes;
 #ifdef REDHAT
-	struct bt_info	       *bt;
+	struct bt_info *bt;
 #endif
 } trace_t;
 
-#define TF_TRACEREC_VALID  0x01 /* The trace_rec_s has been setup already!   */
-#define TF_SUPPRESS_HEADER 0x02 /* Suppress header output from trace cmds    */
+#define TF_TRACEREC_VALID  0x01	/* The trace_rec_s has been setup already!   */
+#define TF_SUPPRESS_HEADER 0x02	/* Suppress header output from trace cmds    */
 
 /* Stack types
  */
@@ -522,19 +518,17 @@ typedef struct trace_rec {
 #ifndef REDHAT
 /* Function prototypes
  */
-void print_pc(
-	kaddr_t 	/* PC */,
-	FILE *		/* output file pointer */);
+void print_pc(kaddr_t /* PC */ ,
+	      FILE * /* output file pointer */ );
 
-trace_t *alloc_trace_rec(
-	int 		/* flag */);
+trace_t *alloc_trace_rec(int /* flag */ );
 
 int setup_trace_rec(kaddr_t, kaddr_t, int, trace_t *);
 int find_trace(kaddr_t, kaddr_t, kaddr_t, kaddr_t, trace_t *, int);
 void trace_banner(FILE *);
 int print_traces(kaddr_t, int, int, FILE *);
 void print_trace(trace_t *, int, FILE *);
-void free_trace_rec(trace_t *t);
+void free_trace_rec(trace_t * t);
 int task_trace(kaddr_t, int, FILE *);
 int do_list(kaddr_t, int, FILE *);
 void live_vmdump(int, int);
@@ -552,8 +546,7 @@ sframe_t *alloc_sframe(trace_t *, int);
 int add_frame(trace_t *, kaddr_t, kaddr_t);
 void finish_trace(trace_t *);
 int dumptask_trace(kaddr_t, dump_header_asm_t *, int, FILE *);
-#endif  /* !REDHAT */
-
+#endif				/* !REDHAT */
 
 /*
  *  lkcdutils-4.1/libutil/kl_queue.h
@@ -569,8 +562,8 @@ int dumptask_trace(kaddr_t, dump_header_asm_t *, int, FILE *);
 /* List element header
  */
 typedef struct element_s {
-	struct element_s    *next;
-	struct element_s    *prev;
+	struct element_s *next;
+	struct element_s *prev;
 } element_t;
 
 /* Some useful macros
@@ -583,8 +576,8 @@ typedef struct element_s {
 #define REMQUEUE(list, elem) kl_remqueue((element_t **)list, (element_t *)elem)
 
 typedef struct list_of_ptrs {
-	element_t		elem;
-	unsigned long long 	val64;
+	element_t elem;
+	unsigned long long val64;
 } list_of_ptrs_t;
 
 #define FINDLIST_QUEUE(list, elem, compare) \
@@ -598,42 +591,37 @@ typedef struct list_of_ptrs {
 
 /* Add a new element to the tail of a doubly linked list.
  */
-void kl_enqueue(
-	element_t**	/* ptr to head of list */,
-	element_t*	/* ptr to element to add to the list */);
+void kl_enqueue(element_t ** /* ptr to head of list */ ,
+		element_t * /* ptr to element to add to the list */ );
 
 /* Remove an element from the head of a doubly linked list. A pointer
  * to the element will be returned. In the event that the list is
  * empty, a NULL pointer will be returned.
  */
-element_t *kl_dequeue(
-	element_t**	/* ptr to list head (first item removed) */);
+element_t *kl_dequeue(element_t **
+		      /* ptr to list head (first item removed) */ );
 
 /* Checks to see if a particular element is in a list. If it is, a
  * value of one (1) will be returned. Otherwise, a value of zero (0)
  * will be returned.
  */
-int kl_findqueue(
-	element_t**	/* ptr to head of list */,
-	element_t*	/* ptr to element to find on list */);
+int kl_findqueue(element_t ** /* ptr to head of list */ ,
+		 element_t * /* ptr to element to find on list */ );
 
 /* Walks through a list of pointers to queues and looks for a
  * particular list.
  */
-int kl_findlist_queue(
-	list_of_ptrs_t** 	/* ptr to list of lists */,
-	list_of_ptrs_t* 	/* ptr to list to look for */,
-	int(*)(void *, void *)	/* ptr to compare function */);
+int kl_findlist_queue(list_of_ptrs_t ** /* ptr to list of lists */ ,
+		      list_of_ptrs_t * /* ptr to list to look for */ ,
+		      int (*)(void *, void *) /* ptr to compare function */ );
 
 /* Remove specified element from doubly linked list.
  */
-void kl_remqueue(
-	element_t**		/* ptr to head of list */,
-	element_t*		/* ptr to element to remove from list */);
-#endif  /* !REDHAT */
+void kl_remqueue(element_t ** /* ptr to head of list */ ,
+		 element_t * /* ptr to element to remove from list */ );
+#endif				/* !REDHAT */
 
-#endif /* _KL_QUEUE_H */
-
+#endif				/* _KL_QUEUE_H */
 
 /*
  *  lkcdutils-4.1/libklib/include/kl_error.h
@@ -710,7 +698,6 @@ void kl_print_error(void);
 #define KLE_ZERO_SIZE 				(KLE_KLIB|6)
 #define KLE_ACTIVE 				(KLE_KLIB|7)
 
-
 #define KLE_MISC_ERROR 				(KLE_KLIB|97)
 #define KLE_NOT_SUPPORTED 			(KLE_KLIB|98)
 #define KLE_UNKNOWN_ERROR 			(KLE_KLIB|99)
@@ -781,5 +768,4 @@ void kl_print_error(void);
 #define KLE_DUMP          	(((uint64_t)15)<<32)
 #define KLE_BAD_STRING          (((uint64_t)16)<<32)
 
-#endif /* __KL_ERROR_H */
-
+#endif				/* __KL_ERROR_H */

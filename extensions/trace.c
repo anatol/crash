@@ -144,7 +144,6 @@ static int init_offsets(void)
 		}							\
 	} while (0)
 
-
 	init_offset(trace_array, buffer);
 	init_offset(tracer, name);
 
@@ -238,8 +237,7 @@ static void print_offsets(void)
 #undef print_offset
 }
 
-static int ftrace_init_pages(struct ring_buffer_per_cpu *cpu_buffer,
-		unsigned nr_pages)
+static int ftrace_init_pages(struct ring_buffer_per_cpu *cpu_buffer, unsigned nr_pages)
 {
 	unsigned j = 0, count = 0;
 	ulong head, page;
@@ -326,12 +324,12 @@ static int ftrace_init_pages(struct ring_buffer_per_cpu *cpu_buffer,
 		}
 	}
 
-done:
+ done:
 	cpu_buffer->nr_linear_pages = count;
 
 	return 0;
 
-out_fail:
+ out_fail:
 	return -1;
 }
 
@@ -348,8 +346,7 @@ static void ftrace_destroy_buffers(struct ring_buffer_per_cpu *buffers)
 	}
 }
 
-static int ftrace_init_buffers(struct ring_buffer_per_cpu *buffers,
-		ulong ring_buffer, unsigned pages)
+static int ftrace_init_buffers(struct ring_buffer_per_cpu *buffers, ulong ring_buffer, unsigned pages)
 {
 	int i;
 	ulong buffers_array;
@@ -358,8 +355,7 @@ static int ftrace_init_buffers(struct ring_buffer_per_cpu *buffers,
 
 	for (i = 0; i < nr_cpu_ids; i++) {
 		if (!readmem(buffers_array + sizeof(ulong) * i, KVADDR,
-				&buffers[i].kaddr, sizeof(ulong),
-				"ring_buffer's cpu buffer", RETURN_ON_ERROR))
+			     &buffers[i].kaddr, sizeof(ulong), "ring_buffer's cpu buffer", RETURN_ON_ERROR))
 			goto out_fail;
 
 		if (!buffers[i].kaddr)
@@ -393,7 +389,7 @@ static int ftrace_init_buffers(struct ring_buffer_per_cpu *buffers,
 
 	return 0;
 
-out_fail:
+ out_fail:
 	ftrace_destroy_buffers(buffers);
 	return -1;
 }
@@ -407,13 +403,12 @@ static int ftrace_int_global_trace(void)
 	if (global_buffers == NULL)
 		goto out_fail;
 
-	if (ftrace_init_buffers(global_buffers, global_ring_buffer,
-			global_pages) < 0)
+	if (ftrace_init_buffers(global_buffers, global_ring_buffer, global_pages) < 0)
 		goto out_fail;
 
 	return 0;
 
-out_fail:
+ out_fail:
 	free(global_buffers);
 	return -1;
 }
@@ -431,13 +426,12 @@ static int ftrace_int_max_tr_trace(void)
 	if (max_tr_buffers == NULL)
 		goto out_fail;
 
-	if (ftrace_init_buffers(max_tr_buffers, max_tr_ring_buffer,
-			max_tr_pages) < 0)
+	if (ftrace_init_buffers(max_tr_buffers, max_tr_ring_buffer, max_tr_pages) < 0)
 		goto out_fail;
 
 	return 0;
 
-out_fail:
+ out_fail:
 	free(max_tr_buffers);
 	max_tr_ring_buffer = 0;
 	return -1;
@@ -459,13 +453,13 @@ static int ftrace_init_current_tracer(void)
 
 	return 0;
 
-out_fail:
+ out_fail:
 	return -1;
 }
 
 static int ftrace_init(void)
 {
-				struct syment *sym_global_trace;
+	struct syment *sym_global_trace;
 	struct syment *sym_max_tr_trace;
 	struct syment *sym_ftrace_events;
 	struct syment *sym_current_trace;
@@ -476,8 +470,7 @@ static int ftrace_init(void)
 	sym_current_trace = symbol_search("current_trace");
 
 	if (sym_global_trace == NULL || sym_max_tr_trace == NULL
-			|| sym_ftrace_events == NULL
-			|| sym_current_trace == NULL)
+	    || sym_ftrace_events == NULL || sym_current_trace == NULL)
 		return -1;
 
 	global_trace = sym_global_trace->value;
@@ -505,16 +498,16 @@ static int ftrace_init(void)
 
 	return 0;
 
-out_2:
+ out_2:
 	ftrace_destroy_event_types();
-out_1:
+ out_1:
 	if (max_tr_ring_buffer) {
 		ftrace_destroy_buffers(max_tr_buffers);
 		free(max_tr_buffers);
 	}
 	ftrace_destroy_buffers(global_buffers);
 	free(global_buffers);
-out_0:
+ out_0:
 	return -1;
 }
 
@@ -538,8 +531,7 @@ static int ftrace_dump_page(int fd, ulong page, void *page_tmp)
 
 	read_value(raw_page, page, buffer_page, page);
 
-	if (!readmem(raw_page, KVADDR, page_tmp, PAGESIZE(), "get page context",
-			RETURN_ON_ERROR))
+	if (!readmem(raw_page, KVADDR, page_tmp, PAGESIZE(), "get page context", RETURN_ON_ERROR))
 		goto out_fail;
 
 	if (write_and_check(fd, page_tmp, PAGESIZE()))
@@ -547,19 +539,17 @@ static int ftrace_dump_page(int fd, ulong page, void *page_tmp)
 
 	return 0;
 
-out_fail:
+ out_fail:
 	return -1;
 }
 
-static
-void ftrace_dump_buffer(int fd, struct ring_buffer_per_cpu *cpu_buffer,
-		unsigned pages, void *page_tmp)
+static void ftrace_dump_buffer(int fd, struct ring_buffer_per_cpu *cpu_buffer, unsigned pages, void *page_tmp)
 {
 	int i;
 
 	for (i = 0; i < cpu_buffer->nr_linear_pages; i++) {
-		if (ftrace_dump_page(fd, cpu_buffer->linear_pages[i],
-				page_tmp) < 0)
+		if (ftrace_dump_page(fd, cpu_buffer->linear_pages[i], page_tmp)
+		    < 0)
 			break;
 	}
 }
@@ -601,8 +591,7 @@ static int ftrace_dump_buffers(const char *per_cpu_path)
 		if (try_mkdir(path, 0755) < 0)
 			goto out_fail;
 
-		snprintf(path, sizeof(path), "%s/cpu%d/trace_pipe_raw",
-				per_cpu_path, i);
+		snprintf(path, sizeof(path), "%s/cpu%d/trace_pipe_raw", per_cpu_path, i);
 		fd = open(path, O_WRONLY | O_CREAT, 0644);
 		if (fd < 0)
 			goto out_fail;
@@ -614,7 +603,7 @@ static int ftrace_dump_buffers(const char *per_cpu_path)
 	free(page_tmp);
 	return 0;
 
-out_fail:
+ out_fail:
 	free(page_tmp);
 	return -1;
 }
@@ -647,7 +636,7 @@ static int nr_event_types;
 static struct ftrace_field *ftrace_common_fields;
 static int ftrace_common_fields_count;
 
-static int syscall_get_enter_fields(ulong call, ulong *fields)
+static int syscall_get_enter_fields(ulong call, ulong * fields)
 {
 	static int inited;
 	static int data_offset;
@@ -667,19 +656,19 @@ static int syscall_get_enter_fields(ulong call, ulong *fields)
 	if (enter_fields_offset < 0)
 		return -1;
 
-work:
+ work:
 	if (data_offset < 0 || enter_fields_offset < 0)
 		return -1;
 
 	if (!readmem(call + data_offset, KVADDR, &metadata, sizeof(metadata),
-			"read ftrace_event_call data", RETURN_ON_ERROR))
+		     "read ftrace_event_call data", RETURN_ON_ERROR))
 		return -1;
 
 	*fields = metadata + enter_fields_offset;
 	return 0;
 }
 
-static int syscall_get_exit_fields_old(ulong call, ulong *fields)
+static int syscall_get_exit_fields_old(ulong call, ulong * fields)
 {
 	static int inited;
 	static int data_offset;
@@ -699,19 +688,19 @@ static int syscall_get_exit_fields_old(ulong call, ulong *fields)
 	if (exit_fields_offset < 0)
 		return -1;
 
-work:
+ work:
 	if (data_offset < 0 || exit_fields_offset < 0)
 		return -1;
 
 	if (!readmem(call + data_offset, KVADDR, &metadata, sizeof(metadata),
-			"read ftrace_event_call data", RETURN_ON_ERROR))
+		     "read ftrace_event_call data", RETURN_ON_ERROR))
 		return -1;
 
 	*fields = metadata + exit_fields_offset;
 	return 0;
 }
 
-static int syscall_get_exit_fields(ulong call, ulong *fields)
+static int syscall_get_exit_fields(ulong call, ulong * fields)
 {
 	static int inited;
 	static ulong syscall_exit_fields_value;
@@ -735,8 +724,7 @@ static int syscall_get_exit_fields(ulong call, ulong *fields)
 	return 0;
 }
 
-static
-int ftrace_get_event_type_fields(ulong call, ulong *fields)
+static int ftrace_get_event_type_fields(ulong call, ulong * fields)
 {
 	static int inited;
 	static int fields_offset;
@@ -769,7 +757,7 @@ int ftrace_get_event_type_fields(ulong call, ulong *fields)
 	if ((sp = symbol_search("syscall_get_exit_fields")) != NULL)
 		syscall_get_exit_fields_value = sp->value;
 
-work:
+ work:
 	if (fields_offset < 0)
 		return -1;
 
@@ -779,12 +767,11 @@ work:
 	}
 
 	if (!readmem(call + class_offset, KVADDR, &class, sizeof(class),
-			"read ftrace_event_call class", RETURN_ON_ERROR))
+		     "read ftrace_event_call class", RETURN_ON_ERROR))
 		return -1;
 
 	if (!readmem(class + get_fields_offset, KVADDR, &get_fields,
-			sizeof(get_fields), "read ftrace_event_call get_fields",
-			RETURN_ON_ERROR))
+		     sizeof(get_fields), "read ftrace_event_call get_fields", RETURN_ON_ERROR))
 		return -1;
 
 	if (!get_fields) {
@@ -802,8 +789,7 @@ work:
 	return -1;
 }
 
-static int ftrace_init_event_fields(ulong fields_head, int *pnfields,
-		struct ftrace_field **pfields)
+static int ftrace_init_event_fields(ulong fields_head, int *pnfields, struct ftrace_field **pfields)
 {
 	ulong pos;
 
@@ -880,7 +866,7 @@ static int ftrace_init_event_fields(ulong fields_head, int *pnfields,
 
 	return 0;
 
-out_fail:
+ out_fail:
 	for (nfields--; nfields >= 0; nfields--) {
 		free(fields[nfields].name);
 		free(fields[nfields].type);
@@ -897,8 +883,7 @@ static int ftrace_init_event_type(ulong call, struct event_type *aevent_type)
 	if (ftrace_get_event_type_fields(call, &fields_head) < 0)
 		return -1;
 
-	return ftrace_init_event_fields(fields_head, &aevent_type->nfields,
-			&aevent_type->fields);
+	return ftrace_init_event_fields(fields_head, &aevent_type->nfields, &aevent_type->fields);
 }
 
 static int ftrace_init_common_fields(void)
@@ -912,8 +897,7 @@ static int ftrace_init_common_fields(void)
 
 	ftrace_common_fields_head = sp->value;
 
-	return ftrace_init_event_fields(ftrace_common_fields_head,
-			&ftrace_common_fields_count, &ftrace_common_fields);
+	return ftrace_init_event_fields(ftrace_common_fields_head, &ftrace_common_fields_count, &ftrace_common_fields);
 }
 
 static void ftrace_destroy_event_types(void)
@@ -937,8 +921,7 @@ static void ftrace_destroy_event_types(void)
 	free(ftrace_common_fields);
 }
 
-static
-int ftrace_get_event_type_name(ulong call, char *name, int len)
+static int ftrace_get_event_type_name(ulong call, char *name, int len)
 {
 	static int inited;
 	static int name_offset;
@@ -954,7 +937,7 @@ int ftrace_get_event_type_name(ulong call, char *name, int len)
 		return -1;
 
 	if (!readmem(call + name_offset, KVADDR, &name_addr, sizeof(name_addr),
-			"read ftrace_event_call name_addr", RETURN_ON_ERROR))
+		     "read ftrace_event_call name_addr", RETURN_ON_ERROR))
 		return -1;
 
 	if (!read_string(name_addr, name, len))
@@ -963,8 +946,7 @@ int ftrace_get_event_type_name(ulong call, char *name, int len)
 	return 0;
 }
 
-static
-int ftrace_get_event_type_system(ulong call, char *system, int len)
+static int ftrace_get_event_type_system(ulong call, char *system, int len)
 {
 	static int inited;
 	static int sys_offset;
@@ -989,17 +971,16 @@ int ftrace_get_event_type_system(ulong call, char *system, int len)
 	sys_offset = MEMBER_OFFSET("ftrace_event_class", "system");
 	inited = 2;
 
-work:
+ work:
 	if (sys_offset < 0)
 		return -1;
 
 	if (inited == 2 && !readmem(call + class_offset, KVADDR, &ptr,
-			sizeof(ptr), "read ftrace_event_call class_addr",
-			RETURN_ON_ERROR))
+				    sizeof(ptr), "read ftrace_event_call class_addr", RETURN_ON_ERROR))
 		return -1;
 
 	if (!readmem(ptr + sys_offset, KVADDR, &sys_addr, sizeof(sys_addr),
-			"read ftrace_event_call sys_addr", RETURN_ON_ERROR))
+		     "read ftrace_event_call sys_addr", RETURN_ON_ERROR))
 		return -1;
 
 	if (!read_string(sys_addr, system, len))
@@ -1014,15 +995,14 @@ static int read_long_string(ulong kvaddr, char **buf)
 	ulong kp;
 	int cnt1, cnt2, size;
 
-again:
+ again:
 	kp = kvaddr;
 	size = 0;
 
 	for (;;) {
-		cnt1 = MIN_PAGE_SIZE - (kp & (MIN_PAGE_SIZE-1));
+		cnt1 = MIN_PAGE_SIZE - (kp & (MIN_PAGE_SIZE - 1));
 
-		if (!readmem(kp, KVADDR, strbuf, cnt1,
-				"readstring characters", QUIET|RETURN_ON_ERROR))
+		if (!readmem(kp, KVADDR, strbuf, cnt1, "readstring characters", QUIET | RETURN_ON_ERROR))
 			return -1;
 
 		cnt2 = strnlen(strbuf, cnt1);
@@ -1048,8 +1028,7 @@ again:
 	return size;
 }
 
-static
-int ftrace_get_event_type_print_fmt(ulong call, char **print_fmt)
+static int ftrace_get_event_type_print_fmt(ulong call, char **print_fmt)
 {
 	static int inited;
 	static int fmt_offset;
@@ -1067,14 +1046,13 @@ int ftrace_get_event_type_print_fmt(ulong call, char **print_fmt)
 	}
 
 	if (!readmem(call + fmt_offset, KVADDR, &fmt_addr, sizeof(fmt_addr),
-			"read ftrace_event_call fmt_addr", RETURN_ON_ERROR))
+		     "read ftrace_event_call fmt_addr", RETURN_ON_ERROR))
 		return -1;
 
 	return read_long_string(fmt_addr, print_fmt);
 }
 
-static
-int ftrace_get_event_type_id(ulong call, int *id)
+static int ftrace_get_event_type_id(ulong call, int *id)
 {
 	static int inited;
 	static int id_offset;
@@ -1096,8 +1074,7 @@ int ftrace_get_event_type_id(ulong call, int *id)
 	if (id_offset < 0)
 		return -1;
 
-	if (!readmem(call + id_offset, KVADDR, id, sizeof(*id),
-			"read ftrace_event_call id", RETURN_ON_ERROR))
+	if (!readmem(call + id_offset, KVADDR, id, sizeof(*id), "read ftrace_event_call id", RETURN_ON_ERROR))
 		return -1;
 
 	return 0;
@@ -1123,9 +1100,9 @@ static int ftrace_init_event_types(void)
 
 		/* Read a event type from the core */
 		if (ftrace_get_event_type_id(call, &id) < 0 ||
-				ftrace_get_event_type_name(call, name, 128) < 0 ||
-				ftrace_get_event_type_system(call, system, 128) < 0 ||
-				ftrace_get_event_type_print_fmt(call, &print_fmt) < 0)
+		    ftrace_get_event_type_name(call, name, 128) < 0 ||
+		    ftrace_get_event_type_system(call, system, 128) < 0 ||
+		    ftrace_get_event_type_print_fmt(call, &print_fmt) < 0)
 			goto out_fail;
 
 		/* Enlarge event types array when need */
@@ -1133,8 +1110,7 @@ static int ftrace_init_event_types(void)
 			void *tmp;
 
 			max_types = 2 * nr_event_types;
-			tmp = realloc(event_types,
-					sizeof(*event_types) * max_types);
+			tmp = realloc(event_types, sizeof(*event_types) * max_types);
 			if (tmp == NULL) {
 				free(print_fmt);
 				goto out_fail;
@@ -1182,12 +1158,12 @@ static int ftrace_init_event_types(void)
 
 	return 0;
 
-out_fail_free_aevent_type:
+ out_fail_free_aevent_type:
 	free(aevent_type->system);
 	free(aevent_type->name);
 	free(aevent_type->print_fmt);
 	free(aevent_type);
-out_fail:
+ out_fail:
 	ftrace_destroy_event_types();
 	return -1;
 }
@@ -1219,14 +1195,14 @@ static int ftrace_dump_event_type(struct event_type *t, const char *path)
 		fields = &t->fields[t->nfields - nfields];
 	}
 
-again:
+ again:
 	for (i = nfields - 1; i >= 0; i--) {
 		/*
 		 * Smartly shows the array type(except dynamic array).
 		 * Normal:
-		 *	field:TYPE VAR
+		 *      field:TYPE VAR
 		 * If TYPE := TYPE[LEN], it is shown:
-		 *	field:TYPE VAR[LEN]
+		 *      field:TYPE VAR[LEN]
 		 */
 		struct ftrace_field *field = &fields[i];
 		const char *array_descriptor = strchr(field->type, '[');
@@ -1236,16 +1212,14 @@ again:
 
 		if (!array_descriptor) {
 			fprintf(out, "\tfield:%s %s;\toffset:%u;"
-					"\tsize:%u;\tsigned:%d;\n",
-					field->type, field->name, field->offset,
-					field->size, !!field->is_signed);
+				"\tsize:%u;\tsigned:%d;\n",
+				field->type, field->name, field->offset, field->size, ! !field->is_signed);
 		} else {
 			fprintf(out, "\tfield:%.*s %s%s;\toffset:%u;"
-					"\tsize:%u;\tsigned:%d;\n",
-					(int)(array_descriptor - field->type),
-					field->type, field->name,
-					array_descriptor, field->offset,
-					field->size, !!field->is_signed);
+				"\tsize:%u;\tsigned:%d;\n",
+				(int)(array_descriptor - field->type),
+				field->type, field->name,
+				array_descriptor, field->offset, field->size, ! !field->is_signed);
 		}
 	}
 
@@ -1281,8 +1255,7 @@ static int ftrace_dump_event_types(const char *events_path)
 		if (try_mkdir(path, 0755) < 0)
 			return -1;
 
-		snprintf(path, sizeof(path), "%s/%s/%s", events_path,
-			t->system, t->name);
+		snprintf(path, sizeof(path), "%s/%s/%s", events_path, t->system, t->name);
 		if (try_mkdir(path, 0755) < 0)
 			return -1;
 
@@ -1311,7 +1284,7 @@ static int dump_saved_cmdlines(const char *dump_tracing_dir)
 		return -1;
 
 	tc = FIRST_CONTEXT();
-				for (i = 0; i < RUNNING_TASKS(); i++)
+	for (i = 0; i < RUNNING_TASKS(); i++)
 		fprintf(out, "%d %s\n", (int)tc[i].pid, tc[i].comm);
 
 	fclose(out);
@@ -1340,8 +1313,7 @@ static int dump_kallsyms(const char *dump_tracing_dir)
 			if (!strncmp(sp->name, "_MODULE_", strlen("_MODULE_")))
 				continue;
 
-			fprintf(out, "%lx %c %s\t[%s]\n", sp->value, sp->type,
-					sp->name, lm->mod_name);
+			fprintf(out, "%lx %c %s\t[%s]\n", sp->value, sp->type, sp->name, lm->mod_name);
 		}
 	}
 
@@ -1360,9 +1332,8 @@ static void ftrace_dump(int argc, char *argv[])
 	char path[PATH_MAX];
 	int ret;
 
-				while ((c = getopt(argc, argv, "smt")) != EOF) {
-								switch(c)
-		{
+	while ((c = getopt(argc, argv, "smt")) != EOF) {
+		switch (c) {
 		case 's':
 			dump_symbols = 1;
 			break;
@@ -1380,8 +1351,7 @@ static void ftrace_dump(int argc, char *argv[])
 					trace_dat = "trace.dat";
 				else if (argc - optind == 1)
 					trace_dat = argv[optind];
-				fd = open(trace_dat, O_WRONLY | O_CREAT
-						| O_TRUNC, 0644);
+				fd = open(trace_dat, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 				trace_cmd_data_output(fd);
 				close(fd);
 			}
@@ -1456,13 +1426,10 @@ static void ftrace_show(int argc, char *argv[])
 	}
 	if (!strstr(buf, "trace-cmd version")) {
 		if (env_trace_cmd)
-			fprintf(fp, "Invalid environment TRACE_CMD: %s\n",
-					env_trace_cmd);
+			fprintf(fp, "Invalid environment TRACE_CMD: %s\n", env_trace_cmd);
 		else
 			fprintf(fp, "\"trace show\" requires trace-cmd.\n"
-					"please set the environment TRACE_CMD "
-					"if you installed it in a special path\n"
-					);
+				"please set the environment TRACE_CMD " "if you installed it in a special path\n");
 		return;
 	}
 
@@ -1483,7 +1450,7 @@ static void ftrace_show(int argc, char *argv[])
 		nitems = fwrite(buf, 1, ret, fp);
 	}
 	pclose(file);
-out:
+ out:
 	close(fd);
 	unlink(tmp);
 	return;
@@ -1504,39 +1471,39 @@ static void cmd_ftrace(void)
 }
 
 static char *help_ftrace[] = {
-"trace",
-"show or dump the tracing info",
-"[ <show [-c <cpulist>] [-f [no]<flagname>]> | <dump [-sm] <dest-dir>> ]",
-"trace",
-"    shows the current tracer and other informations.",
-"",
-"trace show",
-"    shows all events with readability text(sorted by timestamp)",
-"",
-"trace report",
-"    the same as \"trace show\"",
-"",
-"trace dump [-sm] <dest-dir>",
-"    dump ring_buffers to dest-dir. Then you can parse it",
-"    by other tracing tools. The dirs and files are generated",
-"    the same as debugfs/tracing.",
-"    -m: also dump metadata of ftrace.",
-"    -s: also dump symbols of the kernel.",
-"trace dump -t [output-file-name]",
-"   dump ring_buffers and all meta data to a file that can",
-"   be parsed by trace-cmd. Default output file name is \"trace.dat\".",
-NULL
+	"trace",
+	"show or dump the tracing info",
+	"[ <show [-c <cpulist>] [-f [no]<flagname>]> | <dump [-sm] <dest-dir>> ]",
+	"trace",
+	"    shows the current tracer and other informations.",
+	"",
+	"trace show",
+	"    shows all events with readability text(sorted by timestamp)",
+	"",
+	"trace report",
+	"    the same as \"trace show\"",
+	"",
+	"trace dump [-sm] <dest-dir>",
+	"    dump ring_buffers to dest-dir. Then you can parse it",
+	"    by other tracing tools. The dirs and files are generated",
+	"    the same as debugfs/tracing.",
+	"    -m: also dump metadata of ftrace.",
+	"    -s: also dump symbols of the kernel.",
+	"trace dump -t [output-file-name]",
+	"   dump ring_buffers and all meta data to a file that can",
+	"   be parsed by trace-cmd. Default output file name is \"trace.dat\".",
+	NULL
 };
 
 static struct command_table_entry command_table[] = {
-	{ "trace", cmd_ftrace, help_ftrace, 0 },
-	{ NULL, 0, 0, 0 }
+	{"trace", cmd_ftrace, help_ftrace, 0},
+	{NULL, 0, 0, 0}
 };
 
 static int ftrace_initialized;
 
-void __attribute__((constructor))
-trace_init(void)
+void __attribute__ ((constructor))
+    trace_init(void)
 {
 	if (ftrace_init() < 0)
 		return;
@@ -1545,8 +1512,8 @@ trace_init(void)
 	register_extension(command_table);
 }
 
-void __attribute__((destructor))
-trace_fini(void)
+void __attribute__ ((destructor))
+    trace_fini(void)
 {
 	if (ftrace_initialized)
 		ftrace_destroy();
@@ -1647,8 +1614,7 @@ static int save_initial_data(int fd)
 	if (write_and_check(fd, "\027\010\104tracing", 10))
 		return -1;
 
-	if (write_and_check(fd, TRACE_CMD_FILE_VERSION_STRING,
-				strlen(TRACE_CMD_FILE_VERSION_STRING) + 1))
+	if (write_and_check(fd, TRACE_CMD_FILE_VERSION_STRING, strlen(TRACE_CMD_FILE_VERSION_STRING) + 1))
 		return -1;
 
 	/* Crash ensure core file endian and the host endian are the same */
@@ -1680,15 +1646,12 @@ static int save_header_files(int fd)
 
 	tmp_fprintf("\tfield: u64 timestamp;\toffset:0;\tsize:8;\tsigned:0;\n");
 
-	tmp_fprintf("\tfield: local_t commit;\toffset:8;\tsize:%u;\t"
-			"signed:1;\n", (unsigned int)sizeof(long));
+	tmp_fprintf("\tfield: local_t commit;\toffset:8;\tsize:%u;\t" "signed:1;\n", (unsigned int)sizeof(long));
 
-	tmp_fprintf("\tfield: int overwrite;\toffset:8;\tsize:%u;\tsigned:1;\n",
-			(unsigned int)sizeof(long));
+	tmp_fprintf("\tfield: int overwrite;\toffset:8;\tsize:%u;\tsigned:1;\n", (unsigned int)sizeof(long));
 
 	tmp_fprintf("\tfield: char data;\toffset:%u;\tsize:%u;\tsigned:1;\n",
-			(unsigned int)(8 + sizeof(long)),
-			(unsigned int)(PAGESIZE() - 8 - sizeof(long)));
+		    (unsigned int)(8 + sizeof(long)), (unsigned int)(PAGESIZE() - 8 - sizeof(long)));
 
 	if (tmp_file_record_size8(fd))
 		return -1;
@@ -1699,16 +1662,11 @@ static int save_header_files(int fd)
 	if (write_and_check(fd, "header_event", 13))
 		return -1;
 
-	tmp_fprintf(
-			"# compressed entry header\n"
-			"\ttype_len    :    5 bits\n"
-			"\ttime_delta  :   27 bits\n"
-			"\tarray       :   32 bits\n"
-			"\n"
-			"\tpadding     : type == 29\n"
-			"\ttime_extend : type == 30\n"
-			"\tdata max type_len  == 28\n"
-	);
+	tmp_fprintf("# compressed entry header\n"
+		    "\ttype_len    :    5 bits\n"
+		    "\ttime_delta  :   27 bits\n"
+		    "\tarray       :   32 bits\n"
+		    "\n" "\tpadding     : type == 29\n" "\ttime_extend : type == 30\n" "\tdata max type_len  == 28\n");
 
 	if (tmp_file_record_size8(fd))
 		return -1;
@@ -1736,14 +1694,14 @@ static int save_event_file(int fd, struct event_type *t)
 		fields = &t->fields[t->nfields - nfields];
 	}
 
-again:
+ again:
 	for (i = nfields - 1; i >= 0; i--) {
 		/*
 		 * Smartly shows the array type(except dynamic array).
 		 * Normal:
-		 *	field:TYPE VAR
+		 *      field:TYPE VAR
 		 * If TYPE := TYPE[LEN], it is shown:
-		 *	field:TYPE VAR[LEN]
+		 *      field:TYPE VAR[LEN]
 		 */
 		struct ftrace_field *field = &fields[i];
 		const char *array_descriptor = strchr(field->type, '[');
@@ -1753,16 +1711,14 @@ again:
 
 		if (!array_descriptor) {
 			tmp_fprintf("\tfield:%s %s;\toffset:%u;"
-					"\tsize:%u;\tsigned:%d;\n",
-					field->type, field->name, field->offset,
-					field->size, !!field->is_signed);
+				    "\tsize:%u;\tsigned:%d;\n",
+				    field->type, field->name, field->offset, field->size, ! !field->is_signed);
 		} else {
 			tmp_fprintf("\tfield:%.*s %s%s;\toffset:%u;"
-					"\tsize:%u;\tsigned:%d;\n",
-					(int)(array_descriptor - field->type),
-					field->type, field->name,
-					array_descriptor, field->offset,
-					field->size, !!field->is_signed);
+				    "\tsize:%u;\tsigned:%d;\n",
+				    (int)(array_descriptor - field->type),
+				    field->type, field->name,
+				    array_descriptor, field->offset, field->size, ! !field->is_signed);
 		}
 	}
 
@@ -1851,8 +1807,7 @@ static int save_events_files(int fd)
 			if (system_ids[i] == system_id)
 				break;
 		}
-		if (write_and_check(fd, (void *)event_types[i]->system,
-				strlen(event_types[i]->system) + 1))
+		if (write_and_check(fd, (void *)event_types[i]->system, strlen(event_types[i]->system) + 1))
 			goto fail;
 		if (save_system_files(fd, system_ids, system_id))
 			goto fail;
@@ -1861,7 +1816,7 @@ static int save_events_files(int fd)
 	free(system_ids);
 	return 0;
 
-fail:
+ fail:
 	free(system_ids);
 	return -1;
 }
@@ -1881,8 +1836,7 @@ static int save_proc_kallsyms(int fd)
 			if (!strncmp(sp->name, "_MODULE_", strlen("_MODULE_")))
 				continue;
 
-			tmp_fprintf("%lx %c %s\t[%s]\n", sp->value, sp->type,
-					sp->name, lm->mod_name);
+			tmp_fprintf("%lx %c %s\t[%s]\n", sp->value, sp->type, sp->name, lm->mod_name);
 		}
 	}
 
@@ -1951,8 +1905,7 @@ static int save_ftrace_printk(int fd)
 	if (address == NULL)
 		return -1;
 
-	if (!readmem(bprintk_fmt_s, KVADDR, address, count * sizeof(long),
-			"get printk address", RETURN_ON_ERROR)) {
+	if (!readmem(bprintk_fmt_s, KVADDR, address, count * sizeof(long), "get printk address", RETURN_ON_ERROR)) {
 		free(address);
 		return -1;
 	}
@@ -1984,9 +1937,7 @@ static int save_ftrace_printk(int fd)
 	}
 
 	mod_fmt = (struct kernel_list_head *)GETBUF(SIZE(list_head));
-	if (!readmem(b->value, KVADDR, mod_fmt,
-				 SIZE(list_head), "trace_bprintk_fmt_list contents",
-				 RETURN_ON_ERROR))
+	if (!readmem(b->value, KVADDR, mod_fmt, SIZE(list_head), "trace_bprintk_fmt_list contents", RETURN_ON_ERROR))
 		goto out_free;
 
 	while ((unsigned long)mod_fmt->next != b->value) {
@@ -1995,14 +1946,12 @@ static int save_ftrace_printk(int fd)
 		addr = (unsigned long)mod_fmt->next + SIZE(list_head);
 		if (!addr_is_array) {
 			if (!readmem(addr, KVADDR, &addr, sizeof(addr),
-						 "trace_bprintk_fmt_list fmt field",
-						 RETURN_ON_ERROR))
+				     "trace_bprintk_fmt_list fmt field", RETURN_ON_ERROR))
 				goto out_free;
 		}
 
 		if (!readmem((unsigned long)mod_fmt->next, KVADDR, mod_fmt,
-					 SIZE(list_head), "trace_bprintk_fmt_list contents",
-					 RETURN_ON_ERROR))
+			     SIZE(list_head), "trace_bprintk_fmt_list contents", RETURN_ON_ERROR))
 			goto out_free;
 
 		if (add_print_address(addr) < 0)
@@ -2092,8 +2041,8 @@ static int save_record_data(int fd, int nr_cpu_buffers)
 			continue;
 
 		for (j = 0; j < cpu_buffer->nr_linear_pages; j++) {
-			if (ftrace_dump_page(fd, cpu_buffer->linear_pages[j],
-					page_tmp) < 0) {
+			if (ftrace_dump_page(fd, cpu_buffer->linear_pages[j], page_tmp)
+			    < 0) {
 				free(page_tmp);
 				return -1;
 			}
@@ -2123,7 +2072,7 @@ static int __trace_cmd_data_output(int fd)
 		return -1;
 	if (save_header_files(fd))
 		return -1;
-	if (save_events_files(fd)) /* ftrace events and other systems events */
+	if (save_events_files(fd))	/* ftrace events and other systems events */
 		return -1;
 	if (save_proc_kallsyms(fd))
 		return -1;

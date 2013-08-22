@@ -36,8 +36,7 @@
 
 extern int page_is_ram(unsigned long);
 
-static inline void *
-map_virtual(u64 offset, struct page **pp)
+static inline void *map_virtual(u64 offset, struct page **pp)
 {
 	struct page *page;
 	unsigned long pfn;
@@ -52,15 +51,13 @@ map_virtual(u64 offset, struct page **pp)
 	 *  specific mechanism that can be plugged in here if desired.
 	 */
 	if (!page_is_ram(pfn)) {
-		printk(KERN_INFO
-				"crash memory driver: !page_is_ram(pfn: %lx)\n", pfn);
+		printk(KERN_INFO "crash memory driver: !page_is_ram(pfn: %lx)\n", pfn);
 		return NULL;
 	}
 #endif
 
 	if (!pfn_valid(pfn)) {
-		printk(KERN_INFO
-				"crash memory driver: invalid pfn: %lx\n", pfn);
+		printk(KERN_INFO "crash memory driver: invalid pfn: %lx\n", pfn);
 		return NULL;
 	}
 
@@ -68,21 +65,18 @@ map_virtual(u64 offset, struct page **pp)
 
 	vaddr = kmap(page);
 	if (!vaddr) {
-		printk(KERN_INFO
-				"crash memory driver: pfn: %lx kmap(page: %lx) failed\n",
-			pfn, (unsigned long)page);
+		printk(KERN_INFO "crash memory driver: pfn: %lx kmap(page: %lx) failed\n", pfn, (unsigned long)page);
 		return NULL;
 	}
 
 	*pp = page;
-	return (vaddr + (offset & (PAGE_SIZE-1)));
+	return (vaddr + (offset & (PAGE_SIZE - 1)));
 }
 
 static inline void unmap_virtual(struct page *page)
 {
 	kunmap(page);
 }
-
 
 #define CRASH_VERSION   "1.1"
 
@@ -91,8 +85,7 @@ static inline void unmap_virtual(struct page *page)
  *  access to physical memory.
  */
 
-static loff_t
-crash_llseek(struct file * file, loff_t offset, int orig)
+static loff_t crash_llseek(struct file *file, loff_t offset, int orig)
 {
 	switch (orig) {
 	case 0:
@@ -111,8 +104,7 @@ crash_llseek(struct file * file, loff_t offset, int orig)
  *  get a virtual address for it, and copy it out.
  *  Accesses must fit within a page.
  */
-static ssize_t
-crash_read(struct file *file, char *buf, size_t count, loff_t *poff)
+static ssize_t crash_read(struct file *file, char *buf, size_t count, loff_t * poff)
 {
 	void *vaddr;
 	struct page *page;
@@ -120,7 +112,7 @@ crash_read(struct file *file, char *buf, size_t count, loff_t *poff)
 	ssize_t read;
 
 	offset = *poff;
-	if (offset >> PAGE_SHIFT != (offset+count-1) >> PAGE_SHIFT)
+	if (offset >> PAGE_SHIFT != (offset + count - 1) >> PAGE_SHIFT)
 		return -EINVAL;
 
 	vaddr = map_virtual(offset, &page);
@@ -150,26 +142,23 @@ static struct miscdevice crash_dev = {
 	&crash_fops
 };
 
-static int __init
-crash_init(void)
+static int __init crash_init(void)
 {
 	int ret;
 
 	ret = misc_register(&crash_dev);
 	if (ret) {
-		printk(KERN_ERR
-				"crash memory driver: cannot misc_register (MISC_DYNAMIC_MINOR)\n");
+		printk(KERN_ERR "crash memory driver: cannot misc_register (MISC_DYNAMIC_MINOR)\n");
 		goto out;
 	}
 
 	ret = 0;
 	printk(KERN_INFO "crash memory driver: version %s\n", CRASH_VERSION);
-out:
+ out:
 	return ret;
 }
 
-static void __exit
-crash_cleanup_module(void)
+static void __exit crash_cleanup_module(void)
 {
 	misc_deregister(&crash_dev);
 }

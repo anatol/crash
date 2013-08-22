@@ -22,36 +22,35 @@ typedef unsigned int u32;
 typedef unsigned long long u64;
 
 struct pt_regs {
-				unsigned long r15;
-				unsigned long r14;
-				unsigned long r13;
-				unsigned long r12;
-				unsigned long rbp;
-				unsigned long rbx;
+	unsigned long r15;
+	unsigned long r14;
+	unsigned long r13;
+	unsigned long r12;
+	unsigned long rbp;
+	unsigned long rbx;
 /* arguments: non interrupts/non tracing syscalls only save up to here*/
-				unsigned long r11;
-				unsigned long r10;
-				unsigned long r9;
-				unsigned long r8;
-				unsigned long rax;
-				unsigned long rcx;
-				unsigned long rdx;
-				unsigned long rsi;
-				unsigned long rdi;
-				unsigned long orig_rax;
+	unsigned long r11;
+	unsigned long r10;
+	unsigned long r9;
+	unsigned long r8;
+	unsigned long rax;
+	unsigned long rcx;
+	unsigned long rdx;
+	unsigned long rsi;
+	unsigned long rdi;
+	unsigned long orig_rax;
 /* end of arguments */
 /* cpu exception frame or undefined */
-				unsigned long rip;
-				unsigned long cs;
-				unsigned long eflags;
-				unsigned long rsp;
-				unsigned long ss;
+	unsigned long rip;
+	unsigned long cs;
+	unsigned long eflags;
+	unsigned long rsp;
+	unsigned long ss;
 /* top of stack page */
 };
 
-struct unwind_frame_info
-{
-				struct pt_regs regs;
+struct unwind_frame_info {
+	struct pt_regs regs;
 };
 
 extern int unwind(struct unwind_frame_info *, int);
@@ -73,13 +72,12 @@ extern void free_unwind_table(void);
 #define UNW_PC(frame)        (frame)->regs.rip
 #define UNW_SP(frame)        (frame)->regs.rsp
 #ifdef CONFIG_FRAME_POINTER
-	#define UNW_FP(frame)        (frame)->regs.rbp
-	#define FRAME_RETADDR_OFFSET 8
-	#define FRAME_LINK_OFFSET    0
-	#define STACK_BOTTOM(tsk)    (((tsk)->thread.rsp0 - 1) & ~(THREAD_SIZE - 1))
-	#define STACK_TOP(tsk)       ((tsk)->thread.rsp0)
+#define UNW_FP(frame)        (frame)->regs.rbp
+#define FRAME_RETADDR_OFFSET 8
+#define FRAME_LINK_OFFSET    0
+#define STACK_BOTTOM(tsk)    (((tsk)->thread.rsp0 - 1) & ~(THREAD_SIZE - 1))
+#define STACK_TOP(tsk)       ((tsk)->thread.rsp0)
 #endif
-
 
 #define EXTRA_INFO(f) { BUILD_BUG_ON_ZERO(offsetof(struct unwind_frame_info, f) % FIELD_SIZEOF(struct unwind_frame_info, f)) + offsetof(struct unwind_frame_info, f)/ FIELD_SIZEOF(struct unwind_frame_info, f), FIELD_SIZEOF(struct unwind_frame_info, f) }
 
@@ -103,4 +101,3 @@ extern void free_unwind_table(void);
 	PTREGS_INFO(r14), \
 	PTREGS_INFO(r15), \
 	PTREGS_INFO(rip)
-

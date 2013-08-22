@@ -23,8 +23,8 @@
 extern int vas_page_size;
 extern u_long vas_base_va;
 
-int va_server_init(char *crash_file, u_long *start, u_long *end, u_long *stride);
-int va_server_init_v1(char *crash_file, u_long *start, u_long *end, u_long *stride);
+int va_server_init(char *crash_file, u_long * start, u_long * end, u_long * stride);
+int va_server_init_v1(char *crash_file, u_long * start, u_long * end, u_long * stride);
 int vas_lseek(u_long position, int whence);
 int vas_lseek_v1(u_long position, int whence);
 size_t vas_read(void *buf_in, size_t count);
@@ -34,34 +34,27 @@ size_t vas_write_v1(void *buf_in, size_t count);
 void vas_free_data(u_long va);
 void vas_free_data_v1(u_long va);
 
-
 /* in-memory formats */
 
 struct map_hdr {
-		 struct crash_map_entry *map;   /* array of map entries */
-		 int blk_size;                  /* blocksize for this map */
+	struct crash_map_entry *map;	/* array of map entries */
+	int blk_size;		/* blocksize for this map */
 };
 
-
-
 struct map_hdr_v1 {
-		 u_long start_va;
-		 u_long end_va;
+	u_long start_va;
+	u_long end_va;
 
-		 struct crash_map_entry_v1 *map;   /* array of map entries */
-		 int map_entries;               /* entries in array pointed to by map */
-		 u_long va_per_entry;           /* va covered by each map_entry */
-		 int blk_offset;                /* add this to start_blk in map_entry
-									 * this allows relocation of compressed data
-						 * while using original maps
-						 */
-		 int blk_size;                  /* blocksize for this map */
+	struct crash_map_entry_v1 *map;	/* array of map entries */
+	int map_entries;	/* entries in array pointed to by map */
+	u_long va_per_entry;	/* va covered by each map_entry */
+	int blk_offset;		/* add this to start_blk in map_entry
+				 * this allows relocation of compressed data
+				 * while using original maps
+				 */
+	int blk_size;		/* blocksize for this map */
 
-		 struct map_hdr_v1 *next;
+	struct map_hdr_v1 *next;
 };
 
 extern int clean_exit(int);
-
-
-
-

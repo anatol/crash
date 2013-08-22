@@ -25,9 +25,10 @@ enum {
 };
 
 static struct sadump_data sadump_data = { 0 };
+
 static struct sadump_data *sd = &sadump_data;
 
-static int read_device(void *buf, size_t bytes, ulong *offset);
+static int read_device(void *buf, size_t bytes, ulong * offset);
 static int read_dump_header(char *file);
 static int add_disk(char *file);
 static int open_dump_file(char *file);
@@ -36,9 +37,9 @@ static uint64_t paddr_to_pfn(physaddr_t paddr);
 static inline int is_set_bit(char *bitmap, uint64_t pfn);
 static inline int page_is_ram(uint64_t nr);
 static inline int page_is_dumpable(uint64_t nr);
-static int lookup_diskset(uint64_t whole_offset, int *diskid, uint64_t *disk_offset);
-static struct tm *efi_time_t_to_tm(const efi_time_t *e);
-static char * guid_to_str(efi_guid_t *guid, char *buf, size_t buflen);
+static int lookup_diskset(uint64_t whole_offset, int *diskid, uint64_t * disk_offset);
+static struct tm *efi_time_t_to_tm(const efi_time_t * e);
+static char *guid_to_str(efi_guid_t * guid, char *buf, size_t buflen);
 static int verify_magic_number(uint32_t magicnum[DUMP_PART_HEADER_MAGICNUM_SIZE]);
 static ulong per_cpu_ptr(ulong ptr, int cpu);
 static ulong early_per_cpu_ptr(char *symbol, struct syment *sym, int cpu);
@@ -46,12 +47,12 @@ static ulong legacy_per_cpu_ptr(ulong ptr, int cpu);
 static int get_prstatus_from_crash_notes(int cpu, char *prstatus);
 static void display_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *s);
 static int cpu_to_apicid(int cpu, int *apicid);
-static int get_sadump_smram_cpu_state(int cpu, struct sadump_smram_cpu_state *smram);
+static int get_sadump_smram_cpu_state(int cpu, struct sadump_smram_cpu_state
+				      *smram);
 static int block_table_init(void);
 static uint64_t pfn_to_block(uint64_t pfn);
 
-struct sadump_data *
-sadump_get_sadump_data(void)
+struct sadump_data *sadump_get_sadump_data(void)
 {
 	if (!SADUMP_VALID() || !SADUMP_DUMPFILE())
 		return NULL;
@@ -59,8 +60,7 @@ sadump_get_sadump_data(void)
 	return &sadump_data;
 }
 
-int
-sadump_cleanup_sadump_data(void)
+int sadump_cleanup_sadump_data(void)
 {
 	int i;
 
@@ -98,8 +98,7 @@ sadump_cleanup_sadump_data(void)
 	return TRUE;
 }
 
-static int
-read_device(void *buf, size_t bytes, ulong *offset)
+static int read_device(void *buf, size_t bytes, ulong * offset)
 {
 	if (lseek(sd->dfd, *offset, SEEK_SET) == failed) {
 		error(INFO, "sadump: cannot lseek dump device\n");
@@ -113,8 +112,7 @@ read_device(void *buf, size_t bytes, ulong *offset)
 	return TRUE;
 }
 
-static int
-read_dump_header(char *file)
+static int read_dump_header(char *file)
 {
 	struct sadump_part_header *sph = NULL;
 	struct sadump_header *sh = NULL;
@@ -153,7 +151,7 @@ read_dump_header(char *file)
 		goto err;
 	}
 
-restart:
+ restart:
 	if (block_size < 0)
 		return FALSE;
 
@@ -162,14 +160,12 @@ restart:
 		goto err;
 	}
 
-	if (sph->signature1 != SADUMP_SIGNATURE1 ||
-			sph->signature2 != SADUMP_SIGNATURE2) {
+	if (sph->signature1 != SADUMP_SIGNATURE1 || sph->signature2 != SADUMP_SIGNATURE2) {
 
 		flags |= SADUMP_MEDIA;
 
 		if (CRASHDEBUG(1))
-			error(INFO, "sadump: read dump device as media "
-						"format\n");
+			error(INFO, "sadump: read dump device as media " "format\n");
 
 		offset = 0;
 
@@ -183,11 +179,9 @@ restart:
 			goto err;
 		}
 
-		if (sph->signature1 != SADUMP_SIGNATURE1 ||
-				sph->signature2 != SADUMP_SIGNATURE2) {
+		if (sph->signature1 != SADUMP_SIGNATURE1 || sph->signature2 != SADUMP_SIGNATURE2) {
 			if (CRASHDEBUG(1))
-				error(INFO, "sadump: does not have partition "
-							"header\n");
+				error(INFO, "sadump: does not have partition " "header\n");
 			goto err;
 		}
 
@@ -207,18 +201,14 @@ restart:
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: read dump device as diskset\n");
 
-		if (sph->set_disk_set != 1 ||
-				sph->set_disk_set > SADUMP_MAX_DISK_SET_NUM) {
+		if (sph->set_disk_set != 1 || sph->set_disk_set > SADUMP_MAX_DISK_SET_NUM) {
 			if (CRASHDEBUG(1))
-				error(INFO, "sadump: invalid disk set number: "
-							"%d\n",
-							sph->set_disk_set);
+				error(INFO, "sadump: invalid disk set number: " "%d\n", sph->set_disk_set);
 			goto err;
 		}
 
 		if (!read_device(&header_blocks, sizeof(uint32_t), &offset)) {
-			error(INFO, "sadump: cannot read disk set header "
-						"size\n");
+			error(INFO, "sadump: cannot read disk set header " "size\n");
 			goto err;
 		}
 
@@ -228,8 +218,7 @@ restart:
 		if (header_size > block_size) {
 			sdh = realloc(sdh, header_size);
 			if (!sdh) {
-				error(INFO, "sadump: cannot re-allocate disk "
-							"set buffer\n");
+				error(INFO, "sadump: cannot re-allocate disk " "set buffer\n");
 				goto err;
 			}
 		}
@@ -256,46 +245,40 @@ restart:
 
 	if (flags & SADUMP_MEDIA) {
 
-		if (memcmp(&sph->sadump_id, &smh->sadump_id,
-				 sizeof(efi_guid_t)) != 0) {
+		if (memcmp(&sph->sadump_id, &smh->sadump_id, sizeof(efi_guid_t))
+		    != 0) {
 			if (CRASHDEBUG(1))
 				error(INFO, "sadump: system ID mismatch\n"
-							"  partition header: %s\n"
-							"  media header: %s\n",
-							guid_to_str(&sph->sadump_id, guid1, sizeof(guid1)),
-							guid_to_str(&smh->sadump_id, guid2, sizeof(guid2)));
+				      "  partition header: %s\n"
+				      "  media header: %s\n",
+				      guid_to_str(&sph->sadump_id, guid1,
+						  sizeof(guid1)), guid_to_str(&smh->sadump_id, guid2, sizeof(guid2)));
 			goto err;
 		}
 
-		if (memcmp(&sph->disk_set_id, &smh->disk_set_id,
-				 sizeof(efi_guid_t)) != 0) {
+		if (memcmp(&sph->disk_set_id, &smh->disk_set_id, sizeof(efi_guid_t)) != 0) {
 			if (CRASHDEBUG(1))
 				error(INFO, "sadump: disk set ID mismatch\n"
-							"  partition header: %s\n"
-							"  media header: %s\n",
-							guid_to_str(&sph->disk_set_id, guid1, sizeof(guid1)),
-							guid_to_str(&smh->disk_set_id, guid2, sizeof(guid2)));
+				      "  partition header: %s\n"
+				      "  media header: %s\n",
+				      guid_to_str(&sph->disk_set_id, guid1,
+						  sizeof(guid1)), guid_to_str(&smh->disk_set_id, guid2, sizeof(guid2)));
 			goto err;
 		}
 
-		if (memcmp(&sph->time_stamp, &smh->time_stamp,
-				 sizeof(efi_time_t)) != 0) {
+		if (memcmp(&sph->time_stamp, &smh->time_stamp, sizeof(efi_time_t))
+		    != 0) {
 			if (CRASHDEBUG(1)) {
 				error(INFO, "sadump: time stamp mismatch\n");
 				error(INFO, "sadump:   partition header: %s\n",
-							strip_linefeeds(asctime
-									(efi_time_t_to_tm
-									 (&sph->time_stamp))));
+				      strip_linefeeds(asctime(efi_time_t_to_tm(&sph->time_stamp))));
 				error(INFO, "sadump:   media header: %s\n",
-							strip_linefeeds(asctime
-									(efi_time_t_to_tm
-									 (&smh->time_stamp))));
+				      strip_linefeeds(asctime(efi_time_t_to_tm(&smh->time_stamp))));
 			}
 		}
 
 		if (smh->sequential_num != 1) {
-			error(INFO, "sadump: first media file has sequential "
-						"number %d\n", smh->sequential_num);
+			error(INFO, "sadump: first media file has sequential " "number %d\n", smh->sequential_num);
 			goto err;
 		}
 
@@ -312,21 +295,17 @@ restart:
 			error(INFO, "sadump: media backup file\n");
 
 		else if (flags & SADUMP_DISKSET)
-			error(INFO, "sadump: diskset configuration with %d "
-						"disks\n", sdh->disk_num);
+			error(INFO, "sadump: diskset configuration with %d " "disks\n", sdh->disk_num);
 
 		else
-			error(INFO, "sadump: single partition "
-						"configuration\n");
+			error(INFO, "sadump: single partition " "configuration\n");
 	}
 
 	flags |= SADUMP_LOCAL;
 
 	if (sh->sub_hdr_size > 0) {
-		if (!read_device(&smram_cpu_state_size, sizeof(uint32_t),
-				 &offset)) {
-			error(INFO,
-						"sadump: cannot read SMRAM CPU STATE size\n");
+		if (!read_device(&smram_cpu_state_size, sizeof(uint32_t), &offset)) {
+			error(INFO, "sadump: cannot read SMRAM CPU STATE size\n");
 			goto err;
 		}
 		smram_cpu_state_size /= sh->nr_cpus;
@@ -342,8 +321,7 @@ restart:
 	bitmap_len = block_size * sh->bitmap_blocks;
 	bitmap = calloc(bitmap_len, 1);
 	if (!bitmap) {
-		error(INFO, "sadump: cannot allocate memory for bitmap "
-					"buffer\n");
+		error(INFO, "sadump: cannot allocate memory for bitmap " "buffer\n");
 		goto err;
 	}
 	if (!read_device(bitmap, bitmap_len, &offset)) {
@@ -358,8 +336,7 @@ restart:
 	dumpable_bitmap_len = block_size * sh->dumpable_bitmap_blocks;
 	dumpable_bitmap = calloc(dumpable_bitmap_len, 1);
 	if (!dumpable_bitmap) {
-		error(INFO, "sadump: cannot allocate memory for "
-					"dumpable_bitmap buffer\n");
+		error(INFO, "sadump: cannot allocate memory for " "dumpable_bitmap buffer\n");
 		goto err;
 	}
 	if (!read_device(dumpable_bitmap, dumpable_bitmap_len, &offset)) {
@@ -383,8 +360,7 @@ restart:
 	else if (machine_type("X86_64"))
 		sd->machine_type = EM_X86_64;
 	else {
-		error(INFO, "sadump: unsupported machine type: %s\n",
-					MACHINE_TYPE);
+		error(INFO, "sadump: unsupported machine type: %s\n", MACHINE_TYPE);
 		goto err;
 	}
 
@@ -411,8 +387,7 @@ restart:
 
 		sd_list_len_0 = malloc(sizeof(struct sadump_diskset_data));
 		if (!sd_list_len_0) {
-			error(INFO,
-						"sadump: cannot allocate diskset data buffer\n");
+			error(INFO, "sadump: cannot allocate diskset data buffer\n");
 			goto err;
 		}
 
@@ -423,8 +398,7 @@ restart:
 
 		sd->sd_list = malloc(sizeof(struct sadump_diskset_data *));
 		if (!sd->sd_list) {
-			error(INFO,
-						"sadump: cannot allocate diskset list buffer\n");
+			error(INFO, "sadump: cannot allocate diskset list buffer\n");
 			goto err;
 		}
 
@@ -445,7 +419,7 @@ restart:
 
 	return TRUE;
 
-err:
+ err:
 	close(sd->dfd);
 
 	free(sph);
@@ -462,8 +436,7 @@ err:
 	return FALSE;
 }
 
-static int
-add_disk(char *file)
+static int add_disk(char *file)
 {
 	struct sadump_part_header *ph;
 	struct sadump_diskset_data *this_disk;
@@ -474,7 +447,7 @@ add_disk(char *file)
 	this_disk = sd->sd_list[diskid];
 
 	if (CRASHDEBUG(1))
-		error(INFO, "sadump: add disk #%d\n", diskid+1);
+		error(INFO, "sadump: add disk #%d\n", diskid + 1);
 
 	ph = malloc(sd->block_size);
 	if (!ph) {
@@ -493,80 +466,65 @@ add_disk(char *file)
 		return FALSE;
 	}
 
-	if (ph->signature1 != SADUMP_SIGNATURE1 ||
-			ph->signature2 != SADUMP_SIGNATURE2) {
+	if (ph->signature1 != SADUMP_SIGNATURE1 || ph->signature2 != SADUMP_SIGNATURE2) {
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: does not have partition header\n");
 		free(ph);
 		return FALSE;
 	}
 
-	if (memcmp(&sd->header->sadump_id, &ph->sadump_id,
-			 sizeof(efi_guid_t)) != 0) {
+	if (memcmp(&sd->header->sadump_id, &ph->sadump_id, sizeof(efi_guid_t)) != 0) {
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: system ID mismatch\n"
-						"  partition header on disk #1: %s\n"
-						"  partition header on disk #%d: %s\n",
-						guid_to_str(&sd->header->sadump_id, guid1,
-						sizeof(guid1)),
-						diskid+1,
-						guid_to_str(&ph->sadump_id, guid2,
-						sizeof(guid2)));
+			      "  partition header on disk #1: %s\n"
+			      "  partition header on disk #%d: %s\n",
+			      guid_to_str(&sd->header->sadump_id, guid1,
+					  sizeof(guid1)),
+			      diskid + 1, guid_to_str(&ph->sadump_id, guid2, sizeof(guid2)));
 		free(ph);
 		return FALSE;
 	}
 
-	if (memcmp(&sd->header->disk_set_id, &ph->disk_set_id, sizeof(efi_guid_t)) != 0) {
+	if (memcmp(&sd->header->disk_set_id, &ph->disk_set_id, sizeof(efi_guid_t))
+	    != 0) {
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: disk set ID mismatch\n"
-						"  partition header on disk #1: %s\n"
-						"  partition header on disk #%d: %s\n",
-						guid_to_str(&sd->header->disk_set_id, guid1,
-						sizeof(guid1)),
-						diskid+1,
-						guid_to_str(&ph->disk_set_id, guid2,
-						sizeof(guid2)));
+			      "  partition header on disk #1: %s\n"
+			      "  partition header on disk #%d: %s\n",
+			      guid_to_str(&sd->header->disk_set_id, guid1,
+					  sizeof(guid1)),
+			      diskid + 1, guid_to_str(&ph->disk_set_id, guid2, sizeof(guid2)));
 		free(ph);
 		return FALSE;
 	}
 
-	if (memcmp(&sd->diskset_header->vol_info[diskid - 1].id, &ph->vol_id,
-			 sizeof(efi_guid_t)) != 0) {
+	if (memcmp(&sd->diskset_header->vol_info[diskid - 1].id, &ph->vol_id, sizeof(efi_guid_t)) != 0) {
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: volume ID mismatch\n"
-						"  disk set header on disk #1: %s\n"
-						"  partition header on disk #%d: %s\n",
-						guid_to_str(&sd->diskset_header->vol_info[diskid-1].id,
-						guid1, sizeof(guid1)),
-						diskid+1,
-						guid_to_str(&ph->vol_id, guid2, sizeof(guid2)));
+			      "  disk set header on disk #1: %s\n"
+			      "  partition header on disk #%d: %s\n",
+			      guid_to_str(&sd->diskset_header->vol_info[diskid - 1].id, guid1,
+					  sizeof(guid1)), diskid + 1, guid_to_str(&ph->vol_id, guid2, sizeof(guid2)));
 		free(ph);
 		return FALSE;
 	}
 
-	if (memcmp(&sd->header->time_stamp, &ph->time_stamp,
-			 sizeof(efi_time_t)) != 0) {
+	if (memcmp(&sd->header->time_stamp, &ph->time_stamp, sizeof(efi_time_t)) != 0) {
 		if (CRASHDEBUG(1)) {
 			error(INFO, "sadump: time stamp mismatch\n");
 			error(INFO,
-						"sadump:   partition header on disk #1: %s\n",
-						strip_linefeeds(asctime
-								(efi_time_t_to_tm
-								 (&sd->header->time_stamp))));
+			      "sadump:   partition header on disk #1: %s\n",
+			      strip_linefeeds(asctime(efi_time_t_to_tm(&sd->header->time_stamp))));
 			error(INFO,
-						"sadump:   partition header on disk #%d: %s\n",
-						diskid+1,
-						strip_linefeeds(asctime
-								(efi_time_t_to_tm
-								 (&ph->time_stamp))));
+			      "sadump:   partition header on disk #%d: %s\n",
+			      diskid + 1, strip_linefeeds(asctime(efi_time_t_to_tm(&ph->time_stamp))));
 		}
 	}
 
 	if (diskid != ph->set_disk_set - 1) {
 		if (CRASHDEBUG(1))
 			error(INFO, "sadump: wrong disk order; "
-						"#%d expected but #%d given\n",
-						diskid+1, ph->set_disk_set);
+			      "#%d expected but #%d given\n", diskid + 1, ph->set_disk_set);
 		free(ph);
 		return FALSE;
 	}
@@ -578,8 +536,7 @@ add_disk(char *file)
 	return TRUE;
 }
 
-static int
-open_dump_file(char *file)
+static int open_dump_file(char *file)
 {
 	int fd;
 
@@ -594,8 +551,7 @@ open_dump_file(char *file)
 	return TRUE;
 }
 
-static int
-open_disk(char *file)
+static int open_disk(char *file)
 {
 	struct sadump_diskset_data *this_disk;
 
@@ -606,14 +562,11 @@ open_disk(char *file)
 
 	if (sd->sd_list_len > sd->diskset_header->disk_num) {
 		error(INFO, "sadump: too many diskset arguments; "
-					"this diskset consists of %d disks\n",
-					sd->diskset_header->disk_num);
+		      "this diskset consists of %d disks\n", sd->diskset_header->disk_num);
 		return FALSE;
 	}
 
-	sd->sd_list = realloc(sd->sd_list,
-						sd->sd_list_len *
-						sizeof(struct sadump_diskset_data *));
+	sd->sd_list = realloc(sd->sd_list, sd->sd_list_len * sizeof(struct sadump_diskset_data *));
 	if (!sd->sd_list) {
 		if (CRASHDEBUG(1)) {
 			error(INFO, "sadump: cannot malloc diskset list buffer\n");
@@ -647,14 +600,13 @@ int is_sadump(char *file)
 
 		if (!(sd->flags & SADUMP_DISKSET)) {
 			if (CRASHDEBUG(1))
-				error(INFO, "sadump: does not support multiple"
-							" file formats\n");
-			(void) sadump_cleanup_sadump_data();
+				error(INFO, "sadump: does not support multiple" " file formats\n");
+			(void)sadump_cleanup_sadump_data();
 			return FALSE;
 		}
 
 		if (!open_disk(file) || !add_disk(file)) {
-			(void) sadump_cleanup_sadump_data();
+			(void)sadump_cleanup_sadump_data();
 			return FALSE;
 		}
 
@@ -672,7 +624,7 @@ int sadump_is_diskset(void)
 	if (!SADUMP_VALID())
 		return FALSE;
 
-	return !!(sd->flags & SADUMP_DISKSET);
+	return ! !(sd->flags & SADUMP_DISKSET);
 }
 
 uint sadump_page_size(void)
@@ -684,37 +636,32 @@ uint sadump_page_size(void)
  * Translate physical address in paddr to PFN number. This means normally that
  * we just shift paddr by some constant.
  */
-static uint64_t
-paddr_to_pfn(physaddr_t paddr)
+static uint64_t paddr_to_pfn(physaddr_t paddr)
 {
 	return paddr >> sd->block_shift;
 }
 
-static inline int
-is_set_bit(char *bitmap, uint64_t pfn)
+static inline int is_set_bit(char *bitmap, uint64_t pfn)
 {
 	ulong index, bit;
 
 	index = pfn >> 3;
 	bit = pfn & 7;
 
-	return !!(bitmap[index] & (1UL << bit));
+	return ! !(bitmap[index] & (1UL << bit));
 }
 
-static inline int
-page_is_ram(uint64_t nr)
+static inline int page_is_ram(uint64_t nr)
 {
 	return is_set_bit(sd->bitmap, nr);
 }
 
-static inline int
-page_is_dumpable(uint64_t nr)
+static inline int page_is_dumpable(uint64_t nr)
 {
 	return is_set_bit(sd->dumpable_bitmap, nr);
 }
 
-static int
-lookup_diskset(uint64_t whole_offset, int *diskid, uint64_t *disk_offset)
+static int lookup_diskset(uint64_t whole_offset, int *diskid, uint64_t * disk_offset)
 {
 	uint64_t offset = whole_offset;
 	int i;
@@ -750,23 +697,21 @@ int read_sadump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 	int dfd;
 
 	if (sd->flags & SADUMP_KDUMP_BACKUP &&
-			paddr >= sd->backup_src_start &&
-			paddr < sd->backup_src_start + sd->backup_src_size) {
+	    paddr >= sd->backup_src_start && paddr < sd->backup_src_start + sd->backup_src_size) {
 		ulong orig_paddr;
 
 		orig_paddr = paddr;
 		paddr += sd->backup_offset - sd->backup_src_start;
 
 		if (CRASHDEBUG(1))
-			error(INFO, "sadump: kdump backup region: %#llx => %#llx\n",
-						orig_paddr, paddr);
+			error(INFO, "sadump: kdump backup region: %#llx => %#llx\n", orig_paddr, paddr);
 
 	}
 
 	pfn = paddr_to_pfn(paddr);
 
-	curpaddr = paddr & ~((physaddr_t)(sd->block_size-1));
-	page_offset = paddr & ((physaddr_t)(sd->block_size-1));
+	curpaddr = paddr & ~((physaddr_t) (sd->block_size - 1));
+	page_offset = paddr & ((physaddr_t) (sd->block_size - 1));
 
 	if ((pfn >= sd->dump_header->max_mapnr) || !page_is_ram(pfn))
 		return SEEK_ERROR;
@@ -812,7 +757,7 @@ int write_sadump(int fd, void *bufptr, int cnt, ulong addr, physaddr_t paddr)
 	return 0;
 }
 
-int sadump_init(char *unused, FILE *fptr)
+int sadump_init(char *unused, FILE * fptr)
 {
 	if (!SADUMP_VALID())
 		return FALSE;
@@ -830,19 +775,18 @@ ulong get_sadump_switch_stack(ulong task)
 	return 0;
 }
 
-static struct tm *
-efi_time_t_to_tm(const efi_time_t *e)
+static struct tm *efi_time_t_to_tm(const efi_time_t * e)
 {
 	static struct tm t;
 	time_t ti;
 
 	memset(&t, 0, sizeof(t));
 
-	t.tm_sec  = e->second;
-	t.tm_min  = e->minute;
+	t.tm_sec = e->second;
+	t.tm_min = e->minute;
 	t.tm_hour = e->hour;
 	t.tm_mday = e->day;
-	t.tm_mon  = e->month - 1;
+	t.tm_mon = e->month - 1;
 	t.tm_year = e->year - 1900;
 
 	if (e->timezone != EFI_UNSPECIFIED_TIMEZONE)
@@ -852,27 +796,24 @@ efi_time_t_to_tm(const efi_time_t *e)
 		error(INFO, "sadump: timezone information is missing\n");
 
 	ti = mktime(&t);
-	if (ti == (time_t)-1)
+	if (ti == (time_t) - 1)
 		return &t;
 
 	return localtime_r(&ti, &t);
 }
 
-static char *
-guid_to_str(efi_guid_t *guid, char *buf, size_t buflen)
+static char *guid_to_str(efi_guid_t * guid, char *buf, size_t buflen)
 {
 	snprintf(buf, buflen,
 		 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		 guid->data1, guid->data2, guid->data3,
 		 guid->data4[0], guid->data4[1], guid->data4[2],
-		 guid->data4[3], guid->data4[4], guid->data4[5],
-		 guid->data4[6], guid->data4[7]);
+		 guid->data4[3], guid->data4[4], guid->data4[5], guid->data4[6], guid->data4[7]);
 
 	return buf;
 }
 
-static int
-verify_magic_number(uint32_t magicnum[DUMP_PART_HEADER_MAGICNUM_SIZE])
+static int verify_magic_number(uint32_t magicnum[DUMP_PART_HEADER_MAGICNUM_SIZE])
 {
 	int i;
 
@@ -898,7 +839,7 @@ int sadump_free_memory(void)
  *  the diskdump_data structure contents and perhaps the sadump header
  *  data.
  */
-int sadump_memory_dump(FILE *fp)
+int sadump_memory_dump(FILE * fp)
 {
 	struct sadump_part_header *sph;
 	struct sadump_disk_set_header *sdh;
@@ -922,19 +863,21 @@ int sadump_memory_dump(FILE *fp)
 	if (sd->flags & SADUMP_KDUMP_BACKUP)
 		fprintf(fp, "%sSADUMP_KDUMP_BACKUP", others++ ? "|" : "");
 	fprintf(fp, ") \n");
-				fprintf(fp, "               dfd: %d\n", sd->dfd);
-				fprintf(fp, "      machine_type: %d ", sd->machine_type);
-	switch (sd->machine_type)
-	{
+	fprintf(fp, "               dfd: %d\n", sd->dfd);
+	fprintf(fp, "      machine_type: %d ", sd->machine_type);
+	switch (sd->machine_type) {
 	case EM_386:
-		fprintf(fp, "(EM_386)\n"); break;
+		fprintf(fp, "(EM_386)\n");
+		break;
 	case EM_X86_64:
-		fprintf(fp, "(EM_X86_64)\n"); break;
+		fprintf(fp, "(EM_X86_64)\n");
+		break;
 	default:
-		fprintf(fp, "(unknown)\n"); break;
+		fprintf(fp, "(unknown)\n");
+		break;
 	}
 
-				fprintf(fp, "\n            header: %lx\n", (ulong)sd->header);
+	fprintf(fp, "\n            header: %lx\n", (ulong) sd->header);
 	sph = sd->header;
 	fprintf(fp, "          signature1: %x\n", sph->signature1);
 	fprintf(fp, "          signature2: %x\n", sph->signature2);
@@ -946,22 +889,19 @@ int sadump_memory_dump(FILE *fp)
 	fprintf(fp, "           sadump_id: %s\n", guid_to_str(&sph->sadump_id, guid, sizeof(guid)));
 	fprintf(fp, "         disk_set_id: %s\n", guid_to_str(&sph->disk_set_id, guid, sizeof(guid)));
 	fprintf(fp, "              vol_id: %s\n", guid_to_str(&sph->vol_id, guid, sizeof(guid)));
-	fprintf(fp, "          time_stamp: %s\n",
-		strip_linefeeds(asctime(efi_time_t_to_tm(&sph->time_stamp))));
+	fprintf(fp, "          time_stamp: %s\n", strip_linefeeds(asctime(efi_time_t_to_tm(&sph->time_stamp))));
 	fprintf(fp, "        set_disk_set: %u\n", sph->set_disk_set);
 	fprintf(fp, "             reserve: %u\n", sph->reserve);
-	fprintf(fp, "         used_device: %llu\n", (ulonglong)sph->used_device);
-	fprintf(fp, "            magicnum: %s\n",
-		verify_magic_number(sph->magicnum)
+	fprintf(fp, "         used_device: %llu\n", (ulonglong) sph->used_device);
+	fprintf(fp, "            magicnum: %s\n", verify_magic_number(sph->magicnum)
 		? "(valid)" : "(invalid)");
 
-				fprintf(fp, "\n       dump header: %lx\n", (ulong)sd->dump_header);
+	fprintf(fp, "\n       dump header: %lx\n", (ulong) sd->dump_header);
 	sh = sd->dump_header;
 	fprintf(fp, "           signature: %s\n", sh->signature);
 	fprintf(fp, "      header_version: %u\n", sh->header_version);
 	fprintf(fp, "             reserve: %u\n", sh->reserve);
-	fprintf(fp, "           timestamp: %s\n",
-		strip_linefeeds(asctime(efi_time_t_to_tm(&sh->timestamp))));
+	fprintf(fp, "           timestamp: %s\n", strip_linefeeds(asctime(efi_time_t_to_tm(&sh->timestamp))));
 	fprintf(fp, "              status: %u\n", sh->status);
 	fprintf(fp, "            compress: %u\n", sh->compress);
 	fprintf(fp, "          block_size: %u\n", sh->block_size);
@@ -993,18 +933,16 @@ int sadump_memory_dump(FILE *fp)
 		fprintf(fp, "\n                size: %u\n", size);
 		for (aid = 0; aid < sh->nr_cpus; ++aid) {
 			if (!read_device(&as, sizeof(as), &offset)) {
-				error(INFO, "sadump: cannot read sub header "
-							"apic_id\n");
+				error(INFO, "sadump: cannot read sub header " "apic_id\n");
 				return FALSE;
 			}
 			fprintf(fp, "          "
 				"apic_id[%u]: ApicId %llu: Ldr: %llu\n",
-				aid, (ulonglong)as.ApicId, (ulonglong)as.Ldr);
+				aid, (ulonglong) as.ApicId, (ulonglong) as.Ldr);
 		}
 		for (aid = 0; aid < sh->nr_cpus; ++aid) {
 			if (!read_device(&scs, sizeof(scs), &offset)) {
-				error(INFO, "sadump: cannot read sub header "
-							"cpu_state\n");
+				error(INFO, "sadump: cannot read sub header " "cpu_state\n");
 				return FALSE;
 			}
 			if (memcmp(&scs, &zero, sizeof(scs)) != 0) {
@@ -1015,29 +953,28 @@ int sadump_memory_dump(FILE *fp)
 	} else
 		fprintf(fp, "(n/a)\n");
 
-				fprintf(fp, "\n   disk set header: %lx ", (ulong)sd->diskset_header);
+	fprintf(fp, "\n   disk set header: %lx ", (ulong) sd->diskset_header);
 	if ((sdh = sd->diskset_header)) {
 		fprintf(fp, "\ndisk_set_header_size: %u\n", sdh->disk_set_header_size);
 		fprintf(fp, "            disk_num: %u\n", sdh->disk_num);
-		fprintf(fp, "       disk_set_size: %llu\n", (ulonglong)sdh->disk_set_size);
+		fprintf(fp, "       disk_set_size: %llu\n", (ulonglong) sdh->disk_set_size);
 		for (i = 0; i < sdh->disk_num - 1; ++i) {
 			struct sadump_volume_info *vol = &sdh->vol_info[i];
 
 			fprintf(fp, "         vol_info[%d]: \n", i);
 			fprintf(fp, "                     id: %s\n", guid_to_str(&vol->id, guid, sizeof(guid)));
-			fprintf(fp, "               vol_size: %llu\n", (ulonglong)vol->vol_size);
+			fprintf(fp, "               vol_size: %llu\n", (ulonglong) vol->vol_size);
 			fprintf(fp, "                 status: %u\n", vol->status);
 			fprintf(fp, "             cache_size: %u\n", vol->cache_size);
 		}
 	} else
 		fprintf(fp, "(n/a)\n");
 
-				fprintf(fp, "\n      media header: %lx ", (ulong)sd->media_header);
+	fprintf(fp, "\n      media header: %lx ", (ulong) sd->media_header);
 	if ((smh = sd->media_header)) {
 		fprintf(fp, "\n           sadump_id: %s\n", guid_to_str(&smh->sadump_id, guid, sizeof(guid)));
 		fprintf(fp, "         disk_set_id: %s\n", guid_to_str(&smh->disk_set_id, guid, sizeof(guid)));
-		fprintf(fp, "          time_stamp: %s\n",
-			strip_linefeeds(asctime(efi_time_t_to_tm(&smh->time_stamp))));
+		fprintf(fp, "          time_stamp: %s\n", strip_linefeeds(asctime(efi_time_t_to_tm(&smh->time_stamp))));
 		fprintf(fp, "      sequential_num: %d\n", smh->sequential_num);
 		fprintf(fp, "           term_cord: %d\n", smh->term_cord);
 		fprintf(fp, "disk_set_header_size: %d\n", smh->disk_set_header_size);
@@ -1046,20 +983,20 @@ int sadump_memory_dump(FILE *fp)
 	} else
 		fprintf(fp, "(n/a)\n");
 
-				fprintf(fp, "\n            bitmap: %lx\n", (ulong)sd->bitmap);
-				fprintf(fp, "   dumpable_bitmap: %lx\n", (ulong)sd->dumpable_bitmap);
-				fprintf(fp, "    sub_hdr_offset: %lx\n", (ulong)sd->sub_hdr_offset);
-				fprintf(fp, "smram_cpu_state_size: %lx\n", (ulong)sd->smram_cpu_state_size);
-				fprintf(fp, "       data_offset: %lx\n", sd->data_offset);
-				fprintf(fp, "        block_size: %d\n", sd->block_size);
-				fprintf(fp, "       block_shift: %d\n", sd->block_shift);
-	fprintf(fp, "          page_buf: %lx\n", (ulong)sd->page_buf);
-	fprintf(fp, "       block_table: %lx\n", (ulong)sd->block_table);
+	fprintf(fp, "\n            bitmap: %lx\n", (ulong) sd->bitmap);
+	fprintf(fp, "   dumpable_bitmap: %lx\n", (ulong) sd->dumpable_bitmap);
+	fprintf(fp, "    sub_hdr_offset: %lx\n", (ulong) sd->sub_hdr_offset);
+	fprintf(fp, "smram_cpu_state_size: %lx\n", (ulong) sd->smram_cpu_state_size);
+	fprintf(fp, "       data_offset: %lx\n", sd->data_offset);
+	fprintf(fp, "        block_size: %d\n", sd->block_size);
+	fprintf(fp, "       block_shift: %d\n", sd->block_shift);
+	fprintf(fp, "          page_buf: %lx\n", (ulong) sd->page_buf);
+	fprintf(fp, "       block_table: %lx\n", (ulong) sd->block_table);
 	fprintf(fp, "       sd_list_len: %d\n", sd->sd_list_len);
-	fprintf(fp, "           sd_list: %lx\n", (ulong)sd->sd_list);
+	fprintf(fp, "           sd_list: %lx\n", (ulong) sd->sd_list);
 	fprintf(fp, "  backup_src_start: %llx\n", sd->backup_src_start);
 	fprintf(fp, "   backup_src_size: %lx\n", sd->backup_src_size);
-	fprintf(fp, "     backup_offset: %llx\n", (ulonglong)sd->backup_src_size);
+	fprintf(fp, "     backup_offset: %llx\n", (ulonglong) sd->backup_src_size);
 
 	for (i = 0; i < sd->sd_list_len; ++i) {
 		struct sadump_diskset_data *sdd = sd->sd_list[i];
@@ -1068,7 +1005,7 @@ int sadump_memory_dump(FILE *fp)
 		fprintf(fp, "            filename: %s\n", sdd->filename);
 		fprintf(fp, "                 dfd: %d\n", sdd->dfd);
 
-		fprintf(fp, "              header: %lx\n", (ulong)sdd->header);
+		fprintf(fp, "              header: %lx\n", (ulong) sdd->header);
 		sph = sdd->header;
 		fprintf(fp, "            signature1: %x\n", sph->signature1);
 		fprintf(fp, "            signature2: %x\n", sph->signature2);
@@ -1084,9 +1021,8 @@ int sadump_memory_dump(FILE *fp)
 			strip_linefeeds(asctime(efi_time_t_to_tm(&sph->time_stamp))));
 		fprintf(fp, "          set_disk_set: %u\n", sph->set_disk_set);
 		fprintf(fp, "               reserve: %u\n", sph->reserve);
-		fprintf(fp, "           used_device: %llu\n", (ulonglong)sph->used_device);
-		fprintf(fp, "              magicnum: %s\n",
-			verify_magic_number(sph->magicnum)
+		fprintf(fp, "           used_device: %llu\n", (ulonglong) sph->used_device);
+		fprintf(fp, "              magicnum: %s\n", verify_magic_number(sph->magicnum)
 			? "(valid)" : "(invalid)");
 
 		fprintf(fp, "         data_offset: %lx\n", sdd->data_offset);
@@ -1095,8 +1031,7 @@ int sadump_memory_dump(FILE *fp)
 	return TRUE;
 }
 
-static ulong
-per_cpu_ptr(ulong ptr, int cpu)
+static ulong per_cpu_ptr(ulong ptr, int cpu)
 {
 	if (cpu < 0 || cpu >= kt->cpus)
 		return 0UL;
@@ -1111,8 +1046,7 @@ per_cpu_ptr(ulong ptr, int cpu)
 		ulong __per_cpu_load;
 
 		readmem(symbol_value("__per_cpu_load"), KVADDR,
-			&__per_cpu_load, sizeof(__per_cpu_load),
-			"__per_cpu_load", FAULT_ON_ERROR);
+			&__per_cpu_load, sizeof(__per_cpu_load), "__per_cpu_load", FAULT_ON_ERROR);
 
 		if (kt->__per_cpu_offset[cpu] == __per_cpu_load)
 			return 0UL;
@@ -1126,8 +1060,7 @@ per_cpu_ptr(ulong ptr, int cpu)
 	return ptr + kt->__per_cpu_offset[cpu];
 }
 
-static ulong
-early_per_cpu_ptr(char *symbol, struct syment *sym, int cpu)
+static ulong early_per_cpu_ptr(char *symbol, struct syment *sym, int cpu)
 {
 	char sym_early_ptr[BUFSIZE], sym_early_map[BUFSIZE];
 	ulong early_ptr;
@@ -1147,16 +1080,13 @@ early_per_cpu_ptr(char *symbol, struct syment *sym, int cpu)
 	if (!symbol_exists(sym_early_ptr) || !symbol_exists(sym_early_map))
 		return 0UL;
 
-	readmem(symbol_value(sym_early_ptr), KVADDR, &early_ptr,
-		sizeof(early_ptr), sym_early_ptr, FAULT_ON_ERROR);
+	readmem(symbol_value(sym_early_ptr), KVADDR, &early_ptr, sizeof(early_ptr), sym_early_ptr, FAULT_ON_ERROR);
 
-	return early_ptr
-		? symbol_value(sym_early_map)+cpu*sizeof(uint16_t)
-		: per_cpu_ptr(sym->value, cpu);
+	return early_ptr ? symbol_value(sym_early_map) + cpu * sizeof(uint16_t)
+	    : per_cpu_ptr(sym->value, cpu);
 }
 
-static ulong
-legacy_per_cpu_ptr(ulong ptr, int cpu)
+static ulong legacy_per_cpu_ptr(ulong ptr, int cpu)
 {
 	ulong addr;
 
@@ -1166,8 +1096,7 @@ legacy_per_cpu_ptr(ulong ptr, int cpu)
 	if (cpu < 0 || cpu >= kt->cpus)
 		return 0UL;
 
-	if (!readmem(~ptr + cpu * sizeof(ulong), KVADDR, &addr, sizeof(ulong),
-				 "search percpu_data", FAULT_ON_ERROR))
+	if (!readmem(~ptr + cpu * sizeof(ulong), KVADDR, &addr, sizeof(ulong), "search percpu_data", FAULT_ON_ERROR))
 		return 0UL;
 
 	return addr;
@@ -1178,8 +1107,7 @@ legacy_per_cpu_ptr(ulong ptr, int cpu)
  * kdump at crash. If register values has not been saved yet, set 0 to
  * eip and esp instead.
  */
-static int
-get_prstatus_from_crash_notes(int cpu, char *prstatus)
+static int get_prstatus_from_crash_notes(int cpu, char *prstatus)
 {
 	ulong crash_notes, crash_notes_ptr, percpu_addr;
 	char *prstatus_ptr, *note_buf, *zero_buf, *name;
@@ -1197,27 +1125,24 @@ get_prstatus_from_crash_notes(int cpu, char *prstatus)
 
 	crash_notes = symbol_value("crash_notes");
 
-	readmem(crash_notes, KVADDR, &crash_notes_ptr, sizeof(ulong),
-		"dereference crash_notes", FAULT_ON_ERROR);
+	readmem(crash_notes, KVADDR, &crash_notes_ptr, sizeof(ulong), "dereference crash_notes", FAULT_ON_ERROR);
 
 	if (!crash_notes_ptr) {
 		if (CRASHDEBUG(1))
-			error(INFO,
-						"sadump: buffer for crash_notes is NULL\n");
+			error(INFO, "sadump: buffer for crash_notes is NULL\n");
 		return FALSE;
 	}
 
 	percpu_addr = VALID_STRUCT(percpu_data)
-		? legacy_per_cpu_ptr(crash_notes_ptr, cpu)
-		: per_cpu_ptr(crash_notes_ptr, cpu);
+	    ? legacy_per_cpu_ptr(crash_notes_ptr, cpu)
+	    : per_cpu_ptr(crash_notes_ptr, cpu);
 
 	zero_buf = GETBUF(SIZE(note_buf));
 	BZERO(zero_buf, SIZE(note_buf));
 
 	note_buf = GETBUF(SIZE(note_buf));
 
-	readmem(percpu_addr, KVADDR, note_buf, SIZE(note_buf),
-		"read crash_notes", FAULT_ON_ERROR);
+	readmem(percpu_addr, KVADDR, note_buf, SIZE(note_buf), "read crash_notes", FAULT_ON_ERROR);
 
 	if (memcmp(note_buf, zero_buf, SIZE(note_buf)) == 0)
 		return FALSE;
@@ -1225,34 +1150,30 @@ get_prstatus_from_crash_notes(int cpu, char *prstatus)
 	if (BITS64()) {
 		Elf64_Nhdr *note64;
 
-		note64 = (Elf64_Nhdr *)note_buf;
-		buf = (uint32_t *)note_buf;
+		note64 = (Elf64_Nhdr *) note_buf;
+		buf = (uint32_t *) note_buf;
 		name = (char *)(note64 + 1);
 
 		if (note64->n_type != NT_PRSTATUS ||
-				note64->n_namesz != strlen("CORE") + 1 ||
-				strncmp(name, "CORE", note64->n_namesz) ||
-				note64->n_descsz != SIZE(elf_prstatus))
+		    note64->n_namesz != strlen("CORE") + 1 ||
+		    strncmp(name, "CORE", note64->n_namesz) || note64->n_descsz != SIZE(elf_prstatus))
 			return FALSE;
 
-		prstatus_ptr = (char *)(buf + (sizeof(*note64) + 3) / 4 +
-					(note64->n_namesz + 3) / 4);
+		prstatus_ptr = (char *)(buf + (sizeof(*note64) + 3) / 4 + (note64->n_namesz + 3) / 4);
 
 	} else {
 		Elf32_Nhdr *note32;
 
-		note32 = (Elf32_Nhdr *)note_buf;
-		buf = (uint32_t *)note_buf;
+		note32 = (Elf32_Nhdr *) note_buf;
+		buf = (uint32_t *) note_buf;
 		name = (char *)(note32 + 1);
 
 		if ((note32->n_type != NT_PRSTATUS) &&
-				(note32->n_namesz != strlen("CORE") + 1 ||
-				 strncmp(name, "CORE", note32->n_namesz) ||
-				 note32->n_descsz != SIZE(elf_prstatus)))
+		    (note32->n_namesz != strlen("CORE") + 1 ||
+		     strncmp(name, "CORE", note32->n_namesz) || note32->n_descsz != SIZE(elf_prstatus)))
 			return FALSE;
 
-		prstatus_ptr = (char *)(buf + (sizeof(*note32) + 3) / 4 +
-					(note32->n_namesz + 3) / 4);
+		prstatus_ptr = (char *)(buf + (sizeof(*note32) + 3) / 4 + (note32->n_namesz + 3) / 4);
 
 	}
 
@@ -1261,33 +1182,25 @@ get_prstatus_from_crash_notes(int cpu, char *prstatus)
 	return TRUE;
 }
 
-int
-sadump_get_smram_cpu_state(int apicid,
-				 struct sadump_smram_cpu_state *smram)
+int sadump_get_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *smram)
 {
 	ulong offset;
 
-	if (!sd->sub_hdr_offset || !sd->smram_cpu_state_size ||
-			apicid >= sd->dump_header->nr_cpus)
+	if (!sd->sub_hdr_offset || !sd->smram_cpu_state_size || apicid >= sd->dump_header->nr_cpus)
 		return FALSE;
 
-	offset = sd->sub_hdr_offset + sizeof(uint32_t) +
-		sd->dump_header->nr_cpus * sizeof(struct sadump_apic_state);
+	offset = sd->sub_hdr_offset + sizeof(uint32_t) + sd->dump_header->nr_cpus * sizeof(struct sadump_apic_state);
 
-	if (lseek(sd->dfd, offset + apicid * sd->smram_cpu_state_size,
-			SEEK_SET) == failed)
-		error(FATAL,
-					"sadump: cannot lseek smram cpu state in dump sub header\n");
+	if (lseek(sd->dfd, offset + apicid * sd->smram_cpu_state_size, SEEK_SET) == failed)
+		error(FATAL, "sadump: cannot lseek smram cpu state in dump sub header\n");
 
 	if (read(sd->dfd, smram, sd->smram_cpu_state_size) != sd->smram_cpu_state_size)
-		error(FATAL, "sadump: cannot read smram cpu state in dump sub "
-					"header\n");
+		error(FATAL, "sadump: cannot read smram cpu state in dump sub " "header\n");
 
 	return TRUE;
 }
 
-static void
-display_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *s)
+static void display_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *s)
 {
 	fprintf(fp,
 		"APIC ID: %d\n"
@@ -1311,25 +1224,23 @@ display_smram_cpu_state(int apicid, struct sadump_smram_cpu_state *s)
 		"    IoMisc: %08x LdtInfo: %08x\n"
 		"    IoInstructionRestart: %04x AutoHaltRestart: %04x\n",
 		apicid,
-		(ulonglong)s->Rip, s->RspUpper, s->RspLower, s->RbpUpper, s->RbpLower,
-		s->RaxUpper, s->RaxLower, s->RbxUpper, s->RbxLower, s->RcxUpper, s->RcxLower,
-		s->RdxUpper, s->RdxLower, s->RsiUpper, s->RsiLower, s->RdiUpper, s->RdiLower,
-		s->R8Upper, s->R8Lower,	s->R9Upper, s->R9Lower,	s->R10Upper, s->R10Lower,
-		s->R11Upper, s->R11Lower, s->R12Upper, s->R12Lower, s->R13Upper, s->R13Lower,
+		(ulonglong) s->Rip, s->RspUpper, s->RspLower, s->RbpUpper,
+		s->RbpLower, s->RaxUpper, s->RaxLower, s->RbxUpper,
+		s->RbxLower, s->RcxUpper, s->RcxLower, s->RdxUpper,
+		s->RdxLower, s->RsiUpper, s->RsiLower, s->RdiUpper,
+		s->RdiLower, s->R8Upper, s->R8Lower, s->R9Upper, s->R9Lower,
+		s->R10Upper, s->R10Lower, s->R11Upper, s->R11Lower,
+		s->R12Upper, s->R12Lower, s->R13Upper, s->R13Lower,
 		s->R14Upper, s->R14Lower, s->R15Upper, s->R15Lower,
-		s->SmmRevisionId, s->Smbase,
-		s->Cs, s->Ds, s->Ss, s->Es, s->Fs, s->Gs,
-		(ulonglong)s->Cr0, (ulonglong)s->Cr3, s->Cr4,
-		s->GdtUpper, s->GdtLower, s->LdtUpper, s->LdtLower, s->IdtUpper, s->IdtLower,
-		s->GdtLimit, s->LdtLimit, s->IdtLimit,
-		s->Ldtr, s->Tr, (ulonglong)s->Rflags,
-		(ulonglong)s->Eptp, s->EptpSetting,
-		(ulonglong)s->Dr6, (ulonglong)s->Dr7,
-		(ulonglong)s->Ia32Efer,
-		s->IoMemAddrUpper, s->IoMemAddrLower, (ulonglong)s->IoEip,
-		s->IoMisc, s->LdtInfo,
-		s->IoInstructionRestart,
-		s->AutoHaltRestart);
+		s->SmmRevisionId, s->Smbase, s->Cs, s->Ds, s->Ss, s->Es, s->Fs,
+		s->Gs, (ulonglong) s->Cr0, (ulonglong) s->Cr3, s->Cr4,
+		s->GdtUpper, s->GdtLower, s->LdtUpper, s->LdtLower,
+		s->IdtUpper, s->IdtLower, s->GdtLimit, s->LdtLimit,
+		s->IdtLimit, s->Ldtr, s->Tr, (ulonglong) s->Rflags,
+		(ulonglong) s->Eptp, s->EptpSetting, (ulonglong) s->Dr6,
+		(ulonglong) s->Dr7, (ulonglong) s->Ia32Efer, s->IoMemAddrUpper,
+		s->IoMemAddrLower, (ulonglong) s->IoEip, s->IoMisc, s->LdtInfo,
+		s->IoInstructionRestart, s->AutoHaltRestart);
 }
 
 static int cpu_to_apicid(int cpu, int *apicid)
@@ -1339,28 +1250,24 @@ static int cpu_to_apicid(int cpu, int *apicid)
 	if (symbol_exists("bios_cpu_apicid")) {
 		uint8_t apicid_u8;
 
-		readmem(symbol_value("bios_cpu_apicid") + cpu*sizeof(uint8_t),
-			KVADDR, &apicid_u8, sizeof(uint8_t), "bios_cpu_apicid",
-			FAULT_ON_ERROR);
+		readmem(symbol_value("bios_cpu_apicid") + cpu * sizeof(uint8_t),
+			KVADDR, &apicid_u8, sizeof(uint8_t), "bios_cpu_apicid", FAULT_ON_ERROR);
 
 		*apicid = (int)apicid_u8;
 
 		if (CRASHDEBUG(1))
-			error(INFO, "sadump: apicid %u for cpu %d from "
-						"bios_cpu_apicid\n", apicid_u8, cpu);
+			error(INFO, "sadump: apicid %u for cpu %d from " "bios_cpu_apicid\n", apicid_u8, cpu);
 
 	} else if ((sym = per_cpu_symbol_search("x86_bios_cpu_apicid"))) {
 		uint16_t apicid_u16;
 
 		readmem(early_per_cpu_ptr("x86_bios_cpu_apicid", sym, cpu),
-			KVADDR, &apicid_u16, sizeof(uint16_t),
-			"x86_bios_cpu_apicid", FAULT_ON_ERROR);
+			KVADDR, &apicid_u16, sizeof(uint16_t), "x86_bios_cpu_apicid", FAULT_ON_ERROR);
 
 		*apicid = (int)apicid_u16;
 
 		if (CRASHDEBUG(1))
-			error(INFO, "sadump: apicid %u for cpu %d from "
-						"x86_bios_cpu_apicid\n", apicid_u16, cpu);
+			error(INFO, "sadump: apicid %u for cpu %d from " "x86_bios_cpu_apicid\n", apicid_u16, cpu);
 
 	} else {
 		if (CRASHDEBUG(1))
@@ -1372,8 +1279,7 @@ static int cpu_to_apicid(int cpu, int *apicid)
 	return TRUE;
 }
 
-static int
-get_sadump_smram_cpu_state(int cpu, struct sadump_smram_cpu_state *smram)
+static int get_sadump_smram_cpu_state(int cpu, struct sadump_smram_cpu_state *smram)
 {
 	int apicid = 0;
 
@@ -1390,7 +1296,7 @@ get_sadump_smram_cpu_state(int cpu, struct sadump_smram_cpu_state *smram)
 	return TRUE;
 }
 
-void get_sadump_regs(struct bt_info *bt, ulong *ipp, ulong *spp)
+void get_sadump_regs(struct bt_info *bt, ulong * ipp, ulong * spp)
 {
 	ulong ip, sp;
 	struct sadump_smram_cpu_state smram;
@@ -1413,16 +1319,12 @@ void get_sadump_regs(struct bt_info *bt, ulong *ipp, ulong *spp)
 	prstatus = GETBUF(SIZE(elf_prstatus));
 
 	if (get_prstatus_from_crash_notes(cpu, prstatus)) {
-		ip = ULONG(prstatus +
-				 OFFSET(elf_prstatus_pr_reg) +
-				 (BITS64()
-					? OFFSET(user_regs_struct_rip)
-					: OFFSET(user_regs_struct_eip)));
-		sp = ULONG(prstatus +
-				 OFFSET(elf_prstatus_pr_reg) +
-				 (BITS64()
-					? OFFSET(user_regs_struct_rsp)
-					: OFFSET(user_regs_struct_eip)));
+		ip = ULONG(prstatus + OFFSET(elf_prstatus_pr_reg) + (BITS64()
+								     ? OFFSET(user_regs_struct_rip)
+								     : OFFSET(user_regs_struct_eip)));
+		sp = ULONG(prstatus + OFFSET(elf_prstatus_pr_reg) + (BITS64()
+								     ? OFFSET(user_regs_struct_rsp)
+								     : OFFSET(user_regs_struct_eip)));
 		if (ip || sp) {
 			*ipp = ip;
 			*spp = sp;
@@ -1432,26 +1334,23 @@ void get_sadump_regs(struct bt_info *bt, ulong *ipp, ulong *spp)
 
 	get_sadump_smram_cpu_state(cpu, &smram);
 	ip = smram.Rip;
-	sp = ((uint64_t)smram.RspUpper << 32) + smram.RspLower;
+	sp = ((uint64_t) smram.RspUpper << 32) + smram.RspLower;
 
 	if (is_kernel_text(ip) &&
-			(((sp >= GET_STACKBASE(bt->task)) &&
-				(sp < GET_STACKTOP(bt->task))) ||
-			 in_alternate_stack(bt->tc->processor, sp))) {
+	    (((sp >= GET_STACKBASE(bt->task)) &&
+	      (sp < GET_STACKTOP(bt->task))) || in_alternate_stack(bt->tc->processor, sp))) {
 		*ipp = ip;
 		*spp = sp;
 		bt->flags |= BT_KERNEL_SPACE;
 		return;
 	}
 
-	if (!is_kernel_text(ip) &&
-			in_user_stack(bt->tc->task, sp))
+	if (!is_kernel_text(ip) && in_user_stack(bt->tc->task, sp))
 		bt->flags |= BT_USER_SPACE;
 
 }
 
-void
-sadump_display_regs(int cpu, FILE *ofp)
+void sadump_display_regs(int cpu, FILE * ofp)
 {
 	struct sadump_smram_cpu_state smram;
 
@@ -1471,26 +1370,39 @@ sadump_display_regs(int cpu, FILE *ofp)
 			"    R10: %016llx  R11: %016llx  R12: %016llx\n"
 			"    R13: %016llx  R14: %016llx  R15: %016llx\n"
 			"    CS: %04x  SS: %04x\n",
-			(ulonglong)(smram.Rip),
-			(ulonglong)(((uint64_t)smram.RspUpper<<32)+smram.RspLower),
-			(ulonglong)(smram.Rflags),
-			(ulonglong)(((uint64_t)smram.RaxUpper<<32)+smram.RaxLower),
-			(ulonglong)(((uint64_t)smram.RbxUpper<<32)+smram.RbxLower),
-			(ulonglong)(((uint64_t)smram.RcxUpper<<32)+smram.RcxLower),
-			(ulonglong)(((uint64_t)smram.RdxUpper<<32)+smram.RdxLower),
-			(ulonglong)(((uint64_t)smram.RsiUpper<<32)+smram.RsiLower),
-			(ulonglong)(((uint64_t)smram.RdiUpper<<32)+smram.RdiLower),
-			(ulonglong)(((uint64_t)smram.RbpUpper<<32)+smram.RbpLower),
-			(ulonglong)(((uint64_t)smram.R8Upper<<32)+smram.R8Lower),
-			(ulonglong)(((uint64_t)smram.R9Upper<<32)+smram.R9Lower),
-			(ulonglong)(((uint64_t)smram.R10Upper<<32)+smram.R10Lower),
-			(ulonglong)(((uint64_t)smram.R11Upper<<32)+smram.R11Lower),
-			(ulonglong)(((uint64_t)smram.R12Upper<<32)+smram.R12Lower),
-			(ulonglong)(((uint64_t)smram.R13Upper<<32)+smram.R13Lower),
-			(ulonglong)(((uint64_t)smram.R14Upper<<32)+smram.R14Lower),
-			(ulonglong)(((uint64_t)smram.R15Upper<<32)+smram.R15Lower),
-			smram.Cs,
-			smram.Ss);
+			(ulonglong) (smram.Rip),
+			(ulonglong) (((uint64_t) smram.RspUpper << 32) +
+				     smram.RspLower),
+			(ulonglong) (smram.Rflags),
+			(ulonglong) (((uint64_t) smram.RaxUpper << 32) +
+				     smram.RaxLower),
+			(ulonglong) (((uint64_t) smram.RbxUpper << 32) +
+				     smram.RbxLower),
+			(ulonglong) (((uint64_t) smram.RcxUpper << 32) +
+				     smram.RcxLower),
+			(ulonglong) (((uint64_t) smram.RdxUpper << 32) +
+				     smram.RdxLower),
+			(ulonglong) (((uint64_t) smram.RsiUpper << 32) +
+				     smram.RsiLower),
+			(ulonglong) (((uint64_t) smram.RdiUpper << 32) +
+				     smram.RdiLower),
+			(ulonglong) (((uint64_t) smram.RbpUpper << 32) +
+				     smram.RbpLower),
+			(ulonglong) (((uint64_t) smram.R8Upper << 32) +
+				     smram.R8Lower),
+			(ulonglong) (((uint64_t) smram.R9Upper << 32) +
+				     smram.R9Lower),
+			(ulonglong) (((uint64_t) smram.R10Upper << 32) +
+				     smram.R10Lower),
+			(ulonglong) (((uint64_t) smram.R11Upper << 32) +
+				     smram.R11Lower),
+			(ulonglong) (((uint64_t) smram.R12Upper << 32) +
+				     smram.R12Lower),
+			(ulonglong) (((uint64_t) smram.R13Upper << 32) +
+				     smram.R13Lower),
+			(ulonglong) (((uint64_t) smram.R14Upper << 32) +
+				     smram.R14Lower),
+			(ulonglong) (((uint64_t) smram.R15Upper << 32) + smram.R15Lower), smram.Cs, smram.Ss);
 	}
 
 	if (machine_type("X86")) {
@@ -1499,28 +1411,25 @@ sadump_display_regs(int cpu, FILE *ofp)
 			"    DS:  %04x      ESI: %08llx  ES:  %04x      EDI: %08llx\n"
 			"    SS:  %04x      ESP: %08llx  EBP: %08llx  GS:  %04x\n"
 			"    CS:  %04x      EIP: %08llx  EFLAGS: %08llx\n",
-			(ulonglong)smram.RaxLower,
-			(ulonglong)smram.RbxLower,
-			(ulonglong)smram.RcxLower,
-			(ulonglong)smram.RdxLower,
+			(ulonglong) smram.RaxLower,
+			(ulonglong) smram.RbxLower,
+			(ulonglong) smram.RcxLower,
+			(ulonglong) smram.RdxLower,
 			smram.Ds & 0xffff,
-			(ulonglong)smram.RsiLower,
+			(ulonglong) smram.RsiLower,
 			smram.Es & 0xffff,
-			(ulonglong)smram.RdiLower,
+			(ulonglong) smram.RdiLower,
 			smram.Ss,
-			(ulonglong)smram.RspLower,
-			(ulonglong)smram.RbpLower,
-			smram.Gs,
-			smram.Cs,
-			(ulonglong)smram.Rip,
-			(ulonglong)smram.Rflags);
+			(ulonglong) smram.RspLower,
+			(ulonglong) smram.RbpLower,
+			smram.Gs, smram.Cs, (ulonglong) smram.Rip, (ulonglong) smram.Rflags);
 	}
 }
 
 /*
  * sadump does not save phys_base; it must resort to another way.
  */
-int sadump_phys_base(ulong *phys_base)
+int sadump_phys_base(ulong * phys_base)
 {
 	if (SADUMP_VALID()) {
 		if (CRASHDEBUG(1))
@@ -1541,9 +1450,8 @@ void sadump_show_diskset(void)
 	for (i = 0; i < sd->sd_list_len; ++i) {
 		char *filename = sd->sd_list[i]->filename;
 
-		fprintf(fp, "%s%s", i ? "              " : "",
-			filename);
-		if ((i+1) < sd->sd_list_len)
+		fprintf(fp, "%s%s", i ? "              " : "", filename);
+		if ((i + 1) < sd->sd_list_len)
 			fprintf(fp, "\n");
 	}
 }
@@ -1562,10 +1470,8 @@ static int block_table_init(void)
 
 	for (section = 0; section < max_section; ++section) {
 		if (section > 0)
-			block_table[section] = block_table[section-1];
-		for (pfn = section * SADUMP_PF_SECTION_NUM;
-				 pfn < (section + 1) * SADUMP_PF_SECTION_NUM;
-				 ++pfn)
+			block_table[section] = block_table[section - 1];
+		for (pfn = section * SADUMP_PF_SECTION_NUM; pfn < (section + 1) * SADUMP_PF_SECTION_NUM; ++pfn)
 			if (page_is_dumpable(pfn))
 				block_table[section]++;
 	}
@@ -1608,8 +1514,7 @@ void sadump_unset_zero_excluded(void)
 	sd->flags &= ~SADUMP_ZERO_EXCLUDED;
 }
 
-struct sadump_data *
-get_sadump_data(void)
+struct sadump_data *get_sadump_data(void)
 {
 	return sd;
 }

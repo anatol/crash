@@ -27,9 +27,9 @@
 
 /* definitions (this has to match with vmdump.h of lcrash */
 
-#define DUMP_MAGIC_S390     0xa8190173618f23fdULL  /* s390 magic number     */
+#define DUMP_MAGIC_S390     0xa8190173618f23fdULL	/* s390 magic number     */
 #define S390_DUMP_HEADER_SIZE     4096
-#define DUMP_ASM_MAGIC_NUMBER     0xdeaddeadULL    /* magic number            */
+#define DUMP_ASM_MAGIC_NUMBER     0xdeaddeadULL	/* magic number            */
 
 /*
  * Structure: s390_dump_header_t
@@ -38,55 +38,55 @@
  */
 
 typedef struct _s390_dump_header_s {
-				/* the dump magic number -- unique to verify dump is valid */
-				uint64_t             dh_magic_number;                    /* 0x000 */
+	/* the dump magic number -- unique to verify dump is valid */
+	uint64_t dh_magic_number;	/* 0x000 */
 
-				/* the version number of this dump */
-				uint32_t             dh_version;                         /* 0x008 */
+	/* the version number of this dump */
+	uint32_t dh_version;	/* 0x008 */
 
-				/* the size of this header (in case we can't read it) */
-				uint32_t             dh_header_size;                     /* 0x00c */
+	/* the size of this header (in case we can't read it) */
+	uint32_t dh_header_size;	/* 0x00c */
 
-				/* the level of this dump (just a header?) */
-				uint32_t             dh_dump_level;                      /* 0x010 */
+	/* the level of this dump (just a header?) */
+	uint32_t dh_dump_level;	/* 0x010 */
 
-				/* the size of a Linux memory page (4K, 8K, 16K, etc.) */
-				uint32_t             dh_page_size;                       /* 0x014 */
+	/* the size of a Linux memory page (4K, 8K, 16K, etc.) */
+	uint32_t dh_page_size;	/* 0x014 */
 
-				/* the size of all physical memory */
-				uint64_t             dh_memory_size;                     /* 0x018 */
+	/* the size of all physical memory */
+	uint64_t dh_memory_size;	/* 0x018 */
 
-				/* the start of physical memory */
-				uint64_t             dh_memory_start;                    /* 0x020 */
+	/* the start of physical memory */
+	uint64_t dh_memory_start;	/* 0x020 */
 
-				/* the end of physical memory */
-				uint64_t             dh_memory_end;                      /* 0x028 */
+	/* the end of physical memory */
+	uint64_t dh_memory_end;	/* 0x028 */
 
-				/* the number of pages in this dump specifically */
-				uint32_t             dh_num_pages;                       /* 0x030 */
+	/* the number of pages in this dump specifically */
+	uint32_t dh_num_pages;	/* 0x030 */
 
-				/* ensure that dh_tod and dh_cpu_id are 8 byte aligned */
-				uint32_t             dh_pad;                             /* 0x034 */
+	/* ensure that dh_tod and dh_cpu_id are 8 byte aligned */
+	uint32_t dh_pad;	/* 0x034 */
 
-				/* the time of the dump generation using stck */
-				uint64_t             dh_tod;                             /* 0x038 */
+	/* the time of the dump generation using stck */
+	uint64_t dh_tod;	/* 0x038 */
 
-				/* cpu id */
-				uint64_t             dh_cpu_id;                          /* 0x040 */
+	/* cpu id */
+	uint64_t dh_cpu_id;	/* 0x040 */
 
 	/* arch */
-	uint32_t             dh_arch;                            /* 0x048 */
+	uint32_t dh_arch;	/* 0x048 */
 
 	/* volume number */
-	uint32_t             dh_volnr;                           /* 0x04c */
+	uint32_t dh_volnr;	/* 0x04c */
 
 	/* build arch */
-	uint32_t             dh_build_arch;                      /* 0x050 */
+	uint32_t dh_build_arch;	/* 0x050 */
 
-				/* fill up to 4096 byte */
-				unsigned char        end_pad[0x1000-0x054];              /* 0x054 */
+	/* fill up to 4096 byte */
+	unsigned char end_pad[0x1000 - 0x054];	/* 0x054 */
 
-} __attribute__((packed))  s390_dump_header_t;
+} __attribute__ ((packed)) s390_dump_header_t;
 
 /*
  * Structure: s390_dump_end_marker_t
@@ -94,9 +94,9 @@ typedef struct _s390_dump_header_s {
  *            dump.
  */
 
-typedef struct _s390_dump_end_marker_{
-				char end_string[8];
-				unsigned long long end_time;
-} __attribute__((packed)) s390_dump_end_marker_t;
+typedef struct _s390_dump_end_marker_ {
+	char end_string[8];
+	unsigned long long end_time;
+} __attribute__ ((packed)) s390_dump_end_marker_t;
 
-#endif /* _ASM_VMDUMP_H */
+#endif				/* _ASM_VMDUMP_H */

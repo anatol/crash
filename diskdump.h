@@ -32,59 +32,58 @@
 #define DUMP_HEADER_COMPRESSED  8
 
 struct disk_dump_header {
-	char			signature[SIG_LEN];	/* = "DISKDUMP" */
-	int			header_version; /* Dump header version */
-	struct new_utsname	utsname;	/* copy of system_utsname */
-	struct timeval		timestamp;	/* Time stamp */
-	unsigned int		status; 	/* Above flags */
-	int			block_size;	/* Size of a block in byte */
-	int			sub_hdr_size;	/* Size of arch dependent
-							 header in blocks */
-	unsigned int		bitmap_blocks;	/* Size of Memory bitmap in
-							 block */
-	unsigned int		max_mapnr;	/* = max_mapnr */
-	unsigned int		total_ram_blocks;/* Number of blocks should be
-							 written */
-	unsigned int		device_blocks;	/* Number of total blocks in
-						 * the dump device */
-	unsigned int		written_blocks; /* Number of written blocks */
-	unsigned int		current_cpu;	/* CPU# which handles dump */
-	int			nr_cpus;	/* Number of CPUs */
-	struct task_struct	*tasks[0];
+	char signature[SIG_LEN];	/* = "DISKDUMP" */
+	int header_version;	/* Dump header version */
+	struct new_utsname utsname;	/* copy of system_utsname */
+	struct timeval timestamp;	/* Time stamp */
+	unsigned int status;	/* Above flags */
+	int block_size;		/* Size of a block in byte */
+	int sub_hdr_size;	/* Size of arch dependent
+				   header in blocks */
+	unsigned int bitmap_blocks;	/* Size of Memory bitmap in
+					   block */
+	unsigned int max_mapnr;	/* = max_mapnr */
+	unsigned int total_ram_blocks;	/* Number of blocks should be
+					   written */
+	unsigned int device_blocks;	/* Number of total blocks in
+					 * the dump device */
+	unsigned int written_blocks;	/* Number of written blocks */
+	unsigned int current_cpu;	/* CPU# which handles dump */
+	int nr_cpus;		/* Number of CPUs */
+	struct task_struct *tasks[0];
 };
 
 struct disk_dump_sub_header {
-	long		elf_regs;
+	long elf_regs;
 };
 
 struct kdump_sub_header {
-	unsigned long	phys_base;
-	int		dump_level;         /* header_version 1 and later */
-	int		split;              /* header_version 2 and later */
-	unsigned long	start_pfn;          /* header_version 2 and later */
-	unsigned long	end_pfn;            /* header_version 2 and later */
-	off_t		offset_vmcoreinfo;  /* header_version 3 and later */
-	unsigned long	size_vmcoreinfo;    /* header_version 3 and later */
-	off_t		offset_note;        /* header_version 4 and later */
-	unsigned long	size_note;          /* header_version 4 and later */
-	off_t		offset_eraseinfo;   /* header_version 5 and later */
-	unsigned long	size_eraseinfo;     /* header_version 5 and later */
+	unsigned long phys_base;
+	int dump_level;		/* header_version 1 and later */
+	int split;		/* header_version 2 and later */
+	unsigned long start_pfn;	/* header_version 2 and later */
+	unsigned long end_pfn;	/* header_version 2 and later */
+	off_t offset_vmcoreinfo;	/* header_version 3 and later */
+	unsigned long size_vmcoreinfo;	/* header_version 3 and later */
+	off_t offset_note;	/* header_version 4 and later */
+	unsigned long size_note;	/* header_version 4 and later */
+	off_t offset_eraseinfo;	/* header_version 5 and later */
+	unsigned long size_eraseinfo;	/* header_version 5 and later */
 };
 
 /* page flags */
-#define DUMP_DH_COMPRESSED_ZLIB    0x1   /* page is compressed with zlib */
-#define DUMP_DH_COMPRESSED_LZO     0x2   /* page is compressed with lzo */
-#define DUMP_DH_COMPRESSED_SNAPPY  0x4   /* page is compressed with snappy */
+#define DUMP_DH_COMPRESSED_ZLIB    0x1	/* page is compressed with zlib */
+#define DUMP_DH_COMPRESSED_LZO     0x2	/* page is compressed with lzo */
+#define DUMP_DH_COMPRESSED_SNAPPY  0x4	/* page is compressed with snappy */
 
 /* descriptor of each page for vmcore */
 typedef struct page_desc {
-	off_t			offset;		/* the offset of the page data*/
-	unsigned int		size;		/* the size of this dump page */
-	unsigned int		flags;		/* flags */
-	unsigned long long	page_flags;	/* page flags */
+	off_t offset;		/* the offset of the page data */
+	unsigned int size;	/* the size of this dump page */
+	unsigned int flags;	/* flags */
+	unsigned long long page_flags;	/* page flags */
 } page_desc_t;
 
 #define DISKDUMP_CACHED_PAGES	(16)
 #define PAGE_VALID		(0x1)	/* flags */
 #define DISKDUMP_VALID_PAGE(flags)	((flags) & PAGE_VALID)
-
